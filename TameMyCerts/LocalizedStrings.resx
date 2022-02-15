@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Events_MODULE_NOT_SUPPORTED" xml:space="preserve">
+    <value>The {0} policy module currently does not support standalone certification authorities.</value>
+  </data>
+  <data name="Events_PDEF_FAIL_INIT" xml:space="preserve">
+    <value>Error initializing Windows Default policy module:
+{0}</value>
+  </data>
+  <data name="Events_PDEF_FAIL_SHUTDOWN" xml:space="preserve">
+    <value>Shutting down Windows Default policy module failed:
+{0}</value>
+  </data>
+  <data name="Events_PDEF_FAIL_VERIFY" xml:space="preserve">
+    <value>Windows Default policy module was unable to verify request {0}:
+{1}</value>
+  </data>
+  <data name="Events_PDEF_SUCCESS_INIT" xml:space="preserve">
+    <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>
+  </data>
+  <data name="Events_POLICY_NOT_APPLICABLE" xml:space="preserve">
+    <value>Certificate template {0} used for Request {1} is configured to build subject from Active Directory, skipping.</value>
+  </data>
+  <data name="Events_POLICY_NOT_FOUND" xml:space="preserve">
+    <value>Unable to find policy file for {0}. Request {1} will get issued. Expected policy file name: "{2}"</value>
+  </data>
+  <data name="Events_REQUEST_DENIED" xml:space="preserve">
+    <value>Request {0} for {1} was denied because:
+{2}</value>
+  </data>
+  <data name="Events_REQUEST_DENIED_AUDIT" xml:space="preserve">
+    <value>Audit mode is enabled for {1}. Request {0} would get denied because:
+{2}</value>
+  </data>
+  <data name="Events_REQUEST_DENIED_NO_POLICY" xml:space="preserve">
+    <value>Unable to interpret policy from {0}. Request {1} will get denied.</value>
+  </data>
+  <data name="Events_REQUEST_DENIED_NO_TEMPLATE_INFO" xml:space="preserve">
+    <value>No certificate template information found for request {0}. The request will get denied.</value>
+  </data>
+  <data name="ReqVal_Err_Extract_From_Cmc" xml:space="preserve">
+    <value>Unable to extract inner PKCS#10 request from given CMC certificate request.</value>
+  </data>
+  <data name="ReqVal_Err_Extract_From_Pkcs7" xml:space="preserve">
+    <value>Unable to extract inner PKCS#10 request from given PKCS#7 certificate request.</value>
+  </data>
+  <data name="ReqVal_Err_Parse_Request" xml:space="preserve">
+    <value>Unable to parse the given certificate request. Request type was {0}.</value>
+  </data>
+  <data name="ReqVal_Key_Pair_Mismatch" xml:space="preserve">
+    <value>The certificate request uses an {0} key pair, but must use an {1} key pair.</value>
+  </data>
+  <data name="ReqVal_Key_Too_Small" xml:space="preserve">
+    <value>Key length of {0} Bits is less than the required minimum length of {1} Bits.</value>
+  </data>
+  <data name="ReqVal_Key_Too_Large" xml:space="preserve">
+    <value>Key length of {0} Bits is more than the allowed maximum length of {1} Bits.</value>
+  </data>
+  <data name="ReqVal_Err_Parse_SubjectDn" xml:space="preserve">
+    <value>Unable to parse the given subject distinguished name: {0}.</value>
+  </data>
+  <data name="ReqVal_Unsupported_San_Type" xml:space="preserve">
+    <value>The certificate request contains an unsupported Subject Alternative Name type with OID {0}.</value>
+  </data>
+  <data name="ReqVal_Unsupported_Extension_Dir_Attrs" xml:space="preserve">
+    <value>The certificate request contains the unsupported Subject Directory Attributes extension.</value>
+  </data>
+  <data name="ReqVal_Field_Missing" xml:space="preserve">
+    <value>The mandatory {0} field was not found in the request.</value>
+  </data>
+  <data name="ReqVal_Field_Count_Mismatch" xml:space="preserve">
+    <value>The {0} field was found {1} times, but is allowed only {2} times.</value>
+  </data>
+  <data name="ReqVal_Field_Not_Allowed" xml:space="preserve">
+    <value>The {0} field is not allowed.</value>
+  </data>
+  <data name="ReqVal_Field_Too_Long" xml:space="preserve">
+    <value>The value "{0}" for the {1} field exceeds the maximum allowed length of {2} characters.</value>
+  </data>
+  <data name="ReqVal_Field_Not_Defined" xml:space="preserve">
+    <value>No allowed patterns are defined for the {0} field.</value>
+  </data>
+  <data name="ReqVal_Err_Regex" xml:space="preserve">
+    <value>Unable to match pattern "{0}" with value "{1}" for the {2} field.</value>
+  </data>
+  <data name="ReqVal_No_Match" xml:space="preserve">
+    <value>The value "{0}" does not match any of the allowed patterns for the {1} field.</value>
+  </data>
+  <data name="ReqVal_Disallow_Match" xml:space="preserve">
+    <value>The value "{0}" does match the disallowed pattern {1} for the {2} field.</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="ReqVal_Field_Too_Short" xml:space="preserve">
+    <value>The value "{0}" for the {1} field deceeds of the minimum required length of {2} characters.</value>
+  </data>
+  <data name="Events_PDEF_REQUEST_DENIED" xml:space="preserve">
+    <value>Request {0} was denied by the Windows Default policy module.</value>
+  </data>
+</root>
