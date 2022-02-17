@@ -30,9 +30,9 @@ namespace TameMyCerts
     {
         private readonly string _appName;
         private readonly string _appVersion;
+        private readonly TemplateInfo _templateInfo = new TemplateInfo();
         private Logger _logger;
         private string _policyDirectory;
-        private TemplateInfo _templateInfo = new TemplateInfo();
         private dynamic _windowsDefaultPolicyModule;
 
         public Policy()
@@ -64,13 +64,13 @@ namespace TameMyCerts
 
         public void Initialize(string strConfig)
         {
-            // Load Settings from Registry
-            var configRoot =
-                $"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\{strConfig}";
+            const string windowsDefaultPolicyModuleGuid = "3B6654D0-C2C8-11D2-B313-00C04F79DC72";
+            const string configRoot =
+                "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration";
 
             // Initialize Event Log
             var logLevel = (int) Registry.GetValue(
-                configRoot,
+                $"{configRoot}\\{strConfig}",
                 "LogLevel",
                 CertSrv.CERTLOG_WARNING
             );
@@ -79,7 +79,7 @@ namespace TameMyCerts
 
             // Prevent the usage on a standalone CA
             var caType = (int) Registry.GetValue(
-                configRoot,
+                $"{configRoot}\\{strConfig}",
                 "CAType",
                 CertSrv.ENUM_STANDALONE_ROOTCA
             );
@@ -94,7 +94,7 @@ namespace TameMyCerts
 
             // Load Settings from Registry
             _policyDirectory = (string) Registry.GetValue(
-                $"{configRoot}\\PolicyModules\\{_appName}.Policy",
+                $"{configRoot}\\{strConfig}\\PolicyModules\\{_appName}.Policy",
                 "PolicyDirectory",
                 Path.GetTempPath()
             );
@@ -103,7 +103,7 @@ namespace TameMyCerts
             try
             {
                 var windowsDefaultPolicyModuleType = Type.GetTypeFromCLSID(
-                    new Guid("3B6654D0-C2C8-11D2-B313-00C04F79DC72"),
+                    new Guid(windowsDefaultPolicyModuleGuid),
                     true
                 );
 
@@ -136,9 +136,9 @@ namespace TameMyCerts
 
             certServerPolicy.SetContext(context);
 
-            var requestId = GetLongRequestProperty(ref certServerPolicy, "RequestId");
+            var requestId = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestId");
 
-            // Hand the request over to the default policy module
+            // Hand the request over to the Windows Default policy module
             try
             {
                 result = (int) _windowsDefaultPolicyModule.GetType().InvokeMember(
@@ -181,11 +181,10 @@ namespace TameMyCerts
 
             #region Additional Checks
 
-            // This retrieves the Oid of the Certificate Template which was used to build the Certificate
-            var templateOid = GetStringCertificateProperty(ref certServerPolicy, "CertificateTemplate");
+            var templateOid = certServerPolicy.GetStringCertificatePropertyOrDefault("CertificateTemplate");
 
             // Deny the request if no template info can be found (this should never happen though)
-            if (null == templateOid)
+            if (templateOid == null)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
 
@@ -195,7 +194,7 @@ namespace TameMyCerts
             var templateInfo = _templateInfo.GetTemplate(templateOid);
 
             // Deny the request if no template info can be found in local cache (this should never happen though)
-            if (null == templateInfo)
+            if (templateInfo == null)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
 
@@ -231,9 +230,9 @@ namespace TameMyCerts
 
                 return WinError.NTE_FAIL;
             }
-
-            var request = GetBinaryRequestProperty(ref certServerPolicy, "RawRequest");
-            var requestType = GetLongRequestProperty(ref certServerPolicy, "RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
+            
+            var request = certServerPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
+            var requestType = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
 
             // Verify the Certificate request against policy
             var validationResult =
@@ -276,194 +275,8 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
-            }
-        }
 
-        #endregion
-
-        #region Property retrieval functions
-
-        [DllImport(@"oleaut32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-        private static extern int VariantClear(IntPtr pvarg);
-
-        private DateTime GetDateCertificateProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetCertificateProperty(name, CertSrv.PROPTYPE_DATE, variantObjectPtr);
-                var result = (DateTime) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return new DateTime();
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private string GetStringCertificateProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetCertificateProperty(name, CertSrv.PROPTYPE_STRING, variantObjectPtr);
-                var result = (string) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private int GetLongCertificateProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetCertificateProperty(name, CertSrv.PROPTYPE_LONG, variantObjectPtr);
-                var result = (int) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return 0;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private byte[] GetBinaryCertificateProperty(ref CCertServerPolicy server, string name)
-        {
-            // https://blogs.msdn.microsoft.com/alejacma/2008/08/04/how-to-modify-an-interop-assembly-to-change-the-return-type-of-a-method-vb-net/
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                // Get VARIANT containing certificate bytes
-                // Read ANSI BSTR information from the VARIANT as we know RawCertificate property is ANSI BSTR.
-                server.GetCertificateProperty(name, CertSrv.PROPTYPE_BINARY, variantObjectPtr);
-                var bstrPtr = Marshal.ReadIntPtr(variantObjectPtr, 8);
-                var bstrLen = Marshal.ReadInt32(bstrPtr, -4);
-                var result = new byte[bstrLen];
-                Marshal.Copy(bstrPtr, result, 0, bstrLen);
-
-                return result;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private DateTime GetDateRequestProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetRequestProperty(name, CertSrv.PROPTYPE_DATE, variantObjectPtr);
-                var result = (DateTime) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return new DateTime();
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private string GetStringRequestProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetRequestProperty(name, CertSrv.PROPTYPE_STRING, variantObjectPtr);
-                var result = (string) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private int GetLongRequestProperty(ref CCertServerPolicy server, string name)
-        {
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                server.GetRequestProperty(name, CertSrv.PROPTYPE_LONG, variantObjectPtr);
-                var result = (int) Marshal.GetObjectForNativeVariant(variantObjectPtr);
-                return result;
-            }
-            catch
-            {
-                return 0;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
-            }
-        }
-
-        private byte[] GetBinaryRequestProperty(ref CCertServerPolicy server, string name)
-        {
-            // https://blogs.msdn.microsoft.com/alejacma/2008/08/04/how-to-modify-an-interop-assembly-to-change-the-return-type-of-a-method-vb-net/
-            var variantObjectPtr = Marshal.AllocHGlobal(2048);
-
-            try
-            {
-                // Get VARIANT containing certificate bytes
-                // Read ANSI BSTR information from the VARIANT as we know RawCertificate property is ANSI BSTR.
-                server.GetRequestProperty(name, CertSrv.PROPTYPE_BINARY, variantObjectPtr);
-                var bstrPtr = Marshal.ReadIntPtr(variantObjectPtr, 8);
-                var bstrLen = Marshal.ReadInt32(bstrPtr, -4);
-                var result = new byte[bstrLen];
-                Marshal.Copy(bstrPtr, result, 0, bstrLen);
-                return result;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                VariantClear(variantObjectPtr);
-                Marshal.FreeHGlobal(variantObjectPtr);
+                throw;
             }
         }
 

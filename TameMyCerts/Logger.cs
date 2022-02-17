@@ -37,7 +37,7 @@ namespace TameMyCerts
                 _eventLog.WriteEntry(
                     string.Format(logEvent.MessageText, args),
                     logEvent.Type,
-                    logEvent.ID);
+                    logEvent.Id);
         }
 
         private static string CreateEventSource(string currentAppName)
@@ -63,14 +63,14 @@ namespace TameMyCerts
     {
         public static Event PDEF_SUCCESS_INIT = new Event
         {
-            ID = 1,
+            Id = 1,
             LogLevel = CertSrv.CERTLOG_VERBOSE,
             MessageText = LocalizedStrings.Events_PDEF_SUCCESS_INIT
         };
 
         public static Event PDEF_FAIL_INIT = new Event
         {
-            ID = 2,
+            Id = 2,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_PDEF_FAIL_INIT
@@ -78,7 +78,7 @@ namespace TameMyCerts
 
         public static Event PDEF_FAIL_VERIFY = new Event
         {
-            ID = 3,
+            Id = 3,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_PDEF_FAIL_VERIFY
@@ -86,7 +86,7 @@ namespace TameMyCerts
 
         public static Event PDEF_FAIL_SHUTDOWN = new Event
         {
-            ID = 4,
+            Id = 4,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_PDEF_FAIL_SHUTDOWN
@@ -94,7 +94,7 @@ namespace TameMyCerts
 
         public static Event REQUEST_DENIED_AUDIT = new Event
         {
-            ID = 5,
+            Id = 5,
             LogLevel = CertSrv.CERTLOG_MINIMAL,
             Type = EventLogEntryType.Warning,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_AUDIT
@@ -102,21 +102,21 @@ namespace TameMyCerts
 
         public static Event REQUEST_DENIED = new Event
         {
-            ID = 6,
+            Id = 6,
             Type = EventLogEntryType.Warning,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED
         };
 
         public static Event POLICY_NOT_FOUND = new Event
         {
-            ID = 7,
+            Id = 7,
             Type = EventLogEntryType.Warning,
             MessageText = LocalizedStrings.Events_POLICY_NOT_FOUND
         };
 
         public static Event POLICY_NOT_APPLICABLE = new Event
         {
-            ID = 8,
+            Id = 8,
             LogLevel = CertSrv.CERTLOG_EXHAUSTIVE,
             Type = EventLogEntryType.Warning,
             MessageText = LocalizedStrings.Events_POLICY_NOT_APPLICABLE
@@ -124,7 +124,7 @@ namespace TameMyCerts
 
         public static Event MODULE_NOT_SUPPORTED = new Event
         {
-            ID = 9,
+            Id = 9,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_MODULE_NOT_SUPPORTED
@@ -132,7 +132,7 @@ namespace TameMyCerts
 
         public static Event REQUEST_DENIED_NO_TEMPLATE_INFO = new Event
         {
-            ID = 10,
+            Id = 10,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_TEMPLATE_INFO
@@ -140,7 +140,7 @@ namespace TameMyCerts
 
         public static Event REQUEST_DENIED_NO_POLICY = new Event
         {
-            ID = 10,
+            Id = 10,
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_POLICY
@@ -148,7 +148,7 @@ namespace TameMyCerts
 
         public static Event PDEF_REQUEST_DENIED = new Event
         {
-            ID = 11,
+            Id = 11,
             LogLevel = CertSrv.CERTLOG_VERBOSE,
             MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED
         };
@@ -156,7 +156,7 @@ namespace TameMyCerts
 
     public class Event
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public int LogLevel { get; set; } = CertSrv.CERTLOG_WARNING;
 
         public EventLogEntryType Type { get; set; } = EventLogEntryType.Information;

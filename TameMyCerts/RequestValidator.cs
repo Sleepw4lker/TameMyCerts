@@ -19,81 +19,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using CERTENROLLLib;
 
 namespace TameMyCerts
 {
-    public class CertificateRequestPolicy
-    {
-        public bool AuditOnly { get; set; }
-        public string KeyAlgorithm { get; set; } = "RSA";
-
-        public int MinimumKeyLength { get; set; }
-        public int MaximumKeyLength { get; set; }
-        public List<SubjectRule> Subject { get; set; }
-        public List<SubjectRule> SubjectAlternativeName { get; set; }
-
-        private static string ConvertToHumanReadableXml(string inputString)
-        {
-            var xmlWriterSettings = new XmlWriterSettings
-            {
-                OmitXmlDeclaration = true,
-                Indent = true,
-                NewLineOnAttributes = true
-            };
-
-            var stringBuilder = new StringBuilder();
-
-            var xElement = XElement.Parse(inputString);
-
-            using (var xmlWriter = XmlWriter.Create(stringBuilder, xmlWriterSettings))
-            {
-                xElement.Save(xmlWriter);
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public void SaveToFile(string path)
-        {
-            var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-
-            using (var stringWriter = new StringWriter())
-            {
-                using (var xmlWriter = XmlWriter.Create(stringWriter))
-                {
-                    xmlSerializer.Serialize(xmlWriter, this);
-                    var xmlData = stringWriter.ToString();
-
-                    try
-                    {
-                        File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
-                    }
-                    catch
-                    {
-                        // fail silently
-                    }
-                }
-            }
-        }
-    }
-
-    public class SubjectRule
-    {
-        public string Field { get; set; } = string.Empty;
-        public bool Mandatory { get; set; }
-        public int MaxOccurrences { get; set; } = 1;
-        public int MinLength { get; set; } = 1;
-        public int MaxLength { get; set; } = 128;
-        public List<string> AllowedPatterns { get; set; }
-        public List<string> DisallowedPatterns { get; set; }
-    }
-
     public class CertificateRequestValidator
     {
         private const string XCN_OID_SUBJECT_ALT_NAME2 = "2.5.29.17";
@@ -104,10 +35,7 @@ namespace TameMyCerts
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, int requestType = CertCli.CR_IN_PKCS10)
         {
-            var result = new CertificateRequestVerificationResult
-            {
-                AuditOnly = certificateRequestPolicy.AuditOnly
-            };
+            var result = new CertificateRequestVerificationResult(certificateRequestPolicy.AuditOnly);
 
             #region Extract and parse request
 
@@ -400,7 +328,7 @@ namespace TameMyCerts
         {
             var result = new CertificateRequestVerificationResult();
 
-            if (null == subjectInfo)
+            if (subjectInfo == null)
             {
                 result.Success = false;
                 return result;
@@ -432,7 +360,7 @@ namespace TameMyCerts
             {
                 var policyItem = subjectPolicy.FirstOrDefault(x => x.Field == subjectItem.Key);
 
-                if (null == policyItem)
+                if (policyItem == null)
                 {
                     // Deny if a RDN is found that is not defined (therefore it is forbidden)
                     result.Success = false;
@@ -459,7 +387,7 @@ namespace TameMyCerts
                     // Process allowed patterns
                     var allowedMatches = 0;
 
-                    if (null == policyItem.AllowedPatterns)
+                    if (policyItem.AllowedPatterns == null)
                     {
                         result.Success = false;
                         result.Description.Add(
@@ -501,7 +429,7 @@ namespace TameMyCerts
                     }
 
                     // Process disallowed patterns
-                    if (null != policyItem.DisallowedPatterns)
+                    if (policyItem.DisallowedPatterns != null)
                         foreach (var pattern in policyItem.DisallowedPatterns)
                             try
                             {
@@ -565,158 +493,7 @@ namespace TameMyCerts
             }
         }
 
-        public CertificateRequestPolicy GetSamplePolicy()
-        {
-            // This function can be used to write a sample XML based policy configuration file
-            // This is not in active use by the policy module at the moment
-
-            var policy = new CertificateRequestPolicy
-            {
-                KeyAlgorithm = "RSA",
-                MaximumKeyLength = 4096,
-                Subject = new List<SubjectRule>
-                {
-                    new SubjectRule
-                    {
-                        Field = "commonName",
-                        Mandatory = true,
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string>
-                        {
-                            @"^[-_a-zA-Z0-9]*\.adcslabor\.de$",
-                            @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"
-                        },
-                        DisallowedPatterns = new List<string>
-                        {
-                            @"^.*(porn|gambling).*$",
-                            @"^intra\.adcslabor\.de$"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "countryName",
-                        MaxLength = 2,
-                        AllowedPatterns = new List<string>
-                        {
-                            // ISO 3166 country codes as example... to ensure countryName is filled correctly (e.g. "GB" instead of "UK")
-                            @"^(AD|AE|AF|AG|AI|AL|AM|AO|AQ|AR|AS|AT|AU|AW|AX|AZ|BA|BB|BD|BE|BF|BG|BH|BI|BJ|BL|BM|BN|BO|BQ|BR|BS|BT|BV|BW|BY|BZ|CA|CC|CD|CF|CG|CH|CI|CK|CL|CM|CN|CO|CR|CU|CV|CW|CX|CY|CZ|DE|DJ|DK|DM|DO|DZ|EC|EE|EG|EH|ER|ES|ET|FI|FJ|FK|FM|FO|FR|GA|GB|GD|GE|GF|GG|GH|GI|GL|GM|GN|GP|GQ|GR|GS|GT|GU|GW|GY|HK|HM|HN|HR|HT|HU|ID|IE|IL|IM|IN|IO|IQ|IR|IS|IT|JE|JM|JO|JP|KE|KG|KH|KI|KM|KN|KP|KR|KW|KY|KZ|LA|LB|LC|LI|LK|LR|LS|LT|LU|LV|LY|MA|MC|MD|ME|MF|MG|MH|MK|ML|MM|MN|MO|MP|MQ|MR|MS|MT|MU|MV|MW|MX|MY|MZ|NA|NC|NE|NF|NG|NI|NL|NO|NP|NR|NU|NZ|OM|PA|PE|PF|PG|PH|PK|PL|PM|PN|PR|PS|PT|PW|PY|QA|RE|RO|RS|RU|RW|SA|SB|SC|SD|SE|SG|SH|SI|SJ|SK|SL|SM|SN|SO|SR|SS|ST|SV|SX|SY|SZ|TC|TD|TF|TG|TH|TJ|TK|TL|TM|TN|TO|TR|TT|TV|TW|TZ|UA|UG|UM|US|UY|UZ|VA|VC|VE|VG|VI|VN|VU|WF|WS|YE|YT|ZA|ZM|ZW)$"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "organizationName",
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^ADCS Labor$"}
-                    },
-                    new SubjectRule
-                    {
-                        Field = "organizationalUnit",
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^.*$"}
-                    },
-                    new SubjectRule
-                    {
-                        Field = "localityName",
-                        AllowedPatterns = new List<string>
-                        {
-                            // All capital cities of german federal states as example
-                            @"^Bremen$",
-                            @"^Hamburg$",
-                            @"^Berlin$",
-                            @"^Saarbruecken$",
-                            @"^Kiel$",
-                            @"^Erfurt$",
-                            @"^Dresden$",
-                            @"^Mainz$",
-                            @"^Magdeburg$",
-                            @"^Wiesbaden$",
-                            @"^Schwerin$",
-                            @"^Potsdam$",
-                            @"^Duesseldorf$",
-                            @"^Stuttgart$",
-                            @"^Hanover$",
-                            @"^Munich$"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "stateOrProvinceName",
-                        AllowedPatterns = new List<string>
-                        {
-                            // All german federal states as example
-                            @"^Bremen$",
-                            @"^Hamburg$",
-                            @"^Berlin$",
-                            @"^Saarland$",
-                            @"^Schleswig Holstein$",
-                            @"^Thuringia$",
-                            @"^Saxony$",
-                            @"^Rhineland Palatinate$",
-                            @"^Saxony-Anhalt$",
-                            @"^Hesse$",
-                            @"^Mecklenburg Western Pomerania$",
-                            @"^Brandenburg$",
-                            @"^Northrhine-Westphalia$",
-                            @"^Baden-Wuerttemberg$",
-                            @"^Lower Saxony$",
-                            @"^Bavaria$"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "emailAddress",
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}
-                    }
-                },
-                SubjectAlternativeName = new List<SubjectRule>
-                {
-                    new SubjectRule
-                    {
-                        Field = "dNSName",
-                        MaxOccurrences = 10,
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string>
-                        {
-                            @"^[-_a-zA-Z0-9]*\.adcslabor\.de$",
-                            @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"
-                        },
-                        DisallowedPatterns = new List<string>
-                        {
-                            @"^.*(porn|gambling).*$",
-                            @"^intra\.adcslabor\.de$"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "iPAddress",
-                        MaxOccurrences = 10,
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"192.168.0.0/16"},
-                        DisallowedPatterns = new List<string>
-                        {
-                            @"192.168.123.0/24",
-                            @"192.168.127.0/24",
-                            @"192.168.131.0/24"
-                        }
-                    },
-                    new SubjectRule
-                    {
-                        Field = "userPrincipalName",
-                        MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@intra\.adcslabor\.de$"}
-                    },
-                    new SubjectRule
-                    {
-                        Field = "rfc822Name",
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}
-                    }
-                }
-            };
-
-            return policy;
-        }
-
-        public static string SubstituteRdnTypeAliases(string rdnType)
+        private static string SubstituteRdnTypeAliases(string rdnType)
         {
             // Convert all known aliases used by the Microsoft API to the "official" name as specified in ITU-T X.520 and/or RFC 4519
             // https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520
@@ -767,7 +544,7 @@ namespace TameMyCerts
         // As this messes up our comparison logic, we must remove the additional quotes
         private static string RemoveQuotesFromSubjectRdn(string rdn)
         {
-            if (null == rdn)
+            if (rdn == null)
                 return null;
 
             if (rdn.Length == 0)
@@ -813,7 +590,7 @@ namespace TameMyCerts
             // First split by ','
             var components = Split(distinguishedName, ',');
 
-            if (null == components)
+            if (components == null)
                 return null;
 
             var dnComponents = new List<KeyValuePair<string, string>>();
@@ -844,7 +621,7 @@ namespace TameMyCerts
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
-            if (null == distinguishedName)
+            if (distinguishedName == null)
                 return null;
 
             if (distinguishedName.Length == 0)
@@ -897,11 +674,15 @@ namespace TameMyCerts
 
         public class CertificateRequestVerificationResult
         {
-            public int StatusCode = WinError.ERROR_SUCCESS;
+            public int StatusCode { get; set; }  = WinError.ERROR_SUCCESS;
             public bool Success { get; set; } = true;
-
-            public bool AuditOnly { get; set; }
+            public bool AuditOnly { get; }
             public List<string> Description { get; set; } = new List<string>();
+
+            public CertificateRequestVerificationResult(bool auditOnly = false)
+            {
+                AuditOnly = auditOnly;
+            }
         }
     }
 }
