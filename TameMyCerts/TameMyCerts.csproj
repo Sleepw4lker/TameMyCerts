@@ -55,6 +55,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AutoVersionIncrement.tt</DependentUpon>
     </Compile>
+    <Compile Include="CCertServerPolicyExtensions.cs" />
+    <Compile Include="CertificateRequestPolicy.cs" />
     <Compile Include="IPAddressExtensions.cs" />
     <Compile Include="LocalizedStrings.Designer.cs">
       <AutoGen>True</AutoGen>

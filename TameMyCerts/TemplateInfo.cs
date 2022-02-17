@@ -38,7 +38,7 @@ namespace TameMyCerts
             var templateBaseKey =
                 machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
 
-            if (null == templateBaseKey) return;
+            if (templateBaseKey == null) return;
 
             var templateNames = templateBaseKey.GetSubKeyNames();
 
@@ -46,7 +46,7 @@ namespace TameMyCerts
             {
                 var templateSubKey = templateBaseKey.OpenSubKey(templateName);
 
-                if (null == templateSubKey) continue;
+                if (templateSubKey == null) continue;
 
                 var nameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"));
 

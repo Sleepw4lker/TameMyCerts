@@ -1,6 +1,6 @@
 = The "Tame My Certs" policy module for Active Directory Certificate Services
 
-TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft (link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services, AD CS^]) enterprise certification authorities, written in C#.
+TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#.
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
 
@@ -77,9 +77,7 @@ NOTE: The policy module evaulates only certificate templates that are configured
 
 NOTE: The policy files get loaded when a certificate request gets processed, therefore it is not needed to restart the certification authority service after a policy file has been created or changed.
 
-=== Configuring rules for the private key
-
-You can specify the following parameters for the private key:
+=== General settings
 
 |===
 |Parameter |Mandatory | Description
@@ -87,6 +85,15 @@ You can specify the following parameters for the private key:
 |AuditOnly
 |no
 |Audit Mode. No certificate requests get denied but a message will get written into the Event Log when a certificate request violates the given policy. Helps sharpening the policy rules before applying  a policy onto a productive system. Defaults to false.
+
+|===
+
+=== Configuring rules for the private key
+
+You can specify the following parameters for the private key:
+
+|===
+|Parameter |Mandatory | Description
 
 |KeyAlgorithm
 |no
