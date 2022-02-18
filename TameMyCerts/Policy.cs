@@ -28,10 +28,13 @@ namespace TameMyCerts
     [Guid("432413c6-2e86-4667-9697-c1e038877ef9")] // must be distinct from PolicyManage Class
     public class Policy : ICertPolicy2
     {
+        private const string CONFIG_ROOT =
+            "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration";
+
         private readonly string _appName;
         private readonly string _appVersion;
-        private readonly TemplateInfo _templateInfo = new TemplateInfo();
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
+        private readonly TemplateInfo _templateInfo = new TemplateInfo();
         private Logger _logger;
         private string _policyDirectory;
         private dynamic _windowsDefaultPolicyModule;
@@ -65,68 +68,10 @@ namespace TameMyCerts
 
         public void Initialize(string strConfig)
         {
-            const string windowsDefaultPolicyModuleGuid = "3B6654D0-C2C8-11D2-B313-00C04F79DC72";
-            const string configRoot =
-                "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration";
-
-            // Initialize Event Log
-            var logLevel = (int) Registry.GetValue(
-                $"{configRoot}\\{strConfig}",
-                "LogLevel",
-                CertSrv.CERTLOG_WARNING
-            );
-
-            _logger = new Logger(_appName, logLevel);
-
-            // Prevent the usage on a standalone CA
-            var caType = (int) Registry.GetValue(
-                $"{configRoot}\\{strConfig}",
-                "CAType",
-                CertSrv.ENUM_STANDALONE_ROOTCA
-            );
-
-            if (!(caType == CertSrv.ENUM_ENTERPRISE_ROOTCA || caType == CertSrv.ENUM_ENTERPRISE_SUBCA))
-            {
-                _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
-
-                // Abort loading the policy module.
-                throw new NotSupportedException();
-            }
-
-            // Load Settings from Registry
-            _policyDirectory = (string) Registry.GetValue(
-                $"{configRoot}\\{strConfig}\\PolicyModules\\{_appName}.Policy",
-                "PolicyDirectory",
-                Path.GetTempPath()
-            );
-
-            // Load the Windows default default policy module
-            try
-            {
-                var windowsDefaultPolicyModuleType = Type.GetTypeFromCLSID(
-                    new Guid(windowsDefaultPolicyModuleGuid),
-                    true
-                );
-
-                _windowsDefaultPolicyModule = Activator.CreateInstance(windowsDefaultPolicyModuleType);
-
-                _windowsDefaultPolicyModule.GetType().InvokeMember(
-                    "Initialize",
-                    BindingFlags.InvokeMethod,
-                    null,
-                    _windowsDefaultPolicyModule,
-                    new object[] {strConfig}
-                );
-
-                _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(Events.PDEF_FAIL_INIT, ex);
-
-                // Abort loading the policy module. This will cause the certification authority service to fail
-                throw;
-            }
+            InitializeLogger(strConfig);
+            PreventModuleLoadOnStandaloneCa(strConfig);
+            LoadSettingsFromRegistry(strConfig);
+            InitializeWindowsDefaultPolicyModule(strConfig);
         }
 
         public int VerifyRequest(string strConfig, int context, int bNewRequest, int flags)
@@ -230,9 +175,10 @@ namespace TameMyCerts
 
                 return WinError.NTE_FAIL;
             }
-            
+
             var request = certServerPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
-            var requestType = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
+            var requestType = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
+                              CertCli.CR_IN_FULLRESPONSE;
 
             // Verify the Certificate request against policy
             var validationResult =
@@ -275,6 +221,77 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private void InitializeLogger(string strConfig)
+        {
+            var logLevel = (int)Registry.GetValue(
+                $"{CONFIG_ROOT}\\{strConfig}",
+                "LogLevel",
+                CertSrv.CERTLOG_WARNING
+            );
+
+            _logger = new Logger(_appName, logLevel);
+        }
+
+        private void PreventModuleLoadOnStandaloneCa(string strConfig)
+        {
+            var caType = (int)Registry.GetValue(
+                $"{CONFIG_ROOT}\\{strConfig}",
+                "CAType",
+                CertSrv.ENUM_STANDALONE_ROOTCA
+            );
+
+            if (!(caType == CertSrv.ENUM_ENTERPRISE_ROOTCA || caType == CertSrv.ENUM_ENTERPRISE_SUBCA))
+            {
+                _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
+
+                throw new NotSupportedException();
+            }
+        }
+
+        private void LoadSettingsFromRegistry(string strConfig)
+        {
+            _policyDirectory = (string)Registry.GetValue(
+                $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules\\{_appName}.Policy",
+                "PolicyDirectory",
+                Path.GetTempPath()
+            );
+        }
+
+        private void InitializeWindowsDefaultPolicyModule(string strConfig)
+        {
+            const string windowsDefaultPolicyModuleGuid = "3B6654D0-C2C8-11D2-B313-00C04F79DC72";
+
+            try
+            {
+                var windowsDefaultPolicyModuleType = Type.GetTypeFromCLSID(
+                    new Guid(windowsDefaultPolicyModuleGuid),
+                    true
+                );
+
+                _windowsDefaultPolicyModule = Activator.CreateInstance(windowsDefaultPolicyModuleType);
+
+                _windowsDefaultPolicyModule.GetType().InvokeMember(
+                    "Initialize",
+                    BindingFlags.InvokeMethod,
+                    null,
+                    _windowsDefaultPolicyModule,
+                    new object[] { strConfig }
+                );
+
+                _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(Events.PDEF_FAIL_INIT, ex);
 
                 throw;
             }
