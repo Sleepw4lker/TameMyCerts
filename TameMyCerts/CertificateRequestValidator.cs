@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -487,7 +486,6 @@ namespace TameMyCerts
 
             switch (rdnType.ToUpperInvariant())
             {
-                // The default ones active on an ADCS CA
                 case "C": return "countryName";
                 case "CN": return "commonName";
                 case "DC": return "domainComponent";
@@ -496,27 +494,19 @@ namespace TameMyCerts
                 case "O": return "organizationName";
                 case "OU": return "organizationalUnit";
                 case "S": return "stateOrProvinceName";
-
-                // These can get enabled in addition to the default ones (in the SubjectTemplate registry key)
                 case "G": return "givenName";
                 case "I": return "initials";
                 case "SN": return "surname";
                 case "STREET": return "streetAddress";
                 case "T": return "title";
-
-                // These automatically get enabled if an NDES server gets deployed for the CA
                 case "UNSTRUCTUREDNAME": return "unstructuredName";
                 case "UNSTRUCTUREDADDRESS": return "unstructuredAddress";
                 case "DEVICESERIALNUMBER": return "deviceSerialNumber";
-
-                // These are only useable if the CRLF_REBUILD_MODIFIED_SUBJECT_ONLY flag is enabled on the CA, which allows
-                // any subject DN to get specified by the enrollee. But this is fine when properly using this policy module
                 case "POSTALCODE": return "postalCode";
                 case "DESCRIPTION": return "description";
                 case "POBOX": return "postOfficeBox";
                 case "PHONE": return "telephoneNumber";
 
-                // Unknown ones get returned as they are
                 default: return rdnType;
             }
         }
@@ -609,23 +599,28 @@ namespace TameMyCerts
             const char quoteChar = '\"';
             const char escapeChar = '\\';
             var nextTokenStart = 0;
-            var resultList = new ArrayList();
+            var resultList = new List<string>();
 
             // get the actual tokens
             for (var i = 0; i < distinguishedName.Length; i++)
             {
                 var currentChar = distinguishedName[i];
 
-                if (currentChar == quoteChar)
+                switch (currentChar)
                 {
-                    inQuotedString = !inQuotedString;
+                    case quoteChar:
+
+                        inQuotedString = !inQuotedString;
+                        break;
+
+                    case escapeChar:
+
+                        // skip the next character (if one exists)
+                        if (i < distinguishedName.Length - 1) i++;
+                        break;
                 }
-                else if (currentChar == escapeChar)
-                {
-                    // skip the next character (if one exists)
-                    if (i < distinguishedName.Length - 1) i++;
-                }
-                else if (!inQuotedString && currentChar == delimiter)
+
+                if (!inQuotedString && currentChar == delimiter)
                 {
                     // we found an unquoted character that matches the delimiter
                     // split it at the delimiter (add the token that ends at this delimiter)
@@ -645,9 +640,7 @@ namespace TameMyCerts
                 }
             }
 
-            var results = new string[resultList.Count];
-            for (var i = 0; i < resultList.Count; i++) results[i] = (string) resultList[i];
-            return results;
+            return resultList.ToArray();
         }
 
         public class CertificateRequestVerificationResult

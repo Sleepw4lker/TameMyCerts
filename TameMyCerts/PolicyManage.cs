@@ -58,7 +58,7 @@ namespace TameMyCerts
                         typeof(AssemblyVersionAttribute))).Version;
 
                 default:
-                    return "Unknown Property: " + strPropertyName;
+                    return $"Unknown Property: {strPropertyName}";
             }
         }
 

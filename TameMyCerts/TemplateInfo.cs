@@ -22,6 +22,7 @@ namespace TameMyCerts
 {
     public class TemplateInfo
     {
+        private static readonly Regex IsLegacyTemplate = new Regex(@"^[a-zA-z]*$");
         private readonly object _lockObject = new object();
         private readonly int _refreshInterval;
         private DateTime _lastRefreshTime = new DateTime(1970, 1, 1);
@@ -74,7 +75,7 @@ namespace TameMyCerts
             // V1 templates are identified by their object name (containing only letters)
             // V2 and newer templates are identified by an OID (numbers separated by dots)
 
-            return new Regex(@"^[a-zA-z]*$").IsMatch(identifier)
+            return IsLegacyTemplate.IsMatch(identifier)
                 ? _templateInfoList.FirstOrDefault(x => x.Name == identifier)
                 : _templateInfoList.FirstOrDefault(x => x.Oid == identifier);
         }
