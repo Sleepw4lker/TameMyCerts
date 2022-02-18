@@ -24,16 +24,18 @@ The TameMyCerts policy module allows fine-granular control about certificate con
 
 == Installing the module
 
-=== Supported Operating Systems
+=== Supported Operating Systems and Prerequisites
 
 The module was successfully tested with the following operating systems:
 
 * Windows Server 2022
 * Windows Server 2019
 * Windows Server 2016
-* Windows Server 2012 R2 (link:https://www.microsoft.com/en-us/download/details.aspx?id=48137[.NET Framework 4.6^] must be installed)
+* Windows Server 2012 R2
 
 Older operating systems are not supported.
+
+For Windows Server 2016 and below, (link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
 
 === Installation
 

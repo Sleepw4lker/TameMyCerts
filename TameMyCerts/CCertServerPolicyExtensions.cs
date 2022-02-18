@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using CERTCLILib;
 using System;
 using System.Runtime.InteropServices;
+using CERTCLILib;
 
 namespace TameMyCerts
 {
@@ -32,7 +32,7 @@ namespace TameMyCerts
             try
             {
                 serverPolicy.GetCertificateProperty(name, type, variantObjectPtr);
-                var result = (T)Marshal.GetObjectForNativeVariant(variantObjectPtr);
+                var result = (T) Marshal.GetObjectForNativeVariant(variantObjectPtr);
                 return result;
             }
             catch
@@ -52,8 +52,8 @@ namespace TameMyCerts
         }
 
         /// <summary>
-        /// Tries to extract the certificate property out of the <see cref="CCertServerPolicy"/> with the given name.
-        /// Returns the value if successful, otherwise the default.
+        ///     Tries to extract the certificate property out of the <see cref="CCertServerPolicy" /> with the given name.
+        ///     Returns the value if successful, otherwise the default.
         /// </summary>
         /// <param name="serverPolicy">The server policy to search for the certificate property.</param>
         /// <param name="name">The name of the certificate property.</param>
@@ -107,7 +107,7 @@ namespace TameMyCerts
             try
             {
                 serverPolicy.GetRequestProperty(name, CertSrv.PROPTYPE_DATE, variantObjectPtr);
-                var result = (T)Marshal.GetObjectForNativeVariant(variantObjectPtr);
+                var result = (T) Marshal.GetObjectForNativeVariant(variantObjectPtr);
                 return result;
             }
             catch
