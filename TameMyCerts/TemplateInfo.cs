@@ -22,16 +22,17 @@ namespace TameMyCerts
 {
     public class TemplateInfo
     {
+        private readonly object _lockObject = new object();
         private readonly int _refreshInterval;
         private DateTime _lastRefreshTime = new DateTime(1970, 1, 1);
-        private List<Template> _objects;
+        private List<Template> _templateInfoList;
 
         public TemplateInfo(int refreshInterval = 5)
         {
             _refreshInterval = refreshInterval;
         }
 
-        private void UpdateObjects()
+        private void UpdateTemplateInfoList()
         {
             var newObjects = new List<Template>();
             var machineBaseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
@@ -60,22 +61,22 @@ namespace TameMyCerts
             }
 
             _lastRefreshTime = DateTime.Now;
-            _objects = newObjects;
+            _templateInfoList = newObjects;
         }
 
         public Template GetTemplate(string identifier)
         {
-            lock (new object())
+            lock (_lockObject)
             {
-                if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now) UpdateObjects();
+                if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now) UpdateTemplateInfoList();
             }
 
             // V1 templates are identified by their object name (containing only letters)
             // V2 and newer templates are identified by an OID (numbers separated by dots)
 
             return new Regex(@"^[a-zA-z]*$").IsMatch(identifier)
-                ? _objects.FirstOrDefault(x => x.Name == identifier)
-                : _objects.FirstOrDefault(x => x.Oid == identifier);
+                ? _templateInfoList.FirstOrDefault(x => x.Name == identifier)
+                : _templateInfoList.FirstOrDefault(x => x.Oid == identifier);
         }
 
         public class Template

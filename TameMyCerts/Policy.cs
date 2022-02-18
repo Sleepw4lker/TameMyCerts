@@ -31,6 +31,7 @@ namespace TameMyCerts
         private readonly string _appName;
         private readonly string _appVersion;
         private readonly TemplateInfo _templateInfo = new TemplateInfo();
+        private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
         private Logger _logger;
         private string _policyDirectory;
         private dynamic _windowsDefaultPolicyModule;
@@ -220,8 +221,7 @@ namespace TameMyCerts
                 return result;
             }
 
-            var requestValidator = new CertificateRequestValidator();
-            var requestPolicy = requestValidator.LoadFromFile(policyFile);
+            var requestPolicy = CertificateRequestPolicy.LoadFromFile(policyFile);
 
             // Deny the request if unable to parse policy file
             if (null == requestPolicy)
@@ -236,7 +236,7 @@ namespace TameMyCerts
 
             // Verify the Certificate request against policy
             var validationResult =
-                requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType);
+                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType);
 
             // No reason to deny the request, let's issue the certificate
             if (validationResult.Success) return result;

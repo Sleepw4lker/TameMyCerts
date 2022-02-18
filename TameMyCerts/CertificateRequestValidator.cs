@@ -15,12 +15,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 using CERTENROLLLib;
 
 namespace TameMyCerts
@@ -476,23 +474,6 @@ namespace TameMyCerts
             return result;
         }
 
-        public CertificateRequestPolicy LoadFromFile(string path)
-        {
-            var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-
-            try
-            {
-                using (var reader = new StreamReader(path))
-                {
-                    return (CertificateRequestPolicy) xmlSerializer.Deserialize(reader.BaseStream);
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         private static string SubstituteRdnTypeAliases(string rdnType)
         {
             // Convert all known aliases used by the Microsoft API to the "official" name as specified in ITU-T X.520 and/or RFC 4519
@@ -580,7 +561,7 @@ namespace TameMyCerts
             return outString;
         }
 
-        public static List<KeyValuePair<string, string>> GetDnComponents(string distinguishedName)
+        private static List<KeyValuePair<string, string>> GetDnComponents(string distinguishedName)
         {
             // Licensed to the .NET Foundation under one or more agreements.
             // The .NET Foundation licenses this file to you under the MIT license.
@@ -614,17 +595,14 @@ namespace TameMyCerts
             return dnComponents;
         }
 
-        public static string[] Split(string distinguishedName, char delimiter)
+        private static string[] Split(string distinguishedName, char delimiter)
         {
             // Licensed to the .NET Foundation under one or more agreements.
             // The .NET Foundation licenses this file to you under the MIT license.
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
-            if (distinguishedName == null)
-                return null;
-
-            if (distinguishedName.Length == 0)
+            if (string.IsNullOrEmpty(distinguishedName))
                 return null;
 
             var inQuotedString = false;
@@ -674,15 +652,15 @@ namespace TameMyCerts
 
         public class CertificateRequestVerificationResult
         {
-            public int StatusCode { get; set; }  = WinError.ERROR_SUCCESS;
-            public bool Success { get; set; } = true;
-            public bool AuditOnly { get; }
-            public List<string> Description { get; set; } = new List<string>();
-
             public CertificateRequestVerificationResult(bool auditOnly = false)
             {
                 AuditOnly = auditOnly;
             }
+
+            public int StatusCode { get; set; } = WinError.ERROR_SUCCESS;
+            public bool Success { get; set; } = true;
+            public bool AuditOnly { get; }
+            public List<string> Description { get; set; } = new List<string>();
         }
     }
 }
