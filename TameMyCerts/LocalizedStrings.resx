@@ -215,4 +215,25 @@
   <data name="Events_PDEF_REQUEST_DENIED" xml:space="preserve">
     <value>Request {0} was denied by the Windows Default policy module.</value>
   </data>
+  <data name="ReqVal_Process_Disallowed" xml:space="preserve">
+    <value>Process "{0}" used to create the certificate request is disallowed.</value>
+  </data>
+  <data name="ReqVal_Process_Not_Allowed" xml:space="preserve">
+    <value>Process "{0}" used to create the certificate request is not allowed.</value>
+  </data>
+  <data name="ReqVal_Process_Unknown" xml:space="preserve">
+    <value>Unable to determine the process name that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
+  </data>
+  <data name="ReqVal_Info_Client_HostName" xml:space="preserve">
+    <value>Information: Reported host name for the certificate request is "{0}".</value>
+  </data>
+  <data name="ReqVal_Crypto_Provider_Disallowed" xml:space="preserve">
+    <value>Cryptographic provider "{0}" used to create the certificate request is disallowed.</value>
+  </data>
+  <data name="ReqVal_Crypto_Provider_Not_Allowed" xml:space="preserve">
+    <value>Cryptographic provider "{0}" used to create the certificate request is not allowed.</value>
+  </data>
+  <data name="ReqVal_Crypto_Provider_Unknown" xml:space="preserve">
+    <value>Unable to determine the cryptographic provider that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
+  </data>
 </root>

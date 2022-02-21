@@ -110,16 +110,9 @@ namespace TameMyCerts
         public static Event POLICY_NOT_FOUND = new Event
         {
             Id = 7,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
             Type = EventLogEntryType.Warning,
             MessageText = LocalizedStrings.Events_POLICY_NOT_FOUND
-        };
-
-        public static Event POLICY_NOT_APPLICABLE = new Event
-        {
-            Id = 8,
-            LogLevel = CertSrv.CERTLOG_EXHAUSTIVE,
-            Type = EventLogEntryType.Warning,
-            MessageText = LocalizedStrings.Events_POLICY_NOT_APPLICABLE
         };
 
         public static Event MODULE_NOT_SUPPORTED = new Event

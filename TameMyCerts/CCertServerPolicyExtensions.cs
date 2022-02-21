@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CERTCLILib;
 
@@ -22,6 +23,29 @@ namespace TameMyCerts
     {
         [DllImport(@"oleaut32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
         private static extern int VariantClear(IntPtr pvarg);
+
+        #region GetRequestAttributes
+
+        public static Dictionary<string, string> GetRequestAttributesDictionary(this CCertServerPolicy serverPolicy)
+        {
+            var requestAttributesDictionary = new Dictionary<string, string>();
+            string attributeName;
+
+            serverPolicy.EnumerateAttributesSetup(0);
+
+            do
+            {
+                attributeName = serverPolicy.EnumerateAttributes();
+                if (attributeName != null)
+                    requestAttributesDictionary.Add(attributeName, serverPolicy.GetRequestAttribute(attributeName));
+            } while (attributeName != null);
+
+            serverPolicy.EnumerateAttributesClose();
+
+            return requestAttributesDictionary;
+        }
+
+        #endregion
 
         #region GetCertificateProperty
 
@@ -63,9 +87,9 @@ namespace TameMyCerts
             return serverPolicy.GetCertificateProperty<string>(name, CertSrv.PROPTYPE_STRING);
         }
 
-        public static long GetLongCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
+        public static int GetLongCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
-            return serverPolicy.GetCertificateProperty<long>(name, CertSrv.PROPTYPE_LONG);
+            return serverPolicy.GetCertificateProperty<int>(name, CertSrv.PROPTYPE_LONG);
         }
 
         public static byte[] GetBinaryCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
@@ -106,7 +130,7 @@ namespace TameMyCerts
 
             try
             {
-                serverPolicy.GetRequestProperty(name, CertSrv.PROPTYPE_DATE, variantObjectPtr);
+                serverPolicy.GetRequestProperty(name, type, variantObjectPtr);
                 var result = (T) Marshal.GetObjectForNativeVariant(variantObjectPtr);
                 return result;
             }
@@ -131,9 +155,9 @@ namespace TameMyCerts
             return serverPolicy.GetRequestProperty<string>(name, CertSrv.PROPTYPE_STRING);
         }
 
-        public static long GetLongRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
+        public static int GetLongRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
-            return serverPolicy.GetRequestProperty<long>(name, CertSrv.PROPTYPE_LONG);
+            return serverPolicy.GetRequestProperty<int>(name, CertSrv.PROPTYPE_LONG);
         }
 
         public static byte[] GetBinaryRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
