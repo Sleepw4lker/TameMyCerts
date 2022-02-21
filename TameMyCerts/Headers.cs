@@ -56,6 +56,9 @@ namespace TameMyCerts
         //  An internal error occurred.
         public const int NTE_FAIL = unchecked((int) 0x80090020);
 
+        // The permissions on the certificate template do not allow the current user to enroll for this type of certificate.
+        public const int CERTSRV_E_TEMPLATE_DENIED = unchecked((int) 0x80094012);
+
         // The request subject name is invalid or too long.
         public const int CERTSRV_E_BAD_REQUESTSUBJECT = unchecked((int) 0x80094001);
 

@@ -82,7 +82,7 @@ namespace TameMyCerts
 
             certServerPolicy.SetContext(context);
 
-            var requestId = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestId");
+            var requestId = certServerPolicy.GetLongRequestPropertyOrDefault("RequestId");
 
             // Hand the request over to the Windows Default policy module
             try
@@ -147,14 +147,6 @@ namespace TameMyCerts
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
 
-            // Don't bother with templates that are configured to build subject from AD
-            if (!templateInfo.EnrolleeSuppliesSubject)
-            {
-                _logger.Log(Events.POLICY_NOT_APPLICABLE, templateInfo.Name, requestId);
-
-                return result;
-            }
-
             // Finally... here we will do our additional checks
             var policyFile = Path.Combine(_policyDirectory, $"{templateInfo.Name}.xml");
 
@@ -177,12 +169,15 @@ namespace TameMyCerts
             }
 
             var request = certServerPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
-            var requestType = (int) certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
+            var requestType = certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
                               CertCli.CR_IN_FULLRESPONSE;
+            var requestAttributes = certServerPolicy.GetRequestAttributesDictionary();
 
             // Verify the Certificate request against policy
             var validationResult =
-                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType);
+                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType,
+                    requestAttributes,
+                    templateInfo.EnrolleeSuppliesSubject);
 
             // No reason to deny the request, let's issue the certificate
             if (validationResult.Success) return result;
@@ -232,7 +227,7 @@ namespace TameMyCerts
 
         private void InitializeLogger(string strConfig)
         {
-            var logLevel = (int)Registry.GetValue(
+            var logLevel = (int) Registry.GetValue(
                 $"{CONFIG_ROOT}\\{strConfig}",
                 "LogLevel",
                 CertSrv.CERTLOG_WARNING
@@ -243,7 +238,7 @@ namespace TameMyCerts
 
         private void PreventModuleLoadOnStandaloneCa(string strConfig)
         {
-            var caType = (int)Registry.GetValue(
+            var caType = (int) Registry.GetValue(
                 $"{CONFIG_ROOT}\\{strConfig}",
                 "CAType",
                 CertSrv.ENUM_STANDALONE_ROOTCA
@@ -259,7 +254,7 @@ namespace TameMyCerts
 
         private void LoadSettingsFromRegistry(string strConfig)
         {
-            _policyDirectory = (string)Registry.GetValue(
+            _policyDirectory = (string) Registry.GetValue(
                 $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules\\{_appName}.Policy",
                 "PolicyDirectory",
                 Path.GetTempPath()
@@ -284,7 +279,7 @@ namespace TameMyCerts
                     BindingFlags.InvokeMethod,
                     null,
                     _windowsDefaultPolicyModule,
-                    new object[] { strConfig }
+                    new object[] {strConfig}
                 );
 
                 _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);

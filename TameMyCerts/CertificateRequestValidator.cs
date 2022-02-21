@@ -26,11 +26,14 @@ namespace TameMyCerts
     {
         private const string XCN_OID_SUBJECT_ALT_NAME2 = "2.5.29.17";
         private const string XCN_OID_SUBJECT_DIR_ATTRS = "2.5.29.9";
-        private const string szOID_RSA_RSA = "1.2.840.113549.1.1.1";
-        private const string szOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
+        private const string SZOID_RSA_RSA = "1.2.840.113549.1.1.1";
+        private const string SZOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
+        private const string SZOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
 
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, int requestType = CertCli.CR_IN_PKCS10)
+            CertificateRequestPolicy certificateRequestPolicy, int requestType = CertCli.CR_IN_PKCS10,
+            Dictionary<string, string> requestAttributesDictionary = null,
+            bool isOfflineTemplate = true)
         {
             var result = new CertificateRequestVerificationResult(certificateRequestPolicy.AuditOnly);
 
@@ -128,194 +131,335 @@ namespace TameMyCerts
 
             #endregion
 
-            #region Verify key attributes
+            #region Process request attributes
 
-            // Verify Key Algorithm
-            string keyAlgorithm;
+            // Log the name of the machine ("ccm" attribute) where the request was generated, if known
+            if (requestAttributesDictionary != null &&
+                requestAttributesDictionary.Count > 0 &&
+                requestAttributesDictionary.Any(x => x.Key == "ccm"))
+                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
+                    requestAttributesDictionary.FirstOrDefault(x => x.Key == "ccm").Value));
 
-            switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
+            // Process rules for cryptographic providers
+            if (certificateRequestPolicy.AllowedCryptoProviders != null &&
+                certificateRequestPolicy.AllowedCryptoProviders.Count > 0 ||
+                certificateRequestPolicy.DisallowedCryptoProviders != null &&
+                certificateRequestPolicy.DisallowedCryptoProviders.Count > 0)
             {
-                case szOID_ECC_PUBLIC_KEY:
-                    keyAlgorithm = "ECC";
-                    break;
-                case szOID_RSA_RSA:
-                    keyAlgorithm = "RSA";
-                    break;
-                default:
-                    keyAlgorithm = LocalizedStrings.Unknown;
-                    break;
-            }
+                if (requestAttributesDictionary != null &&
+                    requestAttributesDictionary.Any(x => x.Key == "RequestCSPProvider"))
+                {
+                    var cryptoProvider = requestAttributesDictionary.FirstOrDefault(x => x.Key == "RequestCSPProvider")
+                        .Value;
 
-            if (certificateRequestPolicy.KeyAlgorithm != keyAlgorithm)
-            {
-                result.Success = false;
-                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Pair_Mismatch,
-                    keyAlgorithm, certificateRequestPolicy.KeyAlgorithm));
-            }
+                    if (certificateRequestPolicy.AllowedCryptoProviders != null &&
+                        certificateRequestPolicy.AllowedCryptoProviders.Count > 0 &&
+                        !certificateRequestPolicy.AllowedCryptoProviders.Any(x =>
+                            x.Equals(cryptoProvider, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Not_Allowed,
+                            cryptoProvider));
+                    }
 
-            if (certificateRequestPkcs10.PublicKey.Length < certificateRequestPolicy.MinimumKeyLength)
-            {
-                result.Success = false;
-                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Too_Small,
-                    certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MinimumKeyLength));
-            }
-
-            if (certificateRequestPolicy.MaximumKeyLength > 0)
-                if (certificateRequestPkcs10.PublicKey.Length > certificateRequestPolicy.MaximumKeyLength)
+                    if (certificateRequestPolicy.DisallowedCryptoProviders != null &&
+                        certificateRequestPolicy.DisallowedCryptoProviders.Count > 0 &&
+                        certificateRequestPolicy.DisallowedCryptoProviders.Any(x =>
+                            x.Equals(cryptoProvider, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Disallowed,
+                            cryptoProvider));
+                    }
+                }
+                else
                 {
                     result.Success = false;
-                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
-                        certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MaximumKeyLength));
+                    result.Description.Add(LocalizedStrings.ReqVal_Crypto_Provider_Unknown);
                 }
 
-            // Abort here to trigger proper error code
-            if (result.Success == false)
-            {
-                result.StatusCode = WinError.CERTSRV_E_KEY_LENGTH;
-                return result;
+                // Abort here to trigger proper error code
+                if (result.Success == false)
+                {
+                    result.StatusCode = WinError.CERTSRV_E_TEMPLATE_DENIED;
+                    return result;
+                }
             }
 
             #endregion
 
-            #region Process Subject
+            #region Process inline request attributes
 
-            string subjectDn = null;
+            // The process name may be part of the certificate request but does not appear in the attribute table, thus we must extract it separately
+            string processName = null;
 
-            try
+            for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
             {
-                // Will trigger an exception if empty
-                subjectDn = certificateRequestPkcs10.Subject.Name;
-            }
-            catch
-            {
-                // Subject is empty
-            }
-
-            // Convert the Subject DN into a List of Key Value Pairs for each RDN
-            var subjectRdnList = new List<KeyValuePair<string, string>>();
-
-            if (subjectDn != null)
+                var cryptAttribute = certificateRequestPkcs10.CryptAttributes[i];
+                string rawData;
                 try
                 {
-                    subjectRdnList = GetDnComponents(subjectDn);
+                    rawData = cryptAttribute.Values[0].get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
                 }
                 catch
                 {
+                    continue;
+                }
+
+                if (cryptAttribute.ObjectId.Value == SZOID_REQUEST_CLIENT_INFO)
+                {
+                    var clientId = new CX509AttributeClientId();
+
+                    try
+                    {
+                        clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
+                        processName = clientId.ProcessName.ToLowerInvariant();
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(clientId);
+                    }
+                }
+            }
+
+            // Process rules for the process name
+            if (certificateRequestPolicy.AllowedProcesses != null &&
+                certificateRequestPolicy.AllowedProcesses.Count > 0 ||
+                certificateRequestPolicy.DisallowedProcesses != null &&
+                certificateRequestPolicy.DisallowedProcesses.Count > 0)
+            {
+                if (processName != null)
+                {
+                    if (certificateRequestPolicy.AllowedProcesses != null &&
+                        certificateRequestPolicy.AllowedProcesses.Count > 0 &&
+                        !certificateRequestPolicy.AllowedProcesses.Any(x =>
+                            x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Process_Not_Allowed,
+                            processName));
+                    }
+
+                    if (certificateRequestPolicy.DisallowedProcesses != null &&
+                        certificateRequestPolicy.DisallowedProcesses.Count > 0 &&
+                        certificateRequestPolicy.DisallowedProcesses.Any(x =>
+                            x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Process_Disallowed,
+                            processName));
+                    }
+                }
+                else
+                {
                     result.Success = false;
-                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_SubjectDn, subjectDn));
-                    result.StatusCode = WinError.CERTSRV_E_BAD_REQUESTSUBJECT;
+                    result.Description.Add(LocalizedStrings.ReqVal_Process_Unknown);
+                }
+
+                // Abort here to trigger proper error code
+                if (result.Success == false)
+                {
+                    result.StatusCode = WinError.CERTSRV_E_TEMPLATE_DENIED;
+                    return result;
+                }
+            }
+
+            #endregion
+
+            if (isOfflineTemplate)
+            {
+                #region Verify key attributes
+
+                // Verify Key Algorithm
+                string keyAlgorithm;
+
+                switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
+                {
+                    case SZOID_ECC_PUBLIC_KEY:
+                        keyAlgorithm = "ECC";
+                        break;
+                    case SZOID_RSA_RSA:
+                        keyAlgorithm = "RSA";
+                        break;
+                    default:
+                        keyAlgorithm = LocalizedStrings.Unknown;
+                        break;
+                }
+
+                if (certificateRequestPolicy.KeyAlgorithm != keyAlgorithm)
+                {
+                    result.Success = false;
+                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Pair_Mismatch,
+                        keyAlgorithm, certificateRequestPolicy.KeyAlgorithm));
+                }
+
+                if (certificateRequestPkcs10.PublicKey.Length < certificateRequestPolicy.MinimumKeyLength)
+                {
+                    result.Success = false;
+                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Too_Small,
+                        certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MinimumKeyLength));
+                }
+
+                if (certificateRequestPolicy.MaximumKeyLength > 0)
+                    if (certificateRequestPkcs10.PublicKey.Length > certificateRequestPolicy.MaximumKeyLength)
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
+                            certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MaximumKeyLength));
+                    }
+
+                // Abort here to trigger proper error code
+                if (result.Success == false)
+                {
+                    result.StatusCode = WinError.CERTSRV_E_KEY_LENGTH;
                     return result;
                 }
 
-            #endregion
+                #endregion
 
-            #region Process Subject Alternative Name
+                #region Process Subject
 
-            // Convert the Subject Alternative Names into a List of Key Value Pairs for each entry
-            var subjectAltNameList = new List<KeyValuePair<string, string>>();
+                string subjectDn = null;
 
-            // Process Certificate extensions
-            foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
-                switch (extension.ObjectId.Value)
+                try
                 {
-                    case XCN_OID_SUBJECT_ALT_NAME2:
-
-                        var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
-
-                        extensionAlternativeNames.InitializeDecode(
-                            EncodingType.XCN_CRYPT_STRING_BASE64,
-                            extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
-                        );
-
-                        foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
-                            switch (san.Type)
-                            {
-                                case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
-
-                                    subjectAltNameList.Add(new KeyValuePair<string, string>("dNSName", san.strValue));
-                                    break;
-
-                                case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
-
-                                    subjectAltNameList.Add(
-                                        new KeyValuePair<string, string>("rfc822Name", san.strValue));
-                                    break;
-
-                                case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
-
-                                    subjectAltNameList.Add(
-                                        new KeyValuePair<string, string>("uniformResourceIdentifier", san.strValue));
-                                    break;
-
-                                case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
-
-                                    subjectAltNameList.Add(
-                                        new KeyValuePair<string, string>("userPrincipalName", san.strValue));
-                                    break;
-
-                                case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
-
-                                    var b64IpAddress = san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
-                                    var ipAddress = new IPAddress(Convert.FromBase64String(b64IpAddress));
-                                    subjectAltNameList.Add(
-                                        new KeyValuePair<string, string>("iPAddress", ipAddress.ToString()));
-
-                                    break;
-
-                                default:
-
-                                    result.Success = false;
-                                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Unsupported_San_Type,
-                                        san.ObjectId.Value));
-                                    break;
-                            }
-
-                        Marshal.ReleaseComObject(extensionAlternativeNames);
-
-                        break;
-
-                    // The subject directory attributes extension can be used to convey identification attributes such as the nationality of the certificate subject.
-                    // The extension value is a sequence of OID-value pairs.
-                    case XCN_OID_SUBJECT_DIR_ATTRS:
-
-                        // Not supported at the moment
-                        result.Success = false;
-                        result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Dir_Attrs);
-                        break;
+                    // Will trigger an exception if empty
+                    subjectDn = certificateRequestPkcs10.Subject.Name;
+                }
+                catch
+                {
+                    // Subject is empty
                 }
 
-            #endregion
+                // Convert the Subject DN into a List of Key Value Pairs for each RDN
+                var subjectRdnList = new List<KeyValuePair<string, string>>();
+
+                if (subjectDn != null)
+                    try
+                    {
+                        subjectRdnList = GetDnComponents(subjectDn);
+                    }
+                    catch
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_SubjectDn, subjectDn));
+                        result.StatusCode = WinError.CERTSRV_E_BAD_REQUESTSUBJECT;
+                        return result;
+                    }
+
+                #endregion
+
+                #region Process Subject Alternative Name
+
+                // Convert the Subject Alternative Names into a List of Key Value Pairs for each entry
+                var subjectAltNameList = new List<KeyValuePair<string, string>>();
+
+                // Process Certificate extensions
+                foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
+                    switch (extension.ObjectId.Value)
+                    {
+                        case XCN_OID_SUBJECT_ALT_NAME2:
+
+                            var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
+
+                            extensionAlternativeNames.InitializeDecode(
+                                EncodingType.XCN_CRYPT_STRING_BASE64,
+                                extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
+                            );
+
+                            foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
+                                switch (san.Type)
+                                {
+                                    case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
+
+                                        subjectAltNameList.Add(
+                                            new KeyValuePair<string, string>("dNSName", san.strValue));
+                                        break;
+
+                                    case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
+
+                                        subjectAltNameList.Add(
+                                            new KeyValuePair<string, string>("rfc822Name", san.strValue));
+                                        break;
+
+                                    case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
+
+                                        subjectAltNameList.Add(
+                                            new KeyValuePair<string, string>("uniformResourceIdentifier",
+                                                san.strValue));
+                                        break;
+
+                                    case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
+
+                                        subjectAltNameList.Add(
+                                            new KeyValuePair<string, string>("userPrincipalName", san.strValue));
+                                        break;
+
+                                    case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
+
+                                        var b64IpAddress = san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
+                                        var ipAddress = new IPAddress(Convert.FromBase64String(b64IpAddress));
+                                        subjectAltNameList.Add(
+                                            new KeyValuePair<string, string>("iPAddress", ipAddress.ToString()));
+
+                                        break;
+
+                                    default:
+
+                                        result.Success = false;
+                                        result.Description.Add(string.Format(
+                                            LocalizedStrings.ReqVal_Unsupported_San_Type,
+                                            san.ObjectId.Value));
+                                        break;
+                                }
+
+                            Marshal.ReleaseComObject(extensionAlternativeNames);
+
+                            break;
+
+                        // The subject directory attributes extension can be used to convey identification attributes such as the nationality of the certificate subject.
+                        // The extension value is a sequence of OID-value pairs.
+                        case XCN_OID_SUBJECT_DIR_ATTRS:
+
+                            // Not supported at the moment
+                            result.Success = false;
+                            result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Dir_Attrs);
+                            break;
+                    }
+
+                #endregion
+
+                #region Verify Name constraints
+
+                var subjectValidationResult = VerifySubject(
+                    subjectRdnList,
+                    certificateRequestPolicy.Subject
+                );
+
+                if (subjectValidationResult.Success == false)
+                {
+                    result.Success = false;
+                    result.Description.AddRange(subjectValidationResult.Description);
+                    result.StatusCode = WinError.CERT_E_INVALID_NAME;
+                }
+
+                var subjectAltNameValidationResult = VerifySubject(
+                    subjectAltNameList,
+                    certificateRequestPolicy.SubjectAlternativeName
+                );
+
+                if (subjectAltNameValidationResult.Success == false)
+                {
+                    result.Success = false;
+                    result.Description.AddRange(subjectAltNameValidationResult.Description);
+                    result.StatusCode = WinError.CERT_E_INVALID_NAME;
+                }
+
+                #endregion
+            }
 
             Marshal.ReleaseComObject(certificateRequestPkcs10);
             GC.Collect();
-
-            #region Verify Name constraints
-
-            var subjectValidationResult = VerifySubject(
-                subjectRdnList,
-                certificateRequestPolicy.Subject
-            );
-
-            if (subjectValidationResult.Success == false)
-            {
-                result.Success = false;
-                result.Description.AddRange(subjectValidationResult.Description);
-                result.StatusCode = WinError.CERT_E_INVALID_NAME;
-            }
-
-            var subjectAltNameValidationResult = VerifySubject(
-                subjectAltNameList,
-                certificateRequestPolicy.SubjectAlternativeName
-            );
-
-            if (subjectAltNameValidationResult.Success == false)
-            {
-                result.Success = false;
-                result.Description.AddRange(subjectAltNameValidationResult.Description);
-                result.StatusCode = WinError.CERT_E_INVALID_NAME;
-            }
-
-            #endregion
 
             return result;
         }

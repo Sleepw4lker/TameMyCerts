@@ -75,18 +75,42 @@ Create a policy file in XML format for each certificate template you want to app
 
 See the supplied link:TameMyCerts/SamplePolicy.xml[SamplePolicy.xml] for an example.
 
-NOTE: The policy module evaulates only certificate templates that are configured to have the enrollee specify subject information. Therefore, it is not possible or necessary to create a policy file for certificate templates that are configured to build the subject string from Active Directory.
-
 NOTE: The policy files get loaded when a certificate request gets processed, therefore it is not needed to restart the certification authority service after a policy file has been created or changed.
+
+NOTE: We distinguish between certificate requests for certificate templates that are configured to build the subject information from Active directory (called "online" requests) and for such that are configured to have the enrollee supply the subject information with the requests (called "offline" requests). Some of the below settings apply only to offline requests and will have no effect when configured for offline certificate templates.
 
 === General settings
 
 |===
-|Parameter |Mandatory | Description
+|Parameter |Mandatory |Applies to | Description
 
 |AuditOnly
 |no
+|online and offline requests
 |Audit Mode. No certificate requests get denied but a message will get written into the Event Log when a certificate request violates the given policy. Helps sharpening the policy rules before applying  a policy onto a productive system. Defaults to false.
+
+|AllowedProcesses
+|no
+|online and offline requests
+|Contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
+
+|DisallowedProcesses
+|no
+|online and offline requests
+|Contains a list of one or more process names that are disallowed to get a certificate issued. For 
+example, if you would like to deny certificate enrollment via certreq.exe, you could enter it here.
+
+|AllowedCryptoProviders
+|no
+|online and offline requests
+|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. THis way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
+
+|DisallowedCryptoProviders
+|no
+|online and offline requests
+|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate request's private key.
+
+NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, PSCertificateEnrollment and similar apps) will contain information about the process that was used to create the certificate request.
 
 |===
 
@@ -95,18 +119,21 @@ NOTE: The policy files get loaded when a certificate request gets processed, the
 You can specify the following parameters for the private key:
 
 |===
-|Parameter |Mandatory | Description
+|Parameter |Mandatory |Applies to | Description
 
 |KeyAlgorithm
 |no
+|offline requests only
 |Specifies the key algorithm the certificate request must use. At the moment, this can be "RSA" or "ECC" (which covers both ECDH and ECDSA). Defaults to "RSA".
 
 |MinimumKeyLength
 |no
+|offline requests only
 |Specifies the minimum key length the certificate request must use. Defaults to "0" (any key size is allowed). Note that though the Windows Default policy module also verifies this, this may become handy in a migration scenario where you publish the same template both on the old and new certification authority and plan to increase key size when switching to the new one whilst keeping the productive system unchanged.
 
 |MaximumKeyLength
 |no
+|offline requests only
 |Specifies the maximum key length the certificate request can use. Defaults to "0" (any key size is allowed).
 
 |===
@@ -120,34 +147,41 @@ NOTE: Any subject RDN that is not defined is considered forbidden and will resul
 A "SubjectRule" can/must contain the following nodes:
 
 |===
-|Parameter |Mandatory |Description
+|Parameter |Mandatory |Applies to |Description
 
 |Field
 |*yes*
+|offline requests only
 |Specifies the type of the field. See the below list for possible values. *Please be aware that this field is case-sensitive.*
 
 |Mandatory
 |no
+|offline requests only
 |Specifies if this field *must* (true) or *may* (false) appear in the certificate request presented. Defaults to "false".
 
 |MaxOccurrences
 |no
+|offline requests only
 |Specifies how often this field may appear within a certificate request. Should always be 1 for must subject RDN types. Defaults to 1.
 
 |MinLength
 |no
+|offline requests only
 |Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to 1. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the AllowedPatterns directive.
 
 |MaxLength
 |no
+|offline requests only
 |Specifies the maximum amount of characters the field may contain. Defaults to 128. Note that link:https://www.gradenegger.eu/?p=2717[there is also an upper limit set by the certification authority^]. Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the AllowedPatterns directive.
 
 |AllowedPatterns
 |*yes*
+|offline requests only
 |For any field type except the iPAddress one, you can define one or more regular expressions of which the requested field content must match at least one of to get permitted. The node is required, so if you want to allow any content, simply configure "^.*$" as expression. For the iPAddress SAN type, you would specify a subnet in CIDR (e.g. 192.168.0.0/16) notation instead of a regular expression. To allow any IP Address, specify 0.0.0.0/0.
 
 |DisallowedPatterns
-|no 
+|no
+|offline requests only
 |Specifies one or more regular expression (or CIDR subnet in the case of iPAddress type), of which the field must match at least one to get denied (even if an allow pattern has matched).
 
 |===
@@ -216,6 +250,10 @@ The following error codes can be thrown by the policy module when a request was 
 
 |===
 |Message |Symbol |Description
+
+|The permissions on the certificate template do not allow the current user to enroll for this type of certificate.
+|CERTSRV_E_TEMPLATE_DENIED
+|Occurs if the process used to create the certificate request is unknown, not allowed or explicitly disallowed.
 
 |The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.
 |CERT_E_INVALID_NAME
