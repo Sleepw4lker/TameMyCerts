@@ -13,7 +13,9 @@
 // limitations under the License.
 
 using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CERTCLILib;
@@ -31,13 +33,18 @@ namespace TameMyCerts
         private const string CONFIG_ROOT =
             "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration";
 
+        private const string DATETIME_RFC2616 = "ddd, d MMM yyyy HH:mm:ss 'GMT'";
+
         private readonly string _appName;
         private readonly string _appVersion;
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
-        private readonly TemplateInfo _templateInfo = new TemplateInfo();
+        private readonly CertificateTemplateInfo _templateInfo = new CertificateTemplateInfo();
+        private int _editFlags;
         private Logger _logger;
         private string _policyDirectory;
         private dynamic _windowsDefaultPolicyModule;
+
+        #region Constructor
 
         public Policy()
         {
@@ -49,6 +56,8 @@ namespace TameMyCerts
             _appVersion = ((AssemblyFileVersionAttribute) assembly.GetCustomAttribute(
                 typeof(AssemblyFileVersionAttribute))).Version;
         }
+
+        #endregion
 
         #region ICertPolicy2 Members
 
@@ -100,19 +109,14 @@ namespace TameMyCerts
                 if (ex.InnerException is COMException)
                 {
                     _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
-
-                    // Some reasons to deny a request come in form of COM Exceptions
-                    // If so, we're done here and hand the HResult back to the CA process
                     return ex.InnerException.HResult;
                 }
 
                 _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
-
                 return CertSrv.VR_INSTANT_BAD;
             }
 
             // We don't question if the default policy module decided to deny the request
-            // Note that a policy module can also return any HResult code as defined in winerr.h
             if (!(result == CertSrv.VR_PENDING || result == CertSrv.VR_INSTANT_OK))
             {
                 _logger.Log(Events.PDEF_REQUEST_DENIED, requestId);
@@ -125,36 +129,52 @@ namespace TameMyCerts
 
             // At this point, the certificate is completely constructed and ready to be issued, if we allow it
 
-            #region Additional Checks
+            #region Process custom StartDate attribute
+
+            var requestAttributeList = certServerPolicy.GetRequestAttributeList();
+
+            // Set custom start date if requested and permitted
+            if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE)
+                if (requestAttributeList != null &&
+                    requestAttributeList.Count > 0 &&
+                    requestAttributeList.Any(x => x.Key == "StartDate"))
+                    if (DateTime.TryParseExact(requestAttributeList.FirstOrDefault(x => x.Key == "StartDate").Value,
+                            DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
+                            DateTimeStyles.AssumeUniversal, out var requestedStartDate))
+                    {
+                        var notAfter = certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
+                        if (requestedStartDate >= DateTime.Now.ToUniversalTime() &&
+                            requestedStartDate <= notAfter.ToUniversalTime())
+                            certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
+                                requestedStartDate);
+                    }
+
+            #endregion
+
+            #region Process request policies
 
             var templateOid = certServerPolicy.GetStringCertificatePropertyOrDefault("CertificateTemplate");
 
-            // Deny the request if no template info can be found (this should never happen though)
             if (templateOid == null)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
-
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
 
             var templateInfo = _templateInfo.GetTemplate(templateOid);
 
-            // Deny the request if no template info can be found in local cache (this should never happen though)
             if (templateInfo == null)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
-
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
 
-            // Finally... here we will do our additional checks
             var policyFile = Path.Combine(_policyDirectory, $"{templateInfo.Name}.xml");
 
             // Issue the certificate of no policy is defined
             if (!File.Exists(policyFile))
             {
                 _logger.Log(Events.POLICY_NOT_FOUND, templateInfo.Name, requestId, policyFile);
-
                 return result;
             }
 
@@ -164,19 +184,17 @@ namespace TameMyCerts
             if (null == requestPolicy)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_POLICY, policyFile, requestId);
-
                 return WinError.NTE_FAIL;
             }
 
             var request = certServerPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
             var requestType = certServerPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
                               CertCli.CR_IN_FULLRESPONSE;
-            var requestAttributes = certServerPolicy.GetRequestAttributesDictionary();
 
             // Verify the Certificate request against policy
             var validationResult =
                 _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType,
-                    requestAttributes,
+                    requestAttributeList,
                     templateInfo.EnrolleeSuppliesSubject);
 
             // No reason to deny the request, let's issue the certificate
@@ -186,14 +204,13 @@ namespace TameMyCerts
             if (validationResult.AuditOnly)
             {
                 _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, templateInfo.Name,
-                    string.Join("\n", validationResult.Description));
-
+                    string.Join("\n", validationResult.Description), string.Join("\n", validationResult.AdditionalInfo));
                 return result;
             }
 
-            // Deny the request if validation was not successful
+            // Deny the request in any other case (validation was not successful)
             _logger.Log(Events.REQUEST_DENIED, requestId, templateInfo.Name,
-                string.Join("\n", validationResult.Description));
+                string.Join("\n", validationResult.Description), string.Join("\n", validationResult.AdditionalInfo));
 
             // Return the result code handed over by the RequestValidator class
             return validationResult.StatusCode;
@@ -216,7 +233,6 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
-
                 throw;
             }
         }
@@ -247,18 +263,16 @@ namespace TameMyCerts
             if (!(caType == CertSrv.ENUM_ENTERPRISE_ROOTCA || caType == CertSrv.ENUM_ENTERPRISE_SUBCA))
             {
                 _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
-
                 throw new NotSupportedException();
             }
         }
 
         private void LoadSettingsFromRegistry(string strConfig)
         {
-            _policyDirectory = (string) Registry.GetValue(
-                $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules\\{_appName}.Policy",
-                "PolicyDirectory",
-                Path.GetTempPath()
-            );
+            var moduleRoot = $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules\\{_appName}.Policy";
+
+            _policyDirectory = (string) Registry.GetValue(moduleRoot, "PolicyDirectory", Path.GetTempPath());
+            _editFlags = (int) Registry.GetValue(moduleRoot, "EditFlags", 0);
         }
 
         private void InitializeWindowsDefaultPolicyModule(string strConfig)
@@ -287,7 +301,6 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 _logger.Log(Events.PDEF_FAIL_INIT, ex);
-
                 throw;
             }
         }

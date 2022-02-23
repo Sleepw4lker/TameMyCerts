@@ -68,7 +68,7 @@
     <Compile Include="PolicyManage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CertificateRequestValidator.cs" />
-    <Compile Include="TemplateInfo.cs" />
+    <Compile Include="CertificateTemplateInfo.cs" />
     <Compile Include="Headers.cs" />
   </ItemGroup>
   <ItemGroup>

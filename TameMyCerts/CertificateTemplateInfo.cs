@@ -20,7 +20,7 @@ using Microsoft.Win32;
 
 namespace TameMyCerts
 {
-    public class TemplateInfo
+    public class CertificateTemplateInfo
     {
         private static readonly Regex IsLegacyTemplate = new Regex(@"^[a-zA-z]*$");
         private readonly object _lockObject = new object();
@@ -28,7 +28,7 @@ namespace TameMyCerts
         private DateTime _lastRefreshTime = new DateTime(1970, 1, 1);
         private List<Template> _templateInfoList;
 
-        public TemplateInfo(int refreshInterval = 5)
+        public CertificateTemplateInfo(int refreshInterval = 5)
         {
             _refreshInterval = refreshInterval;
         }
