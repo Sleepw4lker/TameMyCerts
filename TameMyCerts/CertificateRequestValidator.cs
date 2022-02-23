@@ -32,7 +32,7 @@ namespace TameMyCerts
 
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, int requestType = CertCli.CR_IN_PKCS10,
-            Dictionary<string, string> requestAttributesDictionary = null,
+            List<KeyValuePair<string, string>> requestAttributeList = null,
             bool isOfflineTemplate = true)
         {
             var result = new CertificateRequestVerificationResult(certificateRequestPolicy.AuditOnly);
@@ -133,12 +133,12 @@ namespace TameMyCerts
 
             #region Process request attributes
 
-            // Log the name of the machine ("ccm" attribute) where the request was generated, if known
-            if (requestAttributesDictionary != null &&
-                requestAttributesDictionary.Count > 0 &&
-                requestAttributesDictionary.Any(x => x.Key == "ccm"))
-                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
-                    requestAttributesDictionary.FirstOrDefault(x => x.Key == "ccm").Value));
+            // Log the name of the machine ("ccm" attribute) from where the request was submitted
+            if (requestAttributeList != null &&
+                requestAttributeList.Count > 0 &&
+                requestAttributeList.Any(x => x.Key == "ccm"))
+                result.AdditionalInfo.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
+                    requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value));
 
             // Process rules for cryptographic providers
             if (certificateRequestPolicy.AllowedCryptoProviders != null &&
@@ -146,10 +146,10 @@ namespace TameMyCerts
                 certificateRequestPolicy.DisallowedCryptoProviders != null &&
                 certificateRequestPolicy.DisallowedCryptoProviders.Count > 0)
             {
-                if (requestAttributesDictionary != null &&
-                    requestAttributesDictionary.Any(x => x.Key == "RequestCSPProvider"))
+                if (requestAttributeList != null &&
+                    requestAttributeList.Any(x => x.Key == "RequestCSPProvider"))
                 {
-                    var cryptoProvider = requestAttributesDictionary.FirstOrDefault(x => x.Key == "RequestCSPProvider")
+                    var cryptoProvider = requestAttributeList.FirstOrDefault(x => x.Key == "RequestCSPProvider")
                         .Value;
 
                     if (certificateRequestPolicy.AllowedCryptoProviders != null &&
@@ -190,8 +190,8 @@ namespace TameMyCerts
 
             #region Process inline request attributes
 
-            // The process name may be part of the certificate request but does not appear in the attribute table, thus we must extract it separately
             string processName = null;
+            string machineName = null;
 
             for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
             {
@@ -214,6 +214,7 @@ namespace TameMyCerts
                     {
                         clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
                         processName = clientId.ProcessName.ToLowerInvariant();
+                        machineName = clientId.MachineDnsName;
                     }
                     finally
                     {
@@ -221,6 +222,9 @@ namespace TameMyCerts
                     }
                 }
             }
+
+            if (machineName != null)
+                result.AdditionalInfo.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName_Attrib, machineName));
 
             // Process rules for the process name
             if (certificateRequestPolicy.AllowedProcesses != null &&
@@ -703,7 +707,7 @@ namespace TameMyCerts
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
             // First split by ','
-            var components = Split(distinguishedName, ',');
+            var components = SplitSubjectDn(distinguishedName, ',');
 
             if (components == null)
                 return null;
@@ -713,7 +717,7 @@ namespace TameMyCerts
             for (var i = 0; i < components.GetLength(0); i++)
             {
                 // split each component by '='
-                var subComponents = Split(components[i], '=');
+                var subComponents = SplitSubjectDn(components[i], '=');
 
                 if (subComponents.GetLength(0) != 2) throw new ArgumentException();
 
@@ -729,7 +733,7 @@ namespace TameMyCerts
             return dnComponents;
         }
 
-        private static string[] Split(string distinguishedName, char delimiter)
+        private static string[] SplitSubjectDn(string distinguishedName, char delimiter)
         {
             // Licensed to the .NET Foundation under one or more agreements.
             // The .NET Foundation licenses this file to you under the MIT license.
@@ -798,6 +802,7 @@ namespace TameMyCerts
             public bool Success { get; set; } = true;
             public bool AuditOnly { get; }
             public List<string> Description { get; set; } = new List<string>();
+            public List<string> AdditionalInfo { get; set; } = new List<string>();
         }
     }
 }

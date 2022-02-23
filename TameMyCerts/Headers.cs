@@ -38,6 +38,9 @@ namespace TameMyCerts
         public const int ENUM_ENTERPRISE_SUBCA = 1;
         public const int ENUM_STANDALONE_ROOTCA = 3;
         public const int ENUM_STANDALONE_SUBCA = 4;
+
+        public const int EDITF_ATTRIBUTEENDDATE = 0x00000020;
+        public const int EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000;
     }
 
     // Constants from CertCa.h

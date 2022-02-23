@@ -26,9 +26,9 @@ namespace TameMyCerts
 
         #region GetRequestAttributes
 
-        public static Dictionary<string, string> GetRequestAttributesDictionary(this CCertServerPolicy serverPolicy)
+        public static List<KeyValuePair<string, string>> GetRequestAttributeList(this CCertServerPolicy serverPolicy)
         {
-            var requestAttributesDictionary = new Dictionary<string, string>();
+            var requestAttributesDictionary = new List<KeyValuePair<string, string>>();
             string attributeName;
 
             serverPolicy.EnumerateAttributesSetup(0);
@@ -37,7 +37,8 @@ namespace TameMyCerts
             {
                 attributeName = serverPolicy.EnumerateAttributes();
                 if (attributeName != null)
-                    requestAttributesDictionary.Add(attributeName, serverPolicy.GetRequestAttribute(attributeName));
+                    requestAttributesDictionary.Add(new KeyValuePair<string, string>(attributeName,
+                        serverPolicy.GetRequestAttribute(attributeName)));
             } while (attributeName != null);
 
             serverPolicy.EnumerateAttributesClose();
