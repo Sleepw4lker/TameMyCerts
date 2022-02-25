@@ -10,6 +10,7 @@ namespace UnitTests
     {
         private readonly CertificateRequestPolicy _requestPolicyRsa, _requestPolicyEcc;
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
+        private readonly CertificateTemplateInfo.Template _templateInfo;
 
         public RequestValidatorTests()
         {
@@ -18,6 +19,11 @@ namespace UnitTests
             _requestPolicyEcc = GetSamplePolicy();
             _requestPolicyEcc.KeyAlgorithm = "ECC";
             _requestPolicyEcc.MinimumKeyLength = 256;
+
+            _templateInfo =  new CertificateTemplateInfo.Template()
+            {
+                EnrolleeSuppliesSubject = true
+            };
         }
 
         private static CertificateRequestPolicy GetSamplePolicy()
@@ -179,7 +185,7 @@ namespace UnitTests
             // Should fail, obviously
             const string request = "This is not a certificate request";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -213,7 +219,7 @@ namespace UnitTests
                 "0bAr5OaOzHm7POogsgE8J1Y=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -253,7 +259,7 @@ namespace UnitTests
                 "BzNqID8+ns2bwu/BrEOP04BSBt2yBfVB2l1KhyeXYU0Y\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -298,7 +304,7 @@ namespace UnitTests
                 "sw==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -332,7 +338,7 @@ namespace UnitTests
                 "P7MNEhROVnD5RdVp793twbYgnyLW4+UIbaKYX+t5\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -367,7 +373,7 @@ namespace UnitTests
                 "cGFP\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -402,7 +408,7 @@ namespace UnitTests
                 "gvfJNz3+Ekwld3em310aFCyRyg4=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -429,7 +435,7 @@ namespace UnitTests
                 "zEjZoYSctNw=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -459,7 +465,7 @@ namespace UnitTests
                 "JMXiY0xmEBg=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -526,7 +532,7 @@ namespace UnitTests
                 "zt7jEmioXNz+JZOwmQ3Z0l+5cqwOrxSuSWmzun0=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -554,7 +560,7 @@ namespace UnitTests
                 "pMl8kKH3yqXI\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -580,7 +586,7 @@ namespace UnitTests
                 "wlGn5D3y0MUy\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -616,7 +622,7 @@ namespace UnitTests
                 "kbUQqV43\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -651,7 +657,7 @@ namespace UnitTests
                 "CpV76XuDMJqMk4VrPkh1rLljbGqKzuQzIuCVAPFBhsLCqnHByQ==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -690,7 +696,7 @@ namespace UnitTests
                 "sicnx80RxPqTLH3kpX+8egvRxSmXt9rX3adVaOnrXvvEzj7kQzA=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsTrue(validationResult.Success);
@@ -726,7 +732,7 @@ namespace UnitTests
                 "jmBG\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -761,7 +767,7 @@ namespace UnitTests
                 "zplTRSF8Tgfw0i/iblG5Ap4RhcD5wsvLYF1VeTsWKmt2hhNzyA==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -796,7 +802,7 @@ namespace UnitTests
                 "bgfsnA7boakcA8eeKvCSXfdRdHrRFhSECwFLp7yu/m90XE9FIOYIzBVZeQ==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -837,7 +843,7 @@ namespace UnitTests
                 "C6bmuhV2Gm14AnY=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -870,7 +876,7 @@ namespace UnitTests
                 "Qbc+EMH4FY4v2YSfjsI3Lwqc5D/VUjjiurH09jtUokXLJme98UiwpFbBu2JDi2T/\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -898,7 +904,7 @@ namespace UnitTests
                 "UuB3ABtxKzki\n" +
                 "-----END CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -934,7 +940,7 @@ namespace UnitTests
                 "iddTemRyEEPZ3Xk6Apfthttqzwc=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
@@ -969,7 +975,7 @@ namespace UnitTests
                 "f482T7HTzF4MuKb/m+x7nUz1eMFHXTy7TFoaYRxv3V0=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa);
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
             Assert.IsFalse(validationResult.Success);
