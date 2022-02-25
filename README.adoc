@@ -267,7 +267,7 @@ The following error codes can be thrown by the policy module when a request was 
 |CERTSRV_E_BAD_REQUESTSUBJECT
 |Occurs if the request's subject string cannot be interpreted by the policy module.
 
-|The parameter is incorrect.
+|An internal error occurred.
 |ERROR_INVALID_DATA
 |Occurs if the policy module is unable to interpret the given policy file.
 
@@ -304,7 +304,7 @@ In addition to the certification authorities regular log entries, the policy mod
 
 |6
 |Warning
-|Occurs if a certificate request was denied because of a policy violation. Contains a detailed information which kind of policy violation caused the request to get denied.
+|Occurs if a certificate request was denied because of a policy violation. Contains a detailed information which kind of policy violation caused the request to get denied. Note that the information about which client requestd the certificate can be obtained via link:https://www.gradenegger.eu/?p=8643[audit event 4886^].
 
 |7
 |Warning

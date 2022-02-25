@@ -40,7 +40,10 @@ namespace TameMyCerts
             var templateBaseKey =
                 machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
 
-            if (templateBaseKey == null) return;
+            if (templateBaseKey == null)
+            {
+                return;
+            }
 
             var templateNames = templateBaseKey.GetSubKeyNames();
 
@@ -48,7 +51,10 @@ namespace TameMyCerts
             {
                 var templateSubKey = templateBaseKey.OpenSubKey(templateName);
 
-                if (templateSubKey == null) continue;
+                if (templateSubKey == null)
+                {
+                    continue;
+                }
 
                 var nameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"));
 
@@ -69,7 +75,10 @@ namespace TameMyCerts
         {
             lock (_lockObject)
             {
-                if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now) UpdateTemplateInfoList();
+                if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now)
+                {
+                    UpdateTemplateInfoList();
+                }
             }
 
             // V1 templates are identified by their object name (containing only letters)

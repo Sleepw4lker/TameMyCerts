@@ -56,6 +56,9 @@ namespace TameMyCerts
         // The operation completed successfully.
         public const int ERROR_SUCCESS = 0;
 
+        //  The specified time is invalid.
+        public const int ERROR_INVALID_TIME = 1901;
+
         //  An internal error occurred.
         public const int NTE_FAIL = unchecked((int) 0x80090020);
 

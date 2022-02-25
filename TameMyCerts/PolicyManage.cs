@@ -38,23 +38,23 @@ namespace TameMyCerts
             switch (strPropertyName) // Each of these is required
             {
                 case "Name":
-                    return ((AssemblyTitleAttribute)assembly.GetCustomAttribute(
+                    return ((AssemblyTitleAttribute) assembly.GetCustomAttribute(
                         typeof(AssemblyTitleAttribute))).Title;
 
                 case "Description":
-                    return ((AssemblyDescriptionAttribute)assembly.GetCustomAttribute(
+                    return ((AssemblyDescriptionAttribute) assembly.GetCustomAttribute(
                         typeof(AssemblyDescriptionAttribute))).Description;
 
                 case "Copyright":
-                    return ((AssemblyCopyrightAttribute)assembly.GetCustomAttribute(
+                    return ((AssemblyCopyrightAttribute) assembly.GetCustomAttribute(
                         typeof(AssemblyCopyrightAttribute))).Copyright;
 
                 case "File Version":
-                    return ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(
+                    return ((AssemblyFileVersionAttribute) assembly.GetCustomAttribute(
                         typeof(AssemblyFileVersionAttribute))).Version;
 
                 case "Product Version":
-                    return ((AssemblyVersionAttribute)assembly.GetCustomAttribute(
+                    return ((AssemblyVersionAttribute) assembly.GetCustomAttribute(
                         typeof(AssemblyVersionAttribute))).Version;
 
                 default:

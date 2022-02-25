@@ -34,10 +34,12 @@ namespace TameMyCerts
         public void Log(Event logEvent, params object[] args)
         {
             if (_logLevel >= logEvent.LogLevel)
+            {
                 _eventLog.WriteEntry(
                     string.Format(logEvent.MessageText, args),
                     logEvent.Type,
                     logEvent.Id);
+            }
         }
 
         private static string CreateEventSource(string currentAppName)
@@ -48,7 +50,9 @@ namespace TameMyCerts
             {
                 var sourceExists = EventLog.SourceExists(eventSource);
                 if (!sourceExists)
+                {
                     EventLog.CreateEventSource(eventSource, "Application");
+                }
             }
             catch (SecurityException)
             {
