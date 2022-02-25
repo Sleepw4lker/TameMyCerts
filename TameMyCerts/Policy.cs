@@ -85,6 +85,8 @@ namespace TameMyCerts
 
         public int VerifyRequest(string strConfig, int context, int bNewRequest, int flags)
         {
+            #region Initialization
+
             int result;
 
             var certServerPolicy = new CCertServerPolicy();
@@ -93,7 +95,10 @@ namespace TameMyCerts
 
             var requestId = certServerPolicy.GetLongRequestPropertyOrDefault("RequestId");
 
-            // Hand the request over to the Windows Default policy module
+            #endregion
+
+            #region Hand the request over to the Windows Default policy module
+
             try
             {
                 result = (int) _windowsDefaultPolicyModule.GetType().InvokeMember(
@@ -106,12 +111,10 @@ namespace TameMyCerts
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is COMException)
-                {
-                    _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
-                    return ex.InnerException.HResult;
-                }
+                // In some cases, the reason to deny a certificate comes in form of an exception (e.g. ERROR_INVALID_TIME), we return these here
+                if (ex.InnerException is COMException) throw ex.InnerException;
 
+                // Only for the case something went wrong with calling the Windows Default policy module
                 _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
                 return CertSrv.VR_INSTANT_BAD;
             }
@@ -124,10 +127,11 @@ namespace TameMyCerts
             }
 
             // No need to check every request twice. If this request was permitted by a certificate manager, we are fine with it
-            if (bNewRequest == 0)
-                return result;
+            if (bNewRequest == 0) return result;
 
             // At this point, the certificate is completely constructed and ready to be issued, if we allow it
+
+            #endregion
 
             #region Process custom StartDate attribute
 
@@ -135,23 +139,33 @@ namespace TameMyCerts
 
             // Set custom start date if requested and permitted
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE)
+            {
                 if (requestAttributeList != null &&
-                    requestAttributeList.Count > 0 &&
                     requestAttributeList.Any(x => x.Key == "StartDate"))
-                    if (DateTime.TryParseExact(requestAttributeList.FirstOrDefault(x => x.Key == "StartDate").Value,
+                {
+                    if (DateTimeOffset.TryParseExact(
+                            requestAttributeList.FirstOrDefault(x => x.Key == "StartDate").Value,
                             DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
                             DateTimeStyles.AssumeUniversal, out var requestedStartDate))
                     {
                         var notAfter = certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
-                        if (requestedStartDate >= DateTime.Now.ToUniversalTime() &&
-                            requestedStartDate <= notAfter.ToUniversalTime())
+                        if (requestedStartDate >= DateTimeOffset.Now && requestedStartDate <= notAfter)
+                        {
                             certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
-                                requestedStartDate);
+                                requestedStartDate.UtcDateTime);
+                        }
+                        else
+                        {
+                            // same behavior as Windows Default policy module with an invalid ExpirationDate
+                            throw new COMException(string.Empty, WinError.ERROR_INVALID_TIME);
+                        }
                     }
+                }
+            }
 
             #endregion
 
-            #region Process request policies
+            #region Get certificate template information
 
             var templateOid = certServerPolicy.GetStringCertificatePropertyOrDefault("CertificateTemplate");
 
@@ -168,6 +182,10 @@ namespace TameMyCerts
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
+
+            #endregion
+
+            #region Process request policies
 
             var policyFile = Path.Combine(_policyDirectory, $"{templateInfo.Name}.xml");
 
@@ -193,9 +211,9 @@ namespace TameMyCerts
 
             // Verify the Certificate request against policy
             var validationResult =
-                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, requestType,
-                    requestAttributeList,
-                    templateInfo.EnrolleeSuppliesSubject);
+                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, templateInfo,
+                    requestType,
+                    requestAttributeList);
 
             // No reason to deny the request, let's issue the certificate
             if (validationResult.Success) return result;
@@ -204,13 +222,13 @@ namespace TameMyCerts
             if (validationResult.AuditOnly)
             {
                 _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, templateInfo.Name,
-                    string.Join("\n", validationResult.Description), string.Join("\n", validationResult.AdditionalInfo));
+                    string.Join("\n", validationResult.Description));
                 return result;
             }
 
             // Deny the request in any other case (validation was not successful)
             _logger.Log(Events.REQUEST_DENIED, requestId, templateInfo.Name,
-                string.Join("\n", validationResult.Description), string.Join("\n", validationResult.AdditionalInfo));
+                string.Join("\n", validationResult.Description));
 
             // Return the result code handed over by the RequestValidator class
             return validationResult.StatusCode;

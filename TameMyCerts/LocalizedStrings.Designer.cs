@@ -19,7 +19,7 @@ namespace TameMyCerts {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class LocalizedStrings {
@@ -137,9 +137,7 @@ namespace TameMyCerts {
         
         /// <summary>
         ///   Looks up a localized string similar to Request {0} for {1} was denied because:
-        ///{2}
-        ///Additional Information:
-        ///{3}.
+        ///{2}.
         /// </summary>
         internal static string Events_REQUEST_DENIED {
             get {
@@ -149,9 +147,7 @@ namespace TameMyCerts {
         
         /// <summary>
         ///   Looks up a localized string similar to Audit mode is enabled for {1}. Request {0} would get denied because:
-        ///{2}
-        ///Additional Information:
-        ///{3}.
+        ///{2}.
         /// </summary>
         internal static string Events_REQUEST_DENIED_AUDIT {
             get {
@@ -309,24 +305,6 @@ namespace TameMyCerts {
         internal static string ReqVal_Field_Too_Short {
             get {
                 return ResourceManager.GetString("ReqVal_Field_Too_Short", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request was submitted by &quot;{0}&quot;..
-        /// </summary>
-        internal static string ReqVal_Info_Client_HostName {
-            get {
-                return ResourceManager.GetString("ReqVal_Info_Client_HostName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains a host name attribute with value &quot;{0}&quot;..
-        /// </summary>
-        internal static string ReqVal_Info_Client_HostName_Attrib {
-            get {
-                return ResourceManager.GetString("ReqVal_Info_Client_HostName_Attrib", resourceCulture);
             }
         }
         

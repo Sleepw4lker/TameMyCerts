@@ -31,9 +31,8 @@ namespace TameMyCerts
         private const string SZOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
 
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, int requestType = CertCli.CR_IN_PKCS10,
-            List<KeyValuePair<string, string>> requestAttributeList = null,
-            bool isOfflineTemplate = true)
+            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
+            int requestType = CertCli.CR_IN_PKCS10, List<KeyValuePair<string, string>> requestAttributeList = null)
         {
             var result = new CertificateRequestVerificationResult(certificateRequestPolicy.AuditOnly);
 
@@ -133,14 +132,58 @@ namespace TameMyCerts
 
             #region Process request attributes
 
+            string certClientMachine = null;
+            // TODO: Put into method, and extract "rmd" as well, if present.
+
             // Log the name of the machine ("ccm" attribute) from where the request was submitted
             if (requestAttributeList != null &&
-                requestAttributeList.Count > 0 &&
                 requestAttributeList.Any(x => x.Key == "ccm"))
-                result.AdditionalInfo.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
-                    requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value));
+            {
+                certClientMachine = string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
+                    requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value);
+            }
 
-            // Process rules for cryptographic providers
+            #endregion
+
+            #region Process inline request attributes
+
+            string processName = null;
+            string machineDnsName = null;
+
+            for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
+            {
+                var cryptAttribute = certificateRequestPkcs10.CryptAttributes[i];
+                string rawData;
+                try
+                {
+                    rawData = cryptAttribute.Values[0].get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (cryptAttribute.ObjectId.Value == SZOID_REQUEST_CLIENT_INFO)
+                {
+                    var clientId = new CX509AttributeClientId();
+
+                    try
+                    {
+                        clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
+                        processName = clientId.ProcessName.ToLowerInvariant();
+                        machineDnsName = clientId.MachineDnsName;
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(clientId);
+                    }
+                }
+            }
+
+            #endregion
+
+            #region Process rules for cryptographic providers
+
             if (certificateRequestPolicy.AllowedCryptoProviders != null &&
                 certificateRequestPolicy.AllowedCryptoProviders.Count > 0 ||
                 certificateRequestPolicy.DisallowedCryptoProviders != null &&
@@ -153,7 +196,6 @@ namespace TameMyCerts
                         .Value;
 
                     if (certificateRequestPolicy.AllowedCryptoProviders != null &&
-                        certificateRequestPolicy.AllowedCryptoProviders.Count > 0 &&
                         !certificateRequestPolicy.AllowedCryptoProviders.Any(x =>
                             x.Equals(cryptoProvider, StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -163,7 +205,6 @@ namespace TameMyCerts
                     }
 
                     if (certificateRequestPolicy.DisallowedCryptoProviders != null &&
-                        certificateRequestPolicy.DisallowedCryptoProviders.Count > 0 &&
                         certificateRequestPolicy.DisallowedCryptoProviders.Any(x =>
                             x.Equals(cryptoProvider, StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -187,46 +228,9 @@ namespace TameMyCerts
             }
 
             #endregion
+            
+            #region Process rules for the process name
 
-            #region Process inline request attributes
-
-            string processName = null;
-            string machineName = null;
-
-            for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
-            {
-                var cryptAttribute = certificateRequestPkcs10.CryptAttributes[i];
-                string rawData;
-                try
-                {
-                    rawData = cryptAttribute.Values[0].get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                if (cryptAttribute.ObjectId.Value == SZOID_REQUEST_CLIENT_INFO)
-                {
-                    var clientId = new CX509AttributeClientId();
-
-                    try
-                    {
-                        clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
-                        processName = clientId.ProcessName.ToLowerInvariant();
-                        machineName = clientId.MachineDnsName;
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(clientId);
-                    }
-                }
-            }
-
-            if (machineName != null)
-                result.AdditionalInfo.Add(string.Format(LocalizedStrings.ReqVal_Info_Client_HostName_Attrib, machineName));
-
-            // Process rules for the process name
             if (certificateRequestPolicy.AllowedProcesses != null &&
                 certificateRequestPolicy.AllowedProcesses.Count > 0 ||
                 certificateRequestPolicy.DisallowedProcesses != null &&
@@ -235,7 +239,6 @@ namespace TameMyCerts
                 if (processName != null)
                 {
                     if (certificateRequestPolicy.AllowedProcesses != null &&
-                        certificateRequestPolicy.AllowedProcesses.Count > 0 &&
                         !certificateRequestPolicy.AllowedProcesses.Any(x =>
                             x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -245,7 +248,6 @@ namespace TameMyCerts
                     }
 
                     if (certificateRequestPolicy.DisallowedProcesses != null &&
-                        certificateRequestPolicy.DisallowedProcesses.Count > 0 &&
                         certificateRequestPolicy.DisallowedProcesses.Any(x =>
                             x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
                     {
@@ -270,9 +272,15 @@ namespace TameMyCerts
 
             #endregion
 
-            if (isOfflineTemplate)
+            #region Process rules for requesting client computer
+
+            // TODO
+
+            #endregion
+
+            if (templateInfo.EnrolleeSuppliesSubject)
             {
-                #region Verify key attributes
+                #region Process rules for key attributes
 
                 // Verify Key Algorithm
                 string keyAlgorithm;
@@ -305,12 +313,14 @@ namespace TameMyCerts
                 }
 
                 if (certificateRequestPolicy.MaximumKeyLength > 0)
+                {
                     if (certificateRequestPkcs10.PublicKey.Length > certificateRequestPolicy.MaximumKeyLength)
                     {
                         result.Success = false;
                         result.Description.Add(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
                             certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MaximumKeyLength));
                     }
+                }
 
                 // Abort here to trigger proper error code
                 if (result.Success == false)
@@ -339,6 +349,7 @@ namespace TameMyCerts
                 var subjectRdnList = new List<KeyValuePair<string, string>>();
 
                 if (subjectDn != null)
+                {
                     try
                     {
                         subjectRdnList = GetDnComponents(subjectDn);
@@ -350,6 +361,7 @@ namespace TameMyCerts
                         result.StatusCode = WinError.CERTSRV_E_BAD_REQUESTSUBJECT;
                         return result;
                     }
+                }
 
                 #endregion
 
@@ -360,6 +372,7 @@ namespace TameMyCerts
 
                 // Process Certificate extensions
                 foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
+                {
                     switch (extension.ObjectId.Value)
                     {
                         case XCN_OID_SUBJECT_ALT_NAME2:
@@ -372,6 +385,7 @@ namespace TameMyCerts
                             );
 
                             foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
+                            {
                                 switch (san.Type)
                                 {
                                     case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
@@ -416,6 +430,7 @@ namespace TameMyCerts
                                             san.ObjectId.Value));
                                         break;
                                 }
+                            }
 
                             Marshal.ReleaseComObject(extensionAlternativeNames);
 
@@ -430,10 +445,11 @@ namespace TameMyCerts
                             result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Dir_Attrs);
                             break;
                     }
+                }
 
                 #endregion
 
-                #region Verify Name constraints
+                #region Process rules for name constraints
 
                 var subjectValidationResult = VerifySubject(
                     subjectRdnList,
@@ -541,21 +557,20 @@ namespace TameMyCerts
                     }
 
                     foreach (var pattern in policyItem.AllowedPatterns)
+                    {
                         try
                         {
                             if (subjectItem.Key == "iPAddress")
                             {
                                 var ipAddress = IPAddress.Parse(subjectItem.Value);
 
-                                if (ipAddress.IsInRange(pattern))
-                                    allowedMatches++;
+                                if (ipAddress.IsInRange(pattern)) allowedMatches++;
                             }
                             else
                             {
                                 var regEx = new Regex(@"" + pattern + "");
 
-                                if (regEx.IsMatch(subjectItem.Value))
-                                    allowedMatches++;
+                                if (regEx.IsMatch(subjectItem.Value)) allowedMatches++;
                             }
                         }
                         catch
@@ -564,6 +579,7 @@ namespace TameMyCerts
                             result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Regex, pattern,
                                 subjectItem.Value, subjectItem.Key));
                         }
+                    }
 
                     // Deny if there weren't any matches
                     if (allowedMatches == 0)
@@ -575,7 +591,9 @@ namespace TameMyCerts
 
                     // Process disallowed patterns
                     if (policyItem.DisallowedPatterns != null)
+                    {
                         foreach (var pattern in policyItem.DisallowedPatterns)
+                        {
                             try
                             {
                                 if (policyItem.Field == "iPAddress")
@@ -615,6 +633,8 @@ namespace TameMyCerts
 
                                 break;
                             }
+                        }
+                    }
                 }
             }
 
@@ -663,15 +683,12 @@ namespace TameMyCerts
         // As this messes up our comparison logic, we must remove the additional quotes
         private static string RemoveQuotesFromSubjectRdn(string rdn)
         {
-            if (rdn == null)
-                return null;
+            if (rdn == null) return null;
 
-            if (rdn.Length == 0)
-                return rdn;
+            if (rdn.Length == 0) return rdn;
 
             // Not in quotes, nothing to do
-            if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"')
-                return rdn;
+            if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"') return rdn;
 
             // Skip first and last char, then remove every 2nd quote
 
@@ -685,15 +702,12 @@ namespace TameMyCerts
 
                 if (currentChar == quoteChar)
                 {
-                    if (inQuotedString == false)
-                        outString += currentChar;
+                    if (inQuotedString == false) outString += currentChar;
 
                     inQuotedString = !inQuotedString;
                 }
                 else
-                {
                     outString += currentChar;
-                }
             }
 
             return outString;
@@ -709,8 +723,7 @@ namespace TameMyCerts
             // First split by ','
             var components = SplitSubjectDn(distinguishedName, ',');
 
-            if (components == null)
-                return null;
+            if (components == null) return null;
 
             var dnComponents = new List<KeyValuePair<string, string>>();
 
@@ -740,8 +753,7 @@ namespace TameMyCerts
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
-            if (string.IsNullOrEmpty(distinguishedName))
-                return null;
+            if (string.IsNullOrEmpty(distinguishedName)) return null;
 
             var inQuotedString = false;
             const char quoteChar = '\"';
@@ -765,6 +777,7 @@ namespace TameMyCerts
 
                         // skip the next character (if one exists)
                         if (i < distinguishedName.Length - 1) i++;
+
                         break;
                 }
 
@@ -802,7 +815,6 @@ namespace TameMyCerts
             public bool Success { get; set; } = true;
             public bool AuditOnly { get; }
             public List<string> Description { get; set; } = new List<string>();
-            public List<string> AdditionalInfo { get; set; } = new List<string>();
         }
     }
 }

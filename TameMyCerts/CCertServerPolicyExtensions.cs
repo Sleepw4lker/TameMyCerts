@@ -37,8 +37,10 @@ namespace TameMyCerts
             {
                 attributeName = serverPolicy.EnumerateAttributes();
                 if (attributeName != null)
+                {
                     requestAttributesDictionary.Add(new KeyValuePair<string, string>(attributeName,
                         serverPolicy.GetRequestAttribute(attributeName)));
+                }
             } while (attributeName != null);
 
             serverPolicy.EnumerateAttributesClose();
@@ -71,9 +73,9 @@ namespace TameMyCerts
             }
         }
 
-        public static DateTime GetDateCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
+        public static DateTimeOffset GetDateCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
-            return serverPolicy.GetCertificateProperty<DateTime>(name, CertSrv.PROPTYPE_DATE);
+            return new DateTimeOffset(serverPolicy.GetCertificateProperty<DateTime>(name, CertSrv.PROPTYPE_DATE).ToUniversalTime());
         }
 
         /// <summary>
@@ -146,9 +148,9 @@ namespace TameMyCerts
             }
         }
 
-        public static DateTime GetDateRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
+        public static DateTimeOffset GetDateRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
-            return serverPolicy.GetRequestProperty<DateTime>(name, CertSrv.PROPTYPE_DATE);
+            return new DateTimeOffset(serverPolicy.GetRequestProperty<DateTime>(name, CertSrv.PROPTYPE_DATE).ToUniversalTime());
         }
 
         public static string GetStringRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
