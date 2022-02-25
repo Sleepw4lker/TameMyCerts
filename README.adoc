@@ -17,6 +17,7 @@ The TameMyCerts policy module addresses, amongst others, the following use cases
 * Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like AirWatch/Workspace One or MobileIron, link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content. The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
 * Technical or legal requirements to allow any kind of subject RDN to be enabled for issuance on the certification authority (enabling link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag on the certification authority). Without the module, there is no control over which exact subject RDNs are allowed to be issued.
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
+* Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift).
 
 === Conclusion
 
@@ -327,6 +328,33 @@ In addition to the certification authorities regular log entries, the policy mod
 |Occurs if the Windows Default policy module denied a certificate request, thus the additional logic of TameMyCerts was not triggered at all for the given request. Occurs only if the certification authorities "LogLevel" is set to 4 or higher.
 
 |===
+
+=== Issuing Certificates with an exactly defined validity period
+
+The Windows Default policy module link:https://www.gradenegger.eu/?p=6502[allows to specify the exact expiration date^] (NotAfter) for a certificate by specifying an "ExpirationDate" attribute whilst submitting the certificate request. TameMyCerts adds support for a "StartDate" attribute which does the exact same for the begin of the certificate's validity period (NotBefore).
+
+To enable the feature, you must enable the EDITF_ATTRIBUTEENDDATE flag in the policy module of the certification authority and restart the certification authority service afterwards.
+
+....
+certutil -setreg Policy\Editflags +EDITF_ATTRIBUTEENDDATE
+net stop certsvc
+net start certsvc
+....
+
+Afterwards, you both can specify *StartDate* and *ExpirationDate* in link:https://datatracker.ietf.org/doc/html/rfc2616[RFC 2616^] compliant form whilst submitting the certificate request.
+
+Example:
+
+....
+certreq ^
+-config "ca02.intra.adcslabor.de\ADCS Labor Issuing CA 1" ^
+-attrib "CertificateTemplate:ADCSLaborWebServer\nStartDate:Tue, 1 Mar 2022 08:00:00 GMT\nExpirationDate:Tue, 1 Mar 2022 16:00:00 GMT" ^
+-submit "SomeWebServer.req"
+....
+
+NOTE: When an invalid date is being requestst, the certificate request will get denied with ERROR_INVALID_TIME.
+
+NOTE: TameMyCerts currently only supports specifying "StartDate" whilst submitting the certificate request but not as custom request attributes. The alternative method of specifying "ValidityPeriod" and "ValidityPeriodUnits" for the expiration date can currently not be used in combination with the "StartDate" attribute as it gets applied afterwards and thus won't deliver the expected result.
 
 == Building
 
