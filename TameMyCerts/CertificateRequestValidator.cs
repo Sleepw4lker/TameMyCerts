@@ -133,14 +133,14 @@ namespace TameMyCerts
             #region Process request attributes
 
             string certClientMachine = null;
+
             // TODO: Put into method, and extract "rmd" as well, if present.
 
             // Log the name of the machine ("ccm" attribute) from where the request was submitted
             if (requestAttributeList != null &&
                 requestAttributeList.Any(x => x.Key == "ccm"))
             {
-                certClientMachine = string.Format(LocalizedStrings.ReqVal_Info_Client_HostName,
-                    requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value);
+                certClientMachine = requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value;
             }
 
             #endregion
