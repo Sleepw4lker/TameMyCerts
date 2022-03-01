@@ -12,4 +12,4 @@ TameMyCerts.csproj ^
 -property:Configuration=debug
 
 copy install.ps1 bin\Debug\
-copy SamplePolicy.xml bin\Debug\
+copy Sample_*.xml bin\Debug\

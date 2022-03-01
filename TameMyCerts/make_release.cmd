@@ -18,7 +18,7 @@ TameMyCerts.csproj ^
 /p:TransformOutOfDateOnly=false
 
 copy install.ps1 bin\Release\
-copy SamplePolicy.xml bin\Release\
+copy Sample_*.xml bin\Debug\
 copy ..\README.adoc bin\Release\
 copy ..\LICENSE bin\Release\
 copy ..\NOTICE bin\Release\
