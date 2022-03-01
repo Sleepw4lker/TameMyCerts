@@ -204,7 +204,7 @@
     <value>The value "{0}" does not match any of the allowed patterns for the {1} field.</value>
   </data>
   <data name="ReqVal_Disallow_Match" xml:space="preserve">
-    <value>The value "{0}" does match the disallowed pattern {1} for the {2} field.</value>
+    <value>The value "{0}" does match a pattern that is disallowed for the  {1} field.</value>
   </data>
   <data name="Unknown" xml:space="preserve">
     <value>unknown</value>

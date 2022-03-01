@@ -201,7 +201,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; does match the disallowed pattern {1} for the {2} field..
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; does match a pattern that is disallowed for the  {1} field..
         /// </summary>
         internal static string ReqVal_Disallow_Match {
             get {

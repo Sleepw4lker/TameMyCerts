@@ -20,7 +20,7 @@ namespace UnitTests
             _requestPolicyEcc.KeyAlgorithm = "ECC";
             _requestPolicyEcc.MinimumKeyLength = 256;
 
-            _templateInfo =  new CertificateTemplateInfo.Template()
+            _templateInfo = new CertificateTemplateInfo.Template
             {
                 EnrolleeSuppliesSubject = true
             };
@@ -43,91 +43,93 @@ namespace UnitTests
                         Field = "commonName",
                         Mandatory = true,
                         MaxLength = 64,
-                        AllowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
-                            @"^[-_a-zA-Z0-9]*\.adcslabor\.de$",
-                            @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"
-                        },
-                        DisallowedPatterns = new List<string>
-                        {
-                            @"^.*(porn|gambling).*$",
-                            @"^intra\.adcslabor\.de$"
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9]*\.adcslabor\.de$"},
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"},
+                            new Pattern {Expression = @"^.*(porn|gambling).*$", Action = "Deny"},
+                            new Pattern {Expression = @"^intra\.adcslabor\.de$", Action = "Deny"}
                         }
                     },
                     new SubjectRule
                     {
                         Field = "countryName",
                         MaxLength = 2,
-                        AllowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
                             // ISO 3166 country codes as example... to ensure countryName is filled correctly (e.g. "GB" instead of "UK")
-                            @"^(AD|AE|AF|AG|AI|AL|AM|AO|AQ|AR|AS|AT|AU|AW|AX|AZ|BA|BB|BD|BE|BF|BG|BH|BI|BJ|BL|BM|BN|BO|BQ|BR|BS|BT|BV|BW|BY|BZ|CA|CC|CD|CF|CG|CH|CI|CK|CL|CM|CN|CO|CR|CU|CV|CW|CX|CY|CZ|DE|DJ|DK|DM|DO|DZ|EC|EE|EG|EH|ER|ES|ET|FI|FJ|FK|FM|FO|FR|GA|GB|GD|GE|GF|GG|GH|GI|GL|GM|GN|GP|GQ|GR|GS|GT|GU|GW|GY|HK|HM|HN|HR|HT|HU|ID|IE|IL|IM|IN|IO|IQ|IR|IS|IT|JE|JM|JO|JP|KE|KG|KH|KI|KM|KN|KP|KR|KW|KY|KZ|LA|LB|LC|LI|LK|LR|LS|LT|LU|LV|LY|MA|MC|MD|ME|MF|MG|MH|MK|ML|MM|MN|MO|MP|MQ|MR|MS|MT|MU|MV|MW|MX|MY|MZ|NA|NC|NE|NF|NG|NI|NL|NO|NP|NR|NU|NZ|OM|PA|PE|PF|PG|PH|PK|PL|PM|PN|PR|PS|PT|PW|PY|QA|RE|RO|RS|RU|RW|SA|SB|SC|SD|SE|SG|SH|SI|SJ|SK|SL|SM|SN|SO|SR|SS|ST|SV|SX|SY|SZ|TC|TD|TF|TG|TH|TJ|TK|TL|TM|TN|TO|TR|TT|TV|TW|TZ|UA|UG|UM|US|UY|UZ|VA|VC|VE|VG|VI|VN|VU|WF|WS|YE|YT|ZA|ZM|ZW)$"
+                            new Pattern
+                            {
+                                Expression =
+                                    @"^(AD|AE|AF|AG|AI|AL|AM|AO|AQ|AR|AS|AT|AU|AW|AX|AZ|BA|BB|BD|BE|BF|BG|BH|BI|BJ|BL|BM|BN|BO|BQ|BR|BS|BT|BV|BW|BY|BZ|CA|CC|CD|CF|CG|CH|CI|CK|CL|CM|CN|CO|CR|CU|CV|CW|CX|CY|CZ|DE|DJ|DK|DM|DO|DZ|EC|EE|EG|EH|ER|ES|ET|FI|FJ|FK|FM|FO|FR|GA|GB|GD|GE|GF|GG|GH|GI|GL|GM|GN|GP|GQ|GR|GS|GT|GU|GW|GY|HK|HM|HN|HR|HT|HU|ID|IE|IL|IM|IN|IO|IQ|IR|IS|IT|JE|JM|JO|JP|KE|KG|KH|KI|KM|KN|KP|KR|KW|KY|KZ|LA|LB|LC|LI|LK|LR|LS|LT|LU|LV|LY|MA|MC|MD|ME|MF|MG|MH|MK|ML|MM|MN|MO|MP|MQ|MR|MS|MT|MU|MV|MW|MX|MY|MZ|NA|NC|NE|NF|NG|NI|NL|NO|NP|NR|NU|NZ|OM|PA|PE|PF|PG|PH|PK|PL|PM|PN|PR|PS|PT|PW|PY|QA|RE|RO|RS|RU|RW|SA|SB|SC|SD|SE|SG|SH|SI|SJ|SK|SL|SM|SN|SO|SR|SS|ST|SV|SX|SY|SZ|TC|TD|TF|TG|TH|TJ|TK|TL|TM|TN|TO|TR|TT|TV|TW|TZ|UA|UG|UM|US|UY|UZ|VA|VC|VE|VG|VI|VN|VU|WF|WS|YE|YT|ZA|ZM|ZW)$"
+                            }
                         }
                     },
                     new SubjectRule
                     {
                         Field = "organizationName",
                         MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^ADCS Labor$"}
+                        Patterns = new List<Pattern> {new Pattern {Expression = @"^ADCS Labor$"}}
                     },
                     new SubjectRule
                     {
                         Field = "organizationalUnit",
                         MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^.*$"}
+                        Patterns = new List<Pattern> {new Pattern {Expression = @"^.*$"}}
                     },
                     new SubjectRule
                     {
                         Field = "localityName",
-                        AllowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
                             // All capital cities of german federal states as example
-                            @"^Bremen$",
-                            @"^Hamburg$",
-                            @"^Berlin$",
-                            @"^Saarbruecken$",
-                            @"^Kiel$",
-                            @"^Erfurt$",
-                            @"^Dresden$",
-                            @"^Mainz$",
-                            @"^Magdeburg$",
-                            @"^Wiesbaden$",
-                            @"^Schwerin$",
-                            @"^Potsdam$",
-                            @"^Duesseldorf$",
-                            @"^Stuttgart$",
-                            @"^Hanover$",
-                            @"^Munich$"
+                            new Pattern {Expression = @"^Bremen$"},
+                            new Pattern {Expression = @"^Hamburg$"},
+                            new Pattern {Expression = @"^Berlin$"},
+                            new Pattern {Expression = @"^Saarbruecken$"},
+                            new Pattern {Expression = @"^Kiel$"},
+                            new Pattern {Expression = @"^Erfurt$"},
+                            new Pattern {Expression = @"^Dresden$"},
+                            new Pattern {Expression = @"^Mainz$"},
+                            new Pattern {Expression = @"^Magdeburg$"},
+                            new Pattern {Expression = @"^Wiesbaden$"},
+                            new Pattern {Expression = @"^Schwerin$"},
+                            new Pattern {Expression = @"^Potsdam$"},
+                            new Pattern {Expression = @"^Duesseldorf$"},
+                            new Pattern {Expression = @"^Stuttgart$"},
+                            new Pattern {Expression = @"^Hanover$"},
+                            new Pattern {Expression = @"^Munich$"}
                         }
                     },
                     new SubjectRule
                     {
                         Field = "stateOrProvinceName",
-                        AllowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
                             // All german federal states as example
-                            @"^Bremen$",
-                            @"^Hamburg$",
-                            @"^Berlin$",
-                            @"^Saarland$",
-                            @"^Schleswig Holstein$",
-                            @"^Thuringia$",
-                            @"^Saxony$",
-                            @"^Rhineland Palatinate$",
-                            @"^Saxony-Anhalt$",
-                            @"^Hesse$",
-                            @"^Mecklenburg Western Pomerania$",
-                            @"^Brandenburg$",
-                            @"^Northrhine-Westphalia$",
-                            @"^Baden-Wuerttemberg$",
-                            @"^Lower Saxony$",
-                            @"^Bavaria$"
+                            new Pattern {Expression = @"^Bremen$"},
+                            new Pattern {Expression = @"^Hamburg$"},
+                            new Pattern {Expression = @"^Berlin$"},
+                            new Pattern {Expression = @"^Saarland$"},
+                            new Pattern {Expression = @"^Schleswig Holstein$"},
+                            new Pattern {Expression = @"^Thuringia$"},
+                            new Pattern {Expression = @"^Saxony$"},
+                            new Pattern {Expression = @"^Rhineland Palatinate$"},
+                            new Pattern {Expression = @"^Saxony-Anhalt$"},
+                            new Pattern {Expression = @"^Hesse$"},
+                            new Pattern {Expression = @"^Mecklenburg Western Pomerania$"},
+                            new Pattern {Expression = @"^Brandenburg$"},
+                            new Pattern {Expression = @"^Northrhine-Westphalia$"},
+                            new Pattern {Expression = @"^Baden-Wuerttemberg$"},
+                            new Pattern {Expression = @"^Lower Saxony$"},
+                            new Pattern {Expression = @"^Bavaria$"}
                         }
                     },
                     new SubjectRule
                     {
                         Field = "emailAddress",
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}
+                        Patterns = new List<Pattern>
+                            {new Pattern {Expression = @"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}}
                     }
                 },
                 SubjectAlternativeName = new List<SubjectRule>
@@ -137,15 +139,12 @@ namespace UnitTests
                         Field = "dNSName",
                         MaxOccurrences = 10,
                         MaxLength = 64,
-                        AllowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
-                            @"^[-_a-zA-Z0-9]*\.adcslabor\.de$",
-                            @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"
-                        },
-                        DisallowedPatterns = new List<string>
-                        {
-                            @"^.*(porn|gambling).*$",
-                            @"^intra\.adcslabor\.de$"
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9]*\.adcslabor\.de$"},
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9]*\.intra\.adcslabor\.de$"},
+                            new Pattern {Expression = @"^.*(porn|gambling).*$", Action = "Deny"},
+                            new Pattern {Expression = @"^intra\.adcslabor\.de$", Action = "Deny"}
                         }
                     },
                     new SubjectRule
@@ -153,24 +152,30 @@ namespace UnitTests
                         Field = "iPAddress",
                         MaxOccurrences = 10,
                         MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"192.168.0.0/16"},
-                        DisallowedPatterns = new List<string>
+                        Patterns = new List<Pattern>
                         {
-                            @"192.168.123.0/24",
-                            @"192.168.127.0/24",
-                            @"192.168.131.0/24"
+                            new Pattern {Expression = @"192.168.0.0/16", TreatAs = "Cidr"},
+                            new Pattern {Expression = @"192.168.123.0/24", TreatAs = "Cidr", Action = "Deny"},
+                            new Pattern {Expression = @"192.168.127.0/24", TreatAs = "Cidr", Action = "Deny"},
+                            new Pattern {Expression = @"192.168.131.0/24", TreatAs = "Cidr", Action = "Deny"}
                         }
                     },
                     new SubjectRule
                     {
                         Field = "userPrincipalName",
                         MaxLength = 64,
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@intra\.adcslabor\.de$"}
+                        Patterns = new List<Pattern>
+                        {
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9\.]*\@intra\.adcslabor\.de$"}
+                        }
                     },
                     new SubjectRule
                     {
                         Field = "rfc822Name",
-                        AllowedPatterns = new List<string> {@"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}
+                        Patterns = new List<Pattern>
+                        {
+                            new Pattern {Expression = @"^[-_a-zA-Z0-9\.]*\@adcslabor\.de$"}
+                        }
                     }
                 }
             };
@@ -537,7 +542,6 @@ namespace UnitTests
 
             Assert.IsFalse(validationResult.Success);
         }
-
 
 
         [TestMethod]

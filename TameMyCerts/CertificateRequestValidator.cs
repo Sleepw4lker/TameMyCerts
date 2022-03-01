@@ -228,7 +228,7 @@ namespace TameMyCerts
             }
 
             #endregion
-            
+
             #region Process rules for the process name
 
             if (certificateRequestPolicy.AllowedProcesses != null &&
@@ -546,9 +546,7 @@ namespace TameMyCerts
                     }
 
                     // Process allowed patterns
-                    var allowedMatches = 0;
-
-                    if (policyItem.AllowedPatterns == null)
+                    if (policyItem.Patterns == null)
                     {
                         result.Success = false;
                         result.Description.Add(
@@ -556,32 +554,59 @@ namespace TameMyCerts
                         return result;
                     }
 
-                    foreach (var pattern in policyItem.AllowedPatterns)
+                    var allowedMatches = 0;
+                    var disallowedMatches = 0;
+
+                    foreach (var pattern in policyItem.Patterns)
                     {
                         try
                         {
-                            if (subjectItem.Key == "iPAddress")
+                            switch (pattern.TreatAs)
                             {
-                                var ipAddress = IPAddress.Parse(subjectItem.Value);
+                                case "RegEx":
 
-                                if (ipAddress.IsInRange(pattern)) allowedMatches++;
-                            }
-                            else
-                            {
-                                var regEx = new Regex(@"" + pattern + "");
+                                    var regEx = new Regex(@"" + pattern.Expression + "");
+                                    if (regEx.IsMatch(subjectItem.Value))
+                                    {
+                                        if (pattern.Action == "Allow")
+                                        {
+                                            allowedMatches++;
+                                        }
+                                        else
+                                        {
+                                            disallowedMatches++;
+                                        }
+                                    }
 
-                                if (regEx.IsMatch(subjectItem.Value)) allowedMatches++;
+                                    break;
+
+                                case "Cidr":
+
+                                    var ipAddress = IPAddress.Parse(subjectItem.Value);
+                                    if (ipAddress.IsInRange(pattern.Expression))
+                                    {
+                                        if (pattern.Action == "Allow")
+                                        {
+                                            allowedMatches++;
+                                        }
+                                        else
+                                        {
+                                            disallowedMatches++;
+                                        }
+                                    }
+
+                                    break;
                             }
                         }
                         catch
                         {
                             result.Success = false;
-                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Regex, pattern,
+                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Regex, pattern.Expression,
                                 subjectItem.Value, subjectItem.Key));
                         }
                     }
 
-                    // Deny if there weren't any matches
+                    // Deny if there weren't any allowed matches
                     if (allowedMatches == 0)
                     {
                         result.Success = false;
@@ -589,51 +614,12 @@ namespace TameMyCerts
                             subjectItem.Key));
                     }
 
-                    // Process disallowed patterns
-                    if (policyItem.DisallowedPatterns != null)
+                    // Deny if there were any disallowed matches
+                    if (disallowedMatches > 0)
                     {
-                        foreach (var pattern in policyItem.DisallowedPatterns)
-                        {
-                            try
-                            {
-                                if (policyItem.Field == "iPAddress")
-                                {
-                                    var ipAddress = IPAddress.Parse(subjectItem.Value);
-                                    if (ipAddress.IsInRange(pattern))
-                                    {
-                                        result.Success = false;
-                                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
-                                            subjectItem.Value, pattern, subjectItem.Key));
-
-                                        // One is sufficient
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    // Stop if the RDN *does* match the defined pattern
-                                    var regEx = new Regex(@"" + pattern + "");
-
-                                    if (regEx.IsMatch(subjectItem.Value))
-                                    {
-                                        result.Success = false;
-                                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
-                                            subjectItem.Value, pattern, subjectItem.Key));
-
-                                        // One is sufficient
-                                        break;
-                                    }
-                                }
-                            }
-                            catch
-                            {
-                                result.Success = false;
-                                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Regex, pattern,
-                                    subjectItem.Value, subjectItem.Key));
-
-                                break;
-                            }
-                        }
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match, subjectItem.Value,
+                            subjectItem.Key));
                     }
                 }
             }
@@ -683,12 +669,21 @@ namespace TameMyCerts
         // As this messes up our comparison logic, we must remove the additional quotes
         private static string RemoveQuotesFromSubjectRdn(string rdn)
         {
-            if (rdn == null) return null;
+            if (rdn == null)
+            {
+                return null;
+            }
 
-            if (rdn.Length == 0) return rdn;
+            if (rdn.Length == 0)
+            {
+                return rdn;
+            }
 
             // Not in quotes, nothing to do
-            if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"') return rdn;
+            if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"')
+            {
+                return rdn;
+            }
 
             // Skip first and last char, then remove every 2nd quote
 
@@ -702,12 +697,17 @@ namespace TameMyCerts
 
                 if (currentChar == quoteChar)
                 {
-                    if (inQuotedString == false) outString += currentChar;
+                    if (inQuotedString == false)
+                    {
+                        outString += currentChar;
+                    }
 
                     inQuotedString = !inQuotedString;
                 }
                 else
+                {
                     outString += currentChar;
+                }
             }
 
             return outString;
@@ -723,7 +723,10 @@ namespace TameMyCerts
             // First split by ','
             var components = SplitSubjectDn(distinguishedName, ',');
 
-            if (components == null) return null;
+            if (components == null)
+            {
+                return null;
+            }
 
             var dnComponents = new List<KeyValuePair<string, string>>();
 
@@ -732,15 +735,22 @@ namespace TameMyCerts
                 // split each component by '='
                 var subComponents = SplitSubjectDn(components[i], '=');
 
-                if (subComponents.GetLength(0) != 2) throw new ArgumentException();
+                if (subComponents.GetLength(0) != 2)
+                {
+                    throw new ArgumentException();
+                }
 
                 var key = SubstituteRdnTypeAliases(subComponents[0].Trim());
                 var value = RemoveQuotesFromSubjectRdn(subComponents[1].Trim());
 
                 if (key.Length > 0)
+                {
                     dnComponents.Add(new KeyValuePair<string, string>(key, value));
+                }
                 else
+                {
                     throw new ArgumentException();
+                }
             }
 
             return dnComponents;
@@ -753,7 +763,10 @@ namespace TameMyCerts
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
-            if (string.IsNullOrEmpty(distinguishedName)) return null;
+            if (string.IsNullOrEmpty(distinguishedName))
+            {
+                return null;
+            }
 
             var inQuotedString = false;
             const char quoteChar = '\"';
@@ -776,7 +789,10 @@ namespace TameMyCerts
                     case escapeChar:
 
                         // skip the next character (if one exists)
-                        if (i < distinguishedName.Length - 1) i++;
+                        if (i < distinguishedName.Length - 1)
+                        {
+                            i++;
+                        }
 
                         break;
                 }
@@ -794,7 +810,10 @@ namespace TameMyCerts
                     // we've reached the end 
 
                     // if we are still in quoted string, the format is invalid
-                    if (inQuotedString) throw new ArgumentException();
+                    if (inQuotedString)
+                    {
+                        throw new ArgumentException();
+                    }
 
                     // we need to end the last token
                     resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart + 1));
