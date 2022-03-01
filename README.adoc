@@ -4,7 +4,7 @@ TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/c
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
 
-The module supports checking certificate requests for certificate templates that allow the subject information to be specified by the enrolle against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
+The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrolle against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
 
 == Value Proposition
 
@@ -18,6 +18,7 @@ The TameMyCerts policy module addresses, amongst others, the following use cases
 * Technical or legal requirements to allow any kind of subject RDN to be enabled for issuance on the certification authority (enabling link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag on the certification authority). Without the module, there is no control over which exact subject RDNs are allowed to be issued.
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
 * Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift).
+* Preventing Users to request certificates from templates that are intended to be used solely with link:https://www.gradenegger.eu/?p=2789[AutoEnrollment^] via alternative methods (e.g. MMC.exe).
 
 === Conclusion
 
@@ -36,7 +37,7 @@ The module was successfully tested with the following operating systems:
 
 Older operating systems are not supported.
 
-For Windows Server 2016 and below, (link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
+For Windows Server 2016 and below, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
 
 === Installation
 
@@ -83,32 +84,27 @@ NOTE: We distinguish between certificate requests for certificate templates that
 === General settings
 
 |===
-|Parameter |Mandatory |Applies to | Description
+|Parameter |Mandatory | Description
 
 |AuditOnly
 |no
-|online and offline requests
 |Audit Mode. No certificate requests get denied but a message will get written into the Event Log when a certificate request violates the given policy. Helps sharpening the policy rules before applying  a policy onto a productive system. Defaults to false.
 
 |AllowedProcesses
 |no
-|online and offline requests
 |Contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
 
 |DisallowedProcesses
 |no
-|online and offline requests
 |Contains a list of one or more process names that are disallowed to get a certificate issued. For 
 example, if you would like to deny certificate enrollment via certreq.exe, you could enter it here.
 
 |AllowedCryptoProviders
 |no
-|online and offline requests
 |Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. THis way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
 
 |DisallowedCryptoProviders
 |no
-|online and offline requests
 |Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate request's private key.
 
 NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, PSCertificateEnrollment and similar apps) will contain information about the process that was used to create the certificate request.
@@ -117,29 +113,30 @@ NOTE: Please be aware that only certificate requests that have been made with th
 
 === Configuring rules for the private key
 
+NOTE: The definition and enforcement of rules for the private key is only possible for "offline" certificate templates.
+
 You can specify the following parameters for the private key:
 
 |===
-|Parameter |Mandatory |Applies to | Description
+|Parameter |Mandatory |Description
 
 |KeyAlgorithm
 |no
-|offline requests only
 |Specifies the key algorithm the certificate request must use. At the moment, this can be "RSA" or "ECC" (which covers both ECDH and ECDSA). Defaults to "RSA".
 
 |MinimumKeyLength
 |no
-|offline requests only
 |Specifies the minimum key length the certificate request must use. Defaults to "0" (any key size is allowed). Note that though the Windows Default policy module also verifies this, this may become handy in a migration scenario where you publish the same template both on the old and new certification authority and plan to increase key size when switching to the new one whilst keeping the productive system unchanged.
 
 |MaximumKeyLength
 |no
-|offline requests only
 |Specifies the maximum key length the certificate request can use. Defaults to "0" (any key size is allowed).
 
 |===
 
 === Configuring rules for subject relative distinguished names (RDNs)
+
+NOTE: The definition and enforcement of rules for subject and subject alternative names is only possible for "offline" certificate templates.
 
 Rules for subject RDNs get specified within a "SubjectRule" node under "Subject" section.
 
@@ -148,42 +145,50 @@ NOTE: Any subject RDN that is not defined is considered forbidden and will resul
 A "SubjectRule" can/must contain the following nodes:
 
 |===
-|Parameter |Mandatory |Applies to |Description
+|Parameter |Mandatory |Description
 
 |Field
 |*yes*
-|offline requests only
 |Specifies the type of the field. See the below list for possible values. *Please be aware that this field is case-sensitive.*
 
 |Mandatory
 |no
-|offline requests only
 |Specifies if this field *must* (true) or *may* (false) appear in the certificate request presented. Defaults to "false".
 
 |MaxOccurrences
 |no
-|offline requests only
 |Specifies how often this field may appear within a certificate request. Should always be 1 for must subject RDN types. Defaults to 1.
 
 |MinLength
 |no
-|offline requests only
-|Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to 1. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the AllowedPatterns directive.
+|Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to 1. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the Patterns directive.
 
 |MaxLength
 |no
-|offline requests only
-|Specifies the maximum amount of characters the field may contain. Defaults to 128. Note that link:https://www.gradenegger.eu/?p=2717[there is also an upper limit set by the certification authority^]. Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the AllowedPatterns directive.
+|Specifies the maximum amount of characters the field may contain. Defaults to 128. Note that link:https://www.gradenegger.eu/?p=2717[there is also an upper limit set by the certification authority^]. Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the Patterns directive.
 
-|AllowedPatterns
+|Patterns
 |*yes*
-|offline requests only
-|For any field type except the iPAddress one, you can define one or more regular expressions of which the requested field content must match at least one of to get permitted. The node is required, so if you want to allow any content, simply configure "^.*$" as expression. For the iPAddress SAN type, you would specify a subnet in CIDR (e.g. 192.168.0.0/16) notation instead of a regular expression. To allow any IP Address, specify 0.0.0.0/0.
+|For any field type you can define one or more regular expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you want to allow any content, simply configure "^.*$" as expression.
 
-|DisallowedPatterns
+|===
+
+The "Pattern" Parameter is defined as follows:
+
+|===
+|Parameter |Mandatory |Description
+
+|Expression
+|*yes*
+|Specifies the expression the field gets matched against.
+
+|TreatAs
 |no
-|offline requests only
-|Specifies one or more regular expression (or CIDR subnet in the case of iPAddress type), of which the field must match at least one to get denied (even if an allow pattern has matched).
+|Specifies how the expression is to be interpreted by TameMyCerts. Supported values are "RegEx" for a regular expression (the default) or "Cidr" to match against an IP subnet in CIDR notation (e.g. 192.168.0.0/16). To allow any IP Address, specify 0.0.0.0/0.
+
+|Action
+|no
+|Specifies if a match for the pattern will "Allow" the certificate to get issued (the default) or "Deny" the certificate request.
 
 |===
 
@@ -239,9 +244,7 @@ To define a policy for one or more subject alternative name (SAN) type, adjust t
 * rfc822Name
 * uniformResourceIdentifier
 
-NOTE: For the iPAddress "Field", you would specify a subnet in CIDR (e.g. 192.168.0.0/16) notation instead of a regular expression. The module then evaluates if the speciified IP addresses reside in one of the speciified subnet.
-
-NOTE: Other SAN types are currently not implemented (yet). The ones currently implemented should be sufficient for most use cases.
+NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for most use cases.
 
 == Monitoring and Troubleshooting
 
@@ -271,6 +274,10 @@ The following error codes can be thrown by the policy module when a request was 
 |An internal error occurred.
 |ERROR_INVALID_DATA
 |Occurs if the policy module is unable to interpret the given policy file.
+
+|The specified time is invalid.
+|ERROR_INVALID_TIME
+|Occurs if an invalid date was requested for the "StartDate" certificate request attribute.
 
 |===
 

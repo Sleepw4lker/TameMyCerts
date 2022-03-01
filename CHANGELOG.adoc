@@ -2,6 +2,7 @@
 
 === 1.1.x.y (unreleased)
 
+* Change logic for allowed and disallowed patterns on SubjectRule directives. Now, for each defined "field" it is possible to specify how the expression will get treated (regular expression or CIDR notation), which allows for IP addresses to get verified if they are present in fields other that the iPAddress alternative name field. Existing policy files must be adjusted to the new logic.
 * Implement support for applying rules on process names used to create certificate requests for both online and offline certificate templates.
 * Implement support for applying rules on cryptographic providers used to create certificate requests' private keys for both online and offline certificate templates.
 * Implement support for custom NotBefore date on a certificate with the "StartDate" request attribute, in analogy to the "ExpirationDate" request attribute supported by the Windows Default policy module.
