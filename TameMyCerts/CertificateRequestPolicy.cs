@@ -103,7 +103,13 @@ namespace TameMyCerts
         public int MaxOccurrences { get; set; } = 1;
         public int MinLength { get; set; } = 1;
         public int MaxLength { get; set; } = 128;
-        public List<string> AllowedPatterns { get; set; }
-        public List<string> DisallowedPatterns { get; set; }
+        public List<Pattern> Patterns { get; set; }
+    }
+
+    public class Pattern
+    {
+        public string Expression;
+        public string TreatAs = "RegEx";
+        public string Action = "Allow";
     }
 }
