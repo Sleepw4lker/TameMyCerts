@@ -149,6 +149,14 @@ namespace TameMyCerts
             LogLevel = CertSrv.CERTLOG_VERBOSE,
             MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED
         };
+
+        public static Event REQUEST_DENIED_INSECURE_FLAGS = new Event
+        {
+            Id = 12,
+            LogLevel = CertSrv.CERTLOG_ERROR,
+            Type = EventLogEntryType.Error,
+            MessageText = LocalizedStrings.Events_REQUEST_DENIED_INSECURE_FLAGS
+        };
     }
 
     public class Event

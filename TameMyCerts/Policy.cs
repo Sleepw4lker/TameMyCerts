@@ -112,7 +112,10 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 // In some cases, the reason to deny a certificate comes in form of an exception (e.g. ERROR_INVALID_TIME), we return these here
-                if (ex.InnerException is COMException) throw ex.InnerException;
+                if (ex.InnerException is COMException)
+                {
+                    throw ex.InnerException;
+                }
 
                 // Only for the case something went wrong with calling the Windows Default policy module
                 _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
@@ -127,24 +130,46 @@ namespace TameMyCerts
             }
 
             // No need to check every request twice. If this request was permitted by a certificate manager, we are fine with it
-            if (bNewRequest == 0) return result;
+            if (bNewRequest == 0)
+            {
+                return result;
+            }
 
             // At this point, the certificate is completely constructed and ready to be issued, if we allow it
 
             #endregion
 
-            #region Process custom StartDate attribute
+            #region Fetch request attributes
 
             var requestAttributeList = certServerPolicy.GetRequestAttributeList();
+
+            #endregion
+
+            #region Process insecure flag/attribute combinations
+
+            // Deny requests containing the "san" request attribute
+            if ((_editFlags & CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2) == CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2 &&
+                requestAttributeList.Any(x => x.Key.Equals("san", StringComparison.InvariantCultureIgnoreCase)))
+            {
+                _logger.Log(Events.REQUEST_DENIED_INSECURE_FLAGS, requestId);
+                return WinError.NTE_FAIL;
+            }
+
+            #endregion
+
+            #region Process custom StartDate attribute
 
             // Set custom start date if requested and permitted
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE)
             {
                 if (requestAttributeList != null &&
-                    requestAttributeList.Any(x => x.Key == "StartDate"))
+                    requestAttributeList.Any(
+                        x => x.Key.Equals("StartDate", StringComparison.InvariantCultureIgnoreCase)))
                 {
                     if (DateTimeOffset.TryParseExact(
-                            requestAttributeList.FirstOrDefault(x => x.Key == "StartDate").Value,
+                            requestAttributeList.FirstOrDefault(x =>
+                                    x.Key.Equals("StartDate", StringComparison.InvariantCultureIgnoreCase))
+                                .Value,
                             DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
                             DateTimeStyles.AssumeUniversal, out var requestedStartDate))
                     {
@@ -165,7 +190,7 @@ namespace TameMyCerts
 
             #endregion
 
-            #region Get certificate template information
+            #region Fetch certificate template information
 
             var templateOid = certServerPolicy.GetStringCertificatePropertyOrDefault("CertificateTemplate");
 
@@ -216,7 +241,10 @@ namespace TameMyCerts
                     requestAttributeList);
 
             // No reason to deny the request, let's issue the certificate
-            if (validationResult.Success) return result;
+            if (validationResult.Success)
+            {
+                return result;
+            }
 
             // Also issue the certificate when the request policy is set to AuditOnly
             if (validationResult.AuditOnly)

@@ -6,6 +6,9 @@
 * Implement support for applying rules on process names used to create certificate requests for both online and offline certificate templates.
 * Implement support for applying rules on cryptographic providers used to create certificate requests' private keys for both online and offline certificate templates.
 * Implement support for custom NotBefore date on a certificate with the "StartDate" request attribute, in analogy to the "ExpirationDate" request attribute supported by the Windows Default policy module.
+* Implement basic protection against abuse of having the link:https://www.gradenegger.eu/?p=1486[EDITF_ATTRIBUTESUBJECTALTNAME2^] flag enabled. Requests with a "san" attribute get denied if the flag is enabled.
+* Fix a bug causing the module to log an exception for requests with invalid "ExpirationDate" attribute.
+* SubjectRule "Field" definition is now processed case insensitive.
 * Change required link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] due to link:https://docs.microsoft.com/en-us/lifecycle/products/microsoft-net-framework[end of life^] of previously used version 4.6.
 * General code optimization that should slightly increase processing performance and overall maintainability of the code.
 * install.ps1 is now also digitally signed.

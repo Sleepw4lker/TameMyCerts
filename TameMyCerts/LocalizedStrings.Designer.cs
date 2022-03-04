@@ -156,6 +156,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request {0} contains the &quot;san&quot; request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied..
+        /// </summary>
+        internal static string Events_REQUEST_DENIED_INSECURE_FLAGS {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_INSECURE_FLAGS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to interpret policy from {0}. Request {1} will get denied..
         /// </summary>
         internal static string Events_REQUEST_DENIED_NO_POLICY {
