@@ -233,4 +233,7 @@
   <data name="ReqVal_Crypto_Provider_Unknown" xml:space="preserve">
     <value>Unable to determine the cryptographic provider that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
   </data>
+  <data name="Events_REQUEST_DENIED_INSECURE_FLAGS" xml:space="preserve">
+    <value>Request {0} contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.</value>
+  </data>
 </root>
