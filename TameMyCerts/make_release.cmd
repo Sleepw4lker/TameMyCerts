@@ -19,6 +19,7 @@ TameMyCerts.csproj ^
 
 copy install.ps1 bin\Release\
 copy Sample_*.xml bin\Debug\
+copy ..\CHANGELOG.adoc bin\Release\
 copy ..\README.adoc bin\Release\
 copy ..\LICENSE bin\Release\
 copy ..\NOTICE bin\Release\
