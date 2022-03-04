@@ -169,7 +169,7 @@ A "SubjectRule" can/must contain the following nodes:
 
 |Patterns
 |*yes*
-|For any field type you can define one or more regular expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you want to allow any content, simply configure "^.*$" as expression.
+|For any field type you can define one or more "Pattern" directives describing expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you would want to allow any content, simply configure a Pattern directive with "^.*$" as expression.
 
 |===
 
@@ -244,7 +244,7 @@ To define a policy for one or more subject alternative name (SAN) type, adjust t
 * rfc822Name
 * uniformResourceIdentifier
 
-NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for most use cases.
+NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for the majority of use cases.
 
 == Monitoring and Troubleshooting
 

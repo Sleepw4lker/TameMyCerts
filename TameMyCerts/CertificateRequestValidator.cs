@@ -138,9 +138,10 @@ namespace TameMyCerts
 
             // Log the name of the machine ("ccm" attribute) from where the request was submitted
             if (requestAttributeList != null &&
-                requestAttributeList.Any(x => x.Key == "ccm"))
+                requestAttributeList.Any(x => x.Key.Equals("ccm", StringComparison.InvariantCultureIgnoreCase)))
             {
-                certClientMachine = requestAttributeList.FirstOrDefault(x => x.Key == "ccm").Value;
+                certClientMachine = requestAttributeList
+                    .FirstOrDefault(x => x.Key.Equals("ccm", StringComparison.InvariantCultureIgnoreCase)).Value;
             }
 
             #endregion
@@ -190,9 +191,11 @@ namespace TameMyCerts
                 certificateRequestPolicy.DisallowedCryptoProviders.Count > 0)
             {
                 if (requestAttributeList != null &&
-                    requestAttributeList.Any(x => x.Key == "RequestCSPProvider"))
+                    requestAttributeList.Any(x =>
+                        x.Key.Equals("RequestCSPProvider", StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    var cryptoProvider = requestAttributeList.FirstOrDefault(x => x.Key == "RequestCSPProvider")
+                    var cryptoProvider = requestAttributeList.FirstOrDefault(x =>
+                            x.Key.Equals("RequestCSPProvider", StringComparison.InvariantCultureIgnoreCase))
                         .Value;
 
                     if (certificateRequestPolicy.AllowedCryptoProviders != null &&
@@ -499,7 +502,8 @@ namespace TameMyCerts
             foreach (var definedItem in subjectPolicy)
             {
                 // Count the occurrences of the currently inspected defined RDN, if any
-                var occurrences = subjectInfo.Count(x => x.Key == definedItem.Field);
+                var occurrences = subjectInfo.Count(x =>
+                    x.Key.Equals(definedItem.Field, StringComparison.InvariantCultureIgnoreCase));
 
                 // Deny if a RDN defined as mandatory is missing
                 if (occurrences == 0 && definedItem.Mandatory)
@@ -519,7 +523,8 @@ namespace TameMyCerts
 
             foreach (var subjectItem in subjectInfo)
             {
-                var policyItem = subjectPolicy.FirstOrDefault(x => x.Field == subjectItem.Key);
+                var policyItem = subjectPolicy.FirstOrDefault(x =>
+                    x.Field.Equals(subjectItem.Key, StringComparison.InvariantCultureIgnoreCase));
 
                 if (policyItem == null)
                 {
@@ -545,7 +550,7 @@ namespace TameMyCerts
                             subjectItem.Key, policyItem.MaxLength));
                     }
 
-                    // Process allowed patterns
+                    // Process patterns
                     if (policyItem.Patterns == null)
                     {
                         result.Success = false;
@@ -554,77 +559,84 @@ namespace TameMyCerts
                         return result;
                     }
 
-                    var allowedMatches = 0;
-                    var disallowedMatches = 0;
+                    #region Deny if there aren't any allowed matches
 
-                    foreach (var pattern in policyItem.Patterns)
+                    var matchFound = false;
+
+                    foreach (var pattern in policyItem.Patterns.Where(x => x.Action.Equals("Allow")))
                     {
-                        try
+                        if (VerifyPattern(subjectItem.Value, pattern))
                         {
-                            switch (pattern.TreatAs)
-                            {
-                                case "RegEx":
-
-                                    var regEx = new Regex(@"" + pattern.Expression + "");
-                                    if (regEx.IsMatch(subjectItem.Value))
-                                    {
-                                        if (pattern.Action == "Allow")
-                                        {
-                                            allowedMatches++;
-                                        }
-                                        else
-                                        {
-                                            disallowedMatches++;
-                                        }
-                                    }
-
-                                    break;
-
-                                case "Cidr":
-
-                                    var ipAddress = IPAddress.Parse(subjectItem.Value);
-                                    if (ipAddress.IsInRange(pattern.Expression))
-                                    {
-                                        if (pattern.Action == "Allow")
-                                        {
-                                            allowedMatches++;
-                                        }
-                                        else
-                                        {
-                                            disallowedMatches++;
-                                        }
-                                    }
-
-                                    break;
-                            }
-                        }
-                        catch
-                        {
-                            result.Success = false;
-                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Regex, pattern.Expression,
-                                subjectItem.Value, subjectItem.Key));
+                            matchFound = true;
+                            break; 
                         }
                     }
 
-                    // Deny if there weren't any allowed matches
-                    if (allowedMatches == 0)
+                    if (!matchFound)
                     {
                         result.Success = false;
                         result.Description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subjectItem.Value,
                             subjectItem.Key));
+
+                        return result;
                     }
 
-                    // Deny if there were any disallowed matches
-                    if (disallowedMatches > 0)
+                    #endregion
+
+                    #region Deny if there is any disallowed match
+
+                    foreach (var pattern in policyItem.Patterns.Where(x => x.Action.Equals("Deny")))
                     {
-                        result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match, subjectItem.Value,
-                            subjectItem.Key));
+                        if (VerifyPattern(subjectItem.Value, pattern))
+                        {
+                            result.Success = false;
+                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match, subjectItem.Value,
+                                subjectItem.Key));
+
+                            return result;
+                        }
                     }
+
+                    #endregion
                 }
             }
 
             return result;
+        }
+
+        private static bool VerifyPattern (string term, Pattern pattern)
+        {
+            try
+            {
+                switch (pattern.TreatAs)
+                {
+                    case "RegEx":
+
+                        var regEx = new Regex(@"" + pattern.Expression + "");
+                        if (regEx.IsMatch(term))
+                        {
+                            return true;
+                        }
+
+                        break;
+
+                    case "Cidr":
+
+                        var ipAddress = IPAddress.Parse(term);
+                        if (ipAddress.IsInRange(pattern.Expression))
+                        {
+                            return true;
+                        }
+
+                        break;
+                }
+            }
+            catch
+            {
+                //
+            }
+
+            return false;
         }
 
         private static string SubstituteRdnTypeAliases(string rdnType)
