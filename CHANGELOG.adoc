@@ -1,6 +1,6 @@
 == Changelog for the TameMyCerts Policy Module
 
-=== 1.1.x.y (unreleased)
+=== 1.1.432.1215 (Mar 10, 2022)
 
 * Change logic for allowed and disallowed patterns on SubjectRule directives. Now, for each defined "field" it is possible to specify how the expression will get treated (regular expression or CIDR notation), which allows for IP addresses to get verified if they are present in fields other that the iPAddress alternative name field. Existing policy files must be adjusted to the new logic.
 * Implement support for applying rules on process names used to create certificate requests for both online and offline certificate templates.

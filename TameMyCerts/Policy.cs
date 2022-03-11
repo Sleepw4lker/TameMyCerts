@@ -162,8 +162,7 @@ namespace TameMyCerts
             // Set custom start date if requested and permitted
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE)
             {
-                if (requestAttributeList != null &&
-                    requestAttributeList.Any(
+                if (requestAttributeList.Any(
                         x => x.Key.Equals("StartDate", StringComparison.InvariantCultureIgnoreCase)))
                 {
                     if (DateTimeOffset.TryParseExact(
