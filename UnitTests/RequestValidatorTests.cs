@@ -854,6 +854,52 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void Test_RSA_ValidCommonName_InvalidSan5()
+        {
+            // 2048 Bit RSA Key
+            // CN=intranet.adcslabor.de
+            // dnsName=web1.adcslabor.de,web2.adcslabor.de,web3.adcslabor.de,web4.adcslabor.de,web5.adcslabor.de,web6.adcslabor.de,web7.pkilabor.de,web8.adcslabor.de,web9.adcslabor.de,web10.adcslabor.de
+            // Should fail because unallowed domain in web7 request
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIFQTCCA6kCAQAwIDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMIIB\n" +
+                "ojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEArXgJYDmOKoK+GJ5AhPzYqBgi\n" +
+                "ROXPhhxnriC/ImMF+FrQeTwAyVPS5zEAtuxYxFR9Kg/W7ob0qW6zoyKWkNxjzimp\n" +
+                "DrJGX2M/g8PSyNnbExFFz6FiSZu0hM976oWRdzO3bBDyaWnuef8SM0YS9EWAzhOd\n" +
+                "Yi16eboyRdAmi2nbwpVSG+idAz4R5LNAyGvl71PHHE0U+T3SccZdY81grGENXtNO\n" +
+                "UOZ8Mb+5b5tNZLxIPsBdR24bvu3eNjQQmfzJcTjab0In091QRagX3cV7XOWN7C3f\n" +
+                "kL0g0PePwJ3ILI6olqS1FpCKGb3PDKW/MCI/ekzBUItA+n4Kp+T+fZK//OmKBJpK\n" +
+                "XI+bUjSKBcJIeAyvziceD/SgjQwRrH17L9ETcaM1Vs22cKLmdFrl0bCi8EEfyzzr\n" +
+                "vBCJUKB9zEUYp5oK2kUmQIq+HBeLA1lyPz52fVb2+SeX0BWl6D6VZzf+mNdrDRq2\n" +
+                "mMHzjBoU0wbLMtYVX8bH7c573aq2rLTWw4ILvtFdAgMBAAGgggHaMBwGCisGAQQB\n" +
+                "gjcNAgMxDhYMMTAuMC4xOTA0NC4yMD4GCSsGAQQBgjcVFDExMC8CAQUMCkxBUFRP\n" +
+                "UC1VV0UMDkxBUFRPUC1VV0VcdXdlDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3\n" +
+                "DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBl\n" +
+                "ACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMIIB\n" +
+                "EAYJKoZIhvcNAQkOMYIBATCB/jAOBgNVHQ8BAf8EBAMCB4AwgcwGA1UdEQEB/wSB\n" +
+                "wTCBvoIRd2ViMS5hZGNzbGFib3IuZGWCEXdlYjIuYWRjc2xhYm9yLmRlghF3ZWIz\n" +
+                "LmFkY3NsYWJvci5kZYIRd2ViNC5hZGNzbGFib3IuZGWCEXdlYjUuYWRjc2xhYm9y\n" +
+                "LmRlghF3ZWI2LmFkY3NsYWJvci5kZYIQd2ViNy5wa2lsYWJvci5kZYIRd2ViOC5h\n" +
+                "ZGNzbGFib3IuZGWCEXdlYjkuYWRjc2xhYm9yLmRlghJ3ZWIxMC5hZGNzbGFib3Iu\n" +
+                "ZGUwHQYDVR0OBBYEFLHzMISFNmmMU/xchafRVXOY1GnwMA0GCSqGSIb3DQEBCwUA\n" +
+                "A4IBgQBAX2dAWlfNd+9KRS06QvNFLKfaRrRiYIPVVe5K+wevkgNquV5Sf6quVX64\n" +
+                "xkHpAUU9GWB4CFrwXE0KbouBozLhKvamjg1Ndl7ZxGolnCGfPqReVVpKJ9WViGrY\n" +
+                "SxqMMvX+jJY1L/Res5SwnboiNIRYS3z/hoQiMs9dqvzR1gs92ygIHxhDNroYd1O8\n" +
+                "9gIZ7TGnV07r4WWut6GLA9ljDPPsx6nj1kOB4yQFNHCfrrzcUXpThXdhL1nrOIJY\n" +
+                "2px38RuAPHh47AKP17uTwEvkdIX5hh0g8mEdyTqzoTpJfkl49Q4eCRWhJYvSvWqm\n" +
+                "vWvQWzxyN7rFyonbOya6uU8M4uhLm4hKkfscC4KUtukfIli3X6KxPupEEmbFUXZZ\n" +
+                "2GZLqPeJ1xiOtsglTQ+uYNvwelQk+B8fPgX0ouvduEeJldQ48I8+T4Ni9wUmtm9H\n" +
+                "B5takWnKYdzvkFi5cEPGpK+Qe08vN5Lg7w9QK0/8vJfk6hvc/mk2qnECvOsJQuug\n" +
+                "gIECro4=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
+            Console.WriteLine(string.Join("\n", validationResult.Description));
+
+            Assert.IsFalse(validationResult.Success);
+        }
+
+        [TestMethod]
         public void Test_RSA_InvalidCommonName_noSan1()
         {
             // CN=

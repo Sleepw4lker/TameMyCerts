@@ -568,7 +568,7 @@ namespace TameMyCerts
                         if (VerifyPattern(subjectItem.Value, pattern))
                         {
                             matchFound = true;
-                            break; 
+                            break;
                         }
                     }
 
@@ -587,11 +587,11 @@ namespace TameMyCerts
 
                     foreach (var pattern in policyItem.Patterns.Where(x => x.Action.Equals("Deny")))
                     {
-                        if (VerifyPattern(subjectItem.Value, pattern))
+                        if (VerifyPattern(subjectItem.Value, pattern, true))
                         {
                             result.Success = false;
-                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match, subjectItem.Value,
-                                subjectItem.Key));
+                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
+                                subjectItem.Value, pattern.Expression, subjectItem.Key));
 
                             return result;
                         }
@@ -604,7 +604,7 @@ namespace TameMyCerts
             return result;
         }
 
-        private static bool VerifyPattern (string term, Pattern pattern)
+        private static bool VerifyPattern(string term, Pattern pattern, bool matchOnError = false)
         {
             try
             {
@@ -633,7 +633,11 @@ namespace TameMyCerts
             }
             catch
             {
-                //
+                // This ensures that failing to interpret the pattern will result in matching as a denied one
+                if (matchOnError)
+                {
+                    return true;
+                }
             }
 
             return false;
