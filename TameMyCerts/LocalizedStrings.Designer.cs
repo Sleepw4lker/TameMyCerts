@@ -19,7 +19,7 @@ namespace TameMyCerts {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class LocalizedStrings {
@@ -183,6 +183,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The expiration date for request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
+        /// </summary>
+        internal static string Events_VALIDITY_REDUCED {
+            get {
+                return ResourceManager.GetString("Events_VALIDITY_REDUCED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is disallowed..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Disallowed {
@@ -233,6 +242,24 @@ namespace TameMyCerts {
         internal static string ReqVal_Err_Extract_From_Pkcs7 {
             get {
                 return ResourceManager.GetString("ReqVal_Err_Extract_From_Pkcs7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to parse the configured expiration date specified in certificate request policy..
+        /// </summary>
+        internal static string ReqVal_Err_NotAfter_Invalid {
+            get {
+                return ResourceManager.GetString("ReqVal_Err_NotAfter_Invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate request policy requires issued certificates for this certificate template to expire no later than {0} (UTC), which lies in the past..
+        /// </summary>
+        internal static string ReqVal_Err_NotAfter_Passed {
+            get {
+                return ResourceManager.GetString("ReqVal_Err_NotAfter_Passed", resourceCulture);
             }
         }
         

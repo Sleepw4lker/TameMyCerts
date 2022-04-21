@@ -24,6 +24,7 @@ namespace TameMyCerts
     public class CertificateRequestPolicy
     {
         public bool AuditOnly { get; set; }
+        public string NotAfter { get; set; }
         public List<string> AllowedProcesses { get; set; }
         public List<string> DisallowedProcesses { get; set; }
         public List<string> AllowedCryptoProviders { get; set; }

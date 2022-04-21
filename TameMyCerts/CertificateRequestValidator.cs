@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -481,6 +482,38 @@ namespace TameMyCerts
                 #endregion
             }
 
+            #region Process fixed certificate expiration date
+
+            if (certificateRequestPolicy.NotAfter != null)
+            {
+                // The "o" standard format specifier corresponds to the "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffzzz" custom format string for DateTimeOffset values.
+                // see https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#the-round-trip-o-o-format-specifier
+                if (DateTimeOffset.TryParseExact(certificateRequestPolicy.NotAfter, "o",
+                        CultureInfo.InvariantCulture.DateTimeFormat,
+                        DateTimeStyles.AssumeUniversal, out var notAfter))
+                {
+                    // Deny if the configured expiration date is over already
+                    if (notAfter < DateTimeOffset.UtcNow)
+                    {
+                        result.Success = false;
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed, notAfter.UtcDateTime));
+                        result.StatusCode = WinError.NTE_FAIL;
+                        return result;
+                    }
+
+                    result.NotAfter = notAfter;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Description.Add(LocalizedStrings.ReqVal_Err_NotAfter_Invalid);
+                    result.StatusCode = WinError.NTE_FAIL;
+                    return result;
+                }
+            }
+
+            #endregion
+
             Marshal.ReleaseComObject(certificateRequestPkcs10);
             GC.Collect();
 
@@ -563,7 +596,8 @@ namespace TameMyCerts
 
                     var matchFound = false;
 
-                    foreach (var pattern in policyItem.Patterns.Where(x => x.Action.Equals("Allow")))
+                    foreach (var pattern in policyItem.Patterns.Where(x =>
+                                 x.Action.Equals("Allow", StringComparison.InvariantCultureIgnoreCase)))
                     {
                         if (VerifyPattern(subjectItem.Value, pattern))
                         {
@@ -577,23 +611,20 @@ namespace TameMyCerts
                         result.Success = false;
                         result.Description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subjectItem.Value,
                             subjectItem.Key));
-
-                        return result;
                     }
 
                     #endregion
 
                     #region Deny if there is any disallowed match
 
-                    foreach (var pattern in policyItem.Patterns.Where(x => x.Action.Equals("Deny")))
+                    foreach (var pattern in policyItem.Patterns.Where(x =>
+                                 x.Action.Equals("Deny", StringComparison.InvariantCultureIgnoreCase)))
                     {
                         if (VerifyPattern(subjectItem.Value, pattern, true))
                         {
                             result.Success = false;
                             result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
                                 subjectItem.Value, pattern.Expression, subjectItem.Key));
-
-                            return result;
                         }
                     }
 
@@ -608,9 +639,9 @@ namespace TameMyCerts
         {
             try
             {
-                switch (pattern.TreatAs)
+                switch (pattern.TreatAs.ToLowerInvariant())
                 {
-                    case "RegEx":
+                    case "regex":
 
                         var regEx = new Regex(@"" + pattern.Expression + "");
                         if (regEx.IsMatch(term))
@@ -620,7 +651,7 @@ namespace TameMyCerts
 
                         break;
 
-                    case "Cidr":
+                    case "cidr":
 
                         var ipAddress = IPAddress.Parse(term);
                         if (ipAddress.IsInRange(pattern.Expression))
@@ -846,6 +877,7 @@ namespace TameMyCerts
                 AuditOnly = auditOnly;
             }
 
+            public DateTimeOffset NotAfter { get; set; } = DateTimeOffset.MinValue;
             public int StatusCode { get; set; } = WinError.ERROR_SUCCESS;
             public bool Success { get; set; } = true;
             public bool AuditOnly { get; }

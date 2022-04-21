@@ -17,7 +17,7 @@ The TameMyCerts policy module addresses, amongst others, the following use cases
 * Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like AirWatch/Workspace One or MobileIron, link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content. The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
 * Technical or legal requirements to allow any kind of subject RDN to be enabled for issuance on the certification authority (enabling link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag on the certification authority). Without the module, there is no control over which exact subject RDNs are allowed to be issued.
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
-* Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift).
+* Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift), or having the requirement to have all certificates end by a specific date.
 * Preventing Users to request certificates from templates that are intended to be used solely with link:https://www.gradenegger.eu/?p=2789[AutoEnrollment^] via alternative methods (e.g. MMC.exe).
 
 === Conclusion
@@ -75,7 +75,11 @@ The script will unregister the module, copy the registry settings back and confi
 
 Create a policy file in XML format for each certificate template you want to apply a policy for in the folder you specified during installation. Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined.
 
-See the supplied link:TameMyCerts/SamplePolicy.xml[SamplePolicy.xml] for an example.
+See the supplied sample policy files for an example:
+
+* link:TameMyCerts/Sample_Webserver.xml[Sample_Webserver.xml]
+* link:TameMyCerts/Sample_User_AE_TPM.xml[Sample_User_AE_TPM.xml]
+* link:TameMyCerts/Sample_User_NotAfter.xml[Sample_User_NotAfter.xml]
 
 NOTE: The policy files get loaded when a certificate request gets processed, therefore it is not needed to restart the certification authority service after a policy file has been created or changed.
 
@@ -89,6 +93,10 @@ NOTE: We distinguish between certificate requests for certificate templates that
 |AuditOnly
 |no
 |Audit Mode. No certificate requests get denied but a message will get written into the Event Log when a certificate request violates the given policy. Helps sharpening the policy rules before applying  a policy onto a productive system. Defaults to false.
+
+|NotAfter
+|no
+|Allows to specify a specific expiration date for all certificates issued for a certificate template. This can be useful in situations where all certificates shall expire after a project ends, or when phasing out weak key sizes to a given date. Must specify in link:https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#the-round-trip-o-o-format-specifier[ISO 8601^] compatible format, e.g. "2022-12-31T23:59:59.0000000+01:00".
 
 |AllowedProcesses
 |no
@@ -224,7 +232,7 @@ It is also possible to enable any kind of RDNs in AD CS if the link:https://www.
 * description
 * postOfficeBox
 * telephoneNumber
-* any "unknown" (not identified by one of the above names) RDN can be specified by using it's object identifier. The OID it must be specified with an "OID." prefix, e.g. "OID.1.2.3.4.5".
+* any "unknown" (not identified by one of the above names) RDN can be specified by using it's object identifier. The OID must be specified with an "OID." prefix, e.g. "OID.1.2.3.4.5".
 
 NOTE: Usually, it is recommended to avoid enabling the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag, but when using this policy module, it should be fine as it allows fine-grained control about which RDN types are allowed and which not.
 
@@ -334,6 +342,14 @@ In addition to the certification authorities regular log entries, the policy mod
 |Information
 |Occurs if the Windows Default policy module denied a certificate request, thus the additional logic of TameMyCerts was not triggered at all for the given request. Occurs only if the certification authorities "LogLevel" is set to 4 or higher.
 
+|12
+|Error
+|Occurs if the certification authority has the (link:https://www.gradenegger.eu/?p=1486[proven insecure^]) EDITF_ATTRIBUTESUBJECTALTNAME2 flag set, and a request containing the "san" attribute was passed. The policy module will deny such requests. You should consider triggering an alarm when this happens.
+
+|13
+|Information
+|Occurs if the expiration date of a certificate was capped because of policy configuration (NotAfter parameter). Occurs only if the certification authorities "LogLevel" is set to 4 or higher.
+
 |===
 
 === Issuing Certificates with an exactly defined validity period
@@ -359,7 +375,7 @@ certreq ^
 -submit "SomeWebServer.req"
 ....
 
-NOTE: When an invalid date is being requestst, the certificate request will get denied with ERROR_INVALID_TIME.
+NOTE: When an invalid date is being requested, the certificate request will get denied with ERROR_INVALID_TIME.
 
 NOTE: TameMyCerts currently only supports specifying "StartDate" whilst submitting the certificate request but not as custom request attributes. The alternative method of specifying "ValidityPeriod" and "ValidityPeriodUnits" for the expiration date can currently not be used in combination with the "StartDate" attribute as it gets applied afterwards and thus won't deliver the expected result.
 

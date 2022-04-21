@@ -157,6 +157,14 @@ namespace TameMyCerts
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_INSECURE_FLAGS
         };
+
+        public static Event VALIDITY_REDUCED = new Event
+        {
+            Id = 13,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            Type = EventLogEntryType.Information,
+            MessageText = LocalizedStrings.Events_VALIDITY_REDUCED
+        };
     }
 
     public class Event

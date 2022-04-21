@@ -242,6 +242,20 @@ namespace TameMyCerts
             // No reason to deny the request, let's issue the certificate
             if (validationResult.Success)
             {
+                // Shorten the expiration date, if configured by policy
+                if (validationResult.NotAfter != DateTimeOffset.MinValue)
+                {
+                    var notAfter = certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
+                    if (validationResult.NotAfter >= DateTimeOffset.Now && validationResult.NotAfter <= notAfter)
+                    {
+                        certServerPolicy.SetCertificateProperty("NotAfter", CertSrv.PROPTYPE_DATE,
+                            validationResult.NotAfter.UtcDateTime);
+
+                        _logger.Log(Events.VALIDITY_REDUCED, requestId, templateInfo.Name,
+                            validationResult.NotAfter.UtcDateTime);
+                    }
+                }
+
                 return result;
             }
 
