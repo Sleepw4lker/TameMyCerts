@@ -245,4 +245,7 @@
   <data name="ReqVal_Err_NotAfter_Passed" xml:space="preserve">
     <value>Certificate request policy requires issued certificates for this certificate template to expire no later than {0} (UTC), which lies in the past.</value>
   </data>
+  <data name="ReqVal_Unsupported_Extension_Ca_Security_Ext" xml:space="preserve">
+    <value>The certificate request contains the unsupported Directory Services CA Security extension.</value>
+  </data>
 </root>

@@ -408,6 +408,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The certificate request contains the unsupported Directory Services CA Security extension..
+        /// </summary>
+        internal static string ReqVal_Unsupported_Extension_Ca_Security_Ext {
+            get {
+                return ResourceManager.GetString("ReqVal_Unsupported_Extension_Ca_Security_Ext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The certificate request contains the unsupported Subject Directory Attributes extension..
         /// </summary>
         internal static string ReqVal_Unsupported_Extension_Dir_Attrs {

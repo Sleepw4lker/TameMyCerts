@@ -25,12 +25,6 @@ namespace TameMyCerts
 {
     public class CertificateRequestValidator
     {
-        private const string XCN_OID_SUBJECT_ALT_NAME2 = "2.5.29.17";
-        private const string XCN_OID_SUBJECT_DIR_ATTRS = "2.5.29.9";
-        private const string SZOID_RSA_RSA = "1.2.840.113549.1.1.1";
-        private const string SZOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
-        private const string SZOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
-
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
             int requestType = CertCli.CR_IN_PKCS10, List<KeyValuePair<string, string>> requestAttributeList = null)
@@ -165,7 +159,7 @@ namespace TameMyCerts
                     continue;
                 }
 
-                if (cryptAttribute.ObjectId.Value == SZOID_REQUEST_CLIENT_INFO)
+                if (cryptAttribute.ObjectId.Value == WinCrypt.szOID_REQUEST_CLIENT_INFO)
                 {
                     var clientId = new CX509AttributeClientId();
 
@@ -291,10 +285,10 @@ namespace TameMyCerts
 
                 switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
                 {
-                    case SZOID_ECC_PUBLIC_KEY:
+                    case WinCrypt.szOID_ECC_PUBLIC_KEY:
                         keyAlgorithm = "ECC";
                         break;
-                    case SZOID_RSA_RSA:
+                    case WinCrypt.szOID_RSA_RSA:
                         keyAlgorithm = "RSA";
                         break;
                     default:
@@ -369,7 +363,7 @@ namespace TameMyCerts
 
                 #endregion
 
-                #region Process Subject Alternative Name
+                #region Process certificate request extensions (mainly Subject Alternative Name)
 
                 // Convert the Subject Alternative Names into a List of Key Value Pairs for each entry
                 var subjectAltNameList = new List<KeyValuePair<string, string>>();
@@ -379,7 +373,7 @@ namespace TameMyCerts
                 {
                     switch (extension.ObjectId.Value)
                     {
-                        case XCN_OID_SUBJECT_ALT_NAME2:
+                        case WinCrypt.szOID_SUBJECT_ALT_NAME2:
 
                             var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
 
@@ -442,11 +436,19 @@ namespace TameMyCerts
 
                         // The subject directory attributes extension can be used to convey identification attributes such as the nationality of the certificate subject.
                         // The extension value is a sequence of OID-value pairs.
-                        case XCN_OID_SUBJECT_DIR_ATTRS:
+                        case WinCrypt.szOID_SUBJECT_DIR_ATTRS:
 
                             // Not supported at the moment
                             result.Success = false;
                             result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Dir_Attrs);
+                            break;
+
+                        // KB5014754
+                        case WinCrypt.szOID_DS_CA_SECURITY_EXT:
+
+                            // Not supported at the moment
+                            result.Success = false;
+                            result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Ca_Security_Ext);
                             break;
                     }
                 }
