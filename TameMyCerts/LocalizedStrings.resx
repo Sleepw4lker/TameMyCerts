@@ -248,4 +248,7 @@
   <data name="ReqVal_Unsupported_Extension_Ca_Security_Ext" xml:space="preserve">
     <value>The certificate request contains the unsupported Directory Services CA Security extension.</value>
   </data>
+  <data name="ReqVal_Err_Parse_San" xml:space="preserve">
+    <value>Unable to parse the Subject Alternative Name certificate request extension.</value>
+  </data>
 </root>

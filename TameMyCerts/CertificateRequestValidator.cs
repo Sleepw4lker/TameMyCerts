@@ -180,10 +180,10 @@ namespace TameMyCerts
 
             #region Process rules for cryptographic providers
 
-            if (certificateRequestPolicy.AllowedCryptoProviders != null &&
-                certificateRequestPolicy.AllowedCryptoProviders.Count > 0 ||
-                certificateRequestPolicy.DisallowedCryptoProviders != null &&
-                certificateRequestPolicy.DisallowedCryptoProviders.Count > 0)
+            if ((certificateRequestPolicy.AllowedCryptoProviders != null &&
+                 certificateRequestPolicy.AllowedCryptoProviders.Count > 0) ||
+                (certificateRequestPolicy.DisallowedCryptoProviders != null &&
+                 certificateRequestPolicy.DisallowedCryptoProviders.Count > 0))
             {
                 if (requestAttributeList != null &&
                     requestAttributeList.Any(x =>
@@ -229,10 +229,10 @@ namespace TameMyCerts
 
             #region Process rules for the process name
 
-            if (certificateRequestPolicy.AllowedProcesses != null &&
-                certificateRequestPolicy.AllowedProcesses.Count > 0 ||
-                certificateRequestPolicy.DisallowedProcesses != null &&
-                certificateRequestPolicy.DisallowedProcesses.Count > 0)
+            if ((certificateRequestPolicy.AllowedProcesses != null &&
+                 certificateRequestPolicy.AllowedProcesses.Count > 0) ||
+                (certificateRequestPolicy.DisallowedProcesses != null &&
+                 certificateRequestPolicy.DisallowedProcesses.Count > 0))
             {
                 if (processName != null)
                 {
@@ -368,7 +368,6 @@ namespace TameMyCerts
                 // Convert the Subject Alternative Names into a List of Key Value Pairs for each entry
                 var subjectAltNameList = new List<KeyValuePair<string, string>>();
 
-                // Process Certificate extensions
                 foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
                 {
                     switch (extension.ObjectId.Value)
@@ -377,60 +376,76 @@ namespace TameMyCerts
 
                             var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
 
-                            extensionAlternativeNames.InitializeDecode(
-                                EncodingType.XCN_CRYPT_STRING_BASE64,
-                                extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
-                            );
-
-                            foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
+                            try
                             {
-                                switch (san.Type)
+                                extensionAlternativeNames.InitializeDecode(
+                                    EncodingType.XCN_CRYPT_STRING_BASE64,
+                                    extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
+                                );
+
+                                foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
                                 {
-                                    case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
+                                    switch (san.Type)
+                                    {
+                                        case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
 
-                                        subjectAltNameList.Add(
-                                            new KeyValuePair<string, string>("dNSName", san.strValue));
-                                        break;
+                                            subjectAltNameList.Add(
+                                                new KeyValuePair<string, string>("dNSName", san.strValue));
+                                            break;
 
-                                    case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
+                                        case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
 
-                                        subjectAltNameList.Add(
-                                            new KeyValuePair<string, string>("rfc822Name", san.strValue));
-                                        break;
+                                            subjectAltNameList.Add(
+                                                new KeyValuePair<string, string>("rfc822Name", san.strValue));
+                                            break;
 
-                                    case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
+                                        case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
 
-                                        subjectAltNameList.Add(
-                                            new KeyValuePair<string, string>("uniformResourceIdentifier",
-                                                san.strValue));
-                                        break;
+                                            subjectAltNameList.Add(
+                                                new KeyValuePair<string, string>("uniformResourceIdentifier",
+                                                    san.strValue));
+                                            break;
 
-                                    case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
+                                        case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
 
-                                        subjectAltNameList.Add(
-                                            new KeyValuePair<string, string>("userPrincipalName", san.strValue));
-                                        break;
+                                            subjectAltNameList.Add(
+                                                new KeyValuePair<string, string>("userPrincipalName",
+                                                    san.strValue));
+                                            break;
 
-                                    case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
+                                        case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
 
-                                        var b64IpAddress = san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
-                                        var ipAddress = new IPAddress(Convert.FromBase64String(b64IpAddress));
-                                        subjectAltNameList.Add(
-                                            new KeyValuePair<string, string>("iPAddress", ipAddress.ToString()));
+                                            var b64IpAddress =
+                                                san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
+                                            var ipAddress = new IPAddress(Convert.FromBase64String(b64IpAddress));
+                                            subjectAltNameList.Add(
+                                                new KeyValuePair<string, string>("iPAddress",
+                                                    ipAddress.ToString()));
 
-                                        break;
+                                            break;
 
-                                    default:
+                                        default:
 
-                                        result.Success = false;
-                                        result.Description.Add(string.Format(
-                                            LocalizedStrings.ReqVal_Unsupported_San_Type,
-                                            san.ObjectId.Value));
-                                        break;
+                                            result.Success = false;
+                                            result.Description.Add(string.Format(
+                                                LocalizedStrings.ReqVal_Unsupported_San_Type,
+                                                san.ObjectId.Value));
+                                            break;
+                                    }
                                 }
                             }
-
-                            Marshal.ReleaseComObject(extensionAlternativeNames);
+                            catch
+                            {
+                                result.Success = false;
+                                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_San,
+                                    requestType));
+                                result.StatusCode = WinError.NTE_FAIL;
+                                return result;
+                            }
+                            finally
+                            {
+                                Marshal.ReleaseComObject(extensionAlternativeNames);
+                            }
 
                             break;
 
@@ -498,7 +513,8 @@ namespace TameMyCerts
                     if (notAfter < DateTimeOffset.UtcNow)
                     {
                         result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed, notAfter.UtcDateTime));
+                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed,
+                            notAfter.UtcDateTime));
                         result.StatusCode = WinError.NTE_FAIL;
                         return result;
                     }

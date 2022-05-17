@@ -273,6 +273,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to parse the Subject Alternative Name certificate request extension..
+        /// </summary>
+        internal static string ReqVal_Err_Parse_San {
+            get {
+                return ResourceManager.GetString("ReqVal_Err_Parse_San", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to parse the given subject distinguished name: {0}..
         /// </summary>
         internal static string ReqVal_Err_Parse_SubjectDn {
