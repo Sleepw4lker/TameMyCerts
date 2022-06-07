@@ -73,7 +73,7 @@ namespace UnitTests
                     },
                     new SubjectRule
                     {
-                        Field = "organizationalUnit",
+                        Field = "organizationalUnitName",
                         MaxLength = 64,
                         Patterns = new List<Pattern> {new Pattern {Expression = @"^.*$"}}
                     },

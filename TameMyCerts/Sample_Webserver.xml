@@ -51,7 +51,7 @@ A typical sample for a Web Server certificate template.
       </Patterns>
     </SubjectRule>
     <SubjectRule>
-      <Field>organizationalUnit</Field>
+      <Field>organizationalUnitName</Field>
       <Mandatory>false</Mandatory>
       <MaxOccurrences>1</MaxOccurrences>
       <MaxLength>64</MaxLength>

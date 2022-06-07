@@ -711,7 +711,7 @@ namespace TameMyCerts
                 case "E": return "emailAddress";
                 case "L": return "localityName";
                 case "O": return "organizationName";
-                case "OU": return "organizationalUnit";
+                case "OU": return "organizationalUnitName";
                 case "S": return "stateOrProvinceName";
                 case "G": return "givenName";
                 case "I": return "initials";
