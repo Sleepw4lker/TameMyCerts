@@ -19,7 +19,7 @@ namespace TameMyCerts {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class LocalizedStrings {
@@ -228,24 +228,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to extract inner PKCS#10 request from given CMC certificate request..
-        /// </summary>
-        internal static string ReqVal_Err_Extract_From_Cmc {
-            get {
-                return ResourceManager.GetString("ReqVal_Err_Extract_From_Cmc", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to extract inner PKCS#10 request from given PKCS#7 certificate request..
-        /// </summary>
-        internal static string ReqVal_Err_Extract_From_Pkcs7 {
-            get {
-                return ResourceManager.GetString("ReqVal_Err_Extract_From_Pkcs7", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to parse the configured expiration date specified in certificate request policy..
         /// </summary>
         internal static string ReqVal_Err_NotAfter_Invalid {
@@ -282,7 +264,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to parse the given subject distinguished name: {0}..
+        ///   Looks up a localized string similar to Unable to parse the given subject distinguished name..
         /// </summary>
         internal static string ReqVal_Err_Parse_SubjectDn {
             get {
@@ -354,6 +336,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The certificate request contains forbidden extensions..
+        /// </summary>
+        internal static string ReqVal_Forbidden_Extensions {
+            get {
+                return ResourceManager.GetString("ReqVal_Forbidden_Extensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The certificate request uses an {0} key pair, but must use an {1} key pair..
         /// </summary>
         internal static string ReqVal_Key_Pair_Mismatch {
@@ -413,24 +404,6 @@ namespace TameMyCerts {
         internal static string ReqVal_Process_Unknown {
             get {
                 return ResourceManager.GetString("ReqVal_Process_Unknown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains the unsupported Directory Services CA Security extension..
-        /// </summary>
-        internal static string ReqVal_Unsupported_Extension_Ca_Security_Ext {
-            get {
-                return ResourceManager.GetString("ReqVal_Unsupported_Extension_Ca_Security_Ext", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains the unsupported Subject Directory Attributes extension..
-        /// </summary>
-        internal static string ReqVal_Unsupported_Extension_Dir_Attrs {
-            get {
-                return ResourceManager.GetString("ReqVal_Unsupported_Extension_Dir_Attrs", resourceCulture);
             }
         }
         

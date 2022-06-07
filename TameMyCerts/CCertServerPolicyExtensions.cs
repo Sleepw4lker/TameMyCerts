@@ -26,9 +26,10 @@ namespace TameMyCerts
 
         #region GetRequestAttributes
 
-        public static List<KeyValuePair<string, string>> GetRequestAttributeList(this CCertServerPolicy serverPolicy)
+        public static Dictionary<string, string> GetRequestAttributeList(this CCertServerPolicy serverPolicy)
         {
-            var requestAttributesDictionary = new List<KeyValuePair<string, string>>();
+            // Note that it should be safe to use a Dictionary here as request attributes can only appear once in the CA database
+            var attributeList = new Dictionary<string, string>();
             string attributeName;
 
             serverPolicy.EnumerateAttributesSetup(0);
@@ -38,14 +39,13 @@ namespace TameMyCerts
                 attributeName = serverPolicy.EnumerateAttributes();
                 if (attributeName != null)
                 {
-                    requestAttributesDictionary.Add(new KeyValuePair<string, string>(attributeName,
-                        serverPolicy.GetRequestAttribute(attributeName)));
+                    attributeList.Add(attributeName, serverPolicy.GetRequestAttribute(attributeName));
                 }
             } while (attributeName != null);
 
             serverPolicy.EnumerateAttributesClose();
 
-            return requestAttributesDictionary;
+            return attributeList;
         }
 
         #endregion
@@ -73,9 +73,11 @@ namespace TameMyCerts
             }
         }
 
-        public static DateTimeOffset GetDateCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
+        public static DateTimeOffset GetDateCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy,
+            string name)
         {
-            return new DateTimeOffset(serverPolicy.GetCertificateProperty<DateTime>(name, CertSrv.PROPTYPE_DATE).ToUniversalTime());
+            return new DateTimeOffset(serverPolicy.GetCertificateProperty<DateTime>(name, CertSrv.PROPTYPE_DATE)
+                .ToUniversalTime());
         }
 
         /// <summary>
@@ -150,7 +152,8 @@ namespace TameMyCerts
 
         public static DateTimeOffset GetDateRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
-            return new DateTimeOffset(serverPolicy.GetRequestProperty<DateTime>(name, CertSrv.PROPTYPE_DATE).ToUniversalTime());
+            return new DateTimeOffset(serverPolicy.GetRequestProperty<DateTime>(name, CertSrv.PROPTYPE_DATE)
+                .ToUniversalTime());
         }
 
         public static string GetStringRequestPropertyOrDefault(this CCertServerPolicy serverPolicy, string name)

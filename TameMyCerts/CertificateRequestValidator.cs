@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using CERTENROLLLib;
 
@@ -27,93 +26,13 @@ namespace TameMyCerts
     {
         public CertificateRequestVerificationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
-            int requestType = CertCli.CR_IN_PKCS10, List<KeyValuePair<string, string>> requestAttributeList = null)
+            int requestType = CertCli.CR_IN_PKCS10, Dictionary<string, string> requestAttributeList = null)
         {
             var result = new CertificateRequestVerificationResult(certificateRequestPolicy.AuditOnly);
 
-            #region Extract and parse request
+            #region Parse the certificate request, extract inner PKCS#10 request if necessary
 
-            switch (requestType)
-            {
-                case CertCli.CR_IN_CMC:
-
-                    // Short form would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
-                    var certificateRequestCmc =
-                        (IX509CertificateRequestCmc) Activator.CreateInstance(
-                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestCmc"));
-
-                    // Try to open the Certificate Request
-                    try
-                    {
-                        certificateRequestCmc.InitializeDecode(
-                            certificateRequest,
-                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                        );
-
-                        var oInnerRequest = certificateRequestCmc.GetInnerRequest(InnerRequestLevel.LevelInnermost);
-                        certificateRequest = oInnerRequest.get_RawData();
-                    }
-                    catch
-                    {
-                        result.Success = false;
-                        result.Description.Add(LocalizedStrings.ReqVal_Err_Extract_From_Cmc);
-                        result.StatusCode = WinError.NTE_FAIL;
-                        return result;
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(certificateRequestCmc);
-                    }
-
-                    break;
-
-                case CertCli.CR_IN_PKCS7:
-
-                    // Short form would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
-                    var certificateRequestPkcs7 =
-                        (IX509CertificateRequestPkcs7) Activator.CreateInstance(
-                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs7"));
-
-                    // Try to open the Certificate Request
-                    try
-                    {
-                        certificateRequestPkcs7.InitializeDecode(
-                            certificateRequest,
-                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                        );
-
-                        var oInnerRequest = certificateRequestPkcs7.GetInnerRequest(InnerRequestLevel.LevelInnermost);
-                        certificateRequest = oInnerRequest.get_RawData();
-                    }
-                    catch
-                    {
-                        result.Success = false;
-                        result.Description.Add(LocalizedStrings.ReqVal_Err_Extract_From_Pkcs7);
-                        result.StatusCode = WinError.NTE_FAIL;
-                        return result;
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(certificateRequestPkcs7);
-                    }
-
-                    break;
-            }
-
-            // Short form would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
-            var certificateRequestPkcs10 =
-                (IX509CertificateRequestPkcs10) Activator.CreateInstance(
-                    Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs10"));
-
-            // Try to open the Certificate Request
-            try
-            {
-                certificateRequestPkcs10.InitializeDecode(
-                    certificateRequest,
-                    EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                );
-            }
-            catch
+            if (!TryExtractInnerRequest(certificateRequest, requestType, out var certificateRequestPkcs10))
             {
                 result.Success = false;
                 result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_Request, requestType));
@@ -123,56 +42,9 @@ namespace TameMyCerts
 
             #endregion
 
-            #region Process request attributes
+            #region Extract inline request attributes
 
-            string certClientMachine = null;
-
-            // TODO: Put into method, and extract "rmd" as well, if present.
-
-            // Log the name of the machine ("ccm" attribute) from where the request was submitted
-            if (requestAttributeList != null &&
-                requestAttributeList.Any(x => x.Key.Equals("ccm", StringComparison.InvariantCultureIgnoreCase)))
-            {
-                certClientMachine = requestAttributeList
-                    .FirstOrDefault(x => x.Key.Equals("ccm", StringComparison.InvariantCultureIgnoreCase)).Value;
-            }
-
-            #endregion
-
-            #region Process inline request attributes
-
-            string processName = null;
-            string machineDnsName = null;
-
-            for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
-            {
-                var cryptAttribute = certificateRequestPkcs10.CryptAttributes[i];
-                string rawData;
-                try
-                {
-                    rawData = cryptAttribute.Values[0].get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                if (cryptAttribute.ObjectId.Value == WinCrypt.szOID_REQUEST_CLIENT_INFO)
-                {
-                    var clientId = new CX509AttributeClientId();
-
-                    try
-                    {
-                        clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
-                        processName = clientId.ProcessName.ToLowerInvariant();
-                        machineDnsName = clientId.MachineDnsName;
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(clientId);
-                    }
-                }
-            }
+            var inlineRequestAttributeList = certificateRequestPkcs10.GetInlineRequestAttributeList();
 
             #endregion
 
@@ -232,7 +104,7 @@ namespace TameMyCerts
                 (certificateRequestPolicy.DisallowedProcesses != null &&
                  certificateRequestPolicy.DisallowedProcesses.Count > 0))
             {
-                if (processName != null)
+                if (inlineRequestAttributeList.TryGetValue("processName", out var processName))
                 {
                     if (certificateRequestPolicy.AllowedProcesses != null &&
                         !certificateRequestPolicy.AllowedProcesses.Any(x =>
@@ -265,12 +137,6 @@ namespace TameMyCerts
                     return result;
                 }
             }
-
-            #endregion
-
-            #region Process rules for requesting client computer
-
-            // TODO
 
             #endregion
 
@@ -327,170 +193,52 @@ namespace TameMyCerts
 
                 #endregion
 
-                #region Process Subject
+                #region Extract Subject Distinguished Name
 
-                string subjectDn = null;
-
-                try
+                if (!certificateRequestPkcs10.TryGetSubjectRdnList(out var subjectRdnList))
                 {
-                    // Will trigger an exception if empty
-                    subjectDn = certificateRequestPkcs10.Subject.Name;
-                }
-                catch
-                {
-                    // Subject is empty
-                }
-
-                // Convert the Subject DN into a List of Key Value Pairs for each RDN
-                var subjectRdnList = new List<KeyValuePair<string, string>>();
-
-                if (subjectDn != null)
-                {
-                    try
-                    {
-                        subjectRdnList = GetDnComponents(subjectDn);
-                    }
-                    catch
-                    {
-                        result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_SubjectDn, subjectDn));
-                        result.StatusCode = WinError.CERTSRV_E_BAD_REQUESTSUBJECT;
-                        return result;
-                    }
+                    result.Success = false;
+                    result.Description.Add(LocalizedStrings.ReqVal_Err_Parse_SubjectDn);
+                    result.StatusCode = WinError.CERTSRV_E_BAD_REQUESTSUBJECT;
+                    return result;
                 }
 
                 #endregion
 
                 #region Process certificate request extensions (mainly Subject Alternative Name)
 
-                // Convert the Subject Alternative Names into a List of Key Value Pairs for each entry
-                var subjectAltNameList = new List<KeyValuePair<string, string>>();
-
-                foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
+                if (!certificateRequestPkcs10.TryGetSubjectAlternativeNameList(out var subjectAltNameList))
                 {
-                    switch (extension.ObjectId.Value)
-                    {
-                        case WinCrypt.szOID_SUBJECT_ALT_NAME2:
+                    result.Success = false;
+                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_San, requestType));
+                    result.StatusCode = WinError.NTE_FAIL;
+                    return result;
+                }
 
-                            var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
-
-                            try
-                            {
-                                extensionAlternativeNames.InitializeDecode(
-                                    EncodingType.XCN_CRYPT_STRING_BASE64,
-                                    extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
-                                );
-
-                                foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
-                                {
-                                    switch (san.Type)
-                                    {
-                                        case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
-
-                                            subjectAltNameList.Add(
-                                                new KeyValuePair<string, string>("dNSName", san.strValue));
-                                            break;
-
-                                        case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
-
-                                            subjectAltNameList.Add(
-                                                new KeyValuePair<string, string>("rfc822Name", san.strValue));
-                                            break;
-
-                                        case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
-
-                                            subjectAltNameList.Add(
-                                                new KeyValuePair<string, string>("uniformResourceIdentifier",
-                                                    san.strValue));
-                                            break;
-
-                                        case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
-
-                                            subjectAltNameList.Add(
-                                                new KeyValuePair<string, string>("userPrincipalName",
-                                                    san.strValue));
-                                            break;
-
-                                        case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
-
-                                            var b64IpAddress =
-                                                san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
-                                            var ipAddress = new IPAddress(Convert.FromBase64String(b64IpAddress));
-                                            subjectAltNameList.Add(
-                                                new KeyValuePair<string, string>("iPAddress",
-                                                    ipAddress.ToString()));
-
-                                            break;
-
-                                        default:
-
-                                            result.Success = false;
-                                            result.Description.Add(string.Format(
-                                                LocalizedStrings.ReqVal_Unsupported_San_Type,
-                                                san.ObjectId.Value));
-                                            break;
-                                    }
-                                }
-                            }
-                            catch
-                            {
-                                result.Success = false;
-                                result.Description.Add(string.Format(LocalizedStrings.ReqVal_Err_Parse_San,
-                                    requestType));
-                                result.StatusCode = WinError.NTE_FAIL;
-                                return result;
-                            }
-                            finally
-                            {
-                                Marshal.ReleaseComObject(extensionAlternativeNames);
-                            }
-
-                            break;
-
-                        // The subject directory attributes extension can be used to convey identification attributes such as the nationality of the certificate subject.
-                        // The extension value is a sequence of OID-value pairs.
-                        case WinCrypt.szOID_SUBJECT_DIR_ATTRS:
-
-                            // Not supported at the moment
-                            result.Success = false;
-                            result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Dir_Attrs);
-                            break;
-
-                        // KB5014754
-                        case WinCrypt.szOID_DS_CA_SECURITY_EXT:
-
-                            // Not supported at the moment
-                            result.Success = false;
-                            result.Description.Add(LocalizedStrings.ReqVal_Unsupported_Extension_Ca_Security_Ext);
-                            break;
-                    }
+                if (certificateRequestPkcs10.HasForbiddenExtensions())
+                {
+                    result.Success = false;
+                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions, requestType));
+                    result.StatusCode = WinError.NTE_FAIL;
                 }
 
                 #endregion
 
                 #region Process rules for name constraints
 
-                var subjectValidationResult = VerifySubject(
-                    subjectRdnList,
-                    certificateRequestPolicy.Subject
-                );
-
-                if (subjectValidationResult.Success == false)
+                if (!VerifySubject(subjectRdnList, certificateRequestPolicy.Subject,
+                        out var subjectVerificationDescription))
                 {
                     result.Success = false;
-                    result.Description.AddRange(subjectValidationResult.Description);
+                    result.Description.AddRange(subjectVerificationDescription);
                     result.StatusCode = WinError.CERT_E_INVALID_NAME;
                 }
 
-                var subjectAltNameValidationResult = VerifySubject(
-                    subjectAltNameList,
-                    certificateRequestPolicy.SubjectAlternativeName
-                );
-
-                if (subjectAltNameValidationResult.Success == false)
+                if (!VerifySubject(subjectAltNameList, certificateRequestPolicy.SubjectAlternativeName,
+                        out var subjectAltNameVerificationDescription))
                 {
                     result.Success = false;
-                    result.Description.AddRange(subjectAltNameValidationResult.Description);
+                    result.Description.AddRange(subjectAltNameVerificationDescription);
                     result.StatusCode = WinError.CERT_E_INVALID_NAME;
                 }
 
@@ -530,20 +278,91 @@ namespace TameMyCerts
 
             #endregion
 
-            Marshal.ReleaseComObject(certificateRequestPkcs10);
-
             return result;
         }
 
-        private static CertificateRequestVerificationResult VerifySubject(
-            List<KeyValuePair<string, string>> subjectInfo, List<SubjectRule> subjectPolicy)
+        private bool TryExtractInnerRequest(string certificateRequest, int requestType,
+            out IX509CertificateRequestPkcs10 certificateRequestPkcs10)
         {
-            var result = new CertificateRequestVerificationResult();
+            // Short form would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
+            certificateRequestPkcs10 =
+                (IX509CertificateRequestPkcs10) Activator.CreateInstance(
+                    Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs10"));
+
+            switch (requestType)
+            {
+                case CertCli.CR_IN_CMC:
+
+                    var certificateRequestCmc =
+                        (IX509CertificateRequestCmc) Activator.CreateInstance(
+                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestCmc"));
+
+                    try
+                    {
+                        certificateRequestCmc.InitializeDecode(
+                            certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                        );
+
+                        var innerRequest = certificateRequestCmc.GetInnerRequest(InnerRequestLevel.LevelInnermost);
+                        certificateRequest = innerRequest.get_RawData();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case CertCli.CR_IN_PKCS7:
+
+                    var certificateRequestPkcs7 =
+                        (IX509CertificateRequestPkcs7) Activator.CreateInstance(
+                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs7"));
+
+                    try
+                    {
+                        certificateRequestPkcs7.InitializeDecode(
+                            certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                        );
+
+                        var innerRequest = certificateRequestPkcs7.GetInnerRequest(InnerRequestLevel.LevelInnermost);
+                        certificateRequest = innerRequest.get_RawData();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+
+                    break;
+            }
+
+            try
+            {
+                certificateRequestPkcs10.InitializeDecode(
+                    certificateRequest,
+                    EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                );
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool VerifySubject(
+            List<KeyValuePair<string, string>> subjectInfo, List<SubjectRule> subjectPolicy,
+            out List<string> description)
+        {
+            description = new List<string>();
+            var result = true;
 
             if (subjectInfo == null)
             {
-                result.Success = false;
-                return result;
+                return false;
             }
 
             // Cycle through defined RDNs and compare to present RDNs
@@ -556,15 +375,15 @@ namespace TameMyCerts
                 // Deny if a RDN defined as mandatory is missing
                 if (occurrences == 0 && definedItem.Mandatory)
                 {
-                    result.Success = false;
-                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Field_Missing, definedItem.Field));
+                    result = false;
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Missing, definedItem.Field));
                 }
 
                 // Deny if a RDN occurs too often
                 if (occurrences > definedItem.MaxOccurrences)
                 {
-                    result.Success = false;
-                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Field_Count_Mismatch,
+                    result = false;
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Count_Mismatch,
                         definedItem.Field, occurrences, definedItem.MaxOccurrences));
                 }
             }
@@ -577,34 +396,32 @@ namespace TameMyCerts
                 if (policyItem == null)
                 {
                     // Deny if a RDN is found that is not defined (therefore it is forbidden)
-                    result.Success = false;
-                    result.Description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Allowed, subjectItem.Key));
+                    result = false;
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Allowed, subjectItem.Key));
                 }
                 else
                 {
                     // Deny if the RDNs content deceeds the defined number of Characters
                     if (subjectItem.Value.Length < policyItem.MinLength)
                     {
-                        result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Short, subjectItem.Value,
+                        result = false;
+                        description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Short, subjectItem.Value,
                             subjectItem.Key, policyItem.MinLength));
                     }
 
                     // Deny if the RDNs content exceeds defined number of Characters
                     if (subjectItem.Value.Length > policyItem.MaxLength)
                     {
-                        result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Long, subjectItem.Value,
+                        result = false;
+                        description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Long, subjectItem.Value,
                             subjectItem.Key, policyItem.MaxLength));
                     }
 
                     // Process patterns
                     if (policyItem.Patterns == null)
                     {
-                        result.Success = false;
-                        result.Description.Add(
-                            string.Format(LocalizedStrings.ReqVal_Field_Not_Defined, subjectItem.Key));
-                        return result;
+                        result = false;
+                        description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Defined, subjectItem.Key));
                     }
 
                     #region Deny if there aren't any allowed matches
@@ -623,8 +440,8 @@ namespace TameMyCerts
 
                     if (!matchFound)
                     {
-                        result.Success = false;
-                        result.Description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subjectItem.Value,
+                        result = false;
+                        description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subjectItem.Value,
                             subjectItem.Key));
                     }
 
@@ -637,8 +454,8 @@ namespace TameMyCerts
                     {
                         if (VerifyPattern(subjectItem.Value, pattern, true))
                         {
-                            result.Success = false;
-                            result.Description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
+                            result = false;
+                            description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
                                 subjectItem.Value, pattern.Expression, subjectItem.Key));
                         }
                     }
@@ -687,202 +504,6 @@ namespace TameMyCerts
             }
 
             return false;
-        }
-
-        private static string SubstituteRdnTypeAliases(string rdnType)
-        {
-            // Convert all known aliases used by the Microsoft API to the "official" name as specified in ITU-T X.520 and/or RFC 4519
-            // https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520
-            // https://datatracker.ietf.org/doc/html/rfc4519#section-2
-
-            // Here are some sources the below list is based on
-            // https://www.gradenegger.eu/?p=2717
-            // https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-certstrtonamea
-            // https://docs.microsoft.com/en-us/openspecs/sharepoint_protocols/ms-osco/dbdc3411-ed0a-4713-a01b-1ae0da5e75d4
-
-            switch (rdnType.ToUpperInvariant())
-            {
-                case "C": return "countryName";
-                case "CN": return "commonName";
-                case "DC": return "domainComponent";
-                case "E": return "emailAddress";
-                case "L": return "localityName";
-                case "O": return "organizationName";
-                case "OU": return "organizationalUnitName";
-                case "S": return "stateOrProvinceName";
-                case "G": return "givenName";
-                case "I": return "initials";
-                case "SN": return "surname";
-                case "STREET": return "streetAddress";
-                case "T": return "title";
-                case "UNSTRUCTUREDNAME": return "unstructuredName";
-                case "UNSTRUCTUREDADDRESS": return "unstructuredAddress";
-                case "DEVICESERIALNUMBER": return "deviceSerialNumber";
-                case "POSTALCODE": return "postalCode";
-                case "DESCRIPTION": return "description";
-                case "POBOX": return "postOfficeBox";
-                case "PHONE": return "telephoneNumber";
-
-                default: return rdnType;
-            }
-        }
-
-        // If the subject RDN contains quotes or special characters, the IX509CertificateRequest interface escapes these with quotes
-        // As this messes up our comparison logic, we must remove the additional quotes
-        private static string RemoveQuotesFromSubjectRdn(string rdn)
-        {
-            if (rdn == null)
-            {
-                return null;
-            }
-
-            if (rdn.Length == 0)
-            {
-                return rdn;
-            }
-
-            // Not in quotes, nothing to do
-            if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"')
-            {
-                return rdn;
-            }
-
-            // Skip first and last char, then remove every 2nd quote
-
-            const char quoteChar = '\"';
-            var inQuotedString = false;
-            var outString = string.Empty;
-
-            for (var i = 1; i < rdn.Length - 1; i++)
-            {
-                var currentChar = rdn[i];
-
-                if (currentChar == quoteChar)
-                {
-                    if (inQuotedString == false)
-                    {
-                        outString += currentChar;
-                    }
-
-                    inQuotedString = !inQuotedString;
-                }
-                else
-                {
-                    outString += currentChar;
-                }
-            }
-
-            return outString;
-        }
-
-        private static List<KeyValuePair<string, string>> GetDnComponents(string distinguishedName)
-        {
-            // Licensed to the .NET Foundation under one or more agreements.
-            // The .NET Foundation licenses this file to you under the MIT license.
-
-            // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
-
-            // First split by ','
-            var components = SplitSubjectDn(distinguishedName, ',');
-
-            if (components == null)
-            {
-                return null;
-            }
-
-            var dnComponents = new List<KeyValuePair<string, string>>();
-
-            for (var i = 0; i < components.GetLength(0); i++)
-            {
-                // split each component by '='
-                var subComponents = SplitSubjectDn(components[i], '=');
-
-                if (subComponents.GetLength(0) != 2)
-                {
-                    throw new ArgumentException();
-                }
-
-                var key = SubstituteRdnTypeAliases(subComponents[0].Trim());
-                var value = RemoveQuotesFromSubjectRdn(subComponents[1].Trim());
-
-                if (key.Length > 0)
-                {
-                    dnComponents.Add(new KeyValuePair<string, string>(key, value));
-                }
-                else
-                {
-                    throw new ArgumentException();
-                }
-            }
-
-            return dnComponents;
-        }
-
-        private static string[] SplitSubjectDn(string distinguishedName, char delimiter)
-        {
-            // Licensed to the .NET Foundation under one or more agreements.
-            // The .NET Foundation licenses this file to you under the MIT license.
-
-            // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
-
-            if (string.IsNullOrEmpty(distinguishedName))
-            {
-                return null;
-            }
-
-            var inQuotedString = false;
-            const char quoteChar = '\"';
-            const char escapeChar = '\\';
-            var nextTokenStart = 0;
-            var resultList = new List<string>();
-
-            // get the actual tokens
-            for (var i = 0; i < distinguishedName.Length; i++)
-            {
-                var currentChar = distinguishedName[i];
-
-                switch (currentChar)
-                {
-                    case quoteChar:
-
-                        inQuotedString = !inQuotedString;
-                        break;
-
-                    case escapeChar:
-
-                        // skip the next character (if one exists)
-                        if (i < distinguishedName.Length - 1)
-                        {
-                            i++;
-                        }
-
-                        break;
-                }
-
-                if (!inQuotedString && currentChar == delimiter)
-                {
-                    // we found an unquoted character that matches the delimiter
-                    // split it at the delimiter (add the token that ends at this delimiter)
-                    resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart));
-                    nextTokenStart = i + 1;
-                }
-
-                if (i == distinguishedName.Length - 1)
-                {
-                    // we've reached the end 
-
-                    // if we are still in quoted string, the format is invalid
-                    if (inQuotedString)
-                    {
-                        throw new ArgumentException();
-                    }
-
-                    // we need to end the last token
-                    resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart + 1));
-                }
-            }
-
-            return resultList.ToArray();
         }
 
         public class CertificateRequestVerificationResult

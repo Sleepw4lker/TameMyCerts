@@ -155,12 +155,6 @@
   <data name="Events_REQUEST_DENIED_NO_TEMPLATE_INFO" xml:space="preserve">
     <value>No certificate template information found for request {0}. The request will get denied.</value>
   </data>
-  <data name="ReqVal_Err_Extract_From_Cmc" xml:space="preserve">
-    <value>Unable to extract inner PKCS#10 request from given CMC certificate request.</value>
-  </data>
-  <data name="ReqVal_Err_Extract_From_Pkcs7" xml:space="preserve">
-    <value>Unable to extract inner PKCS#10 request from given PKCS#7 certificate request.</value>
-  </data>
   <data name="ReqVal_Err_Parse_Request" xml:space="preserve">
     <value>Unable to parse the given certificate request. Request type was {0}.</value>
   </data>
@@ -174,13 +168,10 @@
     <value>Key length of {0} Bits is more than the allowed maximum length of {1} Bits.</value>
   </data>
   <data name="ReqVal_Err_Parse_SubjectDn" xml:space="preserve">
-    <value>Unable to parse the given subject distinguished name: {0}.</value>
+    <value>Unable to parse the given subject distinguished name.</value>
   </data>
   <data name="ReqVal_Unsupported_San_Type" xml:space="preserve">
     <value>The certificate request contains an unsupported Subject Alternative Name type with OID {0}.</value>
-  </data>
-  <data name="ReqVal_Unsupported_Extension_Dir_Attrs" xml:space="preserve">
-    <value>The certificate request contains the unsupported Subject Directory Attributes extension.</value>
   </data>
   <data name="ReqVal_Field_Missing" xml:space="preserve">
     <value>The mandatory {0} field was not found in the request.</value>
@@ -245,10 +236,10 @@
   <data name="ReqVal_Err_NotAfter_Passed" xml:space="preserve">
     <value>Certificate request policy requires issued certificates for this certificate template to expire no later than {0} (UTC), which lies in the past.</value>
   </data>
-  <data name="ReqVal_Unsupported_Extension_Ca_Security_Ext" xml:space="preserve">
-    <value>The certificate request contains the unsupported Directory Services CA Security extension.</value>
-  </data>
   <data name="ReqVal_Err_Parse_San" xml:space="preserve">
     <value>Unable to parse the Subject Alternative Name certificate request extension.</value>
+  </data>
+  <data name="ReqVal_Forbidden_Extensions" xml:space="preserve">
+    <value>The certificate request contains forbidden extensions.</value>
   </data>
 </root>

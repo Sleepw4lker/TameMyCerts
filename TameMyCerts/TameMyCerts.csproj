@@ -57,6 +57,7 @@
     </Compile>
     <Compile Include="CCertServerPolicyExtensions.cs" />
     <Compile Include="CertificateRequestPolicy.cs" />
+    <Compile Include="CX509CertificateRequestPkcs10Extensions.cs" />
     <Compile Include="IPAddressExtensions.cs" />
     <Compile Include="LocalizedStrings.Designer.cs">
       <AutoGen>True</AutoGen>
