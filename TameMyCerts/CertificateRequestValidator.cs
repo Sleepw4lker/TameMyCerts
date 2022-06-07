@@ -63,7 +63,6 @@ namespace TameMyCerts
                     finally
                     {
                         Marshal.ReleaseComObject(certificateRequestCmc);
-                        GC.Collect();
                     }
 
                     break;
@@ -96,7 +95,6 @@ namespace TameMyCerts
                     finally
                     {
                         Marshal.ReleaseComObject(certificateRequestPkcs7);
-                        GC.Collect();
                     }
 
                     break;
@@ -533,7 +531,6 @@ namespace TameMyCerts
             #endregion
 
             Marshal.ReleaseComObject(certificateRequestPkcs10);
-            GC.Collect();
 
             return result;
         }
