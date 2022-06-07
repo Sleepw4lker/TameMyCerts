@@ -83,6 +83,12 @@ process {
         Return
     }
 
+    # Prevent running the installer without the module present
+    If (-not (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).dll")) {
+        Write-Error -Message "Could not find $BaseDirectory\$($PolicyModuleName).dll"
+        Return
+    }
+
     $CaName = (Get-ItemProperty -Path $RegistryRoot -Name Active).Active
     $CaType = (Get-ItemProperty -Path "$RegistryRoot\$($CaName)" -Name CaType -ErrorAction Stop).CaType
     $KeyStorageProvider = (Get-ItemProperty -Path "$($RegistryRoot)\$($CaName)\CSP" -Name Provider).Provider
@@ -170,7 +176,7 @@ process {
             $SourcePath = "$BaseDirectory\$($PolicyModuleName).dll"
             $Path = "$($env:SystemRoot)\$($_)\$($PolicyModuleName).dll"
     
-            Copy-Item -Path $SourcePath -Destination $Path -Force
+            Copy-Item -Path $SourcePath -Destination $Path -Force -ErrorAction Stop
 
             Start-Process `
                 -FilePath "$($env:SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" `
