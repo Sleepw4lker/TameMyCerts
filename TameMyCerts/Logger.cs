@@ -171,7 +171,6 @@ namespace TameMyCerts
     {
         public int Id { get; set; }
         public int LogLevel { get; set; } = CertSrv.CERTLOG_WARNING;
-
         public EventLogEntryType Type { get; set; } = EventLogEntryType.Information;
         public string MessageText { get; set; }
     }

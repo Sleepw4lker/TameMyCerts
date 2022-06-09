@@ -345,7 +345,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request uses an {0} key pair, but must use an {1} key pair..
+        ///   Looks up a localized string similar to The certificate request does not use a {0} key pair, which is required by policy..
         /// </summary>
         internal static string ReqVal_Key_Pair_Mismatch {
             get {

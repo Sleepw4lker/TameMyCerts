@@ -159,7 +159,7 @@
     <value>Unable to parse the given certificate request. Request type was {0}.</value>
   </data>
   <data name="ReqVal_Key_Pair_Mismatch" xml:space="preserve">
-    <value>The certificate request uses an {0} key pair, but must use an {1} key pair.</value>
+    <value>The certificate request does not use a {0} key pair, which is required by policy.</value>
   </data>
   <data name="ReqVal_Key_Too_Small" xml:space="preserve">
     <value>Key length of {0} Bits is less than the required minimum length of {1} Bits.</value>

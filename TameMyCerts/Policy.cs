@@ -147,6 +147,8 @@ namespace TameMyCerts
 
             #region Process insecure flag/attribute combinations
 
+            // TODO: Move this into CertificateRequestValidator, remove dependency on EditFlags (it is never a good idea to use the san extension)
+
             // Deny requests containing the "san" request attribute
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2) == CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2 &&
                 requestAttributeList.Any(x => x.Key.Equals("san", StringComparison.InvariantCultureIgnoreCase)))
@@ -159,31 +161,25 @@ namespace TameMyCerts
 
             #region Process custom StartDate attribute
 
+            // TODO: Move this into CertificateRequestValidator (NotBefore Parameter), leave only the actual processing. Combine with a check against the ExpirationDate.
+
             // Set custom start date if requested and permitted
-            if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE)
+            if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE && // TODO: Extract into Method IsFlagSet(flag)
+                requestAttributeList.TryGetValue("StartDate", out var startDate) && // TODO: Extract into GetStartDate...?
+                DateTimeOffset.TryParseExact(startDate, DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
+                    DateTimeStyles.AssumeUniversal, out var requestedStartDate))
             {
-                if (requestAttributeList.Any(
-                        x => x.Key.Equals("StartDate", StringComparison.InvariantCultureIgnoreCase)))
+                if (requestedStartDate >= DateTimeOffset.Now && requestedStartDate <=
+                    certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
                 {
-                    if (DateTimeOffset.TryParseExact(
-                            requestAttributeList.FirstOrDefault(x =>
-                                    x.Key.Equals("StartDate", StringComparison.InvariantCultureIgnoreCase))
-                                .Value,
-                            DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
-                            DateTimeStyles.AssumeUniversal, out var requestedStartDate))
-                    {
-                        var notAfter = certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
-                        if (requestedStartDate >= DateTimeOffset.Now && requestedStartDate <= notAfter)
-                        {
-                            certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
-                                requestedStartDate.UtcDateTime);
-                        }
-                        else
-                        {
-                            // same behavior as Windows Default policy module with an invalid ExpirationDate
-                            throw new COMException(string.Empty, WinError.ERROR_INVALID_TIME);
-                        }
-                    }
+                    // TODO: Maybe add a log entry here
+                    certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
+                        requestedStartDate.UtcDateTime);
+                }
+                else
+                {
+                    // same behavior as Windows Default policy module with an invalid ExpirationDate
+                    throw new COMException(string.Empty, WinError.ERROR_INVALID_TIME);
                 }
             }
 
@@ -213,16 +209,17 @@ namespace TameMyCerts
 
             var policyFile = Path.Combine(_policyDirectory, $"{templateInfo.Name}.xml");
 
-            // Issue the certificate of no policy is defined
+            // Issue the certificate of no policy is defined, we assume this is desired behavior
             if (!File.Exists(policyFile))
             {
                 _logger.Log(Events.POLICY_NOT_FOUND, templateInfo.Name, requestId, policyFile);
                 return result;
             }
 
+            // TODO: Implement caching logic
             var requestPolicy = CertificateRequestPolicy.LoadFromFile(policyFile);
 
-            // Deny the request if unable to parse policy file
+            // Deny the request if unable to parse policy file, as a safety measure
             if (null == requestPolicy)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_POLICY, policyFile, requestId);
@@ -239,23 +236,21 @@ namespace TameMyCerts
                     requestType,
                     requestAttributeList);
 
-            // No reason to deny the request, let's issue the certificate
-            if (validationResult.Success)
+            // Shorten the expiration date, if configured by policy
+            if (validationResult.NotAfter != DateTimeOffset.MinValue &&
+                validationResult.NotAfter >= DateTimeOffset.Now && validationResult.NotAfter <=
+                certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
             {
-                // Shorten the expiration date, if configured by policy
-                if (validationResult.NotAfter != DateTimeOffset.MinValue)
-                {
-                    var notAfter = certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
-                    if (validationResult.NotAfter >= DateTimeOffset.Now && validationResult.NotAfter <= notAfter)
-                    {
-                        certServerPolicy.SetCertificateProperty("NotAfter", CertSrv.PROPTYPE_DATE,
-                            validationResult.NotAfter.UtcDateTime);
+                certServerPolicy.SetCertificateProperty("NotAfter", CertSrv.PROPTYPE_DATE,
+                    validationResult.NotAfter.UtcDateTime);
 
-                        _logger.Log(Events.VALIDITY_REDUCED, requestId, templateInfo.Name,
-                            validationResult.NotAfter.UtcDateTime);
-                    }
-                }
+                _logger.Log(Events.VALIDITY_REDUCED, requestId, templateInfo.Name,
+                    validationResult.NotAfter.UtcDateTime);
+            }
 
+            // No reason to deny the request, let's issue the certificate
+            if (!validationResult.DeniedForIssuance)
+            {
                 return result;
             }
 
@@ -293,6 +288,10 @@ namespace TameMyCerts
             {
                 _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
                 throw;
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
             }
         }
 

@@ -15,12 +15,103 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Text;
 using CERTENROLLLib;
 
 namespace TameMyCerts
 {
     public static class CX509CertificateRequestPkcs10Extensions
     {
+        public static bool TryInitializeFromInnerRequest(this IX509CertificateRequestPkcs10 certificateRequestPkcs10, string certificateRequest, int requestType)
+        {
+            switch (requestType)
+            {
+                case CertCli.CR_IN_CMC:
+
+                    var certificateRequestCmc =
+                        (IX509CertificateRequestCmc)Activator.CreateInstance(
+                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestCmc"));
+
+                    try
+                    {
+                        certificateRequestCmc.InitializeDecode(
+                            certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                        );
+
+                        var innerRequest = certificateRequestCmc.GetInnerRequest(InnerRequestLevel.LevelInnermost);
+                        certificateRequest = innerRequest.get_RawData();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(certificateRequestCmc);
+                    }
+
+                    break;
+
+                case CertCli.CR_IN_PKCS7:
+
+                    var certificateRequestPkcs7 =
+                        (IX509CertificateRequestPkcs7)Activator.CreateInstance(
+                            Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs7"));
+
+                    try
+                    {
+                        certificateRequestPkcs7.InitializeDecode(
+                            certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                        );
+
+                        var innerRequest = certificateRequestPkcs7.GetInnerRequest(InnerRequestLevel.LevelInnermost);
+                        certificateRequest = innerRequest.get_RawData();
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(certificateRequestPkcs7);
+                    }
+
+                    break;
+            }
+
+            try
+            {
+                certificateRequestPkcs10.InitializeDecode(
+                    certificateRequest,
+                    EncodingType.XCN_CRYPT_STRING_BASE64_ANY
+                );
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static string GetKeyAlgorithmName(this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
+        {
+            switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
+            {
+                case WinCrypt.szOID_ECC_PUBLIC_KEY:
+                    return "ECC";
+
+                case WinCrypt.szOID_RSA_RSA:
+                    return "RSA";
+
+                default:
+                    return LocalizedStrings.Unknown;
+            }
+        }
+
         public static Dictionary<string, string> GetInlineRequestAttributeList(
             this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
         {
@@ -253,7 +344,7 @@ namespace TameMyCerts
 
             const char quoteChar = '\"';
             var inQuotedString = false;
-            var outString = string.Empty;
+            var stringBuilder = new StringBuilder();
 
             for (var i = 1; i < rdn.Length - 1; i++)
             {
@@ -261,20 +352,20 @@ namespace TameMyCerts
 
                 if (currentChar == quoteChar)
                 {
-                    if (inQuotedString == false)
+                    if (!inQuotedString)
                     {
-                        outString += currentChar;
+                        stringBuilder.Append(currentChar);
                     }
 
                     inQuotedString = !inQuotedString;
                 }
                 else
                 {
-                    outString += currentChar;
+                    stringBuilder.Append(currentChar);
                 }
             }
 
-            return outString;
+            return stringBuilder.ToString();
         }
 
         private static List<KeyValuePair<string, string>> GetDnComponents(string distinguishedName)

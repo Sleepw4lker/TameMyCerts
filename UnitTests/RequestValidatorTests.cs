@@ -26,6 +26,14 @@ namespace UnitTests
             };
         }
 
+        // TODO: Identify coverage gaps and close them
+        // TODO: Add Test CSR with SID extension
+        // TODO: Add Test for Process name validation
+        // TODO: Add Test for KSP validation
+        // TODO: Add Test for invalid RegEx
+        // TODO: Add Test for invalid Cidr
+        // TODO: copy each policy in local variable for modifying it
+
         private static CertificateRequestPolicy GetSamplePolicy()
         {
             // This function can be used to write a sample XML based policy configuration file
@@ -193,7 +201,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -227,7 +235,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -267,7 +275,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -312,7 +320,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -346,7 +354,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -381,7 +389,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -416,7 +424,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -443,7 +451,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -473,7 +481,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -540,7 +548,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
 
@@ -567,7 +575,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -593,7 +601,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyEcc, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -629,7 +637,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -664,7 +672,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -703,7 +711,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsTrue(validationResult.Success);
+           Assert.IsFalse(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -739,7 +747,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -774,7 +782,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -809,7 +817,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -850,7 +858,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -896,7 +904,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -929,7 +937,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -957,7 +965,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -993,7 +1001,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
 
         [TestMethod]
@@ -1028,7 +1036,7 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, _requestPolicyRsa, _templateInfo);
             Console.WriteLine(string.Join("\n", validationResult.Description));
 
-            Assert.IsFalse(validationResult.Success);
+            Assert.IsTrue(validationResult.DeniedForIssuance);
         }
     }
 }

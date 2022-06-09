@@ -80,13 +80,6 @@ namespace TameMyCerts
                 .ToUniversalTime());
         }
 
-        /// <summary>
-        ///     Tries to extract the certificate property out of the <see cref="CCertServerPolicy" /> with the given name.
-        ///     Returns the value if successful, otherwise the default.
-        /// </summary>
-        /// <param name="serverPolicy">The server policy to search for the certificate property.</param>
-        /// <param name="name">The name of the certificate property.</param>
-        /// <returns>The value of the certificate property or default.</returns>
         public static string GetStringCertificatePropertyOrDefault(this CCertServerPolicy serverPolicy, string name)
         {
             return serverPolicy.GetCertificateProperty<string>(name, CertSrv.PROPTYPE_STRING);
