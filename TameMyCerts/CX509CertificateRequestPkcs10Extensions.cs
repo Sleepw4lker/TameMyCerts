@@ -23,14 +23,15 @@ namespace TameMyCerts
 {
     public static class CX509CertificateRequestPkcs10Extensions
     {
-        public static bool TryInitializeFromInnerRequest(this IX509CertificateRequestPkcs10 certificateRequestPkcs10, string certificateRequest, int requestType)
+        public static bool TryInitializeFromInnerRequest(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
+            string certificateRequest, int requestType)
         {
             switch (requestType)
             {
                 case CertCli.CR_IN_CMC:
 
                     var certificateRequestCmc =
-                        (IX509CertificateRequestCmc)Activator.CreateInstance(
+                        (IX509CertificateRequestCmc) Activator.CreateInstance(
                             Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestCmc"));
 
                     try
@@ -57,7 +58,7 @@ namespace TameMyCerts
                 case CertCli.CR_IN_PKCS7:
 
                     var certificateRequestPkcs7 =
-                        (IX509CertificateRequestPkcs7)Activator.CreateInstance(
+                        (IX509CertificateRequestPkcs7) Activator.CreateInstance(
                             Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs7"));
 
                     try
@@ -115,12 +116,24 @@ namespace TameMyCerts
         public static Dictionary<string, string> GetInlineRequestAttributeList(
             this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
         {
-            var attributeList = new Dictionary<string, string>();
+            return GetInlineRequestAttributeList(certificateRequestPkcs10, new Dictionary<string, string>());
+        }
 
+        public static Dictionary<string, string> GetInlineRequestAttributeList(
+            this IX509CertificateRequestPkcs10 certificateRequestPkcs10, Dictionary<string, string> attributeList)
+        {
             for (var i = 0; i < certificateRequestPkcs10.CryptAttributes.Count; i++)
             {
                 var cryptAttribute = certificateRequestPkcs10.CryptAttributes[i];
+
+                // Note that there is no need to extract the RequestCSPProvider here as it is automatically added to the extensions table
+                if (cryptAttribute.ObjectId.Value != WinCrypt.szOID_REQUEST_CLIENT_INFO)
+                {
+                    continue;
+                }
+
                 string rawData;
+
                 try
                 {
                     rawData = cryptAttribute.Values[0].get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64);
@@ -130,21 +143,22 @@ namespace TameMyCerts
                     continue;
                 }
 
-                if (cryptAttribute.ObjectId.Value == WinCrypt.szOID_REQUEST_CLIENT_INFO)
+                var clientId = new CX509AttributeClientId();
+
+                try
                 {
-                    var clientId = new CX509AttributeClientId();
+                    clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
 
-                    try
-                    {
-                        clientId.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64, rawData);
-
-                        attributeList.Add("processName", clientId.ProcessName.ToLowerInvariant());
-                        attributeList.Add("machineDnsName", clientId.MachineDnsName);
-                    }
-                    catch
-                    {
-                        // continue silently
-                    }
+                    attributeList.Add("ProcessName", clientId.ProcessName.ToLowerInvariant());
+                    attributeList.Add("MachineDnsName", clientId.MachineDnsName);
+                }
+                catch
+                {
+                    // we don't want an exception to be thrown
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(clientId);
                 }
             }
 
@@ -161,12 +175,11 @@ namespace TameMyCerts
 
             try
             {
-                // Will throw an exception if empty
                 subjectDn = certificateRequestPkcs10.Subject.Name;
             }
             catch
             {
-                // Subject DN is empty, we're done
+                // Will throw an exception if Subject DN is empty, then we're done
                 return true;
             }
 
@@ -182,22 +195,43 @@ namespace TameMyCerts
             return true;
         }
 
+        public static bool HasExtension(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
+            string extensionOid)
+        {
+            return certificateRequestPkcs10.HasExtension(extensionOid, out _);
+        }
+
+        public static bool HasExtension(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
+            string extensionOid, out int index)
+        {
+            index = 0;
+            var oid = new CObjectId();
+
+            try
+            {
+                oid.InitializeFromValue(extensionOid);
+                index = certificateRequestPkcs10.X509Extensions.get_IndexByObjectId(oid);
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(oid);
+            }
+
+            return true;
+        }
+
         public static bool TryGetSubjectAlternativeNameList(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
             out List<KeyValuePair<string, string>> subjectAltNameList)
         {
             subjectAltNameList = new List<KeyValuePair<string, string>>();
 
-            int index;
-
-            try
+            if (!certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2, out var index))
             {
-                var oid = new CObjectId();
-                oid.InitializeFromValue(WinCrypt.szOID_SUBJECT_ALT_NAME2);
-                index = certificateRequestPkcs10.X509Extensions.get_IndexByObjectId(oid);
-            }
-            catch
-            {
-                // No SAN extension, we're done
+                // Request doesnt contain a SAN extension, thus we're done
                 return true;
             }
 
@@ -243,43 +277,29 @@ namespace TameMyCerts
 
                         case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
 
-                            var ipAddress =
+                            subjectAltNameList.Add(new KeyValuePair<string, string>("iPAddress",
                                 new IPAddress(
-                                    Convert.FromBase64String(san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)));
-                            subjectAltNameList.Add(new KeyValuePair<string, string>("iPAddress", ipAddress.ToString()));
-
+                                        Convert.FromBase64String(san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)))
+                                    .ToString()));
                             break;
 
                         default:
 
+                            Marshal.ReleaseComObject(san);
                             return false;
                     }
+
+                    Marshal.ReleaseComObject(san);
                 }
             }
             catch
             {
+                Marshal.ReleaseComObject(extensionAlternativeNames);
                 return false;
             }
 
+            Marshal.ReleaseComObject(extensionAlternativeNames);
             return true;
-        }
-
-        public static bool HasForbiddenExtensions(this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
-        {
-            foreach (IX509Extension extension in certificateRequestPkcs10.X509Extensions)
-            {
-                switch (extension.ObjectId.Value)
-                {
-                    // The subject directory attributes extension can be used to convey identification attributes such as the nationality of the certificate subject.
-                    // The extension value is a sequence of OID-value pairs.
-                    case WinCrypt.szOID_SUBJECT_DIR_ATTRS: return true;
-
-                    // KB5014754. Validation logic is yet to be established.
-                    case WinCrypt.szOID_DS_CA_SECURITY_EXT: return true;
-                }
-            }
-
-            return false;
         }
 
         private static string SubstituteRdnTypeAliases(string rdnType)
@@ -324,11 +344,6 @@ namespace TameMyCerts
         // As this messes up our comparison logic, we must remove the additional quotes
         private static string RemoveQuotesFromSubjectRdn(string rdn)
         {
-            if (rdn == null)
-            {
-                return null;
-            }
-
             if (rdn.Length == 0)
             {
                 return rdn;
@@ -377,13 +392,12 @@ namespace TameMyCerts
 
             // First split by ','
             var components = SplitSubjectDn(distinguishedName, ',');
-
-            if (components == null)
-            {
-                return null;
-            }
-
             var dnComponents = new List<KeyValuePair<string, string>>();
+
+            if (components.Length == 0)
+            {
+                return dnComponents;
+            }
 
             for (var i = 0; i < components.GetLength(0); i++)
             {
@@ -418,16 +432,17 @@ namespace TameMyCerts
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
+            var resultList = new List<string>();
+
             if (string.IsNullOrEmpty(distinguishedName))
             {
-                return null;
+                return resultList.ToArray();
             }
 
             var inQuotedString = false;
             const char quoteChar = '\"';
             const char escapeChar = '\\';
             var nextTokenStart = 0;
-            var resultList = new List<string>();
 
             // get the actual tokens
             for (var i = 0; i < distinguishedName.Length; i++)

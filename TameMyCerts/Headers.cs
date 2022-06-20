@@ -3,7 +3,7 @@
 namespace TameMyCerts
 {
     // Constants from CertCli.h
-    internal static class CertCli
+    public static class CertCli
     {
         // See also https://docs.microsoft.com/en-us/windows/win32/api/certcli/nf-certcli-icertrequest-submit
         public const int CR_IN_PKCS10 = 0x100;
@@ -14,7 +14,7 @@ namespace TameMyCerts
     }
 
     // Constants from CertSrv.h
-    internal static class CertSrv
+    public static class CertSrv
     {
         // See also https://docs.microsoft.com/en-us/windows/win32/api/certpol/nf-certpol-icertpolicy-verifyrequest
         public const int VR_PENDING = 0;
@@ -44,17 +44,19 @@ namespace TameMyCerts
     }
 
     // Constants from CertCa.h
-    internal static class CertCa
+    public static class CertCa
     {
         // The enrolling application must supply the subject name.
         public const int CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT = 1;
     }
 
     // Constants from WinCrypt.h
-    internal static class WinCrypt
+    public static class WinCrypt
     {
         public const string szOID_RSA_RSA = "1.2.840.113549.1.1.1";
         public const string szOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
+        public const string szOID_OS_VERSION = "1.3.6.1.4.1.311.13.2.3";
+        public const string szOID_ENROLLMENT_CSP_PROVIDER = "1.3.6.1.4.1.311.13.2.2";
         public const string szOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
         public const string szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2";
         public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
@@ -62,7 +64,7 @@ namespace TameMyCerts
     }
 
     // Constants from WinError.h
-    internal static class WinError
+    public static class WinError
     {
         // The operation completed successfully.
         public const int ERROR_SUCCESS = 0;

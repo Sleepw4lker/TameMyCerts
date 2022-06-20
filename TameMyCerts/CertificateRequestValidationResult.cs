@@ -4,7 +4,6 @@ using System.Globalization;
 
 namespace TameMyCerts
 {
-    // TODO: can we refactor this so that methods are hidden or readonly to the Policy class
     public class CertificateRequestValidationResult
     {
         public CertificateRequestValidationResult(bool auditOnly = false)
@@ -56,7 +55,7 @@ namespace TameMyCerts
 
         public void SetNotAfter(string desiredNotAfter)
         {
-            if (desiredNotAfter == null)
+            if (desiredNotAfter == string.Empty)
             {
                 return;
             }
@@ -67,8 +66,8 @@ namespace TameMyCerts
             {
                 if (notAfter < DateTimeOffset.UtcNow)
                 {
-                    SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed,
-                        notAfter.UtcDateTime));
+                    SetFailureStatus(WinError.ERROR_INVALID_TIME,
+                        string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed, notAfter.UtcDateTime));
                 }
                 else
                 {
@@ -77,7 +76,7 @@ namespace TameMyCerts
             }
             else
             {
-                SetFailureStatus(LocalizedStrings.ReqVal_Err_NotAfter_Invalid);
+                SetFailureStatus(WinError.ERROR_INVALID_TIME, LocalizedStrings.ReqVal_Err_NotAfter_Invalid);
             }
         }
     }

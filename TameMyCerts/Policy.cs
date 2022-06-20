@@ -359,6 +359,7 @@ namespace TameMyCerts
             catch (Exception ex)
             {
                 _logger.Log(Events.PDEF_FAIL_INIT, ex);
+                Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
                 throw;
             }
         }

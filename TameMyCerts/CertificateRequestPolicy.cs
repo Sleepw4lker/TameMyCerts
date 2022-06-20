@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -26,7 +27,7 @@ namespace TameMyCerts
     public class CertificateRequestPolicy
     {
         public bool AuditOnly { get; set; }
-        public string NotAfter { get; set; }
+        public string NotAfter { get; set; } = string.Empty;
         public List<string> AllowedProcesses { get; set; } = new List<string>();
         public List<string> DisallowedProcesses { get; set; } = new List<string>();
         public List<string> AllowedCryptoProviders { get; set; } = new List<string>();

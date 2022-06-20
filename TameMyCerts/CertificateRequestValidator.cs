@@ -31,6 +31,22 @@ namespace TameMyCerts
 
         public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
+            int requestType)
+        {
+            return VerifyRequest(certificateRequest, certificateRequestPolicy, templateInfo, requestType,
+                new Dictionary<string, string>());
+        }
+
+        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
+            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
+            Dictionary<string, string> requestAttributeList)
+        {
+            return VerifyRequest(certificateRequest, certificateRequestPolicy, templateInfo, CertCli.CR_IN_PKCS10,
+                requestAttributeList);
+        }
+
+        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
+            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
             int requestType, Dictionary<string, string> requestAttributeList)
         {
             var result = new CertificateRequestValidationResult(certificateRequestPolicy.AuditOnly);
@@ -94,17 +110,17 @@ namespace TameMyCerts
                 certificateRequestPolicy.DisallowedProcesses.Count > 0)
             {
                 if (certificateRequestPkcs10.GetInlineRequestAttributeList()
-                    .TryGetValue("processName", out var processName))
+                    .TryGetValue("ProcessName", out var processName))
                 {
-                    if (!certificateRequestPolicy.AllowedProcesses.Any(x =>
-                            x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                    if (!certificateRequestPolicy.AllowedProcesses.Any(s =>
+                            s.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Not_Allowed,
                             processName));
                     }
 
-                    if (certificateRequestPolicy.DisallowedProcesses.Any(x =>
-                            x.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                    if (certificateRequestPolicy.DisallowedProcesses.Any(s =>
+                            s.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Disallowed,
                             processName));
@@ -197,13 +213,20 @@ namespace TameMyCerts
 
                 #region Process forbidden extensions
 
-                if (certificateRequestPkcs10.HasForbiddenExtensions())
+                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_DIR_ATTRS))
                 {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions, requestType));
+                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
+                        WinCrypt.szOID_SUBJECT_DIR_ATTRS));
+                }
+
+                // TODO: KB5014754. Validation logic is yet to be established. I assume we will need this for mobile devices until May 9, 2023.
+                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
+                {
+                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
+                        WinCrypt.szOID_DS_CA_SECURITY_EXT));
                 }
 
                 #endregion
-
             }
 
             #region Process fixed certificate expiration date
@@ -217,74 +240,80 @@ namespace TameMyCerts
         }
 
         private static bool VerifySubject(
-            List<KeyValuePair<string, string>> subjectInfoList, List<SubjectRule> subjectPolicy,
+            List<KeyValuePair<string, string>> subjectList, List<SubjectRule> subjectRuleList,
             out List<string> description)
         {
             description = new List<string>();
 
-            foreach (var definedItem in subjectPolicy)
-            {
-                var occurrences = subjectInfoList.Count(keyValuePair =>
-                    keyValuePair.Key.Equals(definedItem.Field, StringComparison.InvariantCultureIgnoreCase));
+            #region Search for missing mandatory fields or for fields that appear too often
 
-                if (occurrences == 0 && definedItem.Mandatory)
+            foreach (var subjectRule in subjectRuleList)
+            {
+                var occurrences = subjectList.Count(keyValuePair =>
+                    keyValuePair.Key.Equals(subjectRule.Field, StringComparison.InvariantCultureIgnoreCase));
+
+                if (occurrences == 0 && subjectRule.Mandatory)
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Missing, definedItem.Field));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Missing, subjectRule.Field));
+                    continue;
                 }
 
-                if (occurrences > definedItem.MaxOccurrences)
+                if (occurrences > subjectRule.MaxOccurrences)
                 {
                     description.Add(string.Format(LocalizedStrings.ReqVal_Field_Count_Mismatch,
-                        definedItem.Field, occurrences, definedItem.MaxOccurrences));
+                        subjectRule.Field, occurrences, subjectRule.MaxOccurrences));
                 }
             }
 
-            foreach (var subjectItem in subjectInfoList)
+            #endregion
+
+            #region Inspect fields and match against rules (if defined)
+
+            foreach (var subject in subjectList)
             {
-                var policyItem = subjectPolicy.FirstOrDefault(x =>
-                    x.Field.Equals(subjectItem.Key, StringComparison.InvariantCultureIgnoreCase));
+                var policyItem = subjectRuleList.FirstOrDefault(x =>
+                    x.Field.Equals(subject.Key, StringComparison.InvariantCultureIgnoreCase));
 
                 if (policyItem == null)
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Allowed, subjectItem.Key));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Allowed, subject.Key));
                     continue;
                 }
 
                 if (policyItem.Patterns.Count == 0)
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Defined, subjectItem.Key));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Not_Defined, subject.Key));
                     continue;
                 }
 
-                if (subjectItem.Value.Length < policyItem.MinLength)
+                if (subject.Value.Length < policyItem.MinLength)
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Short, subjectItem.Value,
-                        subjectItem.Key, policyItem.MinLength));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Short, subject.Value,
+                        subject.Key, policyItem.MinLength));
                 }
 
-                if (subjectItem.Value.Length > policyItem.MaxLength)
+                if (subject.Value.Length > policyItem.MaxLength)
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Long, subjectItem.Value,
-                        subjectItem.Key, policyItem.MaxLength));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_Field_Too_Long, subject.Value,
+                        subject.Key, policyItem.MaxLength));
                 }
 
                 if (!policyItem.Patterns
                         .Where(pattern => pattern.Action.Equals("Allow", StringComparison.InvariantCultureIgnoreCase))
-                        .Any(pattern => pattern.IsMatch(subjectItem.Value)))
+                        .Any(pattern => pattern.IsMatch(subject.Value)))
                 {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subjectItem.Value,
-                        subjectItem.Key));
+                    description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subject.Value,
+                        subject.Key));
                 }
 
-                foreach (var pattern in policyItem.Patterns
-                             .Where(pattern =>
-                                 pattern.Action.Equals("Deny", StringComparison.InvariantCultureIgnoreCase))
-                             .Where(pattern => pattern.IsMatch(subjectItem.Value, true)))
-                {
-                    description.Add(string.Format(LocalizedStrings.ReqVal_Disallow_Match,
-                        subjectItem.Value, pattern.Expression, subjectItem.Key));
-                }
+                description.AddRange(policyItem.Patterns
+                    .Where(pattern => pattern.Action.Equals("Deny", StringComparison.InvariantCultureIgnoreCase))
+                    .Where(pattern => pattern.IsMatch(subject.Value, true))
+                    .Select(pattern => string.Format(LocalizedStrings.ReqVal_Disallow_Match, subject.Value,
+                        pattern.Expression, subject.Key)));
             }
+
+            #endregion
 
             return description.Count == 0;
         }

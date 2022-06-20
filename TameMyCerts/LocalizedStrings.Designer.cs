@@ -118,15 +118,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Certificate template {0} used for Request {1} is configured to build subject from Active Directory, skipping..
-        /// </summary>
-        internal static string Events_POLICY_NOT_APPLICABLE {
-            get {
-                return ResourceManager.GetString("Events_POLICY_NOT_APPLICABLE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to find policy file for {0}. Request {1} will get issued. Expected policy file name: &quot;{2}&quot;.
         /// </summary>
         internal static string Events_POLICY_NOT_FOUND {
@@ -183,7 +174,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The expiration date for request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
+        ///   Looks up a localized string similar to The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
         /// </summary>
         internal static string Events_VALIDITY_REDUCED {
             get {
@@ -192,7 +183,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is disallowed..
+        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is explicitly disallowed..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Disallowed {
             get {
@@ -201,7 +192,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is not allowed..
+        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is not on the list of allowed providers..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Not_Allowed {
             get {
@@ -336,7 +327,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains forbidden extensions..
+        ///   Looks up a localized string similar to The certificate request contains a forbidden X.509 extension with OID {0}..
         /// </summary>
         internal static string ReqVal_Forbidden_Extensions {
             get {
@@ -381,7 +372,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is disallowed..
+        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is explicitly disallowed..
         /// </summary>
         internal static string ReqVal_Process_Disallowed {
             get {
@@ -390,7 +381,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is not allowed..
+        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is not on the list of allowed process names..
         /// </summary>
         internal static string ReqVal_Process_Not_Allowed {
             get {
