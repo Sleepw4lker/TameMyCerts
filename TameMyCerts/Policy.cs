@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace TameMyCerts
         private int _editFlags;
         private Logger _logger;
         private string _policyDirectory;
-        private dynamic _windowsDefaultPolicyModule;
+        private ICertPolicy2 _windowsDefaultPolicyModule;
 
         #region Constructor
 
@@ -101,25 +101,14 @@ namespace TameMyCerts
 
             try
             {
-                result = (int) _windowsDefaultPolicyModule.GetType().InvokeMember(
-                    "VerifyRequest",
-                    BindingFlags.InvokeMethod,
-                    null,
-                    _windowsDefaultPolicyModule,
-                    new object[] {strConfig, context, bNewRequest, flags}
-                );
+                result = _windowsDefaultPolicyModule.VerifyRequest(strConfig, context, bNewRequest, flags);
             }
             catch (Exception ex)
             {
-                // In some cases, the reason to deny a certificate comes in form of an exception (e.g. ERROR_INVALID_TIME), we return these here
-                if (ex.InnerException is COMException)
-                {
-                    throw ex.InnerException;
-                }
-
-                // Only for the case something went wrong with calling the Windows Default policy module
-                _logger.Log(Events.PDEF_FAIL_VERIFY, requestId, ex);
-                return CertSrv.VR_INSTANT_BAD;
+                // In some (but not all) cases, the reason to deny a certificate comes in form of an exception
+                // e.g. when "ExpirationDate" Argument cannot be parsed by the default policy module
+                _logger.Log(Events.PDEF_REQUEST_DENIED_MESSAGE, requestId, ex.Message);
+                throw;
             }
 
             // We don't question if the default policy module decided to deny the request
@@ -160,26 +149,37 @@ namespace TameMyCerts
             #endregion
 
             #region Process custom StartDate attribute
-
-            // TODO: Move this into CertificateRequestValidator (NotBefore Parameter), leave only the actual processing. Combine with a check against the ExpirationDate.
-
+            
             // Set custom start date if requested and permitted
-            if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE && // TODO: Extract into Method IsFlagSet(flag)
-                requestAttributeList.TryGetValue("StartDate", out var startDate) && // TODO: Extract into GetStartDate...?
-                DateTimeOffset.TryParseExact(startDate, DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat,
-                    DateTimeStyles.AssumeUniversal, out var requestedStartDate))
+            if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE &&
+                requestAttributeList.TryGetValue("StartDate", out var startDate))
             {
-                if (requestedStartDate >= DateTimeOffset.Now && requestedStartDate <=
-                    certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
+                if (DateTimeOffset.TryParseExact(startDate, DATETIME_RFC2616,
+                        CultureInfo.InvariantCulture.DateTimeFormat,
+                        DateTimeStyles.AssumeUniversal, out var requestedStartDate))
                 {
-                    // TODO: Maybe add a log entry here
-                    certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
-                        requestedStartDate.UtcDateTime);
+                    if (requestedStartDate >= DateTimeOffset.Now && requestedStartDate <=
+                        certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
+                    {
+                        _logger.Log(Events.STARTDATE_SET, requestId, requestedStartDate.UtcDateTime);
+
+                        certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
+                            requestedStartDate.UtcDateTime);
+                    }
+                    else
+                    {
+                        _logger.Log(Events.STARTDATE_INVALID, requestId, requestedStartDate.UtcDateTime);
+
+                        // same behavior as Windows Default policy module with an invalid ExpirationDate
+                        throw new COMException(string.Empty, WinError.ERROR_INVALID_TIME);
+                    }
                 }
                 else
                 {
+                    _logger.Log(Events.ATTRIB_ERR_PARSE, "StartDate", requestId, startDate);
+
                     // same behavior as Windows Default policy module with an invalid ExpirationDate
-                    throw new COMException(string.Empty, WinError.ERROR_INVALID_TIME);
+                    throw new ArgumentException();
                 }
             }
 
@@ -216,7 +216,6 @@ namespace TameMyCerts
                 return result;
             }
 
-            // TODO: Implement caching logic
             var requestPolicy = CertificateRequestPolicy.LoadFromFile(policyFile);
 
             // Deny the request if unable to parse policy file, as a safety measure
@@ -236,21 +235,23 @@ namespace TameMyCerts
                     requestType,
                     requestAttributeList);
 
-            // Shorten the expiration date, if configured by policy
-            if (validationResult.NotAfter != DateTimeOffset.MinValue &&
-                validationResult.NotAfter >= DateTimeOffset.Now && validationResult.NotAfter <=
-                certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
+            // No reason to deny the request, let's issue the certificate
+            if (!validationResult.DeniedForIssuance)
             {
+                if (validationResult.NotAfter == DateTimeOffset.MinValue || validationResult.NotAfter >
+                    certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
+                {
+                    return result;
+                }
+
+                // Shorten the expiration date, if configured by policy
+
                 certServerPolicy.SetCertificateProperty("NotAfter", CertSrv.PROPTYPE_DATE,
                     validationResult.NotAfter.UtcDateTime);
 
                 _logger.Log(Events.VALIDITY_REDUCED, requestId, templateInfo.Name,
                     validationResult.NotAfter.UtcDateTime);
-            }
 
-            // No reason to deny the request, let's issue the certificate
-            if (!validationResult.DeniedForIssuance)
-            {
                 return result;
             }
 
@@ -276,13 +277,7 @@ namespace TameMyCerts
         {
             try
             {
-                _windowsDefaultPolicyModule.GetType().InvokeMember(
-                    "Shutdown",
-                    BindingFlags.InvokeMethod,
-                    null,
-                    _windowsDefaultPolicyModule,
-                    null
-                );
+                _windowsDefaultPolicyModule.ShutDown();
             }
             catch (Exception ex)
             {
@@ -318,41 +313,36 @@ namespace TameMyCerts
                 CertSrv.ENUM_STANDALONE_ROOTCA
             );
 
-            if (!(caType == CertSrv.ENUM_ENTERPRISE_ROOTCA || caType == CertSrv.ENUM_ENTERPRISE_SUBCA))
+            if (caType == CertSrv.ENUM_ENTERPRISE_ROOTCA || caType == CertSrv.ENUM_ENTERPRISE_SUBCA)
             {
-                _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
-                throw new NotSupportedException();
+                return;
             }
+
+            _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
+            throw new NotSupportedException();
         }
 
         private void LoadSettingsFromRegistry(string strConfig)
         {
-            var moduleRoot = $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules\\{_appName}.Policy";
+            var policyModulesRoot = $"{CONFIG_ROOT}\\{strConfig}\\PolicyModules";
 
-            _policyDirectory = (string) Registry.GetValue(moduleRoot, "PolicyDirectory", Path.GetTempPath());
-            _editFlags = (int) Registry.GetValue(moduleRoot, "EditFlags", 0);
+            var activePolicyModuleName = (string) Registry.GetValue(policyModulesRoot, "Active", _appName);
+            var activePolicyModuleRoot = $"{policyModulesRoot}\\{activePolicyModuleName}";
+
+            _policyDirectory =
+                (string) Registry.GetValue(activePolicyModuleRoot, "PolicyDirectory", Path.GetTempPath());
+            _editFlags = (int) Registry.GetValue(activePolicyModuleRoot, "EditFlags", 0);
         }
 
         private void InitializeWindowsDefaultPolicyModule(string strConfig)
         {
-            const string windowsDefaultPolicyModuleGuid = "3B6654D0-C2C8-11D2-B313-00C04F79DC72";
-
             try
             {
-                var windowsDefaultPolicyModuleType = Type.GetTypeFromCLSID(
-                    new Guid(windowsDefaultPolicyModuleGuid),
-                    true
-                );
+                _windowsDefaultPolicyModule =
+                    (ICertPolicy2) Activator.CreateInstance(
+                        Type.GetTypeFromProgID("CertificateAuthority_MicrosoftDefault.Policy", true));
 
-                _windowsDefaultPolicyModule = Activator.CreateInstance(windowsDefaultPolicyModuleType);
-
-                _windowsDefaultPolicyModule.GetType().InvokeMember(
-                    "Initialize",
-                    BindingFlags.InvokeMethod,
-                    null,
-                    _windowsDefaultPolicyModule,
-                    new object[] {strConfig}
-                );
+                _windowsDefaultPolicyModule.Initialize(strConfig);
 
                 _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
             }

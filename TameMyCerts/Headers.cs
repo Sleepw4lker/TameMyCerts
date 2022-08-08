@@ -60,7 +60,6 @@ namespace TameMyCerts
         public const string szOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
         public const string szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2";
         public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
-        public const string szOID_SUBJECT_DIR_ATTRS = "2.5.29.9";
     }
 
     // Constants from WinError.h

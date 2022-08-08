@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -37,6 +36,7 @@ namespace TameMyCerts
         public int MaximumKeyLength { get; set; }
         public List<SubjectRule> Subject { get; set; } = new List<SubjectRule>();
         public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
+        public string SecurityIdentifierExtension { get; set; } = "Deny";
 
         private static string ConvertToHumanReadableXml(string inputString)
         {

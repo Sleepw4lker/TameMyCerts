@@ -198,7 +198,7 @@
     <value>unknown</value>
   </data>
   <data name="ReqVal_Field_Too_Short" xml:space="preserve">
-    <value>The value "{0}" for the {1} field deceeds of the minimum required length of {2} characters.</value>
+    <value>The value "{0}" for the {1} field deceeds the minimum required length of {2} characters.</value>
   </data>
   <data name="Events_PDEF_REQUEST_DENIED" xml:space="preserve">
     <value>Request {0} was denied by the Windows Default policy module.</value>
@@ -238,5 +238,17 @@
   </data>
   <data name="ReqVal_Forbidden_Extensions" xml:space="preserve">
     <value>The certificate request contains a forbidden X.509 extension with OID {0}.</value>
+  </data>
+  <data name="Events_PDEF_REQUEST_DENIED_MESSAGE" xml:space="preserve">
+    <value>Request {0} was denied by the Windows Default policy module: {1}</value>
+  </data>
+  <data name="Events_ATTRIB_ERR_PARSE" xml:space="preserve">
+    <value>Unable to parse "{0}" request attribute for request {1}. The value was "{2}".</value>
+  </data>
+  <data name="Events_STARTDATE_INVALID" xml:space="preserve">
+    <value>Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by "StartDate" request attribute. The requested date is invalid.</value>
+  </data>
+  <data name="Events_STARTDATE_SET" xml:space="preserve">
+    <value>The begin of certificate validity period of request {0} was set to {1} (UTC) due to "StartDate" request attribute.</value>
   </data>
 </root>

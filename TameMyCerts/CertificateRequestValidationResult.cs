@@ -1,4 +1,18 @@
-﻿using System;
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -6,9 +20,10 @@ namespace TameMyCerts
 {
     public class CertificateRequestValidationResult
     {
-        public CertificateRequestValidationResult(bool auditOnly = false)
+        public CertificateRequestValidationResult(bool auditOnly, string notAfter)
         {
             AuditOnly = auditOnly;
+            SetNotAfter(notAfter);
         }
 
         public DateTimeOffset NotAfter { get; set; } = DateTimeOffset.MinValue;
@@ -20,7 +35,7 @@ namespace TameMyCerts
         public void SetFailureStatus()
         {
             DeniedForIssuance = true;
-            StatusCode = StatusCode == 0 ? WinError.NTE_FAIL : StatusCode;
+            StatusCode = StatusCode == WinError.ERROR_SUCCESS ? WinError.NTE_FAIL : StatusCode;
         }
 
         public void SetFailureStatus(int statusCode)
@@ -53,7 +68,7 @@ namespace TameMyCerts
             Description.AddRange(descriptionList);
         }
 
-        public void SetNotAfter(string desiredNotAfter)
+        private void SetNotAfter(string desiredNotAfter)
         {
             if (desiredNotAfter == string.Empty)
             {

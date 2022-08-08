@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,30 @@ namespace TameMyCerts
 {
     public static class CX509CertificateRequestPkcs10Extensions
     {
+        private static readonly Dictionary<string, string> RdnTypeAliasDictionary = new Dictionary<string, string>
+        {
+            {"C", "countryName"},
+            {"CN", "commonName"},
+            {"DC", "domainComponent"},
+            {"E", "emailAddress"},
+            {"L", "localityName"},
+            {"O", "organizationName"},
+            {"OU", "organizationalUnitName"},
+            {"S", "stateOrProvinceName"},
+            {"G", "givenName"},
+            {"I", "initials"},
+            {"SN", "surname"},
+            {"STREET", "streetAddress"},
+            {"T", "title"},
+            {"UNSTRUCTUREDNAME", "unstructuredName"},
+            {"UNSTRUCTUREDADDRESS", "unstructuredAddress"},
+            {"DEVICESERIALNUMBER", "deviceSerialNumber"},
+            {"POSTALCODE", "postalCode"},
+            {"DESCRIPTION", "description"},
+            {"POBOX", "postOfficeBox"},
+            {"PHONE", "telephoneNumber"}
+        };
+
         public static bool TryInitializeFromInnerRequest(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
             string certificateRequest, int requestType)
         {
@@ -109,7 +133,7 @@ namespace TameMyCerts
                     return "RSA";
 
                 default:
-                    return LocalizedStrings.Unknown;
+                    return certificateRequestPkcs10.PublicKey.Algorithm.Value;
             }
         }
 
@@ -231,7 +255,7 @@ namespace TameMyCerts
 
             if (!certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2, out var index))
             {
-                // Request doesnt contain a SAN extension, thus we're done
+                // Request doesn't contain a SAN extension, thus we're done
                 return true;
             }
 
@@ -308,36 +332,16 @@ namespace TameMyCerts
             // https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520
             // https://datatracker.ietf.org/doc/html/rfc4519#section-2
 
-            // Here are some sources the below list is based on
+            // Here are some sources the used list is based on
             // https://www.gradenegger.eu/?p=2717
             // https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-certstrtonamea
             // https://docs.microsoft.com/en-us/openspecs/sharepoint_protocols/ms-osco/dbdc3411-ed0a-4713-a01b-1ae0da5e75d4
 
-            switch (rdnType.ToUpperInvariant())
-            {
-                case "C": return "countryName";
-                case "CN": return "commonName";
-                case "DC": return "domainComponent";
-                case "E": return "emailAddress";
-                case "L": return "localityName";
-                case "O": return "organizationName";
-                case "OU": return "organizationalUnitName";
-                case "S": return "stateOrProvinceName";
-                case "G": return "givenName";
-                case "I": return "initials";
-                case "SN": return "surname";
-                case "STREET": return "streetAddress";
-                case "T": return "title";
-                case "UNSTRUCTUREDNAME": return "unstructuredName";
-                case "UNSTRUCTUREDADDRESS": return "unstructuredAddress";
-                case "DEVICESERIALNUMBER": return "deviceSerialNumber";
-                case "POSTALCODE": return "postalCode";
-                case "DESCRIPTION": return "description";
-                case "POBOX": return "postOfficeBox";
-                case "PHONE": return "telephoneNumber";
+            var key = rdnType.ToUpperInvariant();
 
-                default: return rdnType;
-            }
+            return RdnTypeAliasDictionary.ContainsKey(key)
+                ? RdnTypeAliasDictionary[key]
+                : rdnType;
         }
 
         // If the subject RDN contains quotes or special characters, the IX509CertificateRequest interface escapes these with quotes
@@ -390,7 +394,6 @@ namespace TameMyCerts
 
             // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
 
-            // First split by ','
             var components = SplitSubjectDn(distinguishedName, ',');
             var dnComponents = new List<KeyValuePair<string, string>>();
 
@@ -401,7 +404,6 @@ namespace TameMyCerts
 
             for (var i = 0; i < components.GetLength(0); i++)
             {
-                // split each component by '='
                 var subComponents = SplitSubjectDn(components[i], '=');
 
                 if (subComponents.GetLength(0) != 2)
@@ -444,7 +446,6 @@ namespace TameMyCerts
             const char escapeChar = '\\';
             var nextTokenStart = 0;
 
-            // get the actual tokens
             for (var i = 0; i < distinguishedName.Length; i++)
             {
                 var currentChar = distinguishedName[i];
@@ -454,11 +455,11 @@ namespace TameMyCerts
                     case quoteChar:
 
                         inQuotedString = !inQuotedString;
+
                         break;
 
                     case escapeChar:
 
-                        // skip the next character (if one exists)
                         if (i < distinguishedName.Length - 1)
                         {
                             i++;
@@ -475,19 +476,21 @@ namespace TameMyCerts
                     nextTokenStart = i + 1;
                 }
 
-                if (i == distinguishedName.Length - 1)
+                if (i != distinguishedName.Length - 1)
                 {
-                    // we've reached the end 
-
-                    // if we are still in quoted string, the format is invalid
-                    if (inQuotedString)
-                    {
-                        throw new ArgumentException();
-                    }
-
-                    // we need to end the last token
-                    resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart + 1));
+                    continue;
                 }
+
+                // we've reached the end 
+
+                // if we are still in quoted string, the format is invalid
+                if (inQuotedString)
+                {
+                    throw new ArgumentException();
+                }
+
+                // we need to end the last token
+                resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart + 1));
             }
 
             return resultList.ToArray();

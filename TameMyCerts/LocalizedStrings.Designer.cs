@@ -61,6 +61,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to parse &quot;{0}&quot; request attribute for request {1}. The value was &quot;{2}&quot;..
+        /// </summary>
+        internal static string Events_ATTRIB_ERR_PARSE {
+            get {
+                return ResourceManager.GetString("Events_ATTRIB_ERR_PARSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} policy module currently does not support standalone certification authorities..
         /// </summary>
         internal static string Events_MODULE_NOT_SUPPORTED {
@@ -105,6 +114,15 @@ namespace TameMyCerts {
         internal static string Events_PDEF_REQUEST_DENIED {
             get {
                 return ResourceManager.GetString("Events_PDEF_REQUEST_DENIED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} was denied by the Windows Default policy module: {1}.
+        /// </summary>
+        internal static string Events_PDEF_REQUEST_DENIED_MESSAGE {
+            get {
+                return ResourceManager.GetString("Events_PDEF_REQUEST_DENIED_MESSAGE", resourceCulture);
             }
         }
         
@@ -170,6 +188,24 @@ namespace TameMyCerts {
         internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO {
             get {
                 return ResourceManager.GetString("Events_REQUEST_DENIED_NO_TEMPLATE_INFO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by &quot;StartDate&quot; request attribute. The requested date is invalid..
+        /// </summary>
+        internal static string Events_STARTDATE_INVALID {
+            get {
+                return ResourceManager.GetString("Events_STARTDATE_INVALID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The begin of certificate validity period of request {0} was set to {1} (UTC) due to &quot;StartDate&quot; request attribute..
+        /// </summary>
+        internal static string Events_STARTDATE_SET {
+            get {
+                return ResourceManager.GetString("Events_STARTDATE_SET", resourceCulture);
             }
         }
         
@@ -318,7 +354,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; for the {1} field deceeds of the minimum required length of {2} characters..
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for the {1} field deceeds the minimum required length of {2} characters..
         /// </summary>
         internal static string ReqVal_Field_Too_Short {
             get {

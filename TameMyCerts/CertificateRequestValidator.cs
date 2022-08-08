@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,14 @@ namespace TameMyCerts
             CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
             int requestType, Dictionary<string, string> requestAttributeList)
         {
-            var result = new CertificateRequestValidationResult(certificateRequestPolicy.AuditOnly);
+            var result = new CertificateRequestValidationResult(certificateRequestPolicy.AuditOnly,
+                certificateRequestPolicy.NotAfter);
+
+            // In case something went wrong with parsing policy values
+            if (result.DeniedForIssuance)
+            {
+                return result;
+            }
 
             // Early binding would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
             var certificateRequestPkcs10 =
@@ -74,15 +81,15 @@ namespace TameMyCerts
             {
                 if (requestAttributeList.TryGetValue("RequestCSPProvider", out var requestCspProvider))
                 {
-                    if (!certificateRequestPolicy.AllowedCryptoProviders.Any(x =>
-                            x.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
+                    if (!certificateRequestPolicy.AllowedCryptoProviders.Any(s =>
+                            s.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Not_Allowed,
                             requestCspProvider));
                     }
 
-                    if (certificateRequestPolicy.DisallowedCryptoProviders.Any(x =>
-                            x.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
+                    if (certificateRequestPolicy.DisallowedCryptoProviders.Any(s =>
+                            s.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Disallowed,
                             requestCspProvider));
@@ -211,16 +218,12 @@ namespace TameMyCerts
 
                 #endregion
 
-                #region Process forbidden extensions
-
-                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_DIR_ATTRS))
-                {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
-                        WinCrypt.szOID_SUBJECT_DIR_ATTRS));
-                }
+                #region Process request extensions
 
                 // TODO: KB5014754. Validation logic is yet to be established. I assume we will need this for mobile devices until May 9, 2023.
-                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
+                if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Deny",
+                        StringComparison.InvariantCultureIgnoreCase) &&
+                    certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
                 {
                     result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
                         WinCrypt.szOID_DS_CA_SECURITY_EXT));
@@ -228,12 +231,6 @@ namespace TameMyCerts
 
                 #endregion
             }
-
-            #region Process fixed certificate expiration date
-
-            result.SetNotAfter(certificateRequestPolicy.NotAfter);
-
-            #endregion
 
             Marshal.ReleaseComObject(certificateRequestPkcs10);
             return result;
@@ -271,8 +268,8 @@ namespace TameMyCerts
 
             foreach (var subject in subjectList)
             {
-                var policyItem = subjectRuleList.FirstOrDefault(x =>
-                    x.Field.Equals(subject.Key, StringComparison.InvariantCultureIgnoreCase));
+                var policyItem = subjectRuleList.FirstOrDefault(subjectRule =>
+                    subjectRule.Field.Equals(subject.Key, StringComparison.InvariantCultureIgnoreCase));
 
                 if (policyItem == null)
                 {
