@@ -192,6 +192,8 @@ namespace TameMyCerts
                     return result;
                 }
 
+                result.Identities.AddRange(subjectRdnList);
+
                 if (!VerifySubject(subjectRdnList, certificateRequestPolicy.Subject,
                         out var subjectVerificationDescription))
                 {
@@ -209,6 +211,8 @@ namespace TameMyCerts
                     Marshal.ReleaseComObject(certificateRequestPkcs10);
                     return result;
                 }
+
+                result.Identities.AddRange(subjectAltNameList);
 
                 if (!VerifySubject(subjectAltNameList, certificateRequestPolicy.SubjectAlternativeName,
                         out var subjectAltNameVerificationDescription))

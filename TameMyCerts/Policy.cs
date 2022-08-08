@@ -38,6 +38,7 @@ namespace TameMyCerts
         private readonly string _appName;
         private readonly string _appVersion;
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
+        private readonly DirectoryServicesValidator _directoryServicesValidator = new DirectoryServicesValidator();
         private readonly CertificateTemplateInfo _templateInfo = new CertificateTemplateInfo();
         private int _editFlags;
         private Logger _logger;
@@ -234,6 +235,13 @@ namespace TameMyCerts
                 _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, templateInfo,
                     requestType,
                     requestAttributeList);
+
+            // Verify against directory if a policy is present
+            if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping && templateInfo.EnrolleeSuppliesSubject)
+            {
+                validationResult =
+                    _directoryServicesValidator.VerifyRequest(requestPolicy, validationResult);
+            }
 
             // No reason to deny the request, let's issue the certificate
             if (!validationResult.DeniedForIssuance)

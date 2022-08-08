@@ -1,0 +1,43 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <KeyAlgorithm>RSA</KeyAlgorithm>
+  <MinimumKeyLength>2048</MinimumKeyLength>
+  <MaximumKeyLength>4096</MaximumKeyLength>
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>false</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]$</Expression>
+        </Pattern>
+        </Patterns>
+    </SubjectRule>
+  </Subject>
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>10</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.adcslabor\.de)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <DirectoryServicesMapping>
+    <CertificateAttribute>userPrincipalName</CertificateAttribute>
+    <DirectoryServicesAttribute>userPrincipalName</DirectoryServicesAttribute>
+    <ObjectCategory>user</ObjectCategory>
+    <SearchRoot>DC=intra,DC=adcslabor,DC=de</SearchRoot>
+    <AllowedSecurityGroups>
+      <string>CN=Regular User Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
+    </AllowedSecurityGroups>
+    <DisallowedSecurityGroups>
+      <string>CN=Administrative Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
+    </DisallowedSecurityGroups>
+  </DirectoryServicesMapping>
+</CertificateRequestPolicy>

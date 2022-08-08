@@ -31,6 +31,7 @@ namespace TameMyCerts
         public bool DeniedForIssuance { get; set; }
         public bool AuditOnly { get; }
         public List<string> Description { get; set; } = new List<string>();
+        public List<KeyValuePair<string, string>> Identities { get; set; } = new List<KeyValuePair<string, string>>();
 
         public void SetFailureStatus()
         {

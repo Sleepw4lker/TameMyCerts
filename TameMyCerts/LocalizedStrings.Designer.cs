@@ -61,6 +61,78 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is disabled..
+        /// </summary>
+        internal static string DirVal_Account_Disabled {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is member of the forbidden Group {2}..
+        /// </summary>
+        internal static string DirVal_Account_Groups_Disallowed {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Groups_Disallowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is not member of any allowed Group..
+        /// </summary>
+        internal static string DirVal_Account_Groups_Not_Allowed {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Groups_Not_Allowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid attribute was specified in request policy: {0}..
+        /// </summary>
+        internal static string DirVal_Invalid_Directory_Attribute {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Directory_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid object category was specified in request policy: {0}..
+        /// </summary>
+        internal static string DirVal_Invalid_Object_Category {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Object_Category", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Either none or more than one {0} account with {1} of {2} was found in the directory..
+        /// </summary>
+        internal static string DirVal_Invalid_Result_Count {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Result_Count", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No matching identity found for the {0} attribute in certificate request..
+        /// </summary>
+        internal static string DirVal_No_Cert_Identity {
+            get {
+                return ResourceManager.GetString("DirVal_No_Cert_Identity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Directory query failed: {0}..
+        /// </summary>
+        internal static string DirVal_Query_Failed {
+            get {
+                return ResourceManager.GetString("DirVal_Query_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to parse &quot;{0}&quot; request attribute for request {1}. The value was &quot;{2}&quot;..
         /// </summary>
         internal static string Events_ATTRIB_ERR_PARSE {
