@@ -1,13 +1,27 @@
-﻿using System;
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TameMyCerts;
 
 namespace UnitTests
 {
     // TODO: Test correct building of NotBefore Date (correct input, false input), when the feature is implemented
-    // TODO: Test correct building of NotAfter Date (correct input, false input)
     // TODO: Subject DN with special chars that require escaping
     // TODO: Test the CertificateRequestPolicy Class against invalid and valid data
 
@@ -1307,6 +1321,36 @@ namespace UnitTests
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
             Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        }
+
+        [TestMethod]
+        public void Allow_notAfter_valid()
+        {
+            var requestPolicy = _requestPolicy;
+            var notAfter = "2100-12-31T23:59:59.0000000+01:00";
+            requestPolicy.NotAfter = notAfter;
+
+            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+
+            Assert.IsFalse(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.ERROR_SUCCESS));
+            Assert.IsTrue(validationResult.NotAfter.Equals(DateTimeOffset.ParseExact(notAfter, "o",
+                CultureInfo.InvariantCulture.DateTimeFormat,
+                DateTimeStyles.AssumeUniversal)));
+        }
+
+        [TestMethod]
+        public void Deny_notAfter_invalid()
+        {
+            var requestPolicy = _requestPolicy;
+            requestPolicy.NotAfter = "ThisIsNotAValidDateTime";
+
+            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.ERROR_INVALID_TIME));
         }
     }
 }
