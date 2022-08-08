@@ -224,7 +224,6 @@ namespace TameMyCerts
 
                 #region Process request extensions
 
-                // TODO: KB5014754. Validation logic is yet to be established. I assume we will need this for mobile devices until May 9, 2023.
                 if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Deny",
                         StringComparison.InvariantCultureIgnoreCase) &&
                     certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))

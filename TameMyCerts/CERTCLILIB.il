@@ -800,7 +800,8 @@
           instance object 
           marshal( struct) 
           GetCertificateExtension([in] string  marshal( bstr) strExtensionName,
-                                  [in] int32 Type) runtime managed internalcall
+                                  [in] int32 Type,
+                                  [out] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 05 00 02 60 00 00 )                         // .....`..
   } // end of method ICertServerPolicy::GetCertificateExtension
@@ -815,7 +816,7 @@
           instance void  SetCertificateExtension([in] string  marshal( bstr) strExtensionName,
                                                  [in] int32 Type,
                                                  [in] int32 ExtFlags,
-                                                 [in] object&  marshal( struct) pvarValue) runtime managed internalcall
+                                                 [in] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 07 00 02 60 00 00 )                         // .....`..
   } // end of method ICertServerPolicy::SetCertificateExtension
@@ -939,7 +940,8 @@
           instance object 
           marshal( struct) 
           GetCertificateExtension([in] string  marshal( bstr) strExtensionName,
-                                  [in] int32 Type) runtime managed internalcall
+                                  [in] int32 Type,
+                                  [out] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 05 00 02 60 00 00 )                         // .....`..
     .override CERTCLILib.ICertServerPolicy::GetCertificateExtension
@@ -956,7 +958,7 @@
           instance void  SetCertificateExtension([in] string  marshal( bstr) strExtensionName,
                                                  [in] int32 Type,
                                                  [in] int32 ExtFlags,
-                                                 [in] object&  marshal( struct) pvarValue) runtime managed internalcall
+                                                 [in] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 07 00 02 60 00 00 )                         // .....`..
     .override CERTCLILib.ICertServerPolicy::SetCertificateExtension
@@ -1054,7 +1056,8 @@
           instance object 
           marshal( struct) 
           GetCertificateExtension([in] string  marshal( bstr) strExtensionName,
-                                  [in] int32 Type) runtime managed internalcall
+                                  [in] int32 Type,
+                                  [out] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 04 00 02 60 00 00 )                         // .....`..
   } // end of method ICertServerExit::GetCertificateExtension
@@ -1175,7 +1178,8 @@
           instance object 
           marshal( struct) 
           GetCertificateExtension([in] string  marshal( bstr) strExtensionName,
-                                  [in] int32 Type) runtime managed internalcall
+                                  [in] int32 Type,
+                                  [out] native int pvarValue) runtime managed internalcall
   {
     .custom instance void [mscorlib]System.Runtime.InteropServices.DispIdAttribute::.ctor(int32) = ( 01 00 04 00 02 60 00 00 )                         // .....`..
     .override CERTCLILib.ICertServerExit::GetCertificateExtension

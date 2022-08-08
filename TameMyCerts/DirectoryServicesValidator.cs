@@ -1,6 +1,22 @@
-﻿using System;
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
+using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
+using System.Security.Principal;
 
 namespace TameMyCerts
 {
@@ -101,6 +117,8 @@ namespace TameMyCerts
                 return result;
             }
 
+            #region process memberships of allowed groups
+
             if (dsMapping.AllowedSecurityGroups.Count > 0)
             {
                 var matchFound = false;
@@ -122,23 +140,36 @@ namespace TameMyCerts
                 }
             }
 
+            #endregion
+
             #region process memberships of disallowed groups
 
-            if (dsMapping.DisallowedSecurityGroups.Count <= 0)
+            if (dsMapping.DisallowedSecurityGroups.Count > 0)
             {
-                return result;
+                for (var index = 0; index < searchResults[0].Properties["memberOf"].Count; index++)
+                {
+                    var group = searchResults[0].Properties["memberOf"][index];
+                    if (dsMapping.DisallowedSecurityGroups.Any(x =>
+                            x.Equals(group.ToString(), StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
+                            LocalizedStrings.DirVal_Account_Groups_Disallowed,
+                            dsMapping.ObjectCategory, identity, group));
+                    }
+                }
             }
 
-            for (var index = 0; index < searchResults[0].Properties["memberOf"].Count; index++)
+            #endregion
+
+            #region Process SID certificate extension construction
+
+            if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Add",
+                    StringComparison.InvariantCultureIgnoreCase))
             {
-                var group = searchResults[0].Properties["memberOf"][index];
-                if (dsMapping.DisallowedSecurityGroups.Any(x =>
-                        x.Equals(group.ToString(), StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                        LocalizedStrings.DirVal_Account_Groups_Disallowed,
-                        dsMapping.ObjectCategory, identity, group));
-                }
+                var objectSid =
+                    new SecurityIdentifier((byte[]) searchResults[0].Properties["objectSid"][0], 0).ToString();
+                result.Extensions.Add(new KeyValuePair<string, string>(WinCrypt.szOID_DS_CA_SECURITY_EXT,
+                    new SidCertificateExtension(objectSid).value));
             }
 
             #endregion

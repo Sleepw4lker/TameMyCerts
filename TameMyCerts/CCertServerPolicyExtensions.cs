@@ -187,5 +187,36 @@ namespace TameMyCerts
         }
 
         #endregion
+
+        #region SetCertificateExtension
+
+        public static void SetCertificateExtension(this CCertServerPolicy serverPolicy, string oid, string value, bool critical = false)
+        {
+            var rawData = Convert.FromBase64String(value);
+
+            IntPtr pBstr = Marshal.AllocHGlobal(rawData.Length + 4);
+            Marshal.WriteInt32(pBstr, 0, rawData.Length);
+            Marshal.Copy(rawData, 0, pBstr + 4, rawData.Length);
+            var variant = new OleAut32.VARIANT
+            {
+                vt = 8, // VT_BSTR
+                pvRecord = pBstr + 4
+            };
+            IntPtr pvarValue = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OleAut32.VARIANT)));
+            Marshal.StructureToPtr(variant, pvarValue, false);
+            Int32 dwCritical = critical ? 1 : 0;
+
+            try
+            {
+                serverPolicy.SetCertificateExtension(oid, CertSrv.PROPTYPE_BINARY, dwCritical, pvarValue);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pBstr);
+                Marshal.FreeHGlobal(pvarValue);
+            }
+        }
+
+        #endregion
     }
 }

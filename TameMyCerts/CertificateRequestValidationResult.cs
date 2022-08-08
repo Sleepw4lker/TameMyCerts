@@ -32,6 +32,7 @@ namespace TameMyCerts
         public bool AuditOnly { get; }
         public List<string> Description { get; set; } = new List<string>();
         public List<KeyValuePair<string, string>> Identities { get; set; } = new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> Extensions { get; set; } = new List<KeyValuePair<string, string>>();
 
         public void SetFailureStatus()
         {

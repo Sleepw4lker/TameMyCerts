@@ -137,8 +137,6 @@ namespace TameMyCerts
 
             #region Process insecure flag/attribute combinations
 
-            // TODO: Move this into CertificateRequestValidator, remove dependency on EditFlags (it is never a good idea to use the san extension)
-
             // Deny requests containing the "san" request attribute
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2) == CertSrv.EDITF_ATTRIBUTESUBJECTALTNAME2 &&
                 requestAttributeList.Any(x => x.Key.Equals("san", StringComparison.InvariantCultureIgnoreCase)))
@@ -241,6 +239,11 @@ namespace TameMyCerts
             {
                 validationResult =
                     _directoryServicesValidator.VerifyRequest(requestPolicy, validationResult);
+
+                foreach (var extension in validationResult.Extensions)
+                {
+                    certServerPolicy.SetCertificateExtension(extension.Key, extension.Value);
+                }
             }
 
             // No reason to deny the request, let's issue the certificate
