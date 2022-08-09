@@ -104,9 +104,8 @@ namespace TameMyCerts
     public class DirectoryServicesMapping
     {
         public string SearchRoot { get; set; }
-        public string CertificateAttribute { get; set; }
-        public string DirectoryServicesAttribute { get; set; }
-
+        public string CertificateAttribute { get; set; } = "userPrincipalName";
+        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
         public string ObjectCategory { get; set; } = "user";
         public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
         public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();

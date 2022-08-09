@@ -70,7 +70,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The {0} account for {1} is member of the forbidden Group {2}..
+        ///   Looks up a localized string similar to The {0} account for {1} is member of the forbidden group {2}..
         /// </summary>
         internal static string DirVal_Account_Groups_Disallowed {
             get {
@@ -79,7 +79,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The {0} account for {1} is not member of any allowed Group..
+        ///   Looks up a localized string similar to The {0} account for {1} is not member of any allowed group..
         /// </summary>
         internal static string DirVal_Account_Groups_Not_Allowed {
             get {

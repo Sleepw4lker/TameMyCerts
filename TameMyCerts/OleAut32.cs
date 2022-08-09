@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Kudos to Vadims podans for his research and support!
+// Kudos to Vadims Podans for his research and support!
 
 using System;
 using System.Runtime.InteropServices;

@@ -33,6 +33,7 @@ begin {
     New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2012 -Value 9200
     New-Variable -Option Constant -Name PolicyModuleName -Value "TameMyCerts"
     New-Variable -Option Constant -Name RegistryRoot -Value "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration"
+    New-Variable -Option Constant -Name BaseDirectory -Value (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
 
     New-Variable -Option Constant -Name ENUM_ENTERPRISE_ROOTCA -Value 0
     New-Variable -Option Constant -Name ENUM_ENTERPRISE_SUBCA -Value 1
@@ -64,6 +65,8 @@ begin {
 }
 
 process {
+
+    $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
     # Ensuring the Script will be run on a supported Operating System
     If ([int32](Get-WmiObject Win32_OperatingSystem).BuildNumber -lt $BUILD_NUMBER_WINDOWS_2012) {

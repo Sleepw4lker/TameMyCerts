@@ -20,7 +20,7 @@ namespace TameMyCerts
 {
     public class SidCertificateExtension
     {
-        public string value;
+        public readonly string value;
 
         public SidCertificateExtension(string sid)
         {
@@ -79,7 +79,7 @@ namespace TameMyCerts
             var result = string.Format("{0:X" + numOctets * 2 + "}", x);
 
             // Bit 8 of first octet has value "1" and bits 7-1 give the number of additional length octets.
-            return string.Format("{0:X2}", (int) (128 + numOctets)) + result;
+            return $"{(int) (128 + numOctets):X2}" + result;
         }
     }
 }

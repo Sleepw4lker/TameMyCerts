@@ -239,16 +239,17 @@ namespace TameMyCerts
             {
                 validationResult =
                     _directoryServicesValidator.VerifyRequest(requestPolicy, validationResult);
-
-                foreach (var extension in validationResult.Extensions)
-                {
-                    certServerPolicy.SetCertificateExtension(extension.Key, extension.Value);
-                }
             }
 
             // No reason to deny the request, let's issue the certificate
             if (!validationResult.DeniedForIssuance)
             {
+                // Add certificate extensions, if any
+                foreach (var extension in validationResult.Extensions)
+                {
+                    certServerPolicy.SetCertificateExtension(extension.Key, extension.Value);
+                }
+
                 if (validationResult.NotAfter == DateTimeOffset.MinValue || validationResult.NotAfter >
                     certServerPolicy.GetDateCertificatePropertyOrDefault("NotAfter"))
                 {

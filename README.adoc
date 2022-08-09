@@ -6,7 +6,7 @@ TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/c
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
 
-The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrolle against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
+The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
 
 == Value Proposition
 
@@ -24,7 +24,7 @@ The TameMyCerts policy module addresses, amongst others, the following use cases
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
 * Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift), or having the requirement to have all certificates end by a specific date.
 * Preventing Users to request certificates from templates that are intended to be used solely with link:https://www.gradenegger.eu/?p=2789[AutoEnrollment^] via alternative methods (e.g. MMC.exe).
-* It is also the perfect companion for the link:https://github.com/Sleepw4lker/AdcsToRest[AdcsToRest^] REST API for ADCS.
+* It is also the perfect companion for the link:https://github.com/Sleepw4lker/AdcsToRest[AdcsToRest^] REST API for AD CS.
 
 === Conclusion
 
@@ -39,7 +39,6 @@ The module was successfully tested with the following operating systems:
 * Windows Server 2022
 * Windows Server 2019
 * Windows Server 2016
-* Windows Server 2012 R2
 
 Older operating systems are not supported.
 
@@ -274,11 +273,11 @@ Rules for Directory Mapping get specified within a "DirectoryServicesMapping" no
 
 |CertificateAttribute
 |no
-|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distringuished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName".
+|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName".
 
 |DirectoryServicesAttribute
 |no
-|The attribute of the Active Directory object that must match the certificate attribute. Defaults to "userPrincipalName".
+|The attribute of the Active Directory object that must match the certificate attribute. May be "cn", "name", "sAMAccountName", "userPrincipalName" or "dNSHostName". Defaults to "userPrincipalName".
 
 |ObjectCategory
 |no
@@ -290,11 +289,11 @@ Rules for Directory Mapping get specified within a "DirectoryServicesMapping" no
 
 |AllowedSecurityGroups
 |no
-|A list of distinguished names of security groups the account must be member of (at leat one of them).
+|A list of distinguished names of security groups the account must be member of (at least one of them).
 
 |DisallowedSecurityGroups
 |no
-|A list of distinguished names of security groups the account must *not* be member of (at leat one of them).
+|A list of distinguished names of security groups the account must *not* be member of (at least one of them).
 
 |===
 

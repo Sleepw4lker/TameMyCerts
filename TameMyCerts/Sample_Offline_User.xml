@@ -38,6 +38,8 @@
     </AllowedSecurityGroups>
     <DisallowedSecurityGroups>
       <string>CN=Administrative Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
+      <string>CN=Domain Admins,CN=Users,DC=intra,DC=adcslabor,DC=de</string>
     </DisallowedSecurityGroups>
   </DirectoryServicesMapping>
+  <SecurityIdentifierExtension>Add</SecurityIdentifierExtension>
 </CertificateRequestPolicy>

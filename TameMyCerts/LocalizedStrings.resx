@@ -255,10 +255,10 @@
     <value>The {0} account for {1} is disabled.</value>
   </data>
   <data name="DirVal_Account_Groups_Disallowed" xml:space="preserve">
-    <value>The {0} account for {1} is member of the forbidden Group {2}.</value>
+    <value>The {0} account for {1} is member of the forbidden group {2}.</value>
   </data>
   <data name="DirVal_Account_Groups_Not_Allowed" xml:space="preserve">
-    <value>The {0} account for {1} is not member of any allowed Group.</value>
+    <value>The {0} account for {1} is not member of any allowed group.</value>
   </data>
   <data name="DirVal_Invalid_Directory_Attribute" xml:space="preserve">
     <value>An invalid attribute was specified in request policy: {0}.</value>
