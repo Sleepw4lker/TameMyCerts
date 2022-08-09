@@ -1,6 +1,8 @@
 = The "Tame My Certs" policy module for Active Directory Certificate Services
 
-TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#.
+NOTE: Please download the binary package from the link:https://github.com/Sleepw4lker/TameMyCerts/releases[releases page].
+
+TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#, that enables security automation for a lot of use cases in the PKI field.
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
 
@@ -14,12 +16,15 @@ Sadly, there are many cases where this is not possible. In these cases, a certif
 
 The TameMyCerts policy module addresses, amongst others, the following use cases:
 
-* Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like AirWatch/Workspace One or MobileIron, link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content. The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
+* Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like link:https://www.microsoft.com/en-us/security/business/microsoft-endpoint-manager[Microsoft Endpoint Manager (aka InTune)^] or link:https://www.vmware.com/content/vmware/vmware-published-sites/de/products/workspace-one.html.html[VMware AirWatch/Workspace One^], link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content.
+** The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
+** It is also capable of ensuring that a user or computer account exists in Active Directory matching the requested certificate, and that it is enabled and member (or not) of specific security groups (e.g. this can prevent issuing certificates for administrative accounts via MDM).
+* Adding the the newly introduced Security Identifier (szOID_NTDS_CA_SECURITY_EXT with object id 1.3.6.1.4.1.311.25.2 that was introduced with link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[KB5014754^]) extension into offline certificate requests, which e.g. allows you to use Microsoft Network Policy Server (NPS) with certificates issued to mobile devices and the like and avoid breaking authentication when "strong" certificate mapping link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16#bkmk_fullenforcemode[will be enforced by Microsoft on May 9, 2023^].
 * Technical or legal requirements to allow any kind of subject RDN to be enabled for issuance on the certification authority (enabling link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag on the certification authority). Without the module, there is no control over which exact subject RDNs are allowed to be issued.
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
 * Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift), or having the requirement to have all certificates end by a specific date.
 * Preventing Users to request certificates from templates that are intended to be used solely with link:https://www.gradenegger.eu/?p=2789[AutoEnrollment^] via alternative methods (e.g. MMC.exe).
-* It is also the perfecto companion for the link:https://github.com/Sleepw4lker/AdcsToRest[AdcsToRest^] REST API for ADCS.
+* It is also the perfect companion for the link:https://github.com/Sleepw4lker/AdcsToRest[AdcsToRest^] REST API for ADCS.
 
 === Conclusion
 
@@ -38,7 +43,7 @@ The module was successfully tested with the following operating systems:
 
 Older operating systems are not supported.
 
-For Windows Server 2016 and below, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
+For Windows Server 2016, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
 
 === Installation
 
@@ -79,10 +84,11 @@ Create a policy file in XML format for each certificate template you want to app
 See the supplied sample policy files for an example:
 
 * link:TameMyCerts/Sample_Webserver.xml[Sample_Webserver.xml]
+* link:TameMyCerts/Sample_Offline_User.xml[Sample_Offline_User.xml]
 * link:TameMyCerts/Sample_User_AE_TPM.xml[Sample_User_AE_TPM.xml]
 * link:TameMyCerts/Sample_User_NotAfter.xml[Sample_User_NotAfter.xml]
 
-NOTE: The policy files get loaded when a certificate request gets processed, therefore it is not needed to restart the certification authority service after a policy file has been created or changed.
+NOTE: The policy files get loaded when a certificate request gets processed, therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
 
 NOTE: We distinguish between certificate requests for certificate templates that are configured to build the subject information from Active directory (called "online" requests) and for such that are configured to have the enrollee supply the subject information with the requests (called "offline" requests). Some of the below settings apply only to offline requests and will have no effect when configured for offline certificate templates.
 
@@ -115,6 +121,10 @@ example, if you would like to deny certificate enrollment via certreq.exe, you c
 |DisallowedCryptoProviders
 |no
 |Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate request's private key.
+
+|SecurityIdentifierExtension
+|no
+|Decides how to handle the Security Identifier certificate extension. If configured to "Deny" (default), the policy module will deny certificate requests containing this extension. If configured to "Add", it will add the objectSid attribute from the Active Directory user or computer account that maps to the certificate (requires directory services mapping to be configured, see below). If it is configured to "Add" and the certificate request already contains Security Identifier certificate extension, it will be overwritten by the policy module.
 
 NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, PSCertificateEnrollment and similar apps) will contain information about the process that was used to create the certificate request.
 
@@ -212,7 +222,7 @@ The following RDN types are enabled/allowed by default on AD CS:
 * domainComponent
 * emailAddress
 * organizationName
-* organizationalUnit
+* organizationalUnitName
 * localityName
 * stateOrProvinceName
 
@@ -254,6 +264,39 @@ To define a policy for one or more subject alternative name (SAN) type, adjust t
 * uniformResourceIdentifier
 
 NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for the majority of use cases.
+
+== Configuring rules for Directory Services Mapping
+
+Rules for Directory Mapping get specified within a "DirectoryServicesMapping" node.
+
+|===
+|Parameter |Mandatory |Description
+
+|CertificateAttribute
+|no
+|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distringuished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName".
+
+|DirectoryServicesAttribute
+|no
+|The attribute of the Active Directory object that must match the certificate attribute. Defaults to "userPrincipalName".
+
+|ObjectCategory
+|no
+|The categopry of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user".
+
+|SearchRoot
+|no
+|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.
+
+|AllowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must be member of (at leat one of them).
+
+|DisallowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must *not* be member of (at leat one of them).
+
+|===
 
 == Monitoring and Troubleshooting
 
