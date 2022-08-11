@@ -68,9 +68,9 @@ namespace TameMyCerts
 
         private static string GetAsn1LengthOctets(int length)
         {
-            var x = (int) Math.Ceiling(length / 2m);
+            length = (int) Math.Ceiling(length / 2m);
 
-            var numBits = Convert.ToString(x, 2).Length;
+            var numBits = Convert.ToString(length, 2).Length;
             var numOctets = Math.Ceiling(numBits / 8m);
 
             // Short form (for lengths between 0 and 127). One octet. 
@@ -78,13 +78,13 @@ namespace TameMyCerts
 
             if (numBits <= 7)
             {
-                return $"{x:X2}";
+                return $"{length:X2}";
             }
 
             // Long form. Two to 127 octets.
 
             // Second and following octets give the length, base 256, most significant digit first.
-            var result = string.Format("{0:X" + numOctets * 2 + "}", x);
+            var result = string.Format("{0:X" + numOctets * 2 + "}", length);
 
             // Bit 8 of first octet has value "1" and bits 7-1 give the number of additional length octets.
             return $"{(int) (128 + numOctets):X2}" + result;
