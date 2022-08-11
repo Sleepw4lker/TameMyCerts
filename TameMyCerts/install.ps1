@@ -33,6 +33,7 @@ begin {
     New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2012 -Value 9200
     New-Variable -Option Constant -Name PolicyModuleName -Value "TameMyCerts"
     New-Variable -Option Constant -Name RegistryRoot -Value "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration"
+    New-Variable -Option Constant -Name BaseDirectory -Value (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
 
     New-Variable -Option Constant -Name ENUM_ENTERPRISE_ROOTCA -Value 0
     New-Variable -Option Constant -Name ENUM_ENTERPRISE_SUBCA -Value 1
@@ -83,10 +84,15 @@ process {
         Return
     }
 
+    # Prevent running the installer without the module present
+    If (-not (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).dll")) {
+        Write-Error -Message "Could not find $BaseDirectory\$($PolicyModuleName).dll"
+        Return
+    }
+
     $CaName = (Get-ItemProperty -Path $RegistryRoot -Name Active).Active
     $CaType = (Get-ItemProperty -Path "$RegistryRoot\$($CaName)" -Name CaType -ErrorAction Stop).CaType
     $KeyStorageProvider = (Get-ItemProperty -Path "$($RegistryRoot)\$($CaName)\CSP" -Name Provider).Provider
-    $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
     If (-not (($CaType -eq $ENUM_ENTERPRISE_ROOTCA) -or ($CaType -eq $ENUM_ENTERPRISE_SUBCA))) {
         Write-Error -Message "The $PolicyModuleName policy module currently does not support standalone certification authorities."
@@ -102,7 +108,7 @@ process {
     Stop-Service -Name certsvc
 
     If ($KeyStorageProvider -eq "SafeNet Key Storage Provider") {
-        Write-Warning -Message "Waiting for the AD CS service to shutdown properly (to avoid known bug in SafeNet Key Storage Provider)."
+        Write-Warning -Message "Waiting 120 seconds for the AD CS service to shutdown properly (to avoid known bug in SafeNet Key Storage Provider)."
         Start-Sleep -Seconds 120
     }
 
@@ -110,7 +116,7 @@ process {
     
     If ($MmcProcesses) {
         Write-Warning -Message "Killing running MMC processes (certsrv.msc may lock the policy module DLL if opened during (un)installation)."
-        $MmcProcesses| Stop-Process -Force
+        $MmcProcesses | Stop-Process -Force
     }
 
     Write-Verbose -Message "Trying to unregister $PolicyModuleName policy module COM object"
@@ -170,7 +176,7 @@ process {
             $SourcePath = "$BaseDirectory\$($PolicyModuleName).dll"
             $Path = "$($env:SystemRoot)\$($_)\$($PolicyModuleName).dll"
     
-            Copy-Item -Path $SourcePath -Destination $Path -Force
+            Copy-Item -Path $SourcePath -Destination $Path -Force -ErrorAction Stop
 
             Start-Process `
                 -FilePath "$($env:SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" `

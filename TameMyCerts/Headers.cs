@@ -50,6 +50,18 @@ namespace TameMyCerts
         public const int CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT = 1;
     }
 
+    // Constants from WinCrypt.h
+    public static class WinCrypt
+    {
+        public const string szOID_RSA_RSA = "1.2.840.113549.1.1.1";
+        public const string szOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
+        public const string szOID_OS_VERSION = "1.3.6.1.4.1.311.13.2.3";
+        public const string szOID_ENROLLMENT_CSP_PROVIDER = "1.3.6.1.4.1.311.13.2.2";
+        public const string szOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
+        public const string szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2";
+        public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
+    }
+
     // Constants from WinError.h
     public static class WinError
     {

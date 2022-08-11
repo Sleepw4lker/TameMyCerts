@@ -61,6 +61,87 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is disabled..
+        /// </summary>
+        internal static string DirVal_Account_Disabled {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is member of the forbidden group {2}..
+        /// </summary>
+        internal static string DirVal_Account_Groups_Disallowed {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Groups_Disallowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} account for {1} is not member of any allowed group..
+        /// </summary>
+        internal static string DirVal_Account_Groups_Not_Allowed {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Groups_Not_Allowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid attribute was specified in request policy: {0}..
+        /// </summary>
+        internal static string DirVal_Invalid_Directory_Attribute {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Directory_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid object category was specified in request policy: {0}..
+        /// </summary>
+        internal static string DirVal_Invalid_Object_Category {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Object_Category", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Either none or more than one {0} account with {1} of {2} was found in the directory..
+        /// </summary>
+        internal static string DirVal_Invalid_Result_Count {
+            get {
+                return ResourceManager.GetString("DirVal_Invalid_Result_Count", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No matching identity found for the {0} attribute in certificate request..
+        /// </summary>
+        internal static string DirVal_No_Cert_Identity {
+            get {
+                return ResourceManager.GetString("DirVal_No_Cert_Identity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Directory query failed: {0}..
+        /// </summary>
+        internal static string DirVal_Query_Failed {
+            get {
+                return ResourceManager.GetString("DirVal_Query_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to parse &quot;{0}&quot; request attribute for request {1}. The value was &quot;{2}&quot;..
+        /// </summary>
+        internal static string Events_ATTRIB_ERR_PARSE {
+            get {
+                return ResourceManager.GetString("Events_ATTRIB_ERR_PARSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} policy module currently does not support standalone certification authorities..
         /// </summary>
         internal static string Events_MODULE_NOT_SUPPORTED {
@@ -109,20 +190,20 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request {0} was denied by the Windows Default policy module: {1}.
+        /// </summary>
+        internal static string Events_PDEF_REQUEST_DENIED_MESSAGE {
+            get {
+                return ResourceManager.GetString("Events_PDEF_REQUEST_DENIED_MESSAGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} policy module version {1} is ready to process incoming certificate requests..
         /// </summary>
         internal static string Events_PDEF_SUCCESS_INIT {
             get {
                 return ResourceManager.GetString("Events_PDEF_SUCCESS_INIT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Certificate template {0} used for Request {1} is configured to build subject from Active Directory, skipping..
-        /// </summary>
-        internal static string Events_POLICY_NOT_APPLICABLE {
-            get {
-                return ResourceManager.GetString("Events_POLICY_NOT_APPLICABLE", resourceCulture);
             }
         }
         
@@ -183,7 +264,34 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is disallowed..
+        ///   Looks up a localized string similar to Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by &quot;StartDate&quot; request attribute. The requested date is invalid..
+        /// </summary>
+        internal static string Events_STARTDATE_INVALID {
+            get {
+                return ResourceManager.GetString("Events_STARTDATE_INVALID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The begin of certificate validity period of request {0} was set to {1} (UTC) due to &quot;StartDate&quot; request attribute..
+        /// </summary>
+        internal static string Events_STARTDATE_SET {
+            get {
+                return ResourceManager.GetString("Events_STARTDATE_SET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
+        /// </summary>
+        internal static string Events_VALIDITY_REDUCED {
+            get {
+                return ResourceManager.GetString("Events_VALIDITY_REDUCED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is explicitly disallowed..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Disallowed {
             get {
@@ -192,7 +300,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is not allowed..
+        ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is not on the list of allowed providers..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Not_Allowed {
             get {
@@ -219,20 +327,20 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to extract inner PKCS#10 request from given CMC certificate request..
+        ///   Looks up a localized string similar to Unable to parse the configured expiration date specified in certificate request policy..
         /// </summary>
-        internal static string ReqVal_Err_Extract_From_Cmc {
+        internal static string ReqVal_Err_NotAfter_Invalid {
             get {
-                return ResourceManager.GetString("ReqVal_Err_Extract_From_Cmc", resourceCulture);
+                return ResourceManager.GetString("ReqVal_Err_NotAfter_Invalid", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to extract inner PKCS#10 request from given PKCS#7 certificate request..
+        ///   Looks up a localized string similar to Certificate request policy requires issued certificates for this certificate template to expire no later than {0} (UTC), which lies in the past..
         /// </summary>
-        internal static string ReqVal_Err_Extract_From_Pkcs7 {
+        internal static string ReqVal_Err_NotAfter_Passed {
             get {
-                return ResourceManager.GetString("ReqVal_Err_Extract_From_Pkcs7", resourceCulture);
+                return ResourceManager.GetString("ReqVal_Err_NotAfter_Passed", resourceCulture);
             }
         }
         
@@ -246,7 +354,16 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to parse the given subject distinguished name: {0}..
+        ///   Looks up a localized string similar to Unable to parse the Subject Alternative Name certificate request extension..
+        /// </summary>
+        internal static string ReqVal_Err_Parse_San {
+            get {
+                return ResourceManager.GetString("ReqVal_Err_Parse_San", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to parse the given subject distinguished name..
         /// </summary>
         internal static string ReqVal_Err_Parse_SubjectDn {
             get {
@@ -309,7 +426,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; for the {1} field deceeds of the minimum required length of {2} characters..
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for the {1} field deceeds the minimum required length of {2} characters..
         /// </summary>
         internal static string ReqVal_Field_Too_Short {
             get {
@@ -318,7 +435,16 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request uses an {0} key pair, but must use an {1} key pair..
+        ///   Looks up a localized string similar to The certificate request contains a forbidden X.509 extension with OID {0}..
+        /// </summary>
+        internal static string ReqVal_Forbidden_Extensions {
+            get {
+                return ResourceManager.GetString("ReqVal_Forbidden_Extensions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate request does not use a {0} key pair, which is required by policy..
         /// </summary>
         internal static string ReqVal_Key_Pair_Mismatch {
             get {
@@ -354,7 +480,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is disallowed..
+        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is explicitly disallowed..
         /// </summary>
         internal static string ReqVal_Process_Disallowed {
             get {
@@ -363,7 +489,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is not allowed..
+        ///   Looks up a localized string similar to Process &quot;{0}&quot; used to create the certificate request is not on the list of allowed process names..
         /// </summary>
         internal static string ReqVal_Process_Not_Allowed {
             get {
@@ -377,15 +503,6 @@ namespace TameMyCerts {
         internal static string ReqVal_Process_Unknown {
             get {
                 return ResourceManager.GetString("ReqVal_Process_Unknown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains the unsupported Subject Directory Attributes extension..
-        /// </summary>
-        internal static string ReqVal_Unsupported_Extension_Dir_Attrs {
-            get {
-                return ResourceManager.GetString("ReqVal_Unsupported_Extension_Dir_Attrs", resourceCulture);
             }
         }
         

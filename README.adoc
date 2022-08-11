@@ -1,10 +1,14 @@
 = The "Tame My Certs" policy module for Active Directory Certificate Services
 
-TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#.
+NOTE: Please download the binary package from the link:https://github.com/Sleepw4lker/TameMyCerts/releases[releases page].
+
+NOTE: Please consult the link:CHANGELOG.adoc[Change Log] if upgrading from a previous version.
+
+TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#, that enables security automation for a lot of use cases in the PKI field.
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
 
-The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrolle against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
+The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
 
 == Value Proposition
 
@@ -14,11 +18,15 @@ Sadly, there are many cases where this is not possible. In these cases, a certif
 
 The TameMyCerts policy module addresses, amongst others, the following use cases:
 
-* Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like AirWatch/Workspace One or MobileIron, link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content. The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
+* Certificate issuance must be delegated to a 3rd party service, for example, Mobile Device Management (MDM) systems like link:https://www.microsoft.com/en-us/security/business/microsoft-endpoint-manager[Microsoft Endpoint Manager (aka InTune)^] or link:https://www.vmware.com/content/vmware/vmware-published-sites/de/products/workspace-one.html.html[VMware AirWatch/Workspace One^], link:https://social.technet.microsoft.com/wiki/contents/articles/9063.active-directory-certificate-services-ad-cs-network-device-enrollment-service-ndes.aspx[Network Device Enrollment Service (NDES)^] deployments or similar use cases that require the certificate template to be configured to have the enrollee supply the subject information with the certificate signing request in combination with direct certificate issuance. Without the module, there is absolutely no control over the issued certificate content.
+** The module can also mitigate the problem that certificates may be inconsistent among platforms (e.g. having differing subject information on a mobile phone managed by MDM than on a PC that uses Autoenrollment because of inconsistent configuration settings on the MDM) by enforcing certificate content.
+** It is also capable of ensuring that a user or computer account exists in Active Directory matching the requested certificate, and that it is enabled and member (or not) of specific security groups (e.g. this can prevent issuing certificates for administrative accounts via MDM).
+* Adding the the newly introduced Security Identifier (szOID_NTDS_CA_SECURITY_EXT with object id 1.3.6.1.4.1.311.25.2 that was introduced with link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[KB5014754^]) extension into offline certificate requests, which e.g. allows you to use Microsoft Network Policy Server (NPS) with certificates issued to mobile devices and the like and avoid breaking authentication when "strong" certificate mapping link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16#bkmk_fullenforcemode[will be enforced by Microsoft on May 9, 2023^].
 * Technical or legal requirements to allow any kind of subject RDN to be enabled for issuance on the certification authority (enabling link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag on the certification authority). Without the module, there is no control over which exact subject RDNs are allowed to be issued.
 * Certificate templates configured to allow Elliptic Curve Cryptography (ECC) keys. Without the module, it would be possible that certificates get issued that use small RSA keys (e.g. 512 bit or even smaller) even though these would be not allowed in the certificate template configuration, as the Windows Default policy module link:https://www.gradenegger.eu/?p=14138[only validates the key length but not the key algorithm^].
-* Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift).
+* Issuance of certificates with a validity period within exactly defined timeframe (e.g. valid only exactly for one work shift), or having the requirement to have all certificates end by a specific date.
 * Preventing Users to request certificates from templates that are intended to be used solely with link:https://www.gradenegger.eu/?p=2789[AutoEnrollment^] via alternative methods (e.g. MMC.exe).
+* It is also the perfect companion for the link:https://github.com/Sleepw4lker/AdcsToRest[AdcsToRest^] REST API for AD CS.
 
 === Conclusion
 
@@ -28,7 +36,7 @@ The TameMyCerts policy module allows fine-granular control about certificate con
 
 === Supported Operating Systems and Prerequisites
 
-The module was successfully tested with the following operating systems:
+The module was successfully tested and is supported with the following operating systems:
 
 * Windows Server 2022
 * Windows Server 2019
@@ -75,9 +83,16 @@ The script will unregister the module, copy the registry settings back and confi
 
 Create a policy file in XML format for each certificate template you want to apply a policy for in the folder you specified during installation. Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined.
 
-See the supplied link:TameMyCerts/SamplePolicy.xml[SamplePolicy.xml] for an example.
+See the supplied sample policy files for an example:
 
-NOTE: The policy files get loaded when a certificate request gets processed, therefore it is not needed to restart the certification authority service after a policy file has been created or changed.
+* link:TameMyCerts/Sample_Offline_Computer_SidExtension.xml[Sample_Offline_Computer_SidExtension.xml]
+* link:TameMyCerts/Sample_Offline_User.xml[Sample_Offline_User.xml]
+* link:TameMyCerts/Sample_Offline_User_SidExtension.xml[Sample_Offline_User_SidExtension.xml]
+* link:TameMyCerts/Sample_Offline_User_TPM.xml[Sample_Offline_User_TPM.xml]
+* link:TameMyCerts/Sample_Offline_Webserver.xml[Sample_Offline_Webserver.xml]
+* link:TameMyCerts/Sample_Online_User_NotAfter.xml[Sample_Online_User_NotAfter.xml]
+
+NOTE: The policy files get loaded when a certificate request gets processed, therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
 
 NOTE: We distinguish between certificate requests for certificate templates that are configured to build the subject information from Active directory (called "online" requests) and for such that are configured to have the enrollee supply the subject information with the requests (called "offline" requests). Some of the below settings apply only to offline requests and will have no effect when configured for offline certificate templates.
 
@@ -90,6 +105,10 @@ NOTE: We distinguish between certificate requests for certificate templates that
 |no
 |Audit Mode. No certificate requests get denied but a message will get written into the Event Log when a certificate request violates the given policy. Helps sharpening the policy rules before applying  a policy onto a productive system. Defaults to false.
 
+|NotAfter
+|no
+|Allows to specify a specific expiration date for all certificates issued for a certificate template. This can be useful in situations where all certificates shall expire after a project ends, or when phasing out weak key sizes to a given date. Must specify in link:https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#the-round-trip-o-o-format-specifier[ISO 8601^] compatible format, e.g. "2022-12-31T23:59:59.0000000+01:00".
+
 |AllowedProcesses
 |no
 |Contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
@@ -101,15 +120,19 @@ example, if you would like to deny certificate enrollment via certreq.exe, you c
 
 |AllowedCryptoProviders
 |no
-|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. THis way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
+|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. This way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
 
 |DisallowedCryptoProviders
 |no
 |Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate request's private key.
 
-NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, PSCertificateEnrollment and similar apps) will contain information about the process that was used to create the certificate request.
+|SecurityIdentifierExtension
+|no
+|Decides how to handle the Security Identifier certificate extension. If configured to "Deny" (default), the policy module will deny certificate requests containing this extension. If configured to "Add", it will add the objectSid attribute from the Active Directory user or computer account that maps to the certificate (requires directory services mapping to be configured, see below). If it is configured to "Add" and the certificate request already contains Security Identifier certificate extension, it will be overwritten by the policy module.
 
 |===
+
+NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, link:https://www.powershellgallery.com/packages/PSCertificateEnrollment[PSCertificateEnrollment^] and similar apps) will contain information about the process and provider that were used to create the certificate request.
 
 === Configuring rules for the private key
 
@@ -203,7 +226,7 @@ The following RDN types are enabled/allowed by default on AD CS:
 * domainComponent
 * emailAddress
 * organizationName
-* organizationalUnit
+* organizationalUnitName
 * localityName
 * stateOrProvinceName
 
@@ -224,7 +247,7 @@ It is also possible to enable any kind of RDNs in AD CS if the link:https://www.
 * description
 * postOfficeBox
 * telephoneNumber
-* any "unknown" (not identified by one of the above names) RDN can be specified by using it's object identifier. The OID it must be specified with an "OID." prefix, e.g. "OID.1.2.3.4.5".
+* any "unknown" (not identified by one of the above names) RDN can be specified by using it's object identifier. The OID must be specified with an "OID." prefix, e.g. "OID.1.2.3.4.5".
 
 NOTE: Usually, it is recommended to avoid enabling the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag, but when using this policy module, it should be fine as it allows fine-grained control about which RDN types are allowed and which not.
 
@@ -245,6 +268,41 @@ To define a policy for one or more subject alternative name (SAN) type, adjust t
 * uniformResourceIdentifier
 
 NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for the majority of use cases.
+
+== Configuring rules for Directory Services Mapping
+
+Rules for Directory Mapping get specified within a "DirectoryServicesMapping" node.
+
+|===
+|Parameter |Mandatory |Description
+
+|CertificateAttribute
+|no
+|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName".
+
+|DirectoryServicesAttribute
+|no
+|The attribute of the Active Directory object that must match the certificate attribute. May be "cn", "name", "sAMAccountName", "userPrincipalName" or "dNSHostName". Defaults to "userPrincipalName".
+
+|ObjectCategory
+|no
+|The categopry of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user".
+
+|SearchRoot
+|no
+|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.
+
+|AllowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must be member of (at least one of them).
+
+|DisallowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must *not* be member of (at least one of them).
+
+|===
+
+NOTE: Please be aware that it is currently *not* possible to use the Primary Group of an AD object (Domain Users, Domain Guests, Domain Computers, Domain Controllers) for filtering.
 
 == Monitoring and Troubleshooting
 
@@ -292,7 +350,7 @@ In addition to the certification authorities regular log entries, the policy mod
 
 |1
 |Information
-|Occurs if the Windows Default policy was successfully loaded and TameMyCerts is ready to process incoming requests. Occurs only if the certification authorities "LogLevel" is set to 4 or higher.
+|Occurs if the Windows Default policy was successfully loaded and TameMyCerts is ready to process incoming requests. Occurs only if the certification authority's "LogLevel" is set to 4 or higher.
 
 |2
 |Error
@@ -332,7 +390,15 @@ In addition to the certification authorities regular log entries, the policy mod
 
 |11
 |Information
-|Occurs if the Windows Default policy module denied a certificate request, thus the additional logic of TameMyCerts was not triggered at all for the given request. Occurs only if the certification authorities "LogLevel" is set to 4 or higher.
+|Occurs if the Windows Default policy module denied a certificate request, thus the additional logic of TameMyCerts was not triggered at all for the given request. Occurs only if the certification authority's "LogLevel" is set to 4 or higher.
+
+|12
+|Error
+|Occurs if the certification authority has the (link:https://www.gradenegger.eu/?p=1486[proven insecure^]) EDITF_ATTRIBUTESUBJECTALTNAME2 flag set, and a request containing the "san" attribute was passed. The policy module will deny such requests. You should consider triggering an alarm when this happens.
+
+|13
+|Information
+|Occurs if the expiration date of a certificate was capped because of policy configuration (NotAfter parameter). Occurs only if the certification authority's "LogLevel" is set to 4 or higher.
 
 |===
 
@@ -359,13 +425,15 @@ certreq ^
 -submit "SomeWebServer.req"
 ....
 
-NOTE: When an invalid date is being requestst, the certificate request will get denied with ERROR_INVALID_TIME.
+NOTE: When an invalid date is being requested, the certificate request will get denied with ERROR_INVALID_TIME.
 
 NOTE: TameMyCerts currently only supports specifying "StartDate" whilst submitting the certificate request but not as custom request attributes. The alternative method of specifying "ValidityPeriod" and "ValidityPeriodUnits" for the expiration date can currently not be used in combination with the "StartDate" attribute as it gets applied afterwards and thus won't deliver the expected result.
 
 == Building
 
-Call the supplied build scripts from the Visual Studio Developer command prompt:
+If you just want to install and use TameMyCerts, there is no need for building from source. Please download the binary package from the link:https://github.com/Sleepw4lker/TameMyCerts/releases[releases page] in this case.
+
+If you want to build the module from source, call the supplied build scripts from the Visual Studio Developer command prompt:
 
 * link:TameMyCerts/make_debug.cmd[make_debug.cmd] for a debug build (does not increment version bumber).
 * link:TameMyCerts/make_release.cmd[make_release.cmd] for a release build (auto-increments version number).

@@ -1,8 +1,21 @@
 == Changelog for the TameMyCerts Policy Module
 
+=== 1.2.587.662 (Aug 11, 2022)
+
+* Implement support for looking up identities that are requested in offline templates against Active Directory (calles "directory mapping"). It may be specified if a certificate request shall get denied if a matching user or computer account does not exist, is disabled, if it is member of a forbidden group, or not member of any permitted group.
+* Implement support for adding the new Security Identifier (szOID_NTDS_CA_SECURITY_EXT with object id 1.3.6.1.4.1.311.25.2) certificate extension that was introduced with link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[KB5014754^] to certificates issued for offline certificate requests (requires directory mapping). This should enable users to prevent authentication to fail when strong certificate mapping will be enforced on May 9, 2023.
+* Implement protection against forgery of the szOID_NTDS_CA_SECURITY_EXT certificate extension by the enrollee. Policy can be configured to deny offline requests containing this extension (default is to deny).
+* Implement support for specifying a fixed expiration date on a per-template basis.
+* Implement proper logging for processing of the "StartDate" request attribute and align behavior with Windows Default policy module.
+* Fix a bug causing the module to return the validation result too early. This had no effect on security but not all violations against the ruleset would get logged, making troubleshooting somewhat more difficult.
+* Fix a bug causing the module to throw an exception in the case a SAN extension could not be parsed.
+* Fix the organizationalUnitName RDN to align with X.520 specifications (it was wrongly called "organizationalUnit" in earlier versions). *Note that this breaks existing policy files. These must be adjusted.*
+* Remove code for denying certificate requests containing the Subject Directory Atttributes (2.5.29.9) request extension, as this is disabled for issuance on AD CS by default anyway.
+* Remove excessive calling of garbage collection which should improve processing performance.
+
 === 1.1.432.1215 (Mar 10, 2022)
 
-* Change logic for allowed and disallowed patterns on SubjectRule directives. Now, for each defined "field" it is possible to specify how the expression will get treated (regular expression or CIDR notation), which allows for IP addresses to get verified if they are present in fields other that the iPAddress alternative name field. Existing policy files must be adjusted to the new logic.
+* Change logic for allowed and disallowed patterns on SubjectRule directives. Now, for each defined "field" it is possible to specify how the expression will get treated (regular expression or CIDR notation), which allows for IP addresses to get verified if they are present in fields other that the iPAddress alternative name field. *Note that this breaks existing policy files. These must be adjusted.*
 * Implement support for applying rules on process names used to create certificate requests for both online and offline certificate templates.
 * Implement support for applying rules on cryptographic providers used to create certificate requests' private keys for both online and offline certificate templates.
 * Implement support for custom NotBefore date on a certificate with the "StartDate" request attribute, in analogy to the "ExpirationDate" request attribute supported by the Windows Default policy module.

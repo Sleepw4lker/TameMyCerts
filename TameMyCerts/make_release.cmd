@@ -7,6 +7,7 @@
 
 rmdir bin\Release /S /Q
 mkdir bin\Release
+mkdir bin\Release\examples
 
 MSBuild.exe ^
 TameMyCerts.csproj ^
@@ -18,7 +19,7 @@ TameMyCerts.csproj ^
 /p:TransformOutOfDateOnly=false
 
 copy install.ps1 bin\Release\
-copy Sample_*.xml bin\Release\
+copy Sample_*.xml bin\Release\examples\
 copy ..\CHANGELOG.adoc bin\Release\
 copy ..\README.adoc bin\Release\
 copy ..\LICENSE bin\Release\

@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,10 +24,13 @@ namespace TameMyCerts
 
         public Logger(string eventSource, int logLevel = CertSrv.CERTLOG_WARNING)
         {
+            const string logName = "Application";
+
             _logLevel = logLevel;
-            _eventLog = new EventLog("Application")
+            
+            _eventLog = new EventLog(logName)
             {
-                Source = CreateEventSource(eventSource)
+                Source = CreateEventSource(eventSource, logName)
             };
         }
 
@@ -42,16 +45,15 @@ namespace TameMyCerts
             }
         }
 
-        private static string CreateEventSource(string currentAppName)
+        private static string CreateEventSource(string currentAppName, string logName)
         {
             var eventSource = currentAppName;
 
             try
             {
-                var sourceExists = EventLog.SourceExists(eventSource);
-                if (!sourceExists)
+                if (!EventLog.SourceExists(eventSource))
                 {
-                    EventLog.CreateEventSource(eventSource, "Application");
+                    EventLog.CreateEventSource(eventSource, logName);
                 }
             }
             catch (SecurityException)
@@ -150,6 +152,13 @@ namespace TameMyCerts
             MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED
         };
 
+        public static Event PDEF_REQUEST_DENIED_MESSAGE = new Event
+        {
+            Id = 11,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED_MESSAGE
+        };
+
         public static Event REQUEST_DENIED_INSECURE_FLAGS = new Event
         {
             Id = 12,
@@ -157,13 +166,44 @@ namespace TameMyCerts
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_INSECURE_FLAGS
         };
+
+        public static Event VALIDITY_REDUCED = new Event
+        {
+            Id = 13,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            Type = EventLogEntryType.Information,
+            MessageText = LocalizedStrings.Events_VALIDITY_REDUCED
+        };
+
+        public static Event STARTDATE_SET = new Event
+        {
+            Id = 14,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            Type = EventLogEntryType.Information,
+            MessageText = LocalizedStrings.Events_STARTDATE_SET
+        };
+
+        public static Event STARTDATE_INVALID = new Event
+        {
+            Id = 15,
+            LogLevel = CertSrv.CERTLOG_WARNING,
+            Type = EventLogEntryType.Warning,
+            MessageText = LocalizedStrings.Events_STARTDATE_INVALID
+        };
+
+        public static Event ATTRIB_ERR_PARSE = new Event
+        {
+            Id = 16,
+            LogLevel = CertSrv.CERTLOG_WARNING,
+            Type = EventLogEntryType.Warning,
+            MessageText = LocalizedStrings.Events_ATTRIB_ERR_PARSE
+        };
     }
 
     public class Event
     {
         public int Id { get; set; }
         public int LogLevel { get; set; } = CertSrv.CERTLOG_WARNING;
-
         public EventLogEntryType Type { get; set; } = EventLogEntryType.Information;
         public string MessageText { get; set; }
     }

@@ -1,0 +1,37 @@
+<!-- 
+  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  It ensures that the requests contain a syntacical valid userPrincipalName extension.
+  After verification, this information is used to search a corresponding user account in Active Directory.
+  The user account must be member of the whitelisted security group(s) and must not be member of the blacklisted one(s).
+  If the CSR contains a SID extension, it will be written into the issued certificate, but none would be added from AD if not.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- This ensures the required information is present for directory mapping -->
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.adcslabor\.de)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <!-- default behavior is mapping the userPrincipalName for user objects. -->
+  <DirectoryServicesMapping>
+    <!-- Search a specific Domain or Domain part. If omitted, the Global Catalog is used. -->
+    <SearchRoot>OU=ADCS Labor Users,DC=intra,DC=adcslabor,DC=de</SearchRoot>
+    <!-- Note that filtering on the primary group (should be "Domain Users" in most cases) is not possible -->
+    <AllowedSecurityGroups>
+      <string>CN=Regular User Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
+    </AllowedSecurityGroups>
+    <DisallowedSecurityGroups>
+      <string>CN=Administrative Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
+    </DisallowedSecurityGroups>
+  </DirectoryServicesMapping>
+  <!-- This allows SID extension to be issued if present in the CSR, but would not add one from the AD object if not. -->
+  <SecurityIdentifierExtension>Allow</SecurityIdentifierExtension>
+</CertificateRequestPolicy>

@@ -1,0 +1,14 @@
+<!--
+  This is an example configuration file for computer online certificate requests.
+  Applies to a User certificate to be enrolled via AutoEnrollment using the Microsoft Platform Crypto Provider (TPM-based) only.
+  The certificate cannot be enrolled via MMC.exe or certreq (which some users could do to use a Software Key Storage Provider that makes the Key exportable).
+  Note that both properties are based on request attributes that could be altered by the requestor with enough effort.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AllowedProcessNames>
+    <string>taskhostw.exe</string>
+  </AllowedProcessNames>
+  <AllowedCryptoProviders>
+    <string>Microsoft Platform Crypto Provider</string>
+  </AllowedCryptoProviders>
+</CertificateRequestPolicy>

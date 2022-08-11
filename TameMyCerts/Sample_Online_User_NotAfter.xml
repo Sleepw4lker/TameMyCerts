@@ -1,0 +1,8 @@
+<!--
+  This is an example configuration file for computer online certificate requests.
+  Ensures that all certificates issued for this template expire on 31st December 2022, 23:59:59 (Europe/Berlin time).
+  Works the same way for offline requests, but should include syntax and directory mapping rules there.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <NotAfter>2022-12-31T23:59:59.0000000+01:00</NotAfter>
+</CertificateRequestPolicy>

@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Uwe Gradenegger
+﻿// Copyright 2021 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -24,15 +26,18 @@ namespace TameMyCerts
     public class CertificateRequestPolicy
     {
         public bool AuditOnly { get; set; }
-        public List<string> AllowedProcesses { get; set; }
-        public List<string> DisallowedProcesses { get; set; }
-        public List<string> AllowedCryptoProviders { get; set; }
-        public List<string> DisallowedCryptoProviders { get; set; }
+        public string NotAfter { get; set; } = string.Empty;
+        public List<string> AllowedProcesses { get; set; } = new List<string>();
+        public List<string> DisallowedProcesses { get; set; } = new List<string>();
+        public List<string> AllowedCryptoProviders { get; set; } = new List<string>();
+        public List<string> DisallowedCryptoProviders { get; set; } = new List<string>();
         public string KeyAlgorithm { get; set; } = "RSA";
         public int MinimumKeyLength { get; set; }
         public int MaximumKeyLength { get; set; }
-        public List<SubjectRule> Subject { get; set; }
-        public List<SubjectRule> SubjectAlternativeName { get; set; }
+        public List<SubjectRule> Subject { get; set; } = new List<SubjectRule>();
+        public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
+        public string SecurityIdentifierExtension { get; set; } = "Deny";
+        public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
 
         private static string ConvertToHumanReadableXml(string inputString)
         {
@@ -96,6 +101,16 @@ namespace TameMyCerts
         }
     }
 
+    public class DirectoryServicesMapping
+    {
+        public string SearchRoot { get; set; }
+        public string CertificateAttribute { get; set; } = "userPrincipalName";
+        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
+        public string ObjectCategory { get; set; } = "user";
+        public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
+        public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();
+    }
+
     public class SubjectRule
     {
         public string Field { get; set; } = string.Empty;
@@ -103,13 +118,30 @@ namespace TameMyCerts
         public int MaxOccurrences { get; set; } = 1;
         public int MinLength { get; set; } = 1;
         public int MaxLength { get; set; } = 128;
-        public List<Pattern> Patterns { get; set; }
+        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
     }
 
     public class Pattern
     {
-        public string Expression;
-        public string TreatAs = "RegEx";
-        public string Action = "Allow";
+        public string Expression { get; set; }
+        public string TreatAs { get; set; } = "RegEx";
+        public string Action { get; set; } = "Allow";
+
+        public bool IsMatch(string term, bool matchOnError = false)
+        {
+            try
+            {
+                switch (TreatAs.ToLowerInvariant())
+                {
+                    case "regex": return new Regex(@"" + Expression + "").IsMatch(term);
+                    case "cidr": return IPAddress.Parse(term).IsInRange(Expression);
+                    default: return false;
+                }
+            }
+            catch
+            {
+                return matchOnError;
+            }
+        }
     }
 }

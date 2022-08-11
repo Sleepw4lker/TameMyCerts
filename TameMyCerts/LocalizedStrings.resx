@@ -135,9 +135,6 @@
   <data name="Events_PDEF_SUCCESS_INIT" xml:space="preserve">
     <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>
   </data>
-  <data name="Events_POLICY_NOT_APPLICABLE" xml:space="preserve">
-    <value>Certificate template {0} used for Request {1} is configured to build subject from Active Directory, skipping.</value>
-  </data>
   <data name="Events_POLICY_NOT_FOUND" xml:space="preserve">
     <value>Unable to find policy file for {0}. Request {1} will get issued. Expected policy file name: "{2}"</value>
   </data>
@@ -155,17 +152,11 @@
   <data name="Events_REQUEST_DENIED_NO_TEMPLATE_INFO" xml:space="preserve">
     <value>No certificate template information found for request {0}. The request will get denied.</value>
   </data>
-  <data name="ReqVal_Err_Extract_From_Cmc" xml:space="preserve">
-    <value>Unable to extract inner PKCS#10 request from given CMC certificate request.</value>
-  </data>
-  <data name="ReqVal_Err_Extract_From_Pkcs7" xml:space="preserve">
-    <value>Unable to extract inner PKCS#10 request from given PKCS#7 certificate request.</value>
-  </data>
   <data name="ReqVal_Err_Parse_Request" xml:space="preserve">
     <value>Unable to parse the given certificate request. Request type was {0}.</value>
   </data>
   <data name="ReqVal_Key_Pair_Mismatch" xml:space="preserve">
-    <value>The certificate request uses an {0} key pair, but must use an {1} key pair.</value>
+    <value>The certificate request does not use a {0} key pair, which is required by policy.</value>
   </data>
   <data name="ReqVal_Key_Too_Small" xml:space="preserve">
     <value>Key length of {0} Bits is less than the required minimum length of {1} Bits.</value>
@@ -174,13 +165,10 @@
     <value>Key length of {0} Bits is more than the allowed maximum length of {1} Bits.</value>
   </data>
   <data name="ReqVal_Err_Parse_SubjectDn" xml:space="preserve">
-    <value>Unable to parse the given subject distinguished name: {0}.</value>
+    <value>Unable to parse the given subject distinguished name.</value>
   </data>
   <data name="ReqVal_Unsupported_San_Type" xml:space="preserve">
     <value>The certificate request contains an unsupported Subject Alternative Name type with OID {0}.</value>
-  </data>
-  <data name="ReqVal_Unsupported_Extension_Dir_Attrs" xml:space="preserve">
-    <value>The certificate request contains the unsupported Subject Directory Attributes extension.</value>
   </data>
   <data name="ReqVal_Field_Missing" xml:space="preserve">
     <value>The mandatory {0} field was not found in the request.</value>
@@ -210,30 +198,81 @@
     <value>unknown</value>
   </data>
   <data name="ReqVal_Field_Too_Short" xml:space="preserve">
-    <value>The value "{0}" for the {1} field deceeds of the minimum required length of {2} characters.</value>
+    <value>The value "{0}" for the {1} field deceeds the minimum required length of {2} characters.</value>
   </data>
   <data name="Events_PDEF_REQUEST_DENIED" xml:space="preserve">
     <value>Request {0} was denied by the Windows Default policy module.</value>
   </data>
   <data name="ReqVal_Process_Disallowed" xml:space="preserve">
-    <value>Process "{0}" used to create the certificate request is disallowed.</value>
+    <value>Process "{0}" used to create the certificate request is explicitly disallowed.</value>
   </data>
   <data name="ReqVal_Process_Not_Allowed" xml:space="preserve">
-    <value>Process "{0}" used to create the certificate request is not allowed.</value>
+    <value>Process "{0}" used to create the certificate request is not on the list of allowed process names.</value>
   </data>
   <data name="ReqVal_Process_Unknown" xml:space="preserve">
     <value>Unable to determine the process name that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
   </data>
   <data name="ReqVal_Crypto_Provider_Disallowed" xml:space="preserve">
-    <value>Cryptographic provider "{0}" used to create the certificate request is disallowed.</value>
+    <value>Cryptographic provider "{0}" used to create the certificate request is explicitly disallowed.</value>
   </data>
   <data name="ReqVal_Crypto_Provider_Not_Allowed" xml:space="preserve">
-    <value>Cryptographic provider "{0}" used to create the certificate request is not allowed.</value>
+    <value>Cryptographic provider "{0}" used to create the certificate request is not on the list of allowed providers.</value>
   </data>
   <data name="ReqVal_Crypto_Provider_Unknown" xml:space="preserve">
     <value>Unable to determine the cryptographic provider that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
   </data>
   <data name="Events_REQUEST_DENIED_INSECURE_FLAGS" xml:space="preserve">
     <value>Request {0} contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.</value>
+  </data>
+  <data name="Events_VALIDITY_REDUCED" xml:space="preserve">
+    <value>The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration.</value>
+  </data>
+  <data name="ReqVal_Err_NotAfter_Invalid" xml:space="preserve">
+    <value>Unable to parse the configured expiration date specified in certificate request policy.</value>
+  </data>
+  <data name="ReqVal_Err_NotAfter_Passed" xml:space="preserve">
+    <value>Certificate request policy requires issued certificates for this certificate template to expire no later than {0} (UTC), which lies in the past.</value>
+  </data>
+  <data name="ReqVal_Err_Parse_San" xml:space="preserve">
+    <value>Unable to parse the Subject Alternative Name certificate request extension.</value>
+  </data>
+  <data name="ReqVal_Forbidden_Extensions" xml:space="preserve">
+    <value>The certificate request contains a forbidden X.509 extension with OID {0}.</value>
+  </data>
+  <data name="Events_PDEF_REQUEST_DENIED_MESSAGE" xml:space="preserve">
+    <value>Request {0} was denied by the Windows Default policy module: {1}</value>
+  </data>
+  <data name="Events_ATTRIB_ERR_PARSE" xml:space="preserve">
+    <value>Unable to parse "{0}" request attribute for request {1}. The value was "{2}".</value>
+  </data>
+  <data name="Events_STARTDATE_INVALID" xml:space="preserve">
+    <value>Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by "StartDate" request attribute. The requested date is invalid.</value>
+  </data>
+  <data name="Events_STARTDATE_SET" xml:space="preserve">
+    <value>The begin of certificate validity period of request {0} was set to {1} (UTC) due to "StartDate" request attribute.</value>
+  </data>
+  <data name="DirVal_Account_Disabled" xml:space="preserve">
+    <value>The {0} account for {1} is disabled.</value>
+  </data>
+  <data name="DirVal_Account_Groups_Disallowed" xml:space="preserve">
+    <value>The {0} account for {1} is member of the forbidden group {2}.</value>
+  </data>
+  <data name="DirVal_Account_Groups_Not_Allowed" xml:space="preserve">
+    <value>The {0} account for {1} is not member of any allowed group.</value>
+  </data>
+  <data name="DirVal_Invalid_Directory_Attribute" xml:space="preserve">
+    <value>An invalid attribute was specified in request policy: {0}.</value>
+  </data>
+  <data name="DirVal_Invalid_Object_Category" xml:space="preserve">
+    <value>An invalid object category was specified in request policy: {0}.</value>
+  </data>
+  <data name="DirVal_Invalid_Result_Count" xml:space="preserve">
+    <value>Either none or more than one {0} account with {1} of {2} was found in the directory.</value>
+  </data>
+  <data name="DirVal_No_Cert_Identity" xml:space="preserve">
+    <value>No matching identity found for the {0} attribute in certificate request.</value>
+  </data>
+  <data name="DirVal_Query_Failed" xml:space="preserve">
+    <value>Directory query failed: {0}.</value>
   </data>
 </root>

@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,6 +58,9 @@
     </Compile>
     <Compile Include="CCertServerPolicyExtensions.cs" />
     <Compile Include="CertificateRequestPolicy.cs" />
+    <Compile Include="CertificateRequestValidationResult.cs" />
+    <Compile Include="CX509CertificateRequestPkcs10Extensions.cs" />
+    <Compile Include="DirectoryServicesValidator.cs" />
     <Compile Include="IPAddressExtensions.cs" />
     <Compile Include="LocalizedStrings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -64,12 +68,17 @@
       <DependentUpon>LocalizedStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Logger.cs" />
+    <Compile Include="OleAut32.cs" />
     <Compile Include="Policy.cs" />
     <Compile Include="PolicyManage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CertificateRequestValidator.cs" />
     <Compile Include="CertificateTemplateInfo.cs" />
     <Compile Include="Headers.cs" />
+    <Compile Include="SidCertificateExtension.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CERTCLILib.il" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="CERTENROLLLib">
