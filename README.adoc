@@ -2,6 +2,8 @@
 
 NOTE: Please download the binary package from the link:https://github.com/Sleepw4lker/TameMyCerts/releases[releases page].
 
+NOTE: Please consult the link:CHANGELOG.adoc[Change Log] if upgrading from a previous version.
+
 TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#, that enables security automation for a lot of use cases in the PKI field.
 
 It shims the Windows Default policy module, that means it has the same functionality as the original one, but implements additional checks. This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^].
@@ -34,15 +36,16 @@ The TameMyCerts policy module allows fine-granular control about certificate con
 
 === Supported Operating Systems and Prerequisites
 
-The module was successfully tested with the following operating systems:
+The module was successfully tested and is supported with the following operating systems:
 
 * Windows Server 2022
 * Windows Server 2019
 * Windows Server 2016
+* Windows Server 2012 R2
 
 Older operating systems are not supported.
 
-For Windows Server 2016, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
+For Windows Server 2016 and below, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
 
 === Installation
 
@@ -82,10 +85,12 @@ Create a policy file in XML format for each certificate template you want to app
 
 See the supplied sample policy files for an example:
 
-* link:TameMyCerts/Sample_Webserver.xml[Sample_Webserver.xml]
+* link:TameMyCerts/Sample_Offline_Computer_SidExtension.xml[Sample_Offline_Computer_SidExtension.xml]
 * link:TameMyCerts/Sample_Offline_User.xml[Sample_Offline_User.xml]
-* link:TameMyCerts/Sample_User_AE_TPM.xml[Sample_User_AE_TPM.xml]
-* link:TameMyCerts/Sample_User_NotAfter.xml[Sample_User_NotAfter.xml]
+* link:TameMyCerts/Sample_Offline_User_SidExtension.xml[Sample_Offline_User_SidExtension.xml]
+* link:TameMyCerts/Sample_Offline_User_TPM.xml[Sample_Offline_User_TPM.xml]
+* link:TameMyCerts/Sample_Offline_Webserver.xml[Sample_Offline_Webserver.xml]
+* link:TameMyCerts/Sample_Online_User_NotAfter.xml[Sample_Online_User_NotAfter.xml]
 
 NOTE: The policy files get loaded when a certificate request gets processed, therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
 
@@ -115,7 +120,7 @@ example, if you would like to deny certificate enrollment via certreq.exe, you c
 
 |AllowedCryptoProviders
 |no
-|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. THis way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
+|Contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. This way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
 
 |DisallowedCryptoProviders
 |no
@@ -125,9 +130,9 @@ example, if you would like to deny certificate enrollment via certreq.exe, you c
 |no
 |Decides how to handle the Security Identifier certificate extension. If configured to "Deny" (default), the policy module will deny certificate requests containing this extension. If configured to "Add", it will add the objectSid attribute from the Active Directory user or computer account that maps to the certificate (requires directory services mapping to be configured, see below). If it is configured to "Add" and the certificate request already contains Security Identifier certificate extension, it will be overwritten by the policy module.
 
-NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, PSCertificateEnrollment and similar apps) will contain information about the process that was used to create the certificate request.
-
 |===
+
+NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, link:https://www.powershellgallery.com/packages/PSCertificateEnrollment[PSCertificateEnrollment^] and similar apps) will contain information about the process and provider that were used to create the certificate request.
 
 === Configuring rules for the private key
 
@@ -297,6 +302,8 @@ Rules for Directory Mapping get specified within a "DirectoryServicesMapping" no
 
 |===
 
+NOTE: Please be aware that it is currently *not* possible to use the Primary Group of an AD object (Domain Users, Domain Guests, Domain Computers, Domain Controllers) for filtering.
+
 == Monitoring and Troubleshooting
 
 If a certificate request violates the defined policy, the certification authority will deny it with one of the below error codes and messages. It will log link:https://www.gradenegger.eu/?p=8544[Event with ID 53^]. The error code/message will also be handed over to the requesting client over the DCOM protocol as answer to the certificate request.
@@ -424,7 +431,9 @@ NOTE: TameMyCerts currently only supports specifying "StartDate" whilst submitti
 
 == Building
 
-Call the supplied build scripts from the Visual Studio Developer command prompt:
+If you just want to install and use TameMyCerts, there is no need for building from source. Please download the binary package from the link:https://github.com/Sleepw4lker/TameMyCerts/releases[releases page] in this case.
+
+If you want to build the module from source, call the supplied build scripts from the Visual Studio Developer command prompt:
 
 * link:TameMyCerts/make_debug.cmd[make_debug.cmd] for a debug build (does not increment version bumber).
 * link:TameMyCerts/make_release.cmd[make_release.cmd] for a release build (auto-increments version number).
