@@ -18,17 +18,24 @@ using System.Linq;
 
 namespace TameMyCerts
 {
+    public static class Asn1Tag
+    {
+        public const string OCTET_STRING = "04";
+        public const string CONTEXT_SPECIFIC = "A0";
+        public const string SEQUENCE = "30";
+    }
+
     public class SidCertificateExtension
     {
         public readonly string value;
 
         public SidCertificateExtension(string sid)
         {
-            var result = ConvertStringToDerNode("04", ConvertStringToHexString(sid));
-            result = ConvertStringToDerNode("A0", result);
-            result = $"060A2B060104018237190201{result}";
-            result = ConvertStringToDerNode("A0", result);
-            result = ConvertStringToDerNode("30", result);
+            var result = ConvertStringToDerNode(Asn1Tag.OCTET_STRING, ConvertStringToHexString(sid));
+            result = ConvertStringToDerNode(Asn1Tag.CONTEXT_SPECIFIC, result);
+            result = $"060A2B060104018237190201{result}"; // 1.3.6.1.4.1.311.25.2.1
+            result = ConvertStringToDerNode(Asn1Tag.CONTEXT_SPECIFIC, result);
+            result = ConvertStringToDerNode(Asn1Tag.SEQUENCE, result);
             result = Convert.ToBase64String(HexStringToByteArray(result));
 
             value = result;
@@ -66,10 +73,11 @@ namespace TameMyCerts
             var numBits = Convert.ToString(x, 2).Length;
             var numOctets = Math.Ceiling(numBits / 8m);
 
+            // Short form (for lengths between 0 and 127). One octet. 
+            // Bit 8 has value "0" and bits 7-1 give the length.
+
             if (numBits <= 7)
             {
-                // Short form (for lengths between 0 and 127). One octet. 
-                // Bit 8 has value "0" and bits 7-1 give the length.
                 return $"{x:X2}";
             }
 
