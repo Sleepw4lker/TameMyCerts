@@ -1,10 +1,10 @@
 == Changelog for the TameMyCerts Policy Module
 
-=== 1.2.x.y (unreleased)
+=== 1.2.587.662 (Aug 11, 2022)
 
-* Implement support for looking up identities that are requested in offline templates against Active Directory. It may be specified if a certificate request shall get denied if a user or computer account is disabled, if it is member of a forbidden group, or not member of any permitted group.
-* Implement support for writing the new Security Identifier (szOID_NTDS_CA_SECURITY_EXT with object id 1.3.6.1.4.1.311.25.2) extension into offline certificate requests (requires directtory mapping).
-* Implement protection against forgery of the szOID_NTDS_CA_SECURITY_EXT certificate extension that was introduced with link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[KB5014754^]. Policy can be configured to deny offline requests containing this extension.
+* Implement support for looking up identities that are requested in offline templates against Active Directory (calles "directory mapping"). It may be specified if a certificate request shall get denied if a matching user or computer account does not exist, is disabled, if it is member of a forbidden group, or not member of any permitted group.
+* Implement support for adding the new Security Identifier (szOID_NTDS_CA_SECURITY_EXT with object id 1.3.6.1.4.1.311.25.2) certificate extension that was introduced with link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[KB5014754^] to certificates issued for offline certificate requests (requires directory mapping). This should enable users to prevent authentication to fail when strong certificate mapping will be enforced on May 9, 2023.
+* Implement protection against forgery of the szOID_NTDS_CA_SECURITY_EXT certificate extension by the enrollee. Policy can be configured to deny offline requests containing this extension (default is to deny).
 * Implement support for specifying a fixed expiration date on a per-template basis.
 * Implement proper logging for processing of the "StartDate" request attribute and align behavior with Windows Default policy module.
 * Fix a bug causing the module to return the validation result too early. This had no effect on security but not all violations against the ruleset would get logged, making troubleshooting somewhat more difficult.

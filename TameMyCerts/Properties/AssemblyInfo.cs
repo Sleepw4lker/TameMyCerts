@@ -6,8 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("TameMyCerts")]
 [assembly:
-    AssemblyDescription(
-        "A policy module that allows to define rules for certificate templates having the enrollee supply the subject information.")]
+    AssemblyDescription("A policy module that allows applying advanced rules to certificate requests.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TameMyCerts")]
