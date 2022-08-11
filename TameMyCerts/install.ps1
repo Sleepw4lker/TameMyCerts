@@ -66,8 +66,6 @@ begin {
 
 process {
 
-    $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-
     # Ensuring the Script will be run on a supported Operating System
     If ([int32](Get-WmiObject Win32_OperatingSystem).BuildNumber -lt $BUILD_NUMBER_WINDOWS_2012) {
         Write-Error -Message "This must be run on Windows Server 2012 or newer! Aborting."
@@ -95,7 +93,6 @@ process {
     $CaName = (Get-ItemProperty -Path $RegistryRoot -Name Active).Active
     $CaType = (Get-ItemProperty -Path "$RegistryRoot\$($CaName)" -Name CaType -ErrorAction Stop).CaType
     $KeyStorageProvider = (Get-ItemProperty -Path "$($RegistryRoot)\$($CaName)\CSP" -Name Provider).Provider
-    $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
     If (-not (($CaType -eq $ENUM_ENTERPRISE_ROOTCA) -or ($CaType -eq $ENUM_ENTERPRISE_SUBCA))) {
         Write-Error -Message "The $PolicyModuleName policy module currently does not support standalone certification authorities."
@@ -111,7 +108,7 @@ process {
     Stop-Service -Name certsvc
 
     If ($KeyStorageProvider -eq "SafeNet Key Storage Provider") {
-        Write-Warning -Message "Waiting for the AD CS service to shutdown properly (to avoid known bug in SafeNet Key Storage Provider)."
+        Write-Warning -Message "Waiting 120 seconds for the AD CS service to shutdown properly (to avoid known bug in SafeNet Key Storage Provider)."
         Start-Sleep -Seconds 120
     }
 
@@ -119,7 +116,7 @@ process {
     
     If ($MmcProcesses) {
         Write-Warning -Message "Killing running MMC processes (certsrv.msc may lock the policy module DLL if opened during (un)installation)."
-        $MmcProcesses| Stop-Process -Force
+        $MmcProcesses | Stop-Process -Force
     }
 
     Write-Verbose -Message "Trying to unregister $PolicyModuleName policy module COM object"
