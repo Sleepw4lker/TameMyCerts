@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="RequestValidatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SidCertificateExtensionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj">
