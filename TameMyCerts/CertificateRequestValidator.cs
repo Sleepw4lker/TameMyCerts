@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using CERTENROLLLib;
 
@@ -22,6 +23,8 @@ namespace TameMyCerts
 {
     public class CertificateRequestValidator
     {
+        private static readonly StringComparison StringComparison = StringComparison.InvariantCultureIgnoreCase;
+
         public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
             CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo)
         {
@@ -82,14 +85,14 @@ namespace TameMyCerts
                 if (requestAttributeList.TryGetValue("RequestCSPProvider", out var requestCspProvider))
                 {
                     if (!certificateRequestPolicy.AllowedCryptoProviders.Any(s =>
-                            s.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
+                            s.Equals(requestCspProvider, StringComparison)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Not_Allowed,
                             requestCspProvider));
                     }
 
                     if (certificateRequestPolicy.DisallowedCryptoProviders.Any(s =>
-                            s.Equals(requestCspProvider, StringComparison.InvariantCultureIgnoreCase)))
+                            s.Equals(requestCspProvider, StringComparison)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Disallowed,
                             requestCspProvider));
@@ -120,14 +123,14 @@ namespace TameMyCerts
                     .TryGetValue("ProcessName", out var processName))
                 {
                     if (!certificateRequestPolicy.AllowedProcesses.Any(s =>
-                            s.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                            s.Equals(processName, StringComparison)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Not_Allowed,
                             processName));
                     }
 
                     if (certificateRequestPolicy.DisallowedProcesses.Any(s =>
-                            s.Equals(processName, StringComparison.InvariantCultureIgnoreCase)))
+                            s.Equals(processName, StringComparison)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Disallowed,
                             processName));
@@ -225,11 +228,67 @@ namespace TameMyCerts
                 #region Process request extensions
 
                 if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Deny",
-                        StringComparison.InvariantCultureIgnoreCase) &&
+                        StringComparison) &&
                     certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
                 {
                     result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
                         WinCrypt.szOID_DS_CA_SECURITY_EXT));
+                }
+
+                #endregion
+
+                #region Supplement DNS names (and IP addresses) from commonName to Subject Alternative Name
+
+                if (certificateRequestPolicy.SupplementDnsNames &&
+                    !certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2))
+                {
+                    var uriHostNameTypes = new List<UriHostNameType>
+                        {UriHostNameType.Dns, UriHostNameType.IPv4, UriHostNameType.IPv6};
+
+                    var identities = subjectRdnList.Where(keyValuePair => keyValuePair.Key.Equals("commonName"))
+                        .Where(keyValuePair => uriHostNameTypes.Contains(Uri.CheckHostName(keyValuePair.Value)))
+                        .ToList();
+
+                    if (identities.Count > 0)
+                    {
+                        var alternativeNames = new CAlternativeNames();
+
+                        foreach (var identity in identities.Select(x => x.Value))
+                        {
+                            var alternativeName = new CAlternativeName();
+
+                            switch (Uri.CheckHostName(identity))
+                            {
+                                case UriHostNameType.Dns:
+                                    alternativeName.InitializeFromString(AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME,
+                                        identity);
+                                    break;
+
+                                case UriHostNameType.IPv4:
+                                case UriHostNameType.IPv6:
+                                    alternativeName.InitializeFromRawData(
+                                        AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS,
+                                        EncodingType.XCN_CRYPT_STRING_BASE64,
+                                        Convert.ToBase64String(IPAddress.Parse(identity).GetAddressBytes()));
+                                    break;
+                            }
+
+                            alternativeNames.Add(alternativeName);
+                            Marshal.ReleaseComObject(alternativeName);
+                        }
+
+                        var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
+
+                        // Note that it is not necessary for the extension being marked critical as we still have the identities in commonName
+                        extensionAlternativeNames.InitializeEncode(alternativeNames);
+
+                        Marshal.ReleaseComObject(alternativeNames);
+
+                        result.Extensions.Add(new KeyValuePair<string, string>(WinCrypt.szOID_SUBJECT_ALT_NAME2,
+                            extensionAlternativeNames.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)));
+
+                        Marshal.ReleaseComObject(extensionAlternativeNames);
+                    }
                 }
 
                 #endregion
@@ -250,7 +309,7 @@ namespace TameMyCerts
             foreach (var subjectRule in subjectRuleList)
             {
                 var occurrences = subjectList.Count(keyValuePair =>
-                    keyValuePair.Key.Equals(subjectRule.Field, StringComparison.InvariantCultureIgnoreCase));
+                    keyValuePair.Key.Equals(subjectRule.Field, StringComparison));
 
                 if (occurrences == 0 && subjectRule.Mandatory)
                 {
@@ -272,7 +331,7 @@ namespace TameMyCerts
             foreach (var subject in subjectList)
             {
                 var policyItem = subjectRuleList.FirstOrDefault(subjectRule =>
-                    subjectRule.Field.Equals(subject.Key, StringComparison.InvariantCultureIgnoreCase));
+                    subjectRule.Field.Equals(subject.Key, StringComparison));
 
                 if (policyItem == null)
                 {
@@ -299,7 +358,7 @@ namespace TameMyCerts
                 }
 
                 if (!policyItem.Patterns
-                        .Where(pattern => pattern.Action.Equals("Allow", StringComparison.InvariantCultureIgnoreCase))
+                        .Where(pattern => pattern.Action.Equals("Allow", StringComparison))
                         .Any(pattern => pattern.IsMatch(subject.Value)))
                 {
                     description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subject.Value,
@@ -307,7 +366,7 @@ namespace TameMyCerts
                 }
 
                 description.AddRange(policyItem.Patterns
-                    .Where(pattern => pattern.Action.Equals("Deny", StringComparison.InvariantCultureIgnoreCase))
+                    .Where(pattern => pattern.Action.Equals("Deny", StringComparison))
                     .Where(pattern => pattern.IsMatch(subject.Value, true))
                     .Select(pattern => string.Format(LocalizedStrings.ReqVal_Disallow_Match, subject.Value,
                         pattern.Expression, subject.Key)));

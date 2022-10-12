@@ -38,6 +38,7 @@ namespace TameMyCerts
         public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
         public string SecurityIdentifierExtension { get; set; } = "Deny";
         public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
+        public bool SupplementDnsNames { get; set; }
 
         private static string ConvertToHumanReadableXml(string inputString)
         {
@@ -109,6 +110,16 @@ namespace TameMyCerts
         public string ObjectCategory { get; set; } = "user";
         public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
         public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();
+
+        public List<RelativeDistinguishedName> SubjectDistinguishedName { get; set; } =
+            new List<RelativeDistinguishedName>();
+    }
+
+    public class RelativeDistinguishedName
+    {
+        public string Field { get; set; } = string.Empty;
+        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
+        public bool Mandatory { get; set; }
     }
 
     public class SubjectRule

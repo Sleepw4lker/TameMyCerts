@@ -1,11 +1,10 @@
-﻿// Some constants that are defined in Windows SDK header files
-
-namespace TameMyCerts
+﻿namespace TameMyCerts
 {
-    // Constants from CertCli.h
+    /// <summary>
+    ///     Constants from CertCli.h
+    /// </summary>
     public static class CertCli
     {
-        // See also https://docs.microsoft.com/en-us/windows/win32/api/certcli/nf-certcli-icertrequest-submit
         public const int CR_IN_PKCS10 = 0x100;
         public const int CR_IN_KEYGEN = 0x200;
         public const int CR_IN_PKCS7 = 0x300;
@@ -13,10 +12,11 @@ namespace TameMyCerts
         public const int CR_IN_FULLRESPONSE = 0x40000;
     }
 
-    // Constants from CertSrv.h
+    /// <summary>
+    ///     Constants from CertSrv.h
+    /// </summary>
     public static class CertSrv
     {
-        // See also https://docs.microsoft.com/en-us/windows/win32/api/certpol/nf-certpol-icertpolicy-verifyrequest
         public const int VR_PENDING = 0;
         public const int VR_INSTANT_OK = 1;
         public const int VR_INSTANT_BAD = 2;
@@ -43,14 +43,25 @@ namespace TameMyCerts
         public const int EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000;
     }
 
-    // Constants from CertCa.h
+    /// <summary>
+    ///     Constants from CertCa.h
+    /// </summary>
     public static class CertCa
     {
-        // The enrolling application must supply the subject name.
+        /// <summary>
+        ///     The enrolling application must supply the subject name.
+        /// </summary>
         public const int CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT = 1;
+
+        /// <summary>
+        ///     This is a machine cert type
+        /// </summary>
+        public const int CT_FLAG_MACHINE_TYPE = 0x40;
     }
 
-    // Constants from WinCrypt.h
+    /// <summary>
+    ///     Constants from WinCrypt.h
+    /// </summary>
     public static class WinCrypt
     {
         public const string szOID_RSA_RSA = "1.2.840.113549.1.1.1";
@@ -62,31 +73,60 @@ namespace TameMyCerts
         public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
     }
 
-    // Constants from WinError.h
+    /// <summary>
+    ///     Constants from WinError.h
+    /// </summary>
     public static class WinError
     {
-        // The operation completed successfully.
+        /// <summary>
+        ///     The operation completed successfully.
+        /// </summary>
         public const int ERROR_SUCCESS = 0;
 
-        //  The specified time is invalid.
+        /// <summary>
+        ///     The specified time is invalid.
+        /// </summary>
         public const int ERROR_INVALID_TIME = 1901;
 
-        //  An internal error occurred.
+        /// <summary>
+        ///     An internal error occurred.
+        /// </summary>
         public const int NTE_FAIL = unchecked((int) 0x80090020);
 
-        // The permissions on the certificate template do not allow the current user to enroll for this type of certificate.
+        /// <summary>
+        ///     The permissions on the certificate template do not allow the current user to enroll for this type of certificate.
+        /// </summary>
         public const int CERTSRV_E_TEMPLATE_DENIED = unchecked((int) 0x80094012);
 
-        // The request subject name is invalid or too long.
+        /// <summary>
+        ///     The request subject name is invalid or too long.
+        /// </summary>
         public const int CERTSRV_E_BAD_REQUESTSUBJECT = unchecked((int) 0x80094001);
 
-        // The requested certificate template is not supported by this CA.
+        /// <summary>
+        ///     The requested certificate template is not supported by this CA.
+        /// </summary>
         public const int CERTSRV_E_UNSUPPORTED_CERT_TYPE = unchecked((int) 0x80094800);
 
-        // The public key does not meet the minimum size required by the specified certificate template.
+        /// <summary>
+        ///     The public key does not meet the minimum size required by the specified certificate template.
+        /// </summary>
         public const int CERTSRV_E_KEY_LENGTH = unchecked((int) 0x80094811);
 
-        // The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.
+        /// <summary>
+        ///     The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.
+        /// </summary>
         public const int CERT_E_INVALID_NAME = unchecked((int) 0x800B0114);
+    }
+
+    /// <summary>
+    ///     Active Directory user account control flags
+    /// </summary>
+    public static class UserAccountControl
+    {
+        /// <summary>
+        ///     The user account is disabled.
+        /// </summary>
+        public const int ACCOUNTDISABLE = 0x00000002;
     }
 }

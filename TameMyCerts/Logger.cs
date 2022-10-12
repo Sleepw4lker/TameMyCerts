@@ -137,6 +137,14 @@ namespace TameMyCerts
             MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_TEMPLATE_INFO
         };
 
+        public static Event REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL = new Event
+        {
+            Id = 10,
+            LogLevel = CertSrv.CERTLOG_ERROR,
+            Type = EventLogEntryType.Error,
+            MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL
+        };
+
         public static Event REQUEST_DENIED_NO_POLICY = new Event
         {
             Id = 10,

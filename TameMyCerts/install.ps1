@@ -192,10 +192,10 @@ process {
 
             Write-Verbose -Message "Copying registry Keys from Microsoft Default Policy module to $RegistryHiveCustom"
             Copy-Registry -Source $RegistryHiveDefault -Destination $RegistryHiveCustom
-
-            Write-Verbose -Message "Setting policy directory in registry"
-            [void](Set-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -Value $PolicyDirectory -Force)
         }
+        
+        Write-Verbose -Message "Setting policy directory in registry"
+        [void](Set-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -Value $PolicyDirectory -Force)
 
         Write-Verbose -Message "Setting the currently active policy Module to $PolicyModuleName"
         Set-ItemProperty -Path "$($RegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "$($PolicyModuleName).Policy" -Force

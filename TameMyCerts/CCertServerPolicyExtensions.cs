@@ -81,6 +81,20 @@ namespace TameMyCerts
 
         #endregion
 
+        #region SetCertificateProperty
+
+        public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name, DateTime value)
+        {
+            serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_DATE, value);
+        }
+
+        public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name, string value)
+        {
+            serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_STRING, value);
+        }
+
+        #endregion
+
         #region GetCertificateProperty
 
         private static T GetCertificateProperty<T>(this ICertServerPolicy serverPolicy, string name, int type)

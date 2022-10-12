@@ -88,7 +88,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An invalid attribute was specified in request policy: {0}..
+        ///   Looks up a localized string similar to An invalid directory attribute was specified in request policy: {0}..
         /// </summary>
         internal static string DirVal_Invalid_Directory_Attribute {
             get {
@@ -106,7 +106,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Either none or more than one {0} account with {1} of {2} was found in the directory..
+        ///   Looks up a localized string similar to More than one {0} account with {1} of {2} was found in the directory..
         /// </summary>
         internal static string DirVal_Invalid_Result_Count {
             get {
@@ -124,11 +124,56 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No {0} account with {1} of {2} was found in the directory. Search root is {3}..
+        /// </summary>
+        internal static string DirVal_Nothing_Found {
+            get {
+                return ResourceManager.GetString("DirVal_Nothing_Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Directory query failed: {0}..
         /// </summary>
         internal static string DirVal_Query_Failed {
             get {
                 return ResourceManager.GetString("DirVal_Query_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for directory attribute &quot;{1}&quot; that was specified for construction of the mandatory {2} subject relative distinguished name is too long. The maximum length is {4} characters for this RDN but the attribute is {4} characters long..
+        /// </summary>
+        internal static string DirVal_Rdn_Directory_Attribute_too_long {
+            get {
+                return ResourceManager.GetString("DirVal_Rdn_Directory_Attribute_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory {1} subject relative distinguished name is empty..
+        /// </summary>
+        internal static string DirVal_Rdn_Empty_Directory_Attribute {
+            get {
+                return ResourceManager.GetString("DirVal_Rdn_Empty_Directory_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid directory attribute &quot;{0}&quot; was specified for construction of the mandatory {1} subject relative distinguished name..
+        /// </summary>
+        internal static string DirVal_Rdn_Invalid_Directory_Attribute {
+            get {
+                return ResourceManager.GetString("DirVal_Rdn_Invalid_Directory_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An invalid field name was specified for construction of the mandatory subject relative distinguished name {0}..
+        /// </summary>
+        internal static string DirVal_Rdn_Invalid_Field {
+            get {
+                return ResourceManager.GetString("DirVal_Rdn_Invalid_Field", resourceCulture);
             }
         }
         
@@ -255,11 +300,20 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No certificate template information found for request {0}. The request will get denied..
+        ///   Looks up a localized string similar to No certificate template information for request {0} could be retrieved from the certification authority service. The request will get denied..
         /// </summary>
         internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO {
             get {
                 return ResourceManager.GetString("Events_REQUEST_DENIED_NO_TEMPLATE_INFO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied..
+        /// </summary>
+        internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL", resourceCulture);
             }
         }
         
@@ -512,15 +566,6 @@ namespace TameMyCerts {
         internal static string ReqVal_Unsupported_San_Type {
             get {
                 return ResourceManager.GetString("ReqVal_Unsupported_San_Type", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to unknown.
-        /// </summary>
-        internal static string Unknown {
-            get {
-                return ResourceManager.GetString("Unknown", resourceCulture);
             }
         }
     }

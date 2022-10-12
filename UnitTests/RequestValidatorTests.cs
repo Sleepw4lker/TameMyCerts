@@ -721,6 +721,219 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void SupplementDnsName()
+        {
+            // 3072 Bit RSA Key
+            // CN=www.adcslabor.de
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEaDCCAtACAQAwGzEZMBcGA1UEAxMQd3d3LmFkY3NsYWJvci5kZTCCAaIwDQYJ\n" +
+                "KoZIhvcNAQEBBQADggGPADCCAYoCggGBAKxQ0z/cnnbYS6sipgyb04k54QLS9B2I\n" +
+                "jQ5xMjJllPn1iFjWy4hzWvRyfFdt1u9M2TKOjoey25xYdllcAqSzfcZNsgEwl6qD\n" +
+                "x1vt+psquY8yv0zZvj3HQDre6st3SNztyne5WgB6Hbx3j1qznnGFhnuw+F8nthSu\n" +
+                "0kJfgjNEbxWWHfdq7iViQTmHNKGJcA0kIelq7/Nv5ipj/ruKgHGAvqcX4Ak5j+R2\n" +
+                "t3VVQhXj/lmoVO1IlhK3iep0btBOhrSCDS/g9Pd6FpdMZ2M0A9Nr1ocEhYqatSQ4\n" +
+                "jknOzvkwgTM9w/UD8ia5bWMXIDeibn0wHKTJWfG+2+eq5TFiYoMJoFVsW35ZAtlb\n" +
+                "Kp+jXbWU/NAsiJ4Z8Pbq04wViBrIf1xQ4wSgCibMF6NmO+tyI+1h2cJPU42uZs3y\n" +
+                "NGdqutG4/6qEoi+OzfvhgAU1u0Rc8fUC2B9s8kH0SkDZPP0cruW0G97Cmjlx9J0k\n" +
+                "EdFhmNkePMp103LWavkw2qGetB4nQpw5KQIDAQABoIIBBjAcBgorBgEEAYI3DQID\n" +
+                "MQ4WDDEwLjAuMTkwNDQuMjA+BgkqhkiG9w0BCQ4xMTAvMA4GA1UdDwEB/wQEAwIH\n" +
+                "gDAdBgNVHQ4EFgQUfnzkcusRKrp6YKuR1rLou96hlzcwPgYJKwYBBAGCNxUUMTEw\n" +
+                "LwIBBQwKTEFQVE9QLVVXRQwOTEFQVE9QLVVXRVx1d2UMDnBvd2Vyc2hlbGwuZXhl\n" +
+                "MGYGCisGAQQBgjcNAgIxWDBWAgEAHk4ATQBpAGMAcgBvAHMAbwBmAHQAIABTAG8A\n" +
+                "ZgB0AHcAYQByAGUAIABLAGUAeQAgAFMAdABvAHIAYQBnAGUAIABQAHIAbwB2AGkA\n" +
+                "ZABlAHIDAQAwDQYJKoZIhvcNAQELBQADggGBAD+rFHnJrPY3g5QjxSGoJ2Xi1CCj\n" +
+                "ivxz7ePx6nsAeF9TWU/rjIrGlf9/vI8eNiVvJNiJKaBA3UZVCgkfFmfB4OrkeQ9O\n" +
+                "4bEYBcF5uEKAq0NP0MfGgHUk/bpj0YdnYM459rtk4vBBQ8zeV2mP2U0cjj2T5uz5\n" +
+                "eAc2fCGlxyz/9U7XSRFPrPIOHV8eDaVdaF7ip1sxGHxGLuf+OkcQT9VVhw0J9iSE\n" +
+                "JJWGf6NMl4vEfUyF9tsfI55aIr3RbV7612xhrwJPncCsdRBLGZZ0O6TF0FfpOBhu\n" +
+                "kWvY/w+pjUMF2oPgjWiKCbcIHyW53faoM4PFaI0uZ15Umwc91W97OcOVuY2g182Q\n" +
+                "v39Vt9uB7wMZNerZuhD/r05UOxXCLZ9L0wYc/dljmquBb1M7hbGfGTAbai8TjZYd\n" +
+                "/uaXsaIZ+/Anrn6wKOTb3N4IrKhnct/QcFbU5OWLHd7rX2CRItrHps+I4EZwXovl\n" +
+                "2iSQrc43rVBo13Z3kdSA0fwTvVPSiOFWof5stg==\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SupplementDnsNames = true;
+            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.Extensions[0].Value
+                .Equals("MBKCEHd3dy5hZGNzbGFib3IuZGU=" + Environment.NewLine));
+        }
+
+        [TestMethod]
+        public void SupplementIPv4()
+        {
+            // 3072 Bit RSA Key
+            // CN=192.168.0.1
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEbzCCAtcCAQAwFjEUMBIGA1UEAxMLMTkyLjE2OC4wLjEwggGiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBjwAwggGKAoIBgQDIKE0iAutNOSr+LMSXeEYDIE+h7wUDQLVs7wEF\n" +
+                "GcsbGoiS/6xAFhY1IN5b0ybs9Y2sgpFU2eGHp+EL1sVNCi2EvQJrxotyk5o6HbiM\n" +
+                "xMmsEqQSIPNWwZewKQL/dKMcAY6PHfy8VcSqJ0dOwIoj49Cb3NouDovD2fvDHC6N\n" +
+                "2c2sjaOVDl7S4uAlVhDnFpYOQMzfXNHI59veKk5yv0NdSZlhNU1WLltgz6g12l9D\n" +
+                "AIZh2JSQ5NvGBTQ5bzc+OH5EnV1s/ZrBBiorYlfdtFOlTGhW7k2Pz2GN85KciEWc\n" +
+                "zX3u3Xdt2JwcSA3Tg+UmVW8BSzs8Tq/fIVBaXjnCxWWVI3fttFvHPjNwdQsB2Zso\n" +
+                "n0K9M4s9HV1mChHJlWEjRGVFNcdUfEITG47wVD7Xj0/iDnS0r8mGqeQ89UXn63hJ\n" +
+                "UvPeLGu2cUDbThD3d4a6SMwC7UXPvS3bF9toDSfW3HdG4L+tXiW1HiqlV/RVfs33\n" +
+                "msH7RxTar06wfbvubzPW1G+BQEUCAwEAAaCCARIwHAYKKwYBBAGCNw0CAzEOFgwx\n" +
+                "MC4wLjE4MzYzLjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYD\n" +
+                "VR0OBBYEFGuhRsZitMLDhxPdUIPZSq2J95zUMEoGCSsGAQQBgjcVFDE9MDsCAQUM\n" +
+                "GkNMSUVOVDIuaW50cmEuYWRjc2xhYm9yLmRlDApJTlRSQVxydWRpDA5wb3dlcnNo\n" +
+                "ZWxsLmV4ZTBmBgorBgEEAYI3DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0\n" +
+                "ACAAUwBvAGYAdAB3AGEAcgBlACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAAUABy\n" +
+                "AG8AdgBpAGQAZQByAwEAMA0GCSqGSIb3DQEBCwUAA4IBgQAuuHIyaWIx8eHCD79h\n" +
+                "Qz16OjsyF4h3XBZx+3k9oFZFGj+Dl7d1oY0rtO/C6MJ4pIT1I7QeSD/31Kyd3eQT\n" +
+                "MuIT/OL2ExYtwLHkz/M6cQgSxj8NobecNue1cKCGqU8kxRQ7y1W4GAYZBxsI7Vum\n" +
+                "M5bvSVnSzzhi4/kLj/wAIaF08ysdDb8zq120KxSrU+ygi/NNcLEAuAEETuXjYpXF\n" +
+                "bjdgTPaBju1/Q6IhrS3XC6cRrrUeMH3KOmTgi3Ib9rd+7fOh1oGUpSq5Hk7LZIgX\n" +
+                "b3MIXN/99gjy+VJaMNK4k5gS3QO+hWDR9QyStFlW1tcIyCbTsDNJT/ZlzfAmNnEl\n" +
+                "R9eacVVSVZXhbf8lQNMwhcsTzNoSYtf1v9lyM2nPB1/4AY8EVox4b3pMAgEqQW04\n" +
+                "WvURB8uIkbnjE2Qhu+z4U1Hd7Sj1mXGiFR/SfVm5beANiS96WBLAEKhmwoziFKpL\n" +
+                "c9MtVoJO9AnlxNbuWaybRSeg+C06/N7RbgsfMXw0V7YfDTI=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SupplementDnsNames = true;
+            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+
+            Console.WriteLine(validationResult.Extensions[0].Value);
+
+            Assert.IsTrue(validationResult.Extensions[0].Value
+                .Equals("MAaHBMCoAAE=" + Environment.NewLine));
+        }
+
+        [TestMethod]
+        public void SupplementIPv6()
+        {
+            // 3072 Bit RSA Key
+            // CN=::1
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEZzCCAs8CAQAwDjEMMAoGA1UEAxMDOjoxMIIBojANBgkqhkiG9w0BAQEFAAOC\n" +
+                "AY8AMIIBigKCAYEAyN+AOquFRroKBO43/SxuxWnsY91ZiHIU7rgBcK1/ZyjGcAVF\n" +
+                "SbO0jCBoYLJCLvI9Dw3EbOzuvUbiMwdedmlXzOImL+rSYrJjl7V8sL/Hp5iCHs9J\n" +
+                "iYeIYDFC6HwE7yonUWp4+lgjk0wZTaTalmhSIRujmggOPaMwTxNOxGYqQg6X2Dvp\n" +
+                "Hxy0dzZY9RdCzDrf5wfDChKCX8j5A9wMVHzqBYfw5RK/XMNZ0kzl5ZV7rmggssfT\n" +
+                "OWwmKQgo3+Nfs+nwclFGbip/w7PxLzaFI9E5oEHI/JxIBmlp3hkH+T2S6hS55R6e\n" +
+                "jSXse8zhJtjQmNp/MqvHN2cVYIIy6q2AXIJ/wBqXtkxs6e/nVVF0VbWcV+wcHVhy\n" +
+                "CAi+dOe1mKXwJtNf5I82/MPEL+EItPM0+VJT4PHkNc2dLr5d7rfm9K4p2DAg9427\n" +
+                "Zq1R1t7w8WK/pBWe5RSo5WHY6hAjW/qTU7uRlZ0H2oLNBl3osNUp1df3ZoGXjJPX\n" +
+                "f4QC4HjA/SLUPJwBAgMBAAGgggESMBwGCisGAQQBgjcNAgMxDhYMMTAuMC4xODM2\n" +
+                "My4yMD4GCSqGSIb3DQEJDjExMC8wDgYDVR0PAQH/BAQDAgeAMB0GA1UdDgQWBBR7\n" +
+                "txq8vqA31iRiNlazQpzMGEwAvzBKBgkrBgEEAYI3FRQxPTA7AgEFDBpDTElFTlQy\n" +
+                "LmludHJhLmFkY3NsYWJvci5kZQwKSU5UUkFccnVkaQwOcG93ZXJzaGVsbC5leGUw\n" +
+                "ZgYKKwYBBAGCNw0CAjFYMFYCAQAeTgBNAGkAYwByAG8AcwBvAGYAdAAgAFMAbwBm\n" +
+                "AHQAdwBhAHIAZQAgAEsAZQB5ACAAUwB0AG8AcgBhAGcAZQAgAFAAcgBvAHYAaQBk\n" +
+                "AGUAcgMBADANBgkqhkiG9w0BAQsFAAOCAYEAOR68MvcdJiIc+1Reg2WAdVmJ9Wob\n" +
+                "irvf+aaO2hH77MBIcKsLxTamssw05nh1pJrUWFbKCkSuVLc3mWWc4hzPl5F6eY+z\n" +
+                "h/foKZaA1NX5Vy32Z2Tcda7UDXsZ6UqOdR+muHjoslGp68fnMw9M4yO2UZe4+cMf\n" +
+                "O+7shLg1QFR7V2S0xRVVITrWKWmjl1n++wb0hrS3MmTbzyukUT1UYDwOXL71EVkA\n" +
+                "RloUBVfuRjmyHAtqfi2Nk4d9TFluXT2LpLGZjCxQ+sqmADqZ9eYBs4ph8Q3TqDyd\n" +
+                "YRHix2+fbiwvwEyVteLSfh3S5ccQcq0NQ3OKNSifczhWYWYifa4AIN5Z7DLuKBEp\n" +
+                "3hXkd+KF58r0QE0tceCVPGTlGqRVB+in8MugQSg5Z6YIKGHyKYtWpq2KDVfxWH8x\n" +
+                "02x5hAUlaR8uBPkx8ewieiWbgy9PyucKXvEL66RjS/N9Xff8PpJhR7IVwyPvq5a3\n" +
+                "qTRja1q0Ayu2vrAFbkw7m18wL3MqnXQh/FXM\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SupplementDnsNames = true;
+            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+            
+            Assert.IsTrue(validationResult.Extensions[0].Value
+                .Equals("MBKHEAAAAAAAAAAAAAAAAAAAAAE=" + Environment.NewLine));
+        }
+
+        [TestMethod]
+        public void SupplementAll()
+        {
+            // 3072 Bit RSA Key
+            // CN=www.adcslabor.de,CN=192.168.0.1,CN=::1,C=DE
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEpTCCAw0CAQAwTDELMAkGA1UEBhMCREUxDDAKBgNVBAMTAzo6MTEUMBIGA1UE\n" +
+                "AxMLMTkyLjE2OC4wLjExGTAXBgNVBAMTEHd3dy5hZGNzbGFib3IuZGUwggGiMA0G\n" +
+                "CSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQDDgqwhvHWSzSJThX+KAahPUtIX0xK3\n" +
+                "SBIACzsXADqzT10a5L5BJGv65Z8RUIkru431VlS7yEOVB5vowH+OuDXoJ9EBaC4q\n" +
+                "F+Qaf6meoMy2YVonhKU8lOJsJ71LOVc67WKFAJQBIlzinA7mMabWJdLJvnpGTD7H\n" +
+                "426dnWH9ExVXefXAX6itPvdfWVByK4kdFe6am0c6uVMWEr0b6rZ48xZh+FYq5j1m\n" +
+                "e0Q9lVdHRyHmaQwHzNnZfkILTi/pJlcyxY/ghiSNazQEH2nd6LUsBdCZfX5yXe8h\n" +
+                "EX1cSWQtUXXVAEfqLRyd/o9cHJZppPQbzIkGSW37Q1cGVpk+7u3so5+mI17PU+Vm\n" +
+                "isV3GQvODp/Ki8Otvp0NM4SfGNFpAckJC06bzBjoSzZy77zoQuEliRzHACk/K34G\n" +
+                "8b/dg+vV/r5J8B4zMYGnDpmMUqoMNS8/UZ+zSjIXkj22EFYY10EWu80TzzUW2uME\n" +
+                "NAewJEARvmd1bFlvzHrd7XZBMQFqFoUUEYECAwEAAaCCARIwHAYKKwYBBAGCNw0C\n" +
+                "AzEOFgwxMC4wLjE4MzYzLjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMC\n" +
+                "B4AwHQYDVR0OBBYEFOjLxVNrCIJqiB9A7dwTi9BUtH2WMEoGCSsGAQQBgjcVFDE9\n" +
+                "MDsCAQUMGkNMSUVOVDIuaW50cmEuYWRjc2xhYm9yLmRlDApJTlRSQVxydWRpDA5w\n" +
+                "b3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBz\n" +
+                "AG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAASwBlAHkAIABTAHQAbwByAGEAZwBl\n" +
+                "ACAAUAByAG8AdgBpAGQAZQByAwEAMA0GCSqGSIb3DQEBCwUAA4IBgQCQy3LSK4AC\n" +
+                "bPDi1bL5HLRq/0U6DxXGhWPL3P7e/EdGgU86bg0upJ5a83B2MQyQ/vGlN+p1/ao8\n" +
+                "Rdk9tDif1C69Ufia4glWzNiZHej5Wdn+1fadbFj32vcty+EMWFROhVY8ZSTCdyZv\n" +
+                "fvJ7HzMQfVhbEW74D2S55lhhPJl3ZI7r+e77KNSsLikfv9SdyF75U3WqabqASa16\n" +
+                "pDQ/FG7wv4I4CvcgbnRRWQ4W9eIlOyXP7jbQhSsMIzeuG273yfeQDUKqlVHxgA1K\n" +
+                "m9nrsXKLYoJ77F07K938RAIJvftizFFsx4OKOemYhiKlMYRzUcZv/lZhTv9LdsCh\n" +
+                "T0gY5NSgKnsy13dv2zFngm3TdNel+Erm4yDDtHvRgi/fH5nKYt9PU99m8vNpu9vQ\n" +
+                "nWGbFpc3V/s5dKl3eItFLYyDHE45bIAmPuZH3jZ5XgQio4uBgAKe32oxdmm5XsLa\n" +
+                "tLy3pn0hcDZHJnraibioAJGxA5pb87uZWNyv6hPC1ofmvd9YGAUovEY=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SupplementDnsNames = true;
+            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+            
+            Assert.IsTrue(validationResult.Extensions[0].Value
+                .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE=" + Environment.NewLine));
+        }
+
+        [TestMethod]
+        public void SupplementNothing()
+        {
+            // 2048 Bit RSA Key
+            // CN=,C=DE
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEcTCCAtkCAQAwGDELMAkGA1UEBhMCREUxCTAHBgNVBAMTADCCAaIwDQYJKoZI\n" +
+                "hvcNAQEBBQADggGPADCCAYoCggGBAMID8rc/c2v1bGVuzi2480adyXuT9ps8zWe2\n" +
+                "dxUIt1BC6Qrp+Qog/dy9wJhuzz6e4QRKseWg8fubMKIWtKjvlOsG+OzG0cDhDsP9\n" +
+                "r0Kvd2YCXw2kqWFBe1Y885bNX1B13R/vK3/LO4CNOUlAKrlvJPbGStQIQF8dZ2wB\n" +
+                "IYhamPK5hic1zOk2PTw9QLLl9Bfmh53A6Beguj+C3WdQl1TDO24kg68D4ZhDiNE6\n" +
+                "votstfNZWYZ/MvOUeHB1f2TNz1QxEvPTpOif2DXxLEvW7yrLd/dGUq+owh91qI04\n" +
+                "Sv5IP3XVCFm4yRPy5Dn7U0DSv2QNOxbLX5vUwpKLcE38MKvgK4MPxG1TU2gtEwqA\n" +
+                "p8YrJUNPGoKx8rsv7tI41Xa9uPZAmdm3UpsssxSh3ZwBQs2NY0DobFODPT4QPBL+\n" +
+                "Kdg122GlOMSnPahpfqLy10vnKKRr0U5E8raMOB6aGpAzlNTQe53ZlW2EanolzMOB\n" +
+                "ZVgFhyGvWJd1axinuaBAAVs1lMlGSQIDAQABoIIBEjAcBgorBgEEAYI3DQIDMQ4W\n" +
+                "DDEwLjAuMTgzNjMuMjA+BgkqhkiG9w0BCQ4xMTAvMA4GA1UdDwEB/wQEAwIHgDAd\n" +
+                "BgNVHQ4EFgQUWIHnwcy8A89ImgQIKvPQbTCIXwswSgYJKwYBBAGCNxUUMT0wOwIB\n" +
+                "BQwaQ0xJRU5UMi5pbnRyYS5hZGNzbGFib3IuZGUMCklOVFJBXHJ1ZGkMDnBvd2Vy\n" +
+                "c2hlbGwuZXhlMGYGCisGAQQBgjcNAgIxWDBWAgEAHk4ATQBpAGMAcgBvAHMAbwBm\n" +
+                "AHQAIABTAG8AZgB0AHcAYQByAGUAIABLAGUAeQAgAFMAdABvAHIAYQBnAGUAIABQ\n" +
+                "AHIAbwB2AGkAZABlAHIDAQAwDQYJKoZIhvcNAQELBQADggGBAA8H7M16sY8/8feg\n" +
+                "IU2GEmb+FzZlxkUp12kCS5j89JBgvEseU8vCnBChMjji2/wq3Ibc6SXaRFFs+SdR\n" +
+                "hbde9MlzdnDp8mOToRkYj95WFNPxpZqi4QqUgpJy3s7bewLzXz3r4JS01qWEzE4a\n" +
+                "8Aeqxd38Gwp2SSd2SVtp8SwpdfswEZke5Y9Cy1GiA4yK4rEZ4i5nhq3BuyQLhcOh\n" +
+                "0iJod1Q4grQ9cTePETOMi9Llv+SI3iIOLtu6qQaWLerEQf1aGE4e5HQlgFckrFz9\n" +
+                "yuIWtmfOnU4S53mkkwLG89E0Bu5r0wb+Q4Ytv3fm1LTYxc+Ezdb3hqklFfFmFumY\n" +
+                "QFkXmP2HoXo7Exrm2LzkJrGbh9Aa+Ic9O9B5j7OAjRBNmGSM05guU7ssgqGu2OcC\n" +
+                "JDMTSVRtnIF2SNJ3MflnTzv8fwPFQEkCPIikgKy4HEG7KkmelOOR9DVrgot0WXHD\n" +
+                "xkuECyANnFYngtst+/c9pxSkHICCzmFYqrg9RK6GI57INCr2nQ==\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SupplementDnsNames = true;
+            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        }
+
+        [TestMethod]
         public void Deny_empty_commonName()
         {
             // 2048 Bit RSA Key
@@ -753,7 +966,7 @@ namespace UnitTests
             Assert.IsTrue(validationResult.DeniedForIssuance);
             Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
         }
-
+        
         [TestMethod]
         public void Deny_no_subject_DN()
         {

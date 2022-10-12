@@ -27,7 +27,7 @@ namespace TameMyCerts
 
     public class SidCertificateExtension
     {
-        public readonly string value;
+        public readonly string Value;
 
         public SidCertificateExtension(string sid)
         {
@@ -38,7 +38,7 @@ namespace TameMyCerts
             result = ConvertStringToDerNode(Asn1Tag.SEQUENCE, result);
             result = Convert.ToBase64String(HexStringToByteArray(result));
 
-            value = result;
+            Value = result;
         }
 
         private static byte[] HexStringToByteArray(string input)

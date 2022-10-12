@@ -1,0 +1,39 @@
+<!--
+  This is an example for a Web Server certificate template.
+  It is configured to supplement any DNS names found in the commonName subject RDN and add them to a newly created subject alternative names certificate extension.
+  This ensures issued certificates are compliant to RFC 2818.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <KeyAlgorithm>RSA</KeyAlgorithm>
+  <MinimumKeyLength>2048</MinimumKeyLength>
+  <MaximumKeyLength>4096</MaximumKeyLength>
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <!-- Note that the commonName is mandatory and requires a valid DNS name -->
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[-_a-zA-Z0-9]*\.adcslabor\.de$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>dNSName</Field>
+      <!-- Certificate requests may optionally already contain dNSNames (no supplement in this case) -->
+      <Mandatory>false</Mandatory>
+      <MaxOccurrences>10</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[-_a-zA-Z0-9]*\.adcslabor\.de$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <SupplementDnsNames>true</SupplementDnsNames>
+</CertificateRequestPolicy>

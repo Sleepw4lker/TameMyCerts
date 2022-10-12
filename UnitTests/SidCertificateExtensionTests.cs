@@ -27,7 +27,7 @@ namespace UnitTests
             const string expectedResult =
                 "MD+gPQYKKwYBBAGCNxkCAaAvBC1TLTEtNS0yMS0xMzgxMTg2MDUyLTQyNDc2OTIzODYtMTM1OTI4MDc4LTEyMjU=";
 
-            Assert.IsTrue(new SidCertificateExtension(sid).value.Equals(expectedResult));
+            Assert.IsTrue(new SidCertificateExtension(sid).Value.Equals(expectedResult));
         }
     }
 }

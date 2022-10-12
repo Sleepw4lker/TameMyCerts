@@ -1,0 +1,75 @@
+<!-- 
+  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  It ensures that the requests contain a syntacical valid userPrincipalName extension.
+  After verification, this information is used to search a corresponding user account in Active Directory.
+  The Subject Distinguished Name gets built from the properties of the AD account.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- This ensures the required information is present for directory mapping -->
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.adcslabor\.de)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <DirectoryServicesMapping>
+    <SubjectDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>emailAddress</Field>
+        <DirectoryServicesAttribute>mail</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>commonName</Field>
+        <DirectoryServicesAttribute>displayName</DirectoryServicesAttribute>
+        <Mandatory>true</Mandatory>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>organizationName</Field>
+        <DirectoryServicesAttribute>company</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>organizationalUnitName</Field>
+        <DirectoryServicesAttribute>department</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>localityName</Field>
+        <DirectoryServicesAttribute>l</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>    
+      <RelativeDistinguishedName>
+        <Field>stateOrProvinceName</Field>
+        <DirectoryServicesAttribute>st</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>countryName</Field>
+        <DirectoryServicesAttribute>c</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>title</Field>
+        <DirectoryServicesAttribute>title</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>    
+      <RelativeDistinguishedName>
+        <Field>givenName</Field>
+        <DirectoryServicesAttribute>givenName</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>initials</Field>
+        <DirectoryServicesAttribute>initials</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>    
+      <RelativeDistinguishedName>
+        <Field>surname</Field>
+        <DirectoryServicesAttribute>sn</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+      <RelativeDistinguishedName>
+        <Field>streetAddress</Field>
+        <DirectoryServicesAttribute>streetAddress</DirectoryServicesAttribute>
+      </RelativeDistinguishedName>
+    </SubjectDistinguishedName>
+  </DirectoryServicesMapping>
+</CertificateRequestPolicy>

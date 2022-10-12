@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -37,8 +38,8 @@ namespace TameMyCerts
 
         private readonly string _appName;
         private readonly string _appVersion;
-        private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
         private readonly DirectoryServicesValidator _directoryServicesValidator = new DirectoryServicesValidator();
+        private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
         private readonly CertificateTemplateInfo _templateInfo = new CertificateTemplateInfo();
         private int _editFlags;
         private Logger _logger;
@@ -148,7 +149,7 @@ namespace TameMyCerts
             #endregion
 
             #region Process custom StartDate attribute
-            
+
             // Set custom start date if requested and permitted
             if ((_editFlags & CertSrv.EDITF_ATTRIBUTEENDDATE) == CertSrv.EDITF_ATTRIBUTEENDDATE &&
                 requestAttributeList.TryGetValue("StartDate", out var startDate))
@@ -162,8 +163,7 @@ namespace TameMyCerts
                     {
                         _logger.Log(Events.STARTDATE_SET, requestId, requestedStartDate.UtcDateTime);
 
-                        certServerPolicy.SetCertificateProperty("NotBefore", CertSrv.PROPTYPE_DATE,
-                            requestedStartDate.UtcDateTime);
+                        certServerPolicy.SetCertificateProperty("NotBefore", requestedStartDate.UtcDateTime);
                     }
                     else
                     {
@@ -198,7 +198,7 @@ namespace TameMyCerts
 
             if (templateInfo == null)
             {
-                _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO, requestId);
+                _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL, requestId);
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
 
@@ -229,21 +229,34 @@ namespace TameMyCerts
                               CertCli.CR_IN_FULLRESPONSE;
 
             // Verify the Certificate request against policy
-            var validationResult =
-                _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy, templateInfo,
-                    requestType,
-                    requestAttributeList);
+            var validationResult = _requestValidator.VerifyRequest(Convert.ToBase64String(request), requestPolicy,
+                templateInfo, requestType, requestAttributeList);
 
             // Verify against directory if a policy is present
-            if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping && templateInfo.EnrolleeSuppliesSubject)
+            if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping)
             {
-                validationResult =
-                    _directoryServicesValidator.VerifyRequest(requestPolicy, validationResult);
+                if (!templateInfo.EnrolleeSuppliesSubject && templateInfo.UserScope)
+                {
+                    // This is always present on online templates
+                    validationResult.Identities.Add(new KeyValuePair<string, string>("userPrincipalName",
+                        certServerPolicy.GetStringCertificatePropertyOrDefault("UPN")));
+                }
+
+                if (templateInfo.EnrolleeSuppliesSubject || templateInfo.UserScope)
+                {
+                    validationResult = _directoryServicesValidator.VerifyRequest(requestPolicy, validationResult);
+                }
             }
 
             // No reason to deny the request, let's issue the certificate
             if (!validationResult.DeniedForIssuance)
             {
+                // Add Subject Relative Distinguished Names, if any
+                foreach (var property in validationResult.Properties)
+                {
+                    certServerPolicy.SetCertificateProperty(property.Key, property.Value);
+                }
+
                 // Add certificate extensions, if any
                 foreach (var extension in validationResult.Extensions)
                 {
@@ -258,8 +271,7 @@ namespace TameMyCerts
 
                 // Shorten the expiration date, if configured by policy
 
-                certServerPolicy.SetCertificateProperty("NotAfter", CertSrv.PROPTYPE_DATE,
-                    validationResult.NotAfter.UtcDateTime);
+                certServerPolicy.SetCertificateProperty("NotAfter", validationResult.NotAfter.UtcDateTime);
 
                 _logger.Log(Events.VALIDITY_REDUCED, requestId, templateInfo.Name,
                     validationResult.NotAfter.UtcDateTime);

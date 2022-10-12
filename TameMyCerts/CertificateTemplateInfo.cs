@@ -56,6 +56,7 @@ namespace TameMyCerts
                     continue;
                 }
 
+                var flags = Convert.ToInt32(templateSubKey.GetValue("Flags"));
                 var nameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"));
 
                 newObjects.Add(new Template
@@ -63,7 +64,8 @@ namespace TameMyCerts
                     Name = templateName,
                     Oid = ((string[]) templateSubKey.GetValue("msPKI-Cert-Template-OID"))[0],
                     EnrolleeSuppliesSubject = (CertCa.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT & nameFlags) ==
-                                              CertCa.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT
+                                              CertCa.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT,
+                    UserScope = (CertCa.CT_FLAG_MACHINE_TYPE & flags) != CertCa.CT_FLAG_MACHINE_TYPE
                 });
             }
 
@@ -85,8 +87,8 @@ namespace TameMyCerts
             // V2 and newer templates are identified by an OID (numbers separated by dots)
 
             return IsLegacyTemplate.IsMatch(identifier)
-                ? _templateInfoList.FirstOrDefault(x => x.Name == identifier)
-                : _templateInfoList.FirstOrDefault(x => x.Oid == identifier);
+                ? _templateInfoList.FirstOrDefault(template => template.Name == identifier)
+                : _templateInfoList.FirstOrDefault(template => template.Oid == identifier);
         }
 
         public class Template
@@ -94,6 +96,7 @@ namespace TameMyCerts
             public string Name { get; set; }
             public string Oid { get; set; }
             public bool EnrolleeSuppliesSubject { get; set; }
+            public bool UserScope { get; set; }
         }
     }
 }
