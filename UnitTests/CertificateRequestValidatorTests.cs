@@ -26,14 +26,14 @@ namespace UnitTests
     // TODO: Test the CertificateRequestPolicy Class against invalid and valid data
 
     [TestClass]
-    public class RequestValidatorTests
+    public class CertificateRequestValidatorTests
     {
         private readonly CertificateRequestPolicy _requestPolicy;
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
         private readonly string _standardCsr;
         private readonly CertificateTemplateInfo.Template _templateInfo;
 
-        public RequestValidatorTests()
+        public CertificateRequestValidatorTests()
         {
             // 2048 Bit RSA Key
             // CN=intranet.adcslabor.de

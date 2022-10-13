@@ -20,6 +20,11 @@ namespace TameMyCerts
 {
     public class CertificateRequestValidationResult
     {
+        public CertificateRequestValidationResult()
+        {
+            AuditOnly = false;
+        }
+
         public CertificateRequestValidationResult(bool auditOnly, string notAfter)
         {
             AuditOnly = auditOnly;

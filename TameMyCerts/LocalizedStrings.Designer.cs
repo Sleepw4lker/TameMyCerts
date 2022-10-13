@@ -151,16 +151,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory {1} subject relative distinguished name is empty..
-        /// </summary>
-        internal static string DirVal_Rdn_Empty_Directory_Attribute {
-            get {
-                return ResourceManager.GetString("DirVal_Rdn_Empty_Directory_Attribute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An invalid directory attribute &quot;{0}&quot; was specified for construction of the mandatory {1} subject relative distinguished name..
+        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory {1} subject relative distinguished name is unknown or does not contain a value..
         /// </summary>
         internal static string DirVal_Rdn_Invalid_Directory_Attribute {
             get {

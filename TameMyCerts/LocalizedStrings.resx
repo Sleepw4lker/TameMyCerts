@@ -278,11 +278,8 @@
   <data name="DirVal_Rdn_Directory_Attribute_too_long" xml:space="preserve">
     <value>The value "{0}" for directory attribute "{1}" that was specified for construction of the mandatory {2} subject relative distinguished name is too long. The maximum length is {4} characters for this RDN but the attribute is {4} characters long.</value>
   </data>
-  <data name="DirVal_Rdn_Empty_Directory_Attribute" xml:space="preserve">
-    <value>The directory attribute "{0}" that was specified for construction of the mandatory {1} subject relative distinguished name is empty.</value>
-  </data>
   <data name="DirVal_Rdn_Invalid_Directory_Attribute" xml:space="preserve">
-    <value>An invalid directory attribute "{0}" was specified for construction of the mandatory {1} subject relative distinguished name.</value>
+    <value>The directory attribute "{0}" that was specified for construction of the mandatory {1} subject relative distinguished name is unknown or does not contain a value.</value>
   </data>
   <data name="Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL" xml:space="preserve">
     <value>No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied.</value>
