@@ -12,22 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TameMyCerts;
+using System;
+using System.Runtime.InteropServices;
 
-namespace UnitTests
+namespace TameMyCerts.Models
 {
-    [TestClass]
-    public class SidCertificateExtensionTests
+    // Kudos to Vadims Podans for his research and support!
+    internal class OleAut32
     {
-        [TestMethod]
-        public void Result_is_valid()
-        {
-            const string sid = "S-1-5-21-1381186052-4247692386-135928078-1225";
-            const string expectedResult =
-                "MD+gPQYKKwYBBAGCNxkCAaAvBC1TLTEtNS0yMS0xMzgxMTg2MDUyLTQyNDc2OTIzODYtMTM1OTI4MDc4LTEyMjU=";
+        public const short VT_BSTR = 0x8;
 
-            Assert.IsTrue(new SidCertificateExtension(sid).Value.Equals(expectedResult));
+        [DllImport("OleAut32.dll", SetLastError = true)]
+        public static extern int VariantClear(IntPtr pvarg);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct VARIANT
+        {
+            public short vt;
+            public short wReserved1;
+            public short wReserved2;
+            public short wReserved3;
+            public IntPtr pvRecord;
         }
     }
 }

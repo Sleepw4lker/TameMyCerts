@@ -16,10 +16,11 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CERTCLILib;
+using TameMyCerts.Models;
 
-namespace TameMyCerts
+namespace TameMyCerts.ClassExtensions
 {
-    public static class CCertServerPolicyExtensions
+    internal static class CCertServerPolicyExtensions
     {
         #region GetRequestAttributes
 

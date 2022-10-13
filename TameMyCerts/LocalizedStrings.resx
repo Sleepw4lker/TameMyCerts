@@ -195,7 +195,7 @@
     <value>The value "{0}" does match expression "{1}" which is disallowed for the {2} field.</value>
   </data>
   <data name="DirVal_Rdn_Invalid_Field" xml:space="preserve">
-    <value>An invalid field name was specified for construction of the mandatory subject relative distinguished name {0}.</value>
+    <value>The field name "{0}" that was specified for construction of the mandatory subject relative distinguished name for {1} is unsupported.</value>
   </data>
   <data name="ReqVal_Field_Too_Short" xml:space="preserve">
     <value>The value "{0}" for the {1} field deceeds the minimum required length of {2} characters.</value>
@@ -276,10 +276,10 @@
     <value>Directory query failed: {0}.</value>
   </data>
   <data name="DirVal_Rdn_Directory_Attribute_too_long" xml:space="preserve">
-    <value>The value "{0}" for directory attribute "{1}" that was specified for construction of the mandatory {2} subject relative distinguished name is too long. The maximum length is {4} characters for this RDN but the attribute is {4} characters long.</value>
+    <value>The value "{0}" for directory attribute "{1}" that was specified for construction of the mandatory "{2}" subject relative distinguished name for {3} is too long. The maximum length is {4} characters for this RDN but the attribute is {5} characters long.</value>
   </data>
   <data name="DirVal_Rdn_Invalid_Directory_Attribute" xml:space="preserve">
-    <value>The directory attribute "{0}" that was specified for construction of the mandatory {1} subject relative distinguished name is unknown or does not contain a value.</value>
+    <value>The directory attribute "{0}" that was specified for construction of the mandatory "{1}" subject relative distinguished name is either not supported or not populated for {2}.</value>
   </data>
   <data name="Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL" xml:space="preserve">
     <value>No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied.</value>

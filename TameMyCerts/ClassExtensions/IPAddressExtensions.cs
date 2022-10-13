@@ -15,9 +15,9 @@
 using System;
 using System.Net;
 
-namespace TameMyCerts
+namespace TameMyCerts.ClassExtensions
 {
-    public static class IPAddressExtensions
+    internal static class IPAddressExtensions
     {
         public static bool IsInRange(this IPAddress address, string subnetMask)
         {

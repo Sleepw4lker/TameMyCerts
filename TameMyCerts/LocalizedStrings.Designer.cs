@@ -142,7 +142,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; for directory attribute &quot;{1}&quot; that was specified for construction of the mandatory {2} subject relative distinguished name is too long. The maximum length is {4} characters for this RDN but the attribute is {4} characters long..
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for directory attribute &quot;{1}&quot; that was specified for construction of the mandatory &quot;{2}&quot; subject relative distinguished name for {3} is too long. The maximum length is {4} characters for this RDN but the attribute is {5} characters long..
         /// </summary>
         internal static string DirVal_Rdn_Directory_Attribute_too_long {
             get {
@@ -151,7 +151,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory {1} subject relative distinguished name is unknown or does not contain a value..
+        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory &quot;{1}&quot; subject relative distinguished name is either not supported or not populated for {2}..
         /// </summary>
         internal static string DirVal_Rdn_Invalid_Directory_Attribute {
             get {
@@ -160,7 +160,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An invalid field name was specified for construction of the mandatory subject relative distinguished name {0}..
+        ///   Looks up a localized string similar to The field name &quot;{0}&quot; that was specified for construction of the mandatory subject relative distinguished name for {1} is unsupported..
         /// </summary>
         internal static string DirVal_Rdn_Invalid_Field {
             get {

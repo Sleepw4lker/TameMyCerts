@@ -14,10 +14,11 @@
 
 using System.Diagnostics;
 using System.Security;
+using TameMyCerts.Models;
 
 namespace TameMyCerts
 {
-    public class Logger
+    internal class Logger
     {
         private readonly EventLog _eventLog;
         private readonly int _logLevel;

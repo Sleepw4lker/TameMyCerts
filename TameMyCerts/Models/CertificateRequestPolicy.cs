@@ -14,15 +14,14 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace TameMyCerts
+namespace TameMyCerts.Models
 {
+    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
     public class CertificateRequestPolicy
     {
         public bool AuditOnly { get; set; }
@@ -98,61 +97,6 @@ namespace TameMyCerts
             catch
             {
                 return null;
-            }
-        }
-    }
-
-    public class DirectoryServicesMapping
-    {
-        public string SearchRoot { get; set; }
-        public string CertificateAttribute { get; set; } = "userPrincipalName";
-        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
-        public string ObjectCategory { get; set; } = "user";
-        public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
-        public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();
-        public bool PermitDisabledAccounts { get; set; } = false;
-
-        public List<RelativeDistinguishedName> SubjectDistinguishedName { get; set; } =
-            new List<RelativeDistinguishedName>();
-    }
-
-    public class RelativeDistinguishedName
-    {
-        public string Field { get; set; } = string.Empty;
-        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
-        public bool Mandatory { get; set; }
-    }
-
-    public class SubjectRule
-    {
-        public string Field { get; set; } = string.Empty;
-        public bool Mandatory { get; set; }
-        public int MaxOccurrences { get; set; } = 1;
-        public int MinLength { get; set; } = 1;
-        public int MaxLength { get; set; } = 128;
-        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
-    }
-
-    public class Pattern
-    {
-        public string Expression { get; set; }
-        public string TreatAs { get; set; } = "RegEx";
-        public string Action { get; set; } = "Allow";
-
-        public bool IsMatch(string term, bool matchOnError = false)
-        {
-            try
-            {
-                switch (TreatAs.ToLowerInvariant())
-                {
-                    case "regex": return new Regex(@"" + Expression + "").IsMatch(term);
-                    case "cidr": return IPAddress.Parse(term).IsInRange(Expression);
-                    default: return false;
-                }
-            }
-            catch
-            {
-                return matchOnError;
             }
         }
     }

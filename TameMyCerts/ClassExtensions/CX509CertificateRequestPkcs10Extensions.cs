@@ -18,10 +18,11 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using CERTENROLLLib;
+using TameMyCerts.Models;
 
-namespace TameMyCerts
+namespace TameMyCerts.ClassExtensions
 {
-    public static class CX509CertificateRequestPkcs10Extensions
+    internal static class CX509CertificateRequestPkcs10Extensions
     {
         private static readonly Dictionary<string, string> RdnTypeAliasDictionary = new Dictionary<string, string>
         {

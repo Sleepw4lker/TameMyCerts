@@ -18,9 +18,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace TameMyCerts
+namespace TameMyCerts.Models
 {
-    public class CertificateTemplateInfo
+    internal class CertificateTemplateInfo
     {
         private static readonly Regex IsLegacyTemplate = new Regex(@"^[a-zA-z]*$");
         private readonly object _lockObject = new object();

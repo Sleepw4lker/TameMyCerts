@@ -22,6 +22,9 @@ using System.Runtime.InteropServices;
 using CERTCLILib;
 using CERTPOLICYLib;
 using Microsoft.Win32;
+using TameMyCerts.ClassExtensions;
+using TameMyCerts.Models;
+using TameMyCerts.Validators;
 
 namespace TameMyCerts
 {

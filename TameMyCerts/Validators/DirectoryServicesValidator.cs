@@ -16,115 +16,11 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
-using System.Security.Principal;
+using TameMyCerts.Models;
 
-namespace TameMyCerts
+namespace TameMyCerts.Validators
 {
-    public class ActiveDirectoryObject
-    {
-        private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
-
-        public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
-            string objectCategory, string searchRoot)
-        {
-            if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Directory_Attribute,
-                    dsAttribute));
-            }
-
-            if (!DsObjectTypes.Any(s => s.Equals(objectCategory, COMPARISON)))
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Object_Category,
-                    objectCategory));
-            }
-
-            Name = identity;
-
-            var searchRootEntry = string.IsNullOrEmpty(searchRoot)
-                ? new DirectoryEntry($"GC://{forestRootDomain}")
-                : new DirectoryEntry($"LDAP://{searchRoot}");
-
-            var directorySearcher = new DirectorySearcher(searchRoot)
-            {
-                SearchRoot = searchRootEntry,
-                Filter =
-                    $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
-                PropertiesToLoad = {"memberOf", "userAccountControl", "objectSid"},
-                PageSize = 2
-            };
-
-            foreach (var s in DsRetrievalAttributes)
-            {
-                directorySearcher.PropertiesToLoad.Add(s);
-            }
-
-            var searchResults = directorySearcher.FindAll();
-
-            if (searchResults.Count < 1)
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found, objectCategory,
-                    dsAttribute, identity, searchRootEntry.Path));
-            }
-
-            if (searchResults.Count > 1)
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count, objectCategory,
-                    dsAttribute, identity));
-            }
-
-            var dsObject = searchResults[0];
-
-            UserAccountControl = Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
-            SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
-
-            for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
-            {
-                MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
-            }
-
-            foreach (var s in DsRetrievalAttributes)
-            {
-                if (dsObject.Properties[s].Count > 0)
-                {
-                    Attributes.Add(s, (string) dsObject.Properties[s][0]);
-                }
-            }
-        }
-
-        public ActiveDirectoryObject(string name, int userAccountControl, List<string> memberOf,
-            Dictionary<string, string> attributes, SecurityIdentifier securityIdentifier)
-        {
-            Name = name;
-            UserAccountControl = userAccountControl;
-            MemberOf = memberOf;
-            Attributes = attributes;
-            SecurityIdentifier = securityIdentifier;
-        }
-
-        public string Name { get; }
-
-        public int UserAccountControl { get; set; }
-
-        public List<string> MemberOf { get; } = new List<string>();
-
-        public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
-
-        public SecurityIdentifier SecurityIdentifier { get; }
-
-        private static string[] DsMappingAttributes { get; } =
-            {"cn", "name", "sAMAccountName", "userPrincipalName", "dNSHostName"};
-
-        private static string[] DsObjectTypes { get; } = {"computer", "user"};
-
-        private static string[] DsRetrievalAttributes { get; } =
-        {
-            "c", "l", "company", "displayName", "department", "givenName", "initials", "mail", "name", "sAMAccountName",
-            "sn", "st", "streetAddress", "title", "userPrincipalName"
-        };
-    }
-
-    public class DirectoryServicesValidator
+    internal class DirectoryServicesValidator
     {
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
@@ -255,7 +151,7 @@ namespace TameMyCerts
                     if (rdn.Mandatory)
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field));
+                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field, dsObject.Name));
                     }
 
                     continue;
@@ -267,7 +163,7 @@ namespace TameMyCerts
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Directory_Attribute,
-                                rdn.DirectoryServicesAttribute, rdn.Field));
+                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.Name));
                     }
 
                     continue;
@@ -281,14 +177,14 @@ namespace TameMyCerts
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.DirVal_Rdn_Directory_Attribute_too_long, dsAttribute,
-                                rdn.DirectoryServicesAttribute, rdn.Field, RdnInfo[rdn.Field].NameProperty,
+                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.Name, RdnInfo[rdn.Field].MaxLength,
                                 dsAttribute.Length));
                     }
 
                     continue;
                 }
 
-                result.Properties.Add(RdnInfo[rdn.Field].NameProperty, dsAttribute);
+                result.Properties.Add(new KeyValuePair<string, string>(RdnInfo[rdn.Field].NameProperty, dsAttribute));
             }
 
             #endregion
@@ -297,8 +193,10 @@ namespace TameMyCerts
 
             if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Add", COMPARISON))
             {
-                var objectSid = dsObject.SecurityIdentifier.ToString();
-                result.Extensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT, new SidCertificateExtension(objectSid).Value);
+                var sidExt = new CX509ExtensionSecurityIdentifier();
+                sidExt.InitializeEncode(dsObject.SecurityIdentifier);
+
+                result.Extensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT, Convert.ToBase64String(sidExt.RawData()));
             }
 
             #endregion

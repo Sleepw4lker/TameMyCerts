@@ -16,9 +16,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace TameMyCerts
+namespace TameMyCerts.Models
 {
-    public class CertificateRequestValidationResult
+    internal class CertificateRequestValidationResult
     {
         public CertificateRequestValidationResult()
         {
@@ -38,7 +38,7 @@ namespace TameMyCerts
         public List<string> Description { get; set; } = new List<string>();
         public List<KeyValuePair<string, string>> Identities { get; set; } = new List<KeyValuePair<string, string>>();
         public Dictionary<string, string> Extensions { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public List<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
 
         public void SetFailureStatus()
         {

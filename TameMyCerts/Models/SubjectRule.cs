@@ -12,25 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Kudos to Vadims Podans for his research and support!
+using System.Collections.Generic;
 
-using System;
-using System.Runtime.InteropServices;
-
-namespace TameMyCerts {
-    class OleAut32 {
-        public const Int16 VT_BSTR = 0x8;
-
-        [DllImport("OleAut32.dll", SetLastError = true)]
-        public static extern Int32 VariantClear(IntPtr pvarg);
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct VARIANT {
-            public Int16 vt;
-            public Int16 wReserved1;
-            public Int16 wReserved2;
-            public Int16 wReserved3;
-            public IntPtr pvRecord;
-        }
+namespace TameMyCerts.Models
+{
+    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+    public class SubjectRule
+    {
+        public string Field { get; set; } = string.Empty;
+        public bool Mandatory { get; set; }
+        public int MaxOccurrences { get; set; } = 1;
+        public int MinLength { get; set; } = 1;
+        public int MaxLength { get; set; } = 128;
+        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
     }
 }

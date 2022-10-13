@@ -15,30 +15,41 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 
 namespace TameMyCerts
 {
-    public static class Asn1Tag
+    internal static class Asn1Tag
     {
         public const string OCTET_STRING = "04";
         public const string CONTEXT_SPECIFIC = "A0";
         public const string SEQUENCE = "30";
     }
 
-    public class SidCertificateExtension
+    internal interface IX509ExtensionSecurityIdentifier
     {
-        public readonly string Value;
+        void InitializeEncode(SecurityIdentifier sid);
+        byte[] RawData();
+    }
 
-        public SidCertificateExtension(string sid)
+    internal class CX509ExtensionSecurityIdentifier : IX509ExtensionSecurityIdentifier
+    {
+        private byte[] _rawData;
+
+        public void InitializeEncode(SecurityIdentifier sid)
         {
-            var result = ConvertStringToDerNode(Asn1Tag.OCTET_STRING, ConvertStringToHexString(sid));
+            var result = ConvertStringToDerNode(Asn1Tag.OCTET_STRING, ConvertStringToHexString(sid.ToString()));
             result = ConvertStringToDerNode(Asn1Tag.CONTEXT_SPECIFIC, result);
             result = $"060A2B060104018237190201{result}"; // 1.3.6.1.4.1.311.25.2.1
             result = ConvertStringToDerNode(Asn1Tag.CONTEXT_SPECIFIC, result);
             result = ConvertStringToDerNode(Asn1Tag.SEQUENCE, result);
-            result = Convert.ToBase64String(HexStringToByteArray(result));
 
-            Value = result;
+            _rawData = HexStringToByteArray(result);
+        }
+
+        public byte[] RawData()
+        {
+            return _rawData;
         }
 
         private static byte[] HexStringToByteArray(string input)

@@ -18,10 +18,12 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using CERTENROLLLib;
+using TameMyCerts.ClassExtensions;
+using TameMyCerts.Models;
 
-namespace TameMyCerts
+namespace TameMyCerts.Validators
 {
-    public class CertificateRequestValidator
+    internal class CertificateRequestValidator
     {
         private static readonly StringComparison StringComparison = StringComparison.InvariantCultureIgnoreCase;
 
