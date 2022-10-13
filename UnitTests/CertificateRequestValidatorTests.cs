@@ -758,8 +758,8 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
             PrintResult(validationResult);
 
-            Assert.IsTrue(validationResult.Extensions[0].Value
-                .Equals("MBKCEHd3dy5hZGNzbGFib3IuZGU=" + Environment.NewLine));
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
+                .Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2].Equals("MBKCEHd3dy5hZGNzbGFib3IuZGU="));
         }
 
         [TestMethod]
@@ -800,10 +800,8 @@ namespace UnitTests
             var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
             PrintResult(validationResult);
 
-            Console.WriteLine(validationResult.Extensions[0].Value);
-
-            Assert.IsTrue(validationResult.Extensions[0].Value
-                .Equals("MAaHBMCoAAE=" + Environment.NewLine));
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
+                          validationResult.Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2].Equals("MAaHBMCoAAE="));
         }
 
         [TestMethod]
@@ -843,9 +841,9 @@ namespace UnitTests
             requestPolicy.SupplementDnsNames = true;
             var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
             PrintResult(validationResult);
-            
-            Assert.IsTrue(validationResult.Extensions[0].Value
-                .Equals("MBKHEAAAAAAAAAAAAAAAAAAAAAE=" + Environment.NewLine));
+
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
+                .Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2].Equals("MBKHEAAAAAAAAAAAAAAAAAAAAAE="));
         }
 
         [TestMethod]
@@ -886,9 +884,10 @@ namespace UnitTests
             requestPolicy.SupplementDnsNames = true;
             var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
             PrintResult(validationResult);
-            
-            Assert.IsTrue(validationResult.Extensions[0].Value
-                .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE=" + Environment.NewLine));
+
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
+                .Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]
+                .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE="));
         }
 
         [TestMethod]
@@ -966,7 +965,7 @@ namespace UnitTests
             Assert.IsTrue(validationResult.DeniedForIssuance);
             Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
         }
-        
+
         [TestMethod]
         public void Deny_no_subject_DN()
         {

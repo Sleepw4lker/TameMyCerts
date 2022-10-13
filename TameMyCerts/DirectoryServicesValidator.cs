@@ -104,7 +104,7 @@ namespace TameMyCerts
 
         public string Name { get; }
 
-        public int UserAccountControl { get; }
+        public int UserAccountControl { get; set; }
 
         public List<string> MemberOf { get; } = new List<string>();
 
@@ -204,8 +204,8 @@ namespace TameMyCerts
 
             #region Process enablement status of the account
 
-            if ((Convert.ToInt32(dsObject.UserAccountControl) & UserAccountControl.ACCOUNTDISABLE) ==
-                UserAccountControl.ACCOUNTDISABLE)
+            if ((dsObject.UserAccountControl & UserAccountControl.ACCOUNTDISABLE) ==
+                UserAccountControl.ACCOUNTDISABLE && !dsMapping.PermitDisabledAccounts)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                     string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory, dsObject.Name));
@@ -288,7 +288,7 @@ namespace TameMyCerts
                     continue;
                 }
 
-                result.Properties.Add(new KeyValuePair<string, string>(RdnInfo[rdn.Field].NameProperty, dsAttribute));
+                result.Properties.Add(RdnInfo[rdn.Field].NameProperty, dsAttribute);
             }
 
             #endregion
@@ -298,8 +298,7 @@ namespace TameMyCerts
             if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Add", COMPARISON))
             {
                 var objectSid = dsObject.SecurityIdentifier.ToString();
-                result.Extensions.Add(new KeyValuePair<string, string>(WinCrypt.szOID_DS_CA_SECURITY_EXT,
-                    new SidCertificateExtension(objectSid).Value));
+                result.Extensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT, new SidCertificateExtension(objectSid).Value);
             }
 
             #endregion

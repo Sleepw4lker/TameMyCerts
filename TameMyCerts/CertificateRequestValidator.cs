@@ -260,7 +260,8 @@ namespace TameMyCerts
                             switch (Uri.CheckHostName(identity))
                             {
                                 case UriHostNameType.Dns:
-                                    alternativeName.InitializeFromString(AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME,
+                                    alternativeName.InitializeFromString(
+                                        AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME,
                                         identity);
                                     break;
 
@@ -284,8 +285,9 @@ namespace TameMyCerts
 
                         Marshal.ReleaseComObject(alternativeNames);
 
-                        result.Extensions.Add(new KeyValuePair<string, string>(WinCrypt.szOID_SUBJECT_ALT_NAME2,
-                            extensionAlternativeNames.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)));
+                        result.Extensions.Add(WinCrypt.szOID_SUBJECT_ALT_NAME2,
+                            extensionAlternativeNames.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
+                                .Replace(Environment.NewLine, string.Empty));
 
                         Marshal.ReleaseComObject(extensionAlternativeNames);
                     }

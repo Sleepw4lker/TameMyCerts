@@ -110,6 +110,7 @@ namespace TameMyCerts
         public string ObjectCategory { get; set; } = "user";
         public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
         public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();
+        public bool PermitDisabledAccounts { get; set; } = false;
 
         public List<RelativeDistinguishedName> SubjectDistinguishedName { get; set; } =
             new List<RelativeDistinguishedName>();
