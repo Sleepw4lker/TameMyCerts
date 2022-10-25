@@ -19,49 +19,33 @@ using System.Net;
 using System.Runtime.InteropServices;
 using CERTENROLLLib;
 using TameMyCerts.ClassExtensions;
+using TameMyCerts.Enums;
 using TameMyCerts.Models;
 
 namespace TameMyCerts.Validators
 {
     internal class CertificateRequestValidator
     {
-        private static readonly StringComparison StringComparison = StringComparison.InvariantCultureIgnoreCase;
+        private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
-        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo)
+        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+            CertificateRequestPolicy requestPolicy, CertificateTemplateInfo.Template templateInfo, string request)
         {
-            return VerifyRequest(certificateRequest, certificateRequestPolicy, templateInfo, CertCli.CR_IN_PKCS10,
-                new Dictionary<string, string>());
+            return VerifyRequest(result, requestPolicy, templateInfo, request, CertCli.CR_IN_PKCS10);
         }
 
-        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
+        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+            CertificateRequestPolicy requestPolicy, CertificateTemplateInfo.Template templateInfo, byte[] request,
             int requestType)
         {
-            return VerifyRequest(certificateRequest, certificateRequestPolicy, templateInfo, requestType,
-                new Dictionary<string, string>());
+            return VerifyRequest(result, requestPolicy, templateInfo, Convert.ToBase64String(request), requestType);
         }
 
-        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
-            Dictionary<string, string> requestAttributeList)
+        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+            CertificateRequestPolicy requestPolicy, CertificateTemplateInfo.Template templateInfo, string request,
+            int requestType)
         {
-            return VerifyRequest(certificateRequest, certificateRequestPolicy, templateInfo, CertCli.CR_IN_PKCS10,
-                requestAttributeList);
-        }
-
-        public CertificateRequestValidationResult VerifyRequest(string certificateRequest,
-            CertificateRequestPolicy certificateRequestPolicy, CertificateTemplateInfo.Template templateInfo,
-            int requestType, Dictionary<string, string> requestAttributeList)
-        {
-            var result = new CertificateRequestValidationResult(certificateRequestPolicy.AuditOnly,
-                certificateRequestPolicy.NotAfter);
-
-            // In case something went wrong with parsing policy values
-            if (result.DeniedForIssuance)
-            {
-                return result;
-            }
+            result.AuditOnly = requestPolicy.AuditOnly;
 
             // Early binding would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
             var certificateRequestPkcs10 =
@@ -70,7 +54,7 @@ namespace TameMyCerts.Validators
 
             #region Parse the certificate request, extract inner PKCS#10 request if necessary
 
-            if (!certificateRequestPkcs10.TryInitializeFromInnerRequest(certificateRequest, requestType))
+            if (!certificateRequestPkcs10.TryInitializeFromInnerRequest(request, requestType))
             {
                 result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Err_Parse_Request, requestType));
                 Marshal.ReleaseComObject(certificateRequestPkcs10);
@@ -81,20 +65,20 @@ namespace TameMyCerts.Validators
 
             #region Process rules for cryptographic providers
 
-            if (certificateRequestPolicy.AllowedCryptoProviders.Count > 0 ||
-                certificateRequestPolicy.DisallowedCryptoProviders.Count > 0)
+            if (requestPolicy.AllowedCryptoProviders.Count > 0 ||
+                requestPolicy.DisallowedCryptoProviders.Count > 0)
             {
-                if (requestAttributeList.TryGetValue("RequestCSPProvider", out var requestCspProvider))
+                if (result.RequestAttributes.TryGetValue("RequestCSPProvider", out var requestCspProvider))
                 {
-                    if (!certificateRequestPolicy.AllowedCryptoProviders.Any(s =>
-                            s.Equals(requestCspProvider, StringComparison)))
+                    if (!requestPolicy.AllowedCryptoProviders.Any(s =>
+                            s.Equals(requestCspProvider, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Not_Allowed,
                             requestCspProvider));
                     }
 
-                    if (certificateRequestPolicy.DisallowedCryptoProviders.Any(s =>
-                            s.Equals(requestCspProvider, StringComparison)))
+                    if (requestPolicy.DisallowedCryptoProviders.Any(s =>
+                            s.Equals(requestCspProvider, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Disallowed,
                             requestCspProvider));
@@ -118,21 +102,21 @@ namespace TameMyCerts.Validators
 
             #region Process rules for the process name
 
-            if (certificateRequestPolicy.AllowedProcesses.Count > 0 ||
-                certificateRequestPolicy.DisallowedProcesses.Count > 0)
+            if (requestPolicy.AllowedProcesses.Count > 0 ||
+                requestPolicy.DisallowedProcesses.Count > 0)
             {
                 if (certificateRequestPkcs10.GetInlineRequestAttributeList()
                     .TryGetValue("ProcessName", out var processName))
                 {
-                    if (!certificateRequestPolicy.AllowedProcesses.Any(s =>
-                            s.Equals(processName, StringComparison)))
+                    if (!requestPolicy.AllowedProcesses.Any(s =>
+                            s.Equals(processName, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Not_Allowed,
                             processName));
                     }
 
-                    if (certificateRequestPolicy.DisallowedProcesses.Any(s =>
-                            s.Equals(processName, StringComparison)))
+                    if (requestPolicy.DisallowedProcesses.Any(s =>
+                            s.Equals(processName, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Disallowed,
                             processName));
@@ -158,23 +142,23 @@ namespace TameMyCerts.Validators
             {
                 #region Process rules for key attributes
 
-                if (certificateRequestPolicy.KeyAlgorithm != certificateRequestPkcs10.GetKeyAlgorithmName())
+                if (requestPolicy.KeyAlgorithm != certificateRequestPkcs10.GetKeyAlgorithmName())
                 {
                     result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Pair_Mismatch,
-                        certificateRequestPolicy.KeyAlgorithm));
+                        requestPolicy.KeyAlgorithm));
                 }
 
-                if (certificateRequestPkcs10.PublicKey.Length < certificateRequestPolicy.MinimumKeyLength)
+                if (certificateRequestPkcs10.PublicKey.Length < requestPolicy.MinimumKeyLength)
                 {
                     result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Small,
-                        certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MinimumKeyLength));
+                        certificateRequestPkcs10.PublicKey.Length, requestPolicy.MinimumKeyLength));
                 }
 
-                if (certificateRequestPolicy.MaximumKeyLength > 0 && certificateRequestPkcs10.PublicKey.Length >
-                    certificateRequestPolicy.MaximumKeyLength)
+                if (requestPolicy.MaximumKeyLength > 0 && certificateRequestPkcs10.PublicKey.Length >
+                    requestPolicy.MaximumKeyLength)
                 {
                     result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
-                        certificateRequestPkcs10.PublicKey.Length, certificateRequestPolicy.MaximumKeyLength));
+                        certificateRequestPkcs10.PublicKey.Length, requestPolicy.MaximumKeyLength));
                 }
 
                 // Abort here to trigger proper error code
@@ -199,7 +183,7 @@ namespace TameMyCerts.Validators
 
                 result.Identities.AddRange(subjectRdnList);
 
-                if (!VerifySubject(subjectRdnList, certificateRequestPolicy.Subject,
+                if (!VerifySubject(subjectRdnList, requestPolicy.Subject,
                         out var subjectVerificationDescription))
                 {
                     result.SetFailureStatus(WinError.CERT_E_INVALID_NAME, subjectVerificationDescription);
@@ -219,7 +203,7 @@ namespace TameMyCerts.Validators
 
                 result.Identities.AddRange(subjectAltNameList);
 
-                if (!VerifySubject(subjectAltNameList, certificateRequestPolicy.SubjectAlternativeName,
+                if (!VerifySubject(subjectAltNameList, requestPolicy.SubjectAlternativeName,
                         out var subjectAltNameVerificationDescription))
                 {
                     result.SetFailureStatus(WinError.CERT_E_INVALID_NAME, subjectAltNameVerificationDescription);
@@ -229,19 +213,26 @@ namespace TameMyCerts.Validators
 
                 #region Process request extensions
 
-                if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Deny",
-                        StringComparison) &&
-                    certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
+                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
                 {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
-                        WinCrypt.szOID_DS_CA_SECURITY_EXT));
+                    if (requestPolicy.SecurityIdentifierExtension.Equals("Deny", COMPARISON))
+                    {
+                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
+                            string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
+                                WinCrypt.szOID_DS_CA_SECURITY_EXT, nameof(WinCrypt.szOID_DS_CA_SECURITY_EXT)));
+                    }
+
+                    if (requestPolicy.SecurityIdentifierExtension.Equals("Remove", COMPARISON))
+                    {
+                        result.DisabledExtensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT);
+                    }
                 }
 
                 #endregion
 
                 #region Supplement DNS names (and IP addresses) from commonName to Subject Alternative Name
 
-                if (certificateRequestPolicy.SupplementDnsNames &&
+                if (requestPolicy.SupplementDnsNames &&
                     !certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2))
                 {
                     var uriHostNameTypes = new List<UriHostNameType>
@@ -298,6 +289,12 @@ namespace TameMyCerts.Validators
                 #endregion
             }
 
+            #region Set fixed expiration time
+
+            result.SetNotAfter(requestPolicy.NotAfter);
+
+            #endregion
+
             Marshal.ReleaseComObject(certificateRequestPkcs10);
             return result;
         }
@@ -313,7 +310,7 @@ namespace TameMyCerts.Validators
             foreach (var subjectRule in subjectRuleList)
             {
                 var occurrences = subjectList.Count(keyValuePair =>
-                    keyValuePair.Key.Equals(subjectRule.Field, StringComparison));
+                    keyValuePair.Key.Equals(subjectRule.Field, COMPARISON));
 
                 if (occurrences == 0 && subjectRule.Mandatory)
                 {
@@ -335,7 +332,7 @@ namespace TameMyCerts.Validators
             foreach (var subject in subjectList)
             {
                 var policyItem = subjectRuleList.FirstOrDefault(subjectRule =>
-                    subjectRule.Field.Equals(subject.Key, StringComparison));
+                    subjectRule.Field.Equals(subject.Key, COMPARISON));
 
                 if (policyItem == null)
                 {
@@ -362,7 +359,7 @@ namespace TameMyCerts.Validators
                 }
 
                 if (!policyItem.Patterns
-                        .Where(pattern => pattern.Action.Equals("Allow", StringComparison))
+                        .Where(pattern => pattern.Action.Equals("Allow", COMPARISON))
                         .Any(pattern => pattern.IsMatch(subject.Value)))
                 {
                     description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subject.Value,
@@ -370,7 +367,7 @@ namespace TameMyCerts.Validators
                 }
 
                 description.AddRange(policyItem.Patterns
-                    .Where(pattern => pattern.Action.Equals("Deny", StringComparison))
+                    .Where(pattern => pattern.Action.Equals("Deny", COMPARISON))
                     .Where(pattern => pattern.IsMatch(subject.Value, true))
                     .Select(pattern => string.Format(LocalizedStrings.ReqVal_Disallow_Match, subject.Value,
                         pattern.Expression, subject.Key)));

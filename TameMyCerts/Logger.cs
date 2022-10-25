@@ -14,7 +14,7 @@
 
 using System.Diagnostics;
 using System.Security;
-using TameMyCerts.Models;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts
 {
@@ -28,7 +28,7 @@ namespace TameMyCerts
             const string logName = "Application";
 
             _logLevel = logLevel;
-            
+
             _eventLog = new EventLog(logName)
             {
                 Source = CreateEventSource(eventSource, logName)
@@ -81,14 +81,6 @@ namespace TameMyCerts
             LogLevel = CertSrv.CERTLOG_ERROR,
             Type = EventLogEntryType.Error,
             MessageText = LocalizedStrings.Events_PDEF_FAIL_INIT
-        };
-
-        public static Event PDEF_FAIL_VERIFY = new Event
-        {
-            Id = 3,
-            LogLevel = CertSrv.CERTLOG_ERROR,
-            Type = EventLogEntryType.Error,
-            MessageText = LocalizedStrings.Events_PDEF_FAIL_VERIFY
         };
 
         public static Event PDEF_FAIL_SHUTDOWN = new Event
@@ -166,46 +158,6 @@ namespace TameMyCerts
             Id = 11,
             LogLevel = CertSrv.CERTLOG_VERBOSE,
             MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED_MESSAGE
-        };
-
-        public static Event REQUEST_DENIED_INSECURE_FLAGS = new Event
-        {
-            Id = 12,
-            LogLevel = CertSrv.CERTLOG_ERROR,
-            Type = EventLogEntryType.Error,
-            MessageText = LocalizedStrings.Events_REQUEST_DENIED_INSECURE_FLAGS
-        };
-
-        public static Event VALIDITY_REDUCED = new Event
-        {
-            Id = 13,
-            LogLevel = CertSrv.CERTLOG_VERBOSE,
-            Type = EventLogEntryType.Information,
-            MessageText = LocalizedStrings.Events_VALIDITY_REDUCED
-        };
-
-        public static Event STARTDATE_SET = new Event
-        {
-            Id = 14,
-            LogLevel = CertSrv.CERTLOG_VERBOSE,
-            Type = EventLogEntryType.Information,
-            MessageText = LocalizedStrings.Events_STARTDATE_SET
-        };
-
-        public static Event STARTDATE_INVALID = new Event
-        {
-            Id = 15,
-            LogLevel = CertSrv.CERTLOG_WARNING,
-            Type = EventLogEntryType.Warning,
-            MessageText = LocalizedStrings.Events_STARTDATE_INVALID
-        };
-
-        public static Event ATTRIB_ERR_PARSE = new Event
-        {
-            Id = 16,
-            LogLevel = CertSrv.CERTLOG_WARNING,
-            Type = EventLogEntryType.Warning,
-            MessageText = LocalizedStrings.Events_ATTRIB_ERR_PARSE
         };
     }
 

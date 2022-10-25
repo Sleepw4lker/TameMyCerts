@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CERTCLILib;
-using TameMyCerts.Models;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.ClassExtensions
 {
@@ -24,7 +24,7 @@ namespace TameMyCerts.ClassExtensions
     {
         #region GetRequestAttributes
 
-        public static Dictionary<string, string> GetRequestAttributeList(this CCertServerPolicy serverPolicy)
+        public static Dictionary<string, string> GetRequestAttributes(this CCertServerPolicy serverPolicy)
         {
             // Note that it should be safe to use a Dictionary here as request attributes can only appear once in the CA database
             var attributeList = new Dictionary<string, string>();
@@ -53,21 +53,23 @@ namespace TameMyCerts.ClassExtensions
         public static void SetCertificateExtension(this CCertServerPolicy serverPolicy, string oid, string value,
             bool critical = false)
         {
-            var rawData = Convert.FromBase64String(value);
-
             // Kudos to Vadims Podans for his research and support!
+
+            var rawData = Convert.FromBase64String(value);
 
             var pBstr = Marshal.AllocHGlobal(rawData.Length + 4);
             Marshal.WriteInt32(pBstr, 0, rawData.Length);
             Marshal.Copy(rawData, 0, pBstr + 4, rawData.Length);
+
             var variant = new OleAut32.VARIANT
             {
                 vt = 8, // VT_BSTR
                 pvRecord = pBstr + 4
             };
+
             var pvarValue = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OleAut32.VARIANT)));
             Marshal.StructureToPtr(variant, pvarValue, false);
-            var dwCritical = critical ? 1 : 0;
+            var dwCritical = critical ? CertSrv.EXTENSION_CRITICAL_FLAG : 0;
 
             try
             {
@@ -82,10 +84,58 @@ namespace TameMyCerts.ClassExtensions
 
         #endregion
 
+        #region DisableCertificateExtension
+
+        public static void DisableCertificateExtension(this CCertServerPolicy serverPolicy, string oid)
+        {
+            // Kudos to Vadims Podans for his research and support!
+
+            var variant = new OleAut32.VARIANT
+            {
+                vt = 0, // VT_EMPTY
+                pvRecord = IntPtr.Zero
+            };
+
+            var pvarValue = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OleAut32.VARIANT)));
+            Marshal.StructureToPtr(variant, pvarValue, false);
+
+            try
+            {
+                serverPolicy.SetCertificateExtension(oid, CertSrv.PROPTYPE_BINARY, CertSrv.EXTENSION_DISABLE_FLAG,
+                    pvarValue);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pvarValue);
+            }
+        }
+
+        #endregion
+
+        #region DisableCertificateProperty
+
+        public static void DisableCertificateProperty(this CCertServerPolicy serverPolicy, string name)
+        {
+            serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_STRING, null);
+        }
+
+        #endregion
+
         #region SetCertificateProperty
+
+        public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name, DateTimeOffset value)
+        {
+            serverPolicy.SetCertificateProperty(name, value.UtcDateTime);
+        }
 
         public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name, DateTime value)
         {
+            // raises an exception when trying to set to the same value
+            if (value == serverPolicy.GetDateCertificatePropertyOrDefault(name).UtcDateTime)
+            {
+                return;
+            }
+            
             serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_DATE, value);
         }
 

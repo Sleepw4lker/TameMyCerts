@@ -16,11 +16,12 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
+using TameMyCerts.Enums;
 using TameMyCerts.Models;
 
 namespace TameMyCerts.Validators
 {
-    internal class DirectoryServicesValidator
+    internal class DirectoryServiceValidator
     {
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
@@ -38,12 +39,15 @@ namespace TameMyCerts.Validators
                 {"givenName", ("Subject.GivenName", 16)},
                 {"initials", ("Subject.Initials", 5)},
                 {"surname", ("Subject.SurName", 40)},
-                {"streetAddress", ("Subject.StreetAddress", 30)}
+                {"streetAddress", ("Subject.StreetAddress", 30)},
+                {"unstructuredName", ("Subject.UnstructuredName", 1024)},
+                {"unstructuredAddress", ("Subject.UnstructuredAddress", 1024)},
+                {"serialNumber", ("Subject.DeviceSerialNumber", 1024)}
             };
 
         private readonly string _forestRootDomain;
 
-        public DirectoryServicesValidator(bool forTesting = false)
+        public DirectoryServiceValidator(bool forTesting = false)
         {
             if (!forTesting)
             {
@@ -53,38 +57,40 @@ namespace TameMyCerts.Validators
 
         private static string GetForestRootDomain()
         {
-            try
-            {
-                var directoryEntry = new DirectoryEntry("LDAP://RootDSE");
-                return directoryEntry.Properties["rootDomainNamingContext"][0].ToString();
-            }
-            catch
-            {
-                // TODO: Maybe we should throw an exception here
-                return null;
-            }
+            var directoryEntry = new DirectoryEntry("LDAP://RootDSE");
+            return directoryEntry.Properties["rootDomainNamingContext"][0].ToString();
         }
 
-        public CertificateRequestValidationResult VerifyRequest(CertificateRequestPolicy certificateRequestPolicy,
-            CertificateRequestValidationResult result)
+        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+            CertificateRequestPolicy requestPolicy, CertificateTemplateInfo.Template templateInfo)
         {
-            var dsMapping = certificateRequestPolicy.DirectoryServicesMapping;
+            var dsMapping = requestPolicy.DirectoryServicesMapping;
 
-            var identity = result.Identities.FirstOrDefault(x => x.Key.Equals(dsMapping.CertificateAttribute)).Value;
+            var certificateAttribute = dsMapping.CertificateAttribute;
+            var dsAttribute = dsMapping.DirectoryServicesAttribute;
+            var objectCategory = dsMapping.ObjectCategory;
+
+            if (!templateInfo.EnrolleeSuppliesSubject)
+            {
+                certificateAttribute = templateInfo.UserScope ? "userPrincipalName" : "dNSName";
+                dsAttribute = templateInfo.UserScope ? "userPrincipalName" : "dNSHostName";
+                objectCategory = templateInfo.UserScope ? "user" : "computer";
+            }
+
+            var identity = result.Identities.FirstOrDefault(x => x.Key.Equals(certificateAttribute)).Value;
 
             if (string.IsNullOrEmpty(identity))
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                    string.Format(LocalizedStrings.DirVal_No_Cert_Identity, dsMapping.CertificateAttribute));
+                    string.Format(LocalizedStrings.DirVal_No_Cert_Identity, certificateAttribute));
                 return result;
             }
 
             try
             {
-                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsMapping.DirectoryServicesAttribute,
-                    identity, dsMapping.ObjectCategory, dsMapping.SearchRoot);
+                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory, dsMapping.SearchRoot);
 
-                return VerifyRequest(certificateRequestPolicy, result, dsObject);
+                return VerifyRequest(result, requestPolicy, dsObject);
             }
             catch (Exception ex)
             {
@@ -93,15 +99,15 @@ namespace TameMyCerts.Validators
             }
         }
 
-        public CertificateRequestValidationResult VerifyRequest(CertificateRequestPolicy certificateRequestPolicy,
-            CertificateRequestValidationResult result, ActiveDirectoryObject dsObject)
+        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+            CertificateRequestPolicy requestPolicy, ActiveDirectoryObject dsObject)
         {
-            var dsMapping = certificateRequestPolicy.DirectoryServicesMapping;
+            var dsMapping = requestPolicy.DirectoryServicesMapping;
 
             #region Process enablement status of the account
 
-            if ((dsObject.UserAccountControl & UserAccountControl.ACCOUNTDISABLE) ==
-                UserAccountControl.ACCOUNTDISABLE && !dsMapping.PermitDisabledAccounts)
+            if (dsObject.UserAccountControl.HasFlag(UserAccountControl.ACCOUNTDISABLE) &&
+                !dsMapping.PermitDisabledAccounts)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                     string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory, dsObject.Name));
@@ -191,7 +197,7 @@ namespace TameMyCerts.Validators
 
             #region Process SID certificate extension construction
 
-            if (certificateRequestPolicy.SecurityIdentifierExtension.Equals("Add", COMPARISON))
+            if (requestPolicy.SecurityIdentifierExtension.Equals("Add", COMPARISON))
             {
                 var sidExt = new CX509ExtensionSecurityIdentifier();
                 sidExt.InitializeEncode(dsObject.SecurityIdentifier);

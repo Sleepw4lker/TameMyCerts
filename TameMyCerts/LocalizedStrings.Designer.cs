@@ -61,6 +61,33 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to parse &quot;{0}&quot; request attribute. The value was &quot;{1}&quot;..
+        /// </summary>
+        internal static string AttibVal_Err_Parse {
+            get {
+                return ResourceManager.GetString("AttibVal_Err_Parse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied..
+        /// </summary>
+        internal static string AttribVal_Insecure_Flags {
+            get {
+                return ResourceManager.GetString("AttribVal_Insecure_Flags", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to adjust begin of certificate validity period to {0} (UTC) as requested by &quot;StartDate&quot; request attribute. The requested date is invalid..
+        /// </summary>
+        internal static string AttribVal_Invalid_StartDate {
+            get {
+                return ResourceManager.GetString("AttribVal_Invalid_StartDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} account for {1} is disabled..
         /// </summary>
         internal static string DirVal_Account_Disabled {
@@ -169,15 +196,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to parse &quot;{0}&quot; request attribute for request {1}. The value was &quot;{2}&quot;..
-        /// </summary>
-        internal static string Events_ATTRIB_ERR_PARSE {
-            get {
-                return ResourceManager.GetString("Events_ATTRIB_ERR_PARSE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The {0} policy module currently does not support standalone certification authorities..
         /// </summary>
         internal static string Events_MODULE_NOT_SUPPORTED {
@@ -273,15 +291,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Request {0} contains the &quot;san&quot; request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied..
-        /// </summary>
-        internal static string Events_REQUEST_DENIED_INSECURE_FLAGS {
-            get {
-                return ResourceManager.GetString("Events_REQUEST_DENIED_INSECURE_FLAGS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to interpret policy from {0}. Request {1} will get denied..
         /// </summary>
         internal static string Events_REQUEST_DENIED_NO_POLICY {
@@ -305,24 +314,6 @@ namespace TameMyCerts {
         internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL {
             get {
                 return ResourceManager.GetString("Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by &quot;StartDate&quot; request attribute. The requested date is invalid..
-        /// </summary>
-        internal static string Events_STARTDATE_INVALID {
-            get {
-                return ResourceManager.GetString("Events_STARTDATE_INVALID", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The begin of certificate validity period of request {0} was set to {1} (UTC) due to &quot;StartDate&quot; request attribute..
-        /// </summary>
-        internal static string Events_STARTDATE_SET {
-            get {
-                return ResourceManager.GetString("Events_STARTDATE_SET", resourceCulture);
             }
         }
         
@@ -480,7 +471,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request contains a forbidden X.509 extension with OID {0}..
+        ///   Looks up a localized string similar to The certificate request contains a forbidden X.509 extension with object identifier {0} ({1})..
         /// </summary>
         internal static string ReqVal_Forbidden_Extensions {
             get {

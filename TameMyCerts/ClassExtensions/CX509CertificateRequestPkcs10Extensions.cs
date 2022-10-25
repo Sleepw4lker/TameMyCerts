@@ -18,7 +18,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using CERTENROLLLib;
-using TameMyCerts.Models;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.ClassExtensions
 {
@@ -39,9 +39,9 @@ namespace TameMyCerts.ClassExtensions
             {"SN", "surname"},
             {"STREET", "streetAddress"},
             {"T", "title"},
-            {"UNSTRUCTUREDNAME", "unstructuredName"},
-            {"UNSTRUCTUREDADDRESS", "unstructuredAddress"},
-            {"DEVICESERIALNUMBER", "deviceSerialNumber"},
+            {"OID.1.2.840.113549.1.9.2", "unstructuredName"},
+            {"OID.1.2.840.113549.1.9.8", "unstructuredAddress"},
+            {"SERIALNUMBER", "serialNumber"},
             {"POSTALCODE", "postalCode"},
             {"DESCRIPTION", "description"},
             {"POBOX", "postOfficeBox"},

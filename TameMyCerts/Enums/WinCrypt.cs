@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Enums
 {
     /// <summary>
-    ///     Active Directory user account control flags
+    ///     Constants from WinCrypt.h
     /// </summary>
-    internal static class UserAccountControl
+    internal static class WinCrypt
     {
-        /// <summary>
-        ///     The user account is disabled.
-        /// </summary>
-        public const int ACCOUNTDISABLE = 0x00000002;
+        public const string szOID_RSA_RSA = "1.2.840.113549.1.1.1";
+        public const string szOID_ECC_PUBLIC_KEY = "1.2.840.10045.2.1";
+        public const string szOID_OS_VERSION = "1.3.6.1.4.1.311.13.2.3";
+        public const string szOID_ENROLLMENT_CSP_PROVIDER = "1.3.6.1.4.1.311.13.2.2";
+        public const string szOID_REQUEST_CLIENT_INFO = "1.3.6.1.4.1.311.21.20";
+        public const string szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2";
+        public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
     }
 }

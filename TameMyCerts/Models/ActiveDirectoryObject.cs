@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
 using System.Security.Principal;
-using System;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models
 {
@@ -46,9 +47,8 @@ namespace TameMyCerts.Models
             var directorySearcher = new DirectorySearcher(searchRoot)
             {
                 SearchRoot = searchRootEntry,
-                Filter =
-                    $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
-                PropertiesToLoad = { "memberOf", "userAccountControl", "objectSid" },
+                Filter = $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
+                PropertiesToLoad = {"memberOf", "userAccountControl", "objectSid"},
                 PageSize = 2
             };
 
@@ -61,37 +61,35 @@ namespace TameMyCerts.Models
 
             if (searchResults.Count < 1)
             {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found, objectCategory,
-                    dsAttribute, identity, searchRootEntry.Path));
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
+                    objectCategory, dsAttribute, identity, searchRootEntry.Path));
             }
 
             if (searchResults.Count > 1)
             {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count, objectCategory,
-                    dsAttribute, identity));
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
+                    objectCategory, dsAttribute, identity));
             }
 
             var dsObject = searchResults[0];
 
-            Name = (string) dsObject.Properties["name"][0];
-            UserAccountControl = Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
-            SecurityIdentifier = new SecurityIdentifier((byte[])dsObject.Properties["objectSid"][0], 0);
+            UserAccountControl = (UserAccountControl) Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
+            SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
 
             for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
             {
                 MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
             }
 
-            foreach (var s in DsRetrievalAttributes)
+            foreach (var s in DsRetrievalAttributes.Where(s => dsObject.Properties[s].Count > 0))
             {
-                if (dsObject.Properties[s].Count > 0)
-                {
-                    Attributes.Add(s, (string)dsObject.Properties[s][0]);
-                }
+                Attributes.Add(s, (string) dsObject.Properties[s][0]);
             }
+
+            Name = objectCategory.Equals("computer") ? Attributes["dNSHostName"] : Attributes["userPrincipalName"];
         }
 
-        public ActiveDirectoryObject(string name, int userAccountControl, List<string> memberOf,
+        public ActiveDirectoryObject(string name, UserAccountControl userAccountControl, List<string> memberOf,
             Dictionary<string, string> attributes, SecurityIdentifier securityIdentifier)
         {
             Name = name;
@@ -103,7 +101,7 @@ namespace TameMyCerts.Models
 
         public string Name { get; }
 
-        public int UserAccountControl { get; set; }
+        public UserAccountControl UserAccountControl { get; set; }
 
         public List<string> MemberOf { get; } = new List<string>();
 
@@ -111,15 +109,23 @@ namespace TameMyCerts.Models
 
         public SecurityIdentifier SecurityIdentifier { get; }
 
-        private static string[] DsMappingAttributes { get; } =
+        private static IEnumerable<string> DsMappingAttributes { get; } = new List<string>
             {"cn", "name", "sAMAccountName", "userPrincipalName", "dNSHostName"};
 
-        private static string[] DsObjectTypes { get; } = { "computer", "user" };
+        private static IEnumerable<string> DsObjectTypes { get; } = new List<string> {"computer", "user"};
 
-        private static string[] DsRetrievalAttributes { get; } =
+        private static IEnumerable<string> DsRetrievalAttributes { get; } = new List<string>
         {
-            "c", "l", "company", "displayName", "department", "givenName", "initials", "mail", "name", "sAMAccountName",
-            "sn", "st", "streetAddress", "title", "userPrincipalName"
+            "c", "co", "company", "department", "departmentNumber", "description", "displayName", "division",
+            "dNSHostName", "employeeID", "employeeNumber", "employeeType", "extensionAttribute1",
+            "extensionAttribute10", "extensionAttribute11", "extensionAttribute12", "extensionAttribute13",
+            "extensionAttribute14", "extensionAttribute15", "extensionAttribute2", "extensionAttribute3",
+            "extensionAttribute4", "extensionAttribute5", "extensionAttribute6", "extensionAttribute7",
+            "extensionAttribute8", "extensionAttribute9", "facsimileTelephoneNumber", "gecos", "givenName", "homePhone",
+            "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
+            "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "personalPager", "personalTitle",
+            "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street", "streetAddress",
+            "telephoneNumber", "telexNumber", "title", "userPrincipalName"
         };
     }
 }

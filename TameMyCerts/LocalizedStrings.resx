@@ -221,8 +221,8 @@
   <data name="ReqVal_Crypto_Provider_Unknown" xml:space="preserve">
     <value>Unable to determine the cryptographic provider that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
   </data>
-  <data name="Events_REQUEST_DENIED_INSECURE_FLAGS" xml:space="preserve">
-    <value>Request {0} contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.</value>
+  <data name="AttribVal_Insecure_Flags" xml:space="preserve">
+    <value>The certificate request metadata contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.</value>
   </data>
   <data name="Events_VALIDITY_REDUCED" xml:space="preserve">
     <value>The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration.</value>
@@ -237,19 +237,16 @@
     <value>Unable to parse the Subject Alternative Name certificate request extension.</value>
   </data>
   <data name="ReqVal_Forbidden_Extensions" xml:space="preserve">
-    <value>The certificate request contains a forbidden X.509 extension with OID {0}.</value>
+    <value>The certificate request contains a forbidden X.509 extension with object identifier {0} ({1}).</value>
   </data>
   <data name="Events_PDEF_REQUEST_DENIED_MESSAGE" xml:space="preserve">
     <value>Request {0} was denied by the Windows Default policy module: {1}</value>
   </data>
-  <data name="Events_ATTRIB_ERR_PARSE" xml:space="preserve">
-    <value>Unable to parse "{0}" request attribute for request {1}. The value was "{2}".</value>
+  <data name="AttibVal_Err_Parse" xml:space="preserve">
+    <value>Unable to parse "{0}" request attribute. The value was "{1}".</value>
   </data>
-  <data name="Events_STARTDATE_INVALID" xml:space="preserve">
-    <value>Unable to adjust begin of certificate validity period of request {0} to {1} (UTC) as requested by "StartDate" request attribute. The requested date is invalid.</value>
-  </data>
-  <data name="Events_STARTDATE_SET" xml:space="preserve">
-    <value>The begin of certificate validity period of request {0} was set to {1} (UTC) due to "StartDate" request attribute.</value>
+  <data name="AttribVal_Invalid_StartDate" xml:space="preserve">
+    <value>Unable to adjust begin of certificate validity period to {0} (UTC) as requested by "StartDate" request attribute. The requested date is invalid.</value>
   </data>
   <data name="DirVal_Account_Disabled" xml:space="preserve">
     <value>The {0} account for {1} is disabled.</value>

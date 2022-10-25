@@ -15,30 +15,24 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models
 {
     internal class CertificateRequestValidationResult
     {
-        public CertificateRequestValidationResult()
-        {
-            AuditOnly = false;
-        }
-
-        public CertificateRequestValidationResult(bool auditOnly, string notAfter)
-        {
-            AuditOnly = auditOnly;
-            SetNotAfter(notAfter);
-        }
-
-        public DateTimeOffset NotAfter { get; set; } = DateTimeOffset.MinValue;
+        public DateTimeOffset NotBefore { get; set; }
+        public DateTimeOffset NotAfter { get; set; }
         public int StatusCode { get; set; } = WinError.ERROR_SUCCESS;
         public bool DeniedForIssuance { get; set; }
-        public bool AuditOnly { get; }
+        public bool AuditOnly { get; set; }
         public List<string> Description { get; set; } = new List<string>();
         public List<KeyValuePair<string, string>> Identities { get; set; } = new List<KeyValuePair<string, string>>();
         public Dictionary<string, string> Extensions { get; set; } = new Dictionary<string, string>();
+        public List<string> DisabledExtensions { get; set; } = new List<string>();
+        public List<string> DisabledProperties { get; set; } = new List<string>();
         public List<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
+        public Dictionary<string, string> RequestAttributes { get; set; } = new Dictionary<string, string>();
 
         public void SetFailureStatus()
         {
@@ -76,7 +70,7 @@ namespace TameMyCerts.Models
             Description.AddRange(descriptionList);
         }
 
-        private void SetNotAfter(string desiredNotAfter)
+        public void SetNotAfter(string desiredNotAfter)
         {
             if (desiredNotAfter == string.Empty)
             {
@@ -87,14 +81,14 @@ namespace TameMyCerts.Models
             if (DateTimeOffset.TryParseExact(desiredNotAfter, "o", CultureInfo.InvariantCulture.DateTimeFormat,
                     DateTimeStyles.AssumeUniversal, out var notAfter))
             {
-                if (notAfter < DateTimeOffset.UtcNow)
+                if (notAfter > DateTimeOffset.UtcNow)
                 {
-                    SetFailureStatus(WinError.ERROR_INVALID_TIME,
-                        string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed, notAfter.UtcDateTime));
+                    if (notAfter <= NotAfter) NotAfter = notAfter;
                 }
                 else
                 {
-                    NotAfter = notAfter;
+                    SetFailureStatus(WinError.ERROR_INVALID_TIME,
+                        string.Format(LocalizedStrings.ReqVal_Err_NotAfter_Passed, notAfter.UtcDateTime));
                 }
             }
             else

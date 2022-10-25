@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models
 {
@@ -63,9 +64,8 @@ namespace TameMyCerts.Models
                 {
                     Name = templateName,
                     Oid = ((string[]) templateSubKey.GetValue("msPKI-Cert-Template-OID"))[0],
-                    EnrolleeSuppliesSubject = (CertCa.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT & nameFlags) ==
-                                              CertCa.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT,
-                    UserScope = (CertCa.CT_FLAG_MACHINE_TYPE & flags) != CertCa.CT_FLAG_MACHINE_TYPE
+                    EnrolleeSuppliesSubject = ((SubjectNameFlag) nameFlags).HasFlag(SubjectNameFlag.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT),
+                    UserScope = !((GeneralFlag) flags).HasFlag(GeneralFlag.CT_FLAG_MACHINE_TYPE)
                 });
             }
 
