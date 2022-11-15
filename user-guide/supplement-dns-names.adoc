@@ -1,0 +1,17 @@
+﻿== Supplementing DNS Names and IP Addresses
+
+link:https://www.rfc-editor.org/rfc/rfc2818[RFC 2818^] states that identities in certificates intended to be used with HTTP over TLS (aka HTTPS) shall get presented in form of one or more entries of type _dNSName_ in the Subject Alternative Name. It is deprecated and discouraged to use the commonName in the Subject Distinguished Name for this purpose. Google started to enforce the RFC in 2019, so any browser that is based on Chromium (e.g. Chrome, Edge, Opera) will distrust HTTPS certificates that dont contain a Subject Alternative Name.
+
+Sadly, some applications are still unable to generate appropriate certificate requests. The feature for supplementing DNS names allows to move all DNS names or IP addresses that are found in the commonName of a certificate request into a newly-constructed Subject Alternative Name certificate extension. Therefore, non-compliant certificate requests are automatically made compliant.
+
+=== Configuring
+
+You enable the feature by configuring *SupplementDnsNames* directive.
+
+....
+<SupplementDnsNames>true</SupplementDnsNames>
+....
+
+NOTE: This will also mean you will have to make the commonName mandatory in your policy.
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,26 @@
+﻿== Installing the TameMyCerts policy module
+
+To install the module, first create a directory on the certification authority where you intend to store the policy definition files. Then run *install.ps1* as Administrator. You must specify the *-PolicyDirectory* Parameter which specifies the local path for the XML config files you define for each certificate template.
+
+Example:
+
+....
+.\Install.ps1 -PolicyDirectory C:\PKIDATA\Policy
+....
+
+NOTE: The install script restarts the certification authority service during installation and uninstallation.
+
+NOTE: As the policy module daisy-chains the Windows default policy module, it also uses all of it's registry settings. Therefore, the install script copies this data from the Windows Default module's Registry key to a new one for the TameMyCerts policy module. Each change you perform with certutil commands that would configure the Windows Default policy module is now written to the TameMyCerts policy module's Registry key. If you should decide to uninstall it later on, the settings get copied back so that they stay consistent.
+
+NOTE: Do not install the module on a standalone certification authority. Only install it on certification authorities that are integrated into Active Directory (Enterprise CA).
+
+WARNING: Always create a backup before applying any change to the certification authority configuration.
+
+The script will register the module, create the required registry values and configure the policy module as the active one for the certification authority.
+
+=== See also
+
+* link:prerequisites.adoc[Prerequisites]
+* link:uninstalling.adoc[Uninstalling the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,43 @@
+﻿== Configuring the TameMyCerts policy module
+
+The TameMyCerts policy module uses XML files to describe what shall be done with incoming certificate requests for a given certificate template.
+
+=== Creating a policy configuration file
+
+Create a policy file in XML format for each certificate template you want to apply a policy for in the folder you specified during link:installing.adoc[installation].
+
+Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined. E.g. if your certificate template is named "ADCSLaborWebServer" the you create a policy configuration file named "ADCSLaborWebServer.xml".
+
+NOTE: The policy configuration files get loaded each time a certificate request is processed. Therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
+
+You can then configure the file as desired.
+
+** link:audit-only-mode.adoc[Audit only mode]
+** link:key-rules.adoc[Rules for the private key]
+** link:csp-rules.adoc[Rules for Cryptographic Service Providers (CSP) and Key Storage Providers (KSP)]
+** link:process-rules.adoc[Rules for processes creating the certificate request]
+** link:subject-rules.adoc[Rules for the Subject Distinguished Name (DN)]
+** link:san-rules.adoc[Rules for the Subject Alternative Name (SAN)]
+** link:supplement-dns-names.adoc[Supplementing DNS Names and IP Addresses]
+** link:enddate.adoc[Configuring a fixed expiration date for all issued certificates]
+** link:ds-mapping.adoc[Configuring Directory Services mapping]
+** link:sid-extension.adoc[Working with the Security Identifier (SID) certificate extension]
+** link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)]
+
+NOTE: The Active Directory Certificate Services distinguish between certificate requests for certificate templates that are configured to build the subject information from Active directory (called _"online"_ requests) and for such that are configured to have the enrollee supply the subject information with the requests (called _"offline"_ requests). Some of the settings described apply only to offline requests and will have no effect when configured for offline certificate templates.
+
+=== Examples
+
+See the supplied example policy files to get started:
+
+* link:examples/Sample_Offline_Computer_SidExtension.xml[Sample_Offline_Computer_SidExtension.xml]
+* link:examples/Sample_Offline_User.xml[Sample_Offline_User.xml]
+* link:examples/Sample_Offline_User_SidExtension.xml[Sample_Offline_User_SidExtension.xml]
+* link:examples/Sample_Offline_Webserver.xml[Sample_Offline_Webserver.xml]
+* link:examples/Sample_Online_User_NotAfter.xml[Sample_Online_User_NotAfter.xml]
+* link:examples/Sample_Online_User_TPM.xml[Sample_Online_User_TPM.xml]
+
+=== See also
+* link:installing.adoc[Installing the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,41 @@
+﻿== Rules for processes creating the certificate request
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+Certificate requests can contain information about which process was used to create the key pair. This information can be used to apply a policy which processes are permitted to get a certificate issued and which are not (e.g. you want to allow only Autoenrollment but not manually requesting a certificate).
+
+NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, link:https://www.powershellgallery.com/packages/PSCertificateEnrollment[PSCertificateEnrollment^] and similar apps) will contain information about the process that was used to create the certificate request.
+
+NOTE: Please be also aware that the provider information can be manipulated during the request creation process.
+
+=== Configuring
+
+The *AllowedProcesses* directive contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
+
+The *DisallowedProcesses* directive contains a list of one or more process names that are disallowed to get a certificate issued. For example, if you would like to deny certificate enrollment via certreq.exe, you could enter it here.
+
+=== Examples
+
+Example (some processes are whitelisted, all others are forbidden):
+
+....
+<AllowedProcesses>
+  <string>taskhostw.exe</string>
+  <string>powershell.exe</string>
+</AllowedProcesses>
+....
+
+Example (some processes are blacklisted, all others are allowed):
+
+....
+<DisallowedProcesses>
+  <string>mmc.exe</string>
+  <string>powershell.exe</string>
+</DisallowedProcesses>
+....
+
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

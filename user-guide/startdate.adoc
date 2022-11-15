@@ -1,0 +1,35 @@
+﻿== Issuing Certificates with an exactly defined validity period
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+The Windows Default policy module link:https://www.gradenegger.eu/?p=6502[allows to specify the exact expiration date^] (NotAfter) for a certificate by specifying an "ExpirationDate" attribute whilst submitting the certificate request. TameMyCerts adds support for a "StartDate" attribute which does the exact same for the begin of the certificate's validity period (the "NotBefore" certificate property).
+
+=== Configuring
+
+To enable the feature, you must enable the EDITF_ATTRIBUTEENDDATE flag for the policy module of the certification authority and restart the certification authority service afterwards.
+
+....
+certutil -setreg Policy\Editflags +EDITF_ATTRIBUTEENDDATE
+net stop certsvc
+net start certsvc
+....
+
+Now you both can specify *StartDate* and *ExpirationDate* request attribute in link:https://datatracker.ietf.org/doc/html/rfc2616[RFC 2616^] compliant form whilst submitting the certificate request.
+
+Example (certificate will be valid from Mar 1, 2022 08:00 unto Mar 1, 2022 16:00):
+
+....
+certreq ^
+-config "ca02.intra.adcslabor.de\ADCS Labor Issuing CA 1" ^
+-attrib "CertificateTemplate:ADCSLaborWebServer\nStartDate:Tue, 1 Mar 2022 08:00:00 GMT\nExpirationDate:Tue, 1 Mar 2022 16:00:00 GMT" ^
+-submit "SomeWebServer.req"
+....
+
+NOTE: When an invalid date is being requested, the certificate request will get denied with ERROR_INVALID_TIME.
+
+NOTE: TameMyCerts currently only supports specifying "StartDate" whilst submitting the certificate request but not as custom attributes within the certificate request itself. The alternative method of specifying "ValidityPeriod" and "ValidityPeriodUnits" for the expiration date can currently not be used in combination with the "StartDate" attribute as it gets applied afterwards and thus won't deliver the expected result.
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

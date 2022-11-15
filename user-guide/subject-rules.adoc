@@ -1,0 +1,138 @@
+﻿== Configuring rules for subject relative distinguished names (RDNs)
+
+NOTE: Applies only *offline* certificate templates.
+
+TameMyCerts allows to take control about which certificate content can be requested vis an "offline" certificate template.
+
+You can apply the following rules:
+* Ensure that a specific field is present in the Subject DN
+* Ensure that a specific field is present only a specified number of times
+* Ensure that a specific field contains a value, or that the value does not exceed a specific length
+* Allow optional fields in the Subject DN (but not enforce them)
+* Ensure that a specific field conforms to one or more regular expression
+* Ensure that a specific field conforms to one or more CIDR mask (if the field content is an IP address)
+
+=== Configuring
+
+Rules for subject RDNs get specified within a "SubjectRule" node under "Subject" section.
+
+NOTE: Any subject RDN that is not defined is considered forbidden and will result in any certificate request containing it getting denied.
+
+A "SubjectRule" can/must contain the following nodes:
+
+|===
+|Parameter |Mandatory |Description
+
+|Field
+|*yes*
+|Specifies the type of the field. See the below list for possible values. *Please be aware that this field is case-sensitive.*
+
+|Mandatory
+|no
+|Specifies if this field *must* (true) or *may* (false) appear in the certificate request presented. Defaults to "false".
+
+|MaxOccurrences
+|no
+|Specifies how often this field may appear within a certificate request. Should always be 1 for must subject RDN types. Defaults to 1.
+
+|MinLength
+|no
+|Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to 1. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the Patterns directive.
+
+|MaxLength
+|no
+|Specifies the maximum amount of characters the field may contain. Defaults to 128. Note that link:https://www.gradenegger.eu/?p=2717[there is also an upper limit set by the certification authority^]. Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the Patterns directive.
+
+|Patterns
+|*yes*
+|For any field type you can define one or more "Pattern" directives describing expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you would want to allow any content, simply configure a Pattern directive with "^.*$" as expression.
+
+|===
+
+The "Pattern" Parameter is defined as follows:
+
+|===
+|Parameter |Mandatory |Description
+
+|Expression
+|*yes*
+|Specifies the expression the field gets matched against.
+
+|TreatAs
+|no
+|Specifies how the expression is to be interpreted by TameMyCerts. Supported values are "RegEx" for a regular expression (the default) or "Cidr" to match against an IP subnet in CIDR notation (e.g. 192.168.0.0/16). To allow any IP Address, specify 0.0.0.0/0.
+
+|Action
+|no
+|Specifies if a match for the pattern will "Allow" the certificate to get issued (the default) or "Deny" the certificate request.
+
+|===
+
+To define a policy for one or more subject Relative Distinguished Name (RDN) types, adjust the "field" to one of the following (as defined in link:https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520[ITU-T X.520^] and link:https://datatracker.ietf.org/doc/html/rfc4519#section-2[RFC 4519^]).
+
+NOTE: Each RDN type can only be defined once in a policy definition file!
+
+The following RDN types are enabled/allowed by default on AD CS:
+
+* countryName
+* commonName
+* domainComponent
+* emailAddress
+* organizationName
+* organizationalUnitName
+* localityName
+* stateOrProvinceName
+
+The following RDNs can additionally be defined but must also explicitly be enabled in the certification authority configuration (by modifying the link:https://www.gradenegger.eu/?p=10183[SubjectTemplate^] Registry value):
+
+* givenName
+* initials
+* surname
+* streetAddress
+* title
+* unstructuredName
+* unstructuredAddress
+* serialNumber
+
+It is also possible to enable any kind of RDNs in AD CS if the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag is enabled. This should enable the following:
+
+* postalCode
+* description
+* postOfficeBox
+* telephoneNumber
+* any "unknown" (not identified by one of the above names) RDN can be specified by using it's object identifier. The OID must be specified with an "OID." prefix, e.g. "OID.1.2.3.4.5".
+
+NOTE: Usually, it is recommended to avoid enabling the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag, but when using this policy module, it should be fine as it allows fine-grained control about which RDN types are allowed and which not.
+
+NOTE: Please be aware that the SubjectTemplate value of the CA uses a different syntax for field type names.
+
+NOTE: Under certain circumstances, it is also possible to link:modify-subject-dn.adoc[modify the Subject Distinguished Name (DN)] using values from a link:ds-mapping.adoc[mapped Active Directory object].
+
+=== Examples
+
+....
+<Subject>
+    <SubjectRule>
+        <Field>commonName</Field>
+        <Mandatory>true</Mandatory>
+        <MaxOccurrences>1</MaxOccurrences>
+        <MaxLength>64</MaxLength>
+        <Patterns>
+            <Pattern>
+                <Expression>^[-_a-zA-Z0-9]*\.adcslabor\.de$</Expression>
+            </Pattern>
+            <Pattern>
+                <Expression>^.*(porn|gambling).*$</Expression>
+                <Action>Deny</Action>
+            </Pattern>
+        </Patterns>
+    </SubjectRule>
+</Subject>
+....
+
+=== See also
+* link:san-rules.adoc[Rules for the Subject Alternative Name (SAN)]
+* link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)]
+* link:ds-mapping.adoc[Configuring Directory Services mapping]
+
+link:index.adoc[Back to Start]

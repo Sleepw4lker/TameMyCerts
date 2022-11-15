@@ -1,0 +1,38 @@
+﻿== Monitoring and Troubleshooting
+
+If a certificate request violates the defined policy, the certification authority will deny it with one of the below error codes and messages. It will log link:https://www.gradenegger.eu/?p=8544[Event with ID 53^]. The error code/message will also be handed over to the requesting client over the DCOM protocol as answer to the certificate request.
+
+The following error codes can be thrown by the policy module when a request was denied:
+
+|===
+|Message |Symbol |Description
+
+|The permissions on the certificate template do not allow the current user to enroll for this type of certificate.
+|CERTSRV_E_TEMPLATE_DENIED
+|Occurs if the process used to create the certificate request is unknown, not allowed or explicitly disallowed.
+
+|The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.
+|CERT_E_INVALID_NAME
+|Occurs if the request's subject oder subject alternative name violates the defined rules.
+
+|The public key does not meet the minimum size required by the specified certificate template.
+|CERTSRV_E_KEY_LENGTH
+|Occurs if the request's public key violates the defined rules for key algorithm or maximum key length.
+
+|The request subject name is invalid or too long.
+|CERTSRV_E_BAD_REQUESTSUBJECT
+|Occurs if the request's subject string cannot be interpreted by the policy module.
+
+|An internal error occurred.
+|ERROR_INVALID_DATA
+|Occurs if the policy module is unable to interpret the given policy file.
+
+|The specified time is invalid.
+|ERROR_INVALID_TIME
+|Occurs if an invalid date was requested for the "StartDate" certificate request attribute.
+
+|===
+
+WARNING: Please be aware that if no policy file exists for a given certificate template, the request gets accepted as this would be the original behavior of the Windows Default policy module.
+
+link:index.adoc[Back to Start]

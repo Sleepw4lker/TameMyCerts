@@ -1,0 +1,23 @@
+﻿== Prerequisites
+
+=== Supported Operating Systems
+
+The module was successfully tested and is supported with the following operating systems:
+
+* Windows Server 2022
+* Windows Server 2019
+* Windows Server 2016
+* Windows Server 2012 R2
+
+NOTE: Older operating systems are not supported.
+
+=== Software prerequisites
+
+For Windows Server 2016 and below, link:https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-7-2-offline-installer-for-windows-05a72734-2127-a15d-50cf-daf56d5faec2[.NET Framework 4.7.2^] must be installed.
+
+=== See also
+
+* link:installing.adoc[Installing the module]
+* link:uninstalling.adoc[Uninstalling the module]
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,203 @@
+﻿== Modifying the Subject Distinguished Name (DN)
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+TamyMyCerts allows modifying the Subject Distinguished Name (DN) of a certificate before it gets issued. It is capable of retrieving properties from a mapped Active Directory Object and put these values into the Subject DN of a certificate.
+
+This is useful in the following scenarios:
+* Certificates issued via Autoenrollment shall have another value as the "cn" Attribute for the commonName.
+* Certificates shall contain additional Relative Distinguished Names that have not been requested by the enrollee.
+
+=== Configuring
+
+You configure rules within the link:ds-mapping.adoc[DirectoryServicesMapping] directive. You define a *SubjectDistinguishedName* directive containing *RelativeDistinguishedName* rules.
+
+The RelativeDistinguishedName rules can be configured as follows:
+
+|===
+|Parameter |Mandatory |Description
+
+|Field
+|yes
+|The Relative Distinguished Name that shall be populated
+
+|DirectoryServicesAttribute
+|yes
+|The attribute of the mapped object that shall be put into the RDN.
+
+|Mandatory
+|yes
+|Specified if the attribute may be omitted if it is invalid or empty. If set to "true", requests will get denied in such a case.
+
+|===
+
+You may specify the following Relative Distinguished Names (RDN) for the "Field" directive:
+
+|===
+|RDN |Maximum length |Typical AD attributes |Remarks
+
+|emailAddress
+|128
+|mail
+|
+
+|commonName
+|64
+|name, sAMAccountName, displayName, userPrincipalName
+|
+
+|organizationName
+|64
+|company
+|
+
+|organizationalUnitName
+|64
+|department
+|
+
+|localityName
+|128
+|l
+|
+
+|stateOrProvinceName
+|128
+|st
+|
+
+|countryName
+|2
+|c
+|
+
+|title
+|64
+|title
+|not enabled by default
+
+|givenName
+|16
+|givenName
+|not enabled by default
+
+|initials
+|5
+|initials
+|not enabled by default
+
+|surname
+|40
+|sn
+|not enabled by default
+
+|streetAddress
+|30
+|streetAddress
+|not enabled by default
+
+|unstructuredName
+|1024
+|n/a
+|
+
+|unstructuredAddress
+|1024
+|n/a
+|
+
+|serialNumber
+|1024
+|n/a
+|
+
+|===
+
+The following Active Directory attributes are supported as "DirectoryServicesAttribute":
+
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-c[c^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-co[co^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-company[company^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-department[department^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-departmentNumber[departmentNumber^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-description[description^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-displayName[displayName^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-division[division^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-dNSHostName[dNSHostName^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeID[employeeID^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeNumber[employeeNumber^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeType[employeeType^]
+* extensionAttribute1
+* extensionAttribute2
+* extensionAttribute3
+* extensionAttribute4
+* extensionAttribute5
+* extensionAttribute6
+* extensionAttribute7
+* extensionAttribute8
+* extensionAttribute9
+* extensionAttribute12
+* extensionAttribute10
+* extensionAttribute12
+* extensionAttribute11
+* extensionAttribute12
+* extensionAttribute13
+* extensionAttribute14
+* extensionAttribute15
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-facsimileTelephoneNumber[facsimileTelephoneNumber^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-gecos[gecos^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-givenName[givenName^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePhone[homePhone^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePostalAddress[homePostalAddress^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-info[info^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-initials[initials^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-l[l^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-location[location^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mail[mail^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mailNickname[mailNickname^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-middleName[middleName^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mobile[mobile^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-name[name^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMailbox[otherMailbox^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMobile[otherMobile^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherPager[otherPager^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherTelephone[otherTelephone^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-pager[pager^]
+* personalPager
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-personalTitle[personalTitle^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalAddress[postalAddress^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalCode[postalCode^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postOfficeBox[postOfficeBox^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sAMAccountName[sAMAccountName^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sn[sn^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-st[st^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-street[street^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-streetAddress[streetAddress^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-telephoneNumber[telephoneNumber^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-telexNumber[telexNumber^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-title[title^]
+* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-userPrincipalName[userPrincipalName^]
+
+=== Examples
+
+....
+<DirectoryServicesMapping>
+    <SubjectDistinguishedName>
+        <RelativeDistinguishedName>
+            <Field>commonName</Field>
+            <DirectoryServicesAttribute>userPrincipalName</DirectoryServicesAttribute>
+            <Mandatory>true</Mandatory>
+        </RelativeDistinguishedName>
+        <RelativeDistinguishedName>
+            <Field>emailAddress</Field>
+            <DirectoryServicesAttribute>mail</DirectoryServicesAttribute>
+        </RelativeDistinguishedName>
+    </SubjectDistinguishedName>
+</DirectoryServicesMapping>
+....
+
+=== See also
+
+* link:ds-mapping.adoc[Configuring Directory Services mapping]
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,21 @@
+﻿== How it works
+
+Active Directory Certificate Services (AD CS) uses a link:https://learn.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] mainly for two purposes:
+
+* Decide if a certificate request shall get issued
+* Build the content of the certificate to be issued
+
+AD CS ships with a policy module (called "Windows Default"), which is strong for "online" certificate templates, but not for "offline" certificate templates.
+
+The caveat in developing a custom policy module is that there can only be one module active at a time. Usually this means that all the functionality of the Windows Default policy module would have to be replicated by the custom module. As this is nearly impossible to achieve, Microsoft link:https://learn.microsoft.com/en-us/windows/win32/seccrypto/writing-custom-modules[even recommends against using custom policy modules for Enterprise Certification Authorities^].
+
+TameMyCerts solves the issue: It shims the Windows Default policy module, which means all the original functionality is preserves, but allows to apply additional checks.
+
+It passes incoming certificate requests to the Windows Default policy module and only gets active afterwards, if a link:configuring.adoc[configuration] has been made. This means all certificate templates that don't have a policy configuration file specified are completely left untouched and behave exactly as without having TameMyCerts installed.
+
+This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^] link:https://github.com/Sleepw4lker/capolmod/blob/main/Installer/Installer.wixproj[by Microsoft themselves^].
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

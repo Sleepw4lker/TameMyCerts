@@ -1,0 +1,45 @@
+﻿== Configuring rules for Subject Alternative Names
+
+NOTE: Applies only to *offline* certificate templates.
+
+Rules for the Subject Alternative Name (SAN) of a certificate request can get applied the exact same way as link:subject-rules.adoc[Rules for the Subject Distinguished Name (DN)].
+
+=== Configuring
+
+Rules for subject RDNs get specified within a "SubjectRule" node under "Subject" section.
+
+To define a policy for one or more subject alternative name (SAN) type, adjust the "field" to one of the following (as defined in link:https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.6[RFC 5280^] with the exception of the (Microsoft-)proprietary userPrincipalName).
+
+* dNSName
+* iPAddress
+* userPrincipalName
+* rfc822Name
+* uniformResourceIdentifier
+
+NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for the majority of use cases.
+
+NOTE: Under certain circumstances, it is also posisble to link:supplement-dns-names.adoc[supplement DNS Names and IP Addresses from the Subject Distinguished Name into the Subject Alternative Name extension].
+
+=== Examples
+
+....
+<SubjectAlternativeName>
+    <SubjectRule>
+        <Field>userPrincipalName</Field>
+        <Mandatory>false</Mandatory>
+        <MaxOccurrences>1</MaxOccurrences>
+        <MaxLength>64</MaxLength>
+        <Patterns>
+            <Pattern>
+                <Expression>^[-_a-zA-Z0-9\.]*\@intra\.adcslabor\.de$</Expression>
+            </Pattern>
+        </Patterns>
+    </SubjectRule>
+<SubjectAlternativeName>
+....
+
+=== See also
+* link:subject-rules.adoc[Rules for the Subject Distinguished Name (DN)]
+** link:supplement-dns-names.adoc[Supplementing DNS Names and IP Addresses]
+
+link:index.adoc[Back to Start]

@@ -1,0 +1,46 @@
+﻿== Working with the Security Identifier (SID) certificate extension
+
+NOTE: Applies only to *offline* certificate templates.
+
+The security identifier certificate extension was introduced by Microsoft with the link:https://support.microsoft.com/en-us/topic/kb5014754-certificate-based-authentication-changes-on-windows-domain-controllers-ad2c23b0-15d8-4340-a468-4d4f3b188f16[May 2022 cumulative update for Windows Server (KB5014754)^]. The patch causes Active Directory to require this certificate extension to process certificate-bases logons. There is a compytibility mode, which wil automatically get disabled on May 9th, 2023. As Microsoft only ensured that the extension will be present in certificates originating from online certificate templates, this probably will cause trouble when certificates originating from offline certificate templates (e.g. mobile devices managed by Intune, AirWatch/Workspace One, MobileIron and the like) are used for certificate-bases logons against Active Directory. A popular example is Wifi or VPN logons that use the Microsoft Network Policy Server.
+
+TameMyCerts is able to process the new certificate extension in a variety of ways:
+
+* Deny requests containg the extension
+* Pass the extension as-is into the issued certificate
+* Add the extension from the proprties of a mapped Active Directory object
+* Remove the extension if requested
+
+=== Configuring
+
+If TameMyCerts shall process the SID certificate extension, you configure it with the *SecurityIdentifierExtension* directive within a policy configuration file.
+
+Example:
+
+....
+<SecurityIdentifierExtension>Add</SecurityIdentifierExtension>
+....
+
+You can configure four modes:
+
+|===
+|Action |Description
+
+|Deny (default)
+|All certificate requests that contain a security identifier certificate extension will get denied if this is set.
+
+|Allow
+|If a certificate request contains a security identifier extension, it will get passed as-is into the issued certificate.
+
+|Add
+|Adds the value of the link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-objectsid[objectSid^] attribute of the Active Directory object belonging to the certificate request to the issued certificate. Can therefore only be used in combination with link:configuring-ds-mapping[Directory Services mapping].
+
+|Remove
+|If a certificate request contains a security identifier extension, it will not get passed into the issued certificate.
+
+|===
+
+=== See also
+* link:ds-mapping.adoc[Configuring Directory Services mapping]
+
+link:index.adoc[Back to Start]

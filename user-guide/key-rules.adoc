@@ -1,0 +1,30 @@
+﻿=== Configuring rules for the private key
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+The "Windows Default" policy is only capable to enforce a minimum key length, but not the key algorithm and not the maximum key length to be used. This may lead to issuance of certificates using weak keys, e.g. when submitting a request using a small RSA key to a certificate template that is configured to use an ECC key.
+
+=== Configuring
+
+You can specify the following parameters for the private key:
+
+The *KeyAlgorithm* directive specifies the key algorithm the certificate request must use. At the moment, this can be "RSA" or "ECC" (which covers both ECDH and ECDSA). Defaults to "RSA".
+
+The *MinimumKeyLength* directive specifies the minimum key length the certificate request must use. Defaults to "0" (any key size is allowed).
+
+NOTE: Note that though the Windows Default policy module also verifies this, this may become handy in a migration scenario where you publish the same template both on the old and new certification authority and plan to increase key size when switching to the new one whilst keeping the productive system unchanged.
+
+The *MaximumKeyLength* directive specifies the maximum key length the certificate request can use. Defaults to "0" (any key size is allowed).
+
+=== Examples
+
+....
+<KeyAlgorithm>RSA</KeyAlgorithm>
+<MinimumKeyLength>2048</MinimumKeyLength>
+<MaximumKeyLength>4096</MaximumKeyLength>
+....
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

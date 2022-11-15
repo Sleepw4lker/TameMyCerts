@@ -1,0 +1,22 @@
+﻿== Configuring a fixed expiration date for all issued certificates
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+TameMyCerts allows to configure certificates issued for a specific certificate template to expire at an exactly configured point in time. This can be useful in scenarios where you want to ensure that e.g. certificates with weak keys get phased out unti a specified time frame.
+
+=== Configuration
+
+You configure the expiration date with the *NotAfter* directive in your policy configuration file.
+
+The time gets specified as an ISO 8601 compliant string in the syntax of "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffffffzzz". See link:https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings[here^] for further explanation.
+
+Example (all certificates expire on Dec 31, 2022 23:59 Berlin time):
+
+....
+<NotAfter>2022-12-31T23:59:59.0000000+01:00</NotAfter>
+....
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

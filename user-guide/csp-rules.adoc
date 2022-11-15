@@ -1,0 +1,39 @@
+﻿== Rules for Cryptographic Service Providers (CSP) and Key Storage Providers (KSP)
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+Certificate requests can contain information about which link:https://www.gradenegger.eu/?p=15564[cryptographic provider^] was used to create the key pair. This information can be used to apply a policy which providers are permitted to get a certificate issued and which are not.
+
+NOTE: Please be aware that only certificate requests that have been made with the Microsoft API (e.g. Autoenrollment, MMC, certreq, link:https://www.powershellgallery.com/packages/PSCertificateEnrollment[PSCertificateEnrollment^] and similar apps) will contain information about the provider that was used to create the certificate request.
+
+NOTE: Please be also aware that the provider information can be manipulated during the request creation process. Therefore, this method is less secure than serious attestation methods for TPM or Smartcards.
+
+=== Configuring
+
+The *AllowedCryptoProviders* directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate request's private key. For example, you could configure a certificate template to use the machine's Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy would only permit requests for the Microsoft Platform Crypto Provider to be issued. This way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests. 
+
+The *DisallowedCryptoProviders* directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate request's private key.
+
+=== Examples
+
+Example (some providers are whitelisted, all others are forbidden):
+
+....
+<AllowedCryptoProviders>
+  <string>Microsoft Platform Crypto Provider</string>
+  <string>Microsoft Software Key Storage Provider</string>
+</AllowedCryptoProviders>
+....
+
+Example (some providers are blacklisted, all others are allowed):
+
+....
+<DisallowedCryptoProviders>
+  <string>Microsoft Platform Crypto Provider</string>
+</DisallowedCryptoProviders>
+....
+
+=== See also
+* link:configuring.adoc[Configuring the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

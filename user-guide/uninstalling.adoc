@@ -1,0 +1,18 @@
+﻿== Uninstalling the TameMyCerts policy module
+
+To uninstall the module, run *install.ps1* as Administrator. You must specify the *-Uninstall* parameter.
+
+Example:
+
+....
+.\Install.ps1 -Uninstall
+....
+
+The script will unregister the module, copy the registry settings back and configure the Windows Default policy module as the active one.
+
+=== See also
+
+* link:prerequisites.adoc[Prerequisites]
+* link:installing.adoc[Installing the TameMyCerts policy module]
+
+link:index.adoc[Back to Start]

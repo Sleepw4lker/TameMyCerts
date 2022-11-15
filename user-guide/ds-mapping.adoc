@@ -1,0 +1,72 @@
+﻿== Configuring Directory Services mapping
+
+NOTE: Applies to *online* and *offline* certificate templates.
+
+Directory Services mapping allows you to map an identity in a certificate request back to an Active Directory object. This way, a variety of policies can be applied, containing:
+
+* Verify that there is a user or computer object to which the certificate request belongs.
+* Verify that the object is not disabled.
+* Verify that the object is located in a specific Organizational Unit (OU).
+* Verify that the object is member of a specific security group.
+* Verify that the object is not member of a specific security group.
+* Enable features like supplementing the link:sid-extension.adoc[Security Identifier (SID) certificate extension] or to link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)].
+
+=== Configuring
+
+Rules for Directory Mapping get specified within the *DirectoryServicesMapping* node.
+
+Example (enabling the mapping with default values for user objects):
+
+....
+<DirectoryServicesMapping />
+....
+
+Example (enabling the mapping with default values for computer objects):
+....
+<DirectoryServicesMapping>
+  <CertificateAttribute>dNSName</CertificateAttribute>
+  <DirectoryServicesAttribute>dNSHostName</DirectoryServicesAttribute>
+  <ObjectCategory>computer</ObjectCategory>
+</DirectoryServicesMapping>
+....
+
+|===
+|Parameter |Mandatory |Description
+
+|CertificateAttribute
+|no
+|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName".
+
+|DirectoryServicesAttribute
+|no
+|The attribute of the Active Directory object that must match the certificate attribute. May be "cn", "name", "sAMAccountName", "userPrincipalName" or "dNSHostName". Defaults to "userPrincipalName".
+
+|ObjectCategory
+|no
+|The categopry of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user".
+
+|SearchRoot
+|no
+|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.
+
+|AllowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must be member of (at least one of them).
+
+|DisallowedSecurityGroups
+|no
+|A list of distinguished names of security groups the account must *not* be member of (at least one of them).
+
+|PermitDisabledAccounts
+|no
+|Permits certificates to get issued even if the Active Directory object is disabled.
+
+|===
+
+NOTE: Please be aware that it is currently *not* possible to use the Primary Group of an AD object (Domain Users, Domain Guests, Domain Computers, Domain Controllers) for filtering.
+
+=== See also
+* link:sid-extension.adoc[Working with the Security Identifier (SID) certificate extension]
+* link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)]
+
+link:index.adoc[Back to Start]
