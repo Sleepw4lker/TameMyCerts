@@ -130,9 +130,9 @@ namespace TameMyCerts
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
             }
 
-            var templateInfo = _templateInfo.GetTemplate(templateOid);
+            var certificateTemplate = _templateInfo.GetTemplate(templateOid);
 
-            if (templateInfo == null)
+            if (certificateTemplate == null)
             {
                 _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL, requestId);
                 return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
@@ -142,11 +142,11 @@ namespace TameMyCerts
 
             #region Process request policies
 
-            var policyFile = Path.Combine(_caConfig.PolicyDirectory, $"{templateInfo.Name}.xml");
+            var policyFile = Path.Combine(_caConfig.PolicyDirectory, $"{certificateTemplate.Name}.xml");
 
             if (!File.Exists(policyFile))
             {
-                _logger.Log(Events.POLICY_NOT_FOUND, templateInfo.Name, requestId, policyFile);
+                _logger.Log(Events.POLICY_NOT_FOUND, certificateTemplate.Name, requestId, policyFile);
                 return result;
             }
 
@@ -173,22 +173,22 @@ namespace TameMyCerts
                 var requestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
                                   CertCli.CR_IN_FULLRESPONSE;
 
-                validationResult = _requestValidator.VerifyRequest(validationResult, requestPolicy, templateInfo,
-                    request, requestType);
+                validationResult = _requestValidator.VerifyRequest(
+                    validationResult, requestPolicy, certificateTemplate, request, requestType);
             }
 
             if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping)
             {
-                if (!templateInfo.EnrolleeSuppliesSubject)
+                if (!certificateTemplate.EnrolleeSuppliesSubject)
                 {
                     var upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN");
-                    validationResult.Identities.Add(templateInfo.UserScope
+                    validationResult.Identities.Add(certificateTemplate.UserScope
                         ? new KeyValuePair<string, string>("userPrincipalName", upn)
                         : new KeyValuePair<string, string>("dNSName", upn.Replace("$@", ".")));
                 }
 
-                validationResult =
-                    _directoryServicesValidator.VerifyRequest(validationResult, requestPolicy, templateInfo);
+                validationResult = _directoryServicesValidator.VerifyRequest(
+                    validationResult, requestPolicy, certificateTemplate);
             }
 
             #endregion
@@ -197,10 +197,11 @@ namespace TameMyCerts
 
             if (!validationResult.DeniedForIssuance && !validationResult.AuditOnly)
             {
-                validationResult.Extensions.ToList().ForEach(x => serverPolicy.SetCertificateExtension(x.Key, x.Value));
                 validationResult.DisabledExtensions.ForEach(x => serverPolicy.DisableCertificateExtension(x));
-                validationResult.Properties.ForEach(x => serverPolicy.SetCertificateProperty(x.Key, x.Value));
+                validationResult.Extensions.ToList().ForEach(x => serverPolicy.SetCertificateExtension(x.Key, x.Value));
+
                 validationResult.DisabledProperties.ForEach(x => serverPolicy.DisableCertificateProperty(x));
+                validationResult.Properties.ForEach(x => serverPolicy.SetCertificateProperty(x.Key, x.Value));
 
                 serverPolicy.SetCertificateProperty("NotBefore", validationResult.NotBefore);
                 serverPolicy.SetCertificateProperty("NotAfter", validationResult.NotAfter);
@@ -210,7 +211,7 @@ namespace TameMyCerts
 
             if (validationResult.AuditOnly)
             {
-                _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, templateInfo.Name,
+                _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, certificateTemplate.Name,
                     string.Join("\n", validationResult.Description));
                 return result;
             }
@@ -219,7 +220,7 @@ namespace TameMyCerts
 
             #region Deny request
 
-            _logger.Log(Events.REQUEST_DENIED, requestId, templateInfo.Name,
+            _logger.Log(Events.REQUEST_DENIED, requestId, certificateTemplate.Name,
                 string.Join("\n", validationResult.Description));
 
             // Seems that lower error codes must be thrown as exception
