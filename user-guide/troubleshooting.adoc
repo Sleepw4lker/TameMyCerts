@@ -1,8 +1,14 @@
 ﻿== Monitoring and Troubleshooting
 
-If a certificate request violates the defined policy, the certification authority will deny it with one of the below error codes and messages. It will log link:https://www.gradenegger.eu/?p=8544[Event with ID 53^]. The error code/message will also be handed over to the requesting client over the DCOM protocol as answer to the certificate request.
+WARNING: Please be aware that if no policy file exists for a given certificate template, the request gets accepted as this would be the original behavior of the Windows Default policy module.
 
-The following error codes can be thrown by the policy module when a request was denied:
+If a certificate request violates the defined policy, the certification authority will deny it with one of the below error codes and messages. The CA will log link:https://www.gradenegger.eu/?p=8544[Event with ID 53^]. The error code/message will also be handed over to the requesting client over the DCOM protocol as answer to the certificate request.
+
+NOTE: TameMyCerts will also write its own link:logs.adoc[Logs] which contain detailled information about why a certificate request was denied, amongst others.
+
+=== Error Codes
+
+The following error codes can be thrown by the policy module back to the requestor when a request was denied:
 
 |===
 |Message |Symbol |Description
@@ -32,7 +38,5 @@ The following error codes can be thrown by the policy module when a request was 
 |Occurs if an invalid date was requested for the "StartDate" certificate request attribute.
 
 |===
-
-WARNING: Please be aware that if no policy file exists for a given certificate template, the request gets accepted as this would be the original behavior of the Windows Default policy module.
 
 link:index.adoc[Back to Start]
