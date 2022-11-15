@@ -138,39 +138,39 @@ namespace TameMyCerts.Validators
 
             #endregion
 
+            #region Process rules for key attributes
+
+            if (requestPolicy.KeyAlgorithm != certificateRequestPkcs10.GetKeyAlgorithmName())
+            {
+                result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Pair_Mismatch,
+                    requestPolicy.KeyAlgorithm));
+            }
+
+            if (certificateRequestPkcs10.PublicKey.Length < requestPolicy.MinimumKeyLength)
+            {
+                result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Small,
+                    certificateRequestPkcs10.PublicKey.Length, requestPolicy.MinimumKeyLength));
+            }
+
+            if (requestPolicy.MaximumKeyLength > 0 && certificateRequestPkcs10.PublicKey.Length >
+                requestPolicy.MaximumKeyLength)
+            {
+                result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
+                    certificateRequestPkcs10.PublicKey.Length, requestPolicy.MaximumKeyLength));
+            }
+
+            // Abort here to trigger proper error code
+            if (result.DeniedForIssuance)
+            {
+                result.SetFailureStatus(WinError.CERTSRV_E_KEY_LENGTH);
+                Marshal.ReleaseComObject(certificateRequestPkcs10);
+                return result;
+            }
+
+            #endregion
+
             if (templateInfo.EnrolleeSuppliesSubject)
             {
-                #region Process rules for key attributes
-
-                if (requestPolicy.KeyAlgorithm != certificateRequestPkcs10.GetKeyAlgorithmName())
-                {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Pair_Mismatch,
-                        requestPolicy.KeyAlgorithm));
-                }
-
-                if (certificateRequestPkcs10.PublicKey.Length < requestPolicy.MinimumKeyLength)
-                {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Small,
-                        certificateRequestPkcs10.PublicKey.Length, requestPolicy.MinimumKeyLength));
-                }
-
-                if (requestPolicy.MaximumKeyLength > 0 && certificateRequestPkcs10.PublicKey.Length >
-                    requestPolicy.MaximumKeyLength)
-                {
-                    result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Key_Too_Large,
-                        certificateRequestPkcs10.PublicKey.Length, requestPolicy.MaximumKeyLength));
-                }
-
-                // Abort here to trigger proper error code
-                if (result.DeniedForIssuance)
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_KEY_LENGTH);
-                    Marshal.ReleaseComObject(certificateRequestPkcs10);
-                    return result;
-                }
-
-                #endregion
-
                 #region Process Subject Relative Distinguished Names
 
                 if (!certificateRequestPkcs10.TryGetSubjectRdnList(out var subjectRdnList))
