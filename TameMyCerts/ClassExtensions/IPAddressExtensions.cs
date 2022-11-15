@@ -41,9 +41,10 @@ namespace TameMyCerts.ClassExtensions
         public static CidrMask Parse(string cidrInput)
         {
             var parts = cidrInput.Split('/');
+            var mask = int.Parse(parts[1]);
             return new CidrMask(
                 BitConverter.ToInt32(IPAddress.Parse(parts[0]).GetAddressBytes(), 0),
-                IPAddress.HostToNetworkOrder(-1 << (32 - int.Parse(parts[1])))
+                mask == 0 ? 0 : IPAddress.HostToNetworkOrder(-1 << (32 - mask))
             );
         }
     }
