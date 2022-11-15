@@ -123,9 +123,9 @@ namespace TameMyCerts.Models
             "extensionAttribute4", "extensionAttribute5", "extensionAttribute6", "extensionAttribute7",
             "extensionAttribute8", "extensionAttribute9", "facsimileTelephoneNumber", "gecos", "givenName", "homePhone",
             "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
-            "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "personalPager", "personalTitle",
-            "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street", "streetAddress",
-            "telephoneNumber", "telexNumber", "title", "userPrincipalName"
+            "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalPager",
+            "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street",
+            "streetAddress", "telephoneNumber", "telexNumber", "title", "userPrincipalName"
         };
     }
 }
