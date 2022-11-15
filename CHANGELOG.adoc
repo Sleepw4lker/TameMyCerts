@@ -1,5 +1,16 @@
 == Changelog for the TameMyCerts Policy Module
 
+=== 1.3.683.747 (Nov 15, 2022)
+
+* Implement support for (over)writing the subject relative distinguished name (RDN) of issued certificates with configurable attributes from a mapped Active Directory object.
+* Implement support for supplementing missing DNS names and IP addresses from commonName field in subject distringushed name into the subject alternative name of the issued certificate. This is to automatically make issued certificates compliant to link:https://www.rfc-editor.org/rfc/rfc2818[RFC 2818^].
+* Add option to issue certificates for mapped acounts that are disabled (e.g. to prestage certificates in combination with the "StartDate" attribute functionality).
+* Add option to remove Security Identifier certificate extension when provided in a certificate request instead of denying it entirely ("Remove" keyword for the SecurityIdentifierExtension directive).
+* Key rules can now also be applied to requests for online certificate templates.
+* Fix string substitution for the "serialNumber", "unstructuredName" and "unstructuredAddress" relative distinguished names.
+* Fix a bug preventing the use of the "any" CIDR mask (0.0.0.0/0) in a subject rule.
+* Fix a bug in installer script not updating policy directory.
+
 === 1.2.587.662 (Aug 11, 2022)
 
 * Implement support for looking up identities that are requested in offline templates against Active Directory (calles "directory mapping"). It may be specified if a certificate request shall get denied if a matching user or computer account does not exist, is disabled, if it is member of a forbidden group, or not member of any permitted group.
