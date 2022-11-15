@@ -30,12 +30,12 @@ NOTE: The Active Directory Certificate Services distinguish between certificate 
 
 See the supplied example policy files to get started:
 
-* link:examples/Sample_Offline_Computer_SidExtension.xml[Sample_Offline_Computer_SidExtension.xml]
-* link:examples/Sample_Offline_User.xml[Sample_Offline_User.xml]
-* link:examples/Sample_Offline_User_SidExtension.xml[Sample_Offline_User_SidExtension.xml]
-* link:examples/Sample_Offline_Webserver.xml[Sample_Offline_Webserver.xml]
-* link:examples/Sample_Online_User_NotAfter.xml[Sample_Online_User_NotAfter.xml]
-* link:examples/Sample_Online_User_TPM.xml[Sample_Online_User_TPM.xml]
+* link:../examples/Sample_Offline_Computer_SidExtension.xml[Sample_Offline_Computer_SidExtension.xml]
+* link:../examples/Sample_Offline_User.xml[Sample_Offline_User.xml]
+* link:../examples/Sample_Offline_User_SidExtension.xml[Sample_Offline_User_SidExtension.xml]
+* link:../examples/Sample_Offline_Webserver.xml[Sample_Offline_Webserver.xml]
+* link:../examples/Sample_Online_User_NotAfter.xml[Sample_Online_User_NotAfter.xml]
+* link:../examples/Sample_Online_User_TPM.xml[Sample_Online_User_TPM.xml]
 
 === See also
 * link:installing.adoc[Installing the TameMyCerts policy module]
