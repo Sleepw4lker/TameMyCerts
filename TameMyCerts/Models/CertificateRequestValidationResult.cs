@@ -33,7 +33,9 @@ namespace TameMyCerts.Models
         public List<string> DisabledExtensions { get; set; } = new List<string>();
         public List<string> DisabledProperties { get; set; } = new List<string>();
         public List<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
-        public Dictionary<string, string> RequestAttributes { get; set; } = new Dictionary<string, string>();
+
+        public Dictionary<string, string> RequestAttributes { get; set; } = new Dictionary<string, string>(
+            StringComparer.InvariantCultureIgnoreCase);
 
         public void SetFailureStatus()
         {
@@ -84,7 +86,10 @@ namespace TameMyCerts.Models
             {
                 if (notAfter > DateTimeOffset.UtcNow)
                 {
-                    if (notAfter <= NotAfter) NotAfter = notAfter;
+                    if (notAfter <= NotAfter)
+                    {
+                        NotAfter = notAfter;
+                    }
                 }
                 else
                 {

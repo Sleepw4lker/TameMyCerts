@@ -27,7 +27,7 @@ namespace TameMyCerts.ClassExtensions
         public static Dictionary<string, string> GetRequestAttributes(this CCertServerPolicy serverPolicy)
         {
             // Note that it should be safe to use a Dictionary here as request attributes can only appear once in the CA database
-            var attributeList = new Dictionary<string, string>();
+            var attributeList = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             string attributeName;
 
             serverPolicy.EnumerateAttributesSetup(0);
@@ -123,7 +123,8 @@ namespace TameMyCerts.ClassExtensions
 
         #region SetCertificateProperty
 
-        public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name, DateTimeOffset value)
+        public static void SetCertificateProperty(this CCertServerPolicy serverPolicy, string name,
+            DateTimeOffset value)
         {
             serverPolicy.SetCertificateProperty(name, value.UtcDateTime);
         }
@@ -135,7 +136,7 @@ namespace TameMyCerts.ClassExtensions
             {
                 return;
             }
-            
+
             serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_DATE, value);
         }
 
