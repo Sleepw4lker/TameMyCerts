@@ -249,7 +249,7 @@ ServiceFabricBackup/
 
 # SQL Server files
 *.mdf
-*.ldf
+#*.ldf # Our certificate templates are in ldf format
 *.ndf
 
 # Business Intelligence projects
