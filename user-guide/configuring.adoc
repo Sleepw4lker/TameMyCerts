@@ -6,7 +6,7 @@ The TameMyCerts policy module uses XML files to describe what shall be done with
 
 Create a policy file in XML format for each certificate template you want to apply a policy for in the folder you specified during link:installing.adoc[installation].
 
-Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined. E.g. if your certificate template is named "ADCSLaborWebServer" the you create a policy configuration file named "ADCSLaborWebServer.xml".
+Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined. E.g. if your certificate template is named "ADCSLaborWebServer", you create a policy configuration file named "ADCSLaborWebServer.xml".
 
 NOTE: The policy configuration files get loaded each time a certificate request is processed. Therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
 

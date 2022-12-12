@@ -43,7 +43,7 @@ Example (enabling the mapping with default values for computer objects):
 
 |ObjectCategory
 |no
-|The categopry of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user".
+|The category of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user".
 
 |SearchRoot
 |no
@@ -60,6 +60,10 @@ Example (enabling the mapping with default values for computer objects):
 |PermitDisabledAccounts
 |no
 |Permits certificates to get issued even if the Active Directory object is disabled.
+
+|SubjectDistinguishedName
+|no
+|Allows adding attributes of the Active Directory object into the Subject Distinguished Name (DN) of the issued certificate. See link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)].
 
 |===
 
