@@ -21,7 +21,16 @@ namespace TameMyCerts.ClassExtensions
     {
         public static bool IsInRange(this IPAddress address, string subnetMask)
         {
-            var cidrMask = CidrMask.Parse(subnetMask);
+            CidrMask cidrMask;
+            try
+            {
+                cidrMask = CidrMask.Parse(subnetMask);
+            }
+            catch
+            {
+                return false;
+            }
+
             var ipAddress = BitConverter.ToInt32(address.GetAddressBytes(), 0);
             return (ipAddress & cidrMask.Mask) == (cidrMask.Address & cidrMask.Mask);
         }
