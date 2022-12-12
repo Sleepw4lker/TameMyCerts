@@ -113,11 +113,6 @@ namespace TameMyCerts
                 return result;
             }
 
-            if (bNewRequest == 0)
-            {
-                return result;
-            }
-
             #endregion
 
             #region Fetch certificate template information
@@ -140,23 +135,7 @@ namespace TameMyCerts
 
             #endregion
 
-            #region Process request policies
-
-            var policyFile = Path.Combine(_caConfig.PolicyDirectory, $"{certificateTemplate.Name}.xml");
-
-            if (!File.Exists(policyFile))
-            {
-                _logger.Log(Events.POLICY_NOT_FOUND, certificateTemplate.Name, requestId, policyFile);
-                return result;
-            }
-
-            var requestPolicy = CertificateRequestPolicy.LoadFromFile(policyFile);
-
-            if (null == requestPolicy)
-            {
-                _logger.Log(Events.REQUEST_DENIED_NO_POLICY, policyFile, requestId);
-                return WinError.NTE_FAIL;
-            }
+            // TODO: Attribute validation works only when a policy is configured
 
             var validationResult = new CertificateRequestValidationResult
             {
@@ -165,60 +144,97 @@ namespace TameMyCerts
                 RequestAttributes = serverPolicy.GetRequestAttributes()
             };
 
+            #region Process request policies
+
+            var policyFile = Path.Combine(_caConfig.PolicyDirectory, $"{certificateTemplate.Name}.xml");
+
+            if (!File.Exists(policyFile))
+            {
+                _logger.Log(Events.POLICY_NOT_FOUND, certificateTemplate.Name, requestId, policyFile);
+                validationResult.ApplyPolicy = false;
+            }
+
+            // This must run whether a policy is configured or not (and also the date/time manipulation logic below)
             validationResult = _attributeValidator.VerifyRequest(validationResult, _caConfig);
 
-            if (!validationResult.DeniedForIssuance)
+            if (validationResult.ApplyPolicy)
             {
-                var request = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
-                var requestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
-                                  CertCli.CR_IN_FULLRESPONSE;
+                var requestPolicy = CertificateRequestPolicy.LoadFromFile(policyFile);
 
-                validationResult = _requestValidator.VerifyRequest(
-                    validationResult, requestPolicy, certificateTemplate, request, requestType);
-            }
-
-            if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping)
-            {
-                if (!certificateTemplate.EnrolleeSuppliesSubject)
+                if (null == requestPolicy)
                 {
-                    var upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN");
-                    validationResult.Identities.Add(certificateTemplate.UserScope
-                        ? new KeyValuePair<string, string>("userPrincipalName", upn)
-                        : new KeyValuePair<string, string>("dNSName", upn.Replace("$@", ".")));
+                    _logger.Log(Events.REQUEST_DENIED_NO_POLICY, policyFile, requestId);
+                    return WinError.NTE_FAIL;
                 }
 
-                validationResult = _directoryServicesValidator.VerifyRequest(
-                    validationResult, requestPolicy, certificateTemplate);
-            }
+                if (!validationResult.DeniedForIssuance)
+                {
+                    var request = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
+                    var requestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^
+                                      CertCli.CR_IN_FULLRESPONSE;
 
-            #endregion
+                    validationResult = _requestValidator.VerifyRequest(
+                        validationResult, requestPolicy, certificateTemplate, request, requestType);
+                }
 
-            #region Issue certificate
+                if (!validationResult.DeniedForIssuance && null != requestPolicy.DirectoryServicesMapping)
+                {
+                    if (!certificateTemplate.EnrolleeSuppliesSubject)
+                    {
+                        var upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN");
+                        validationResult.Identities.Add(certificateTemplate.UserScope
+                            ? new KeyValuePair<string, string>("userPrincipalName", upn)
+                            : new KeyValuePair<string, string>("dNSName", upn.Replace("$@", ".")));
+                    }
 
-            if (!validationResult.DeniedForIssuance && !validationResult.AuditOnly)
-            {
+                    validationResult = _directoryServicesValidator.VerifyRequest(
+                        validationResult, requestPolicy, certificateTemplate);
+                }
+
+                #endregion
+
+                #region Issue certificate if in audit mode
+
+                if (validationResult.AuditOnly)
+                {
+                    if (validationResult.DeniedForIssuance)
+                    {
+                        _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, certificateTemplate.Name,
+                            string.Join("\n", validationResult.Description));
+                    }
+
+                    return result;
+                }
+
+                #endregion
+
+                #region Modify certificate content
+
                 validationResult.DisabledExtensions.ForEach(x => serverPolicy.DisableCertificateExtension(x));
                 validationResult.Extensions.ToList().ForEach(x => serverPolicy.SetCertificateExtension(x.Key, x.Value));
 
                 validationResult.DisabledProperties.ForEach(x => serverPolicy.DisableCertificateProperty(x));
                 validationResult.Properties.ForEach(x => serverPolicy.SetCertificateProperty(x.Key, x.Value));
 
-                serverPolicy.SetCertificateProperty("NotBefore", validationResult.NotBefore);
-                serverPolicy.SetCertificateProperty("NotAfter", validationResult.NotAfter);
-
-                return result;
             }
 
-            if (validationResult.AuditOnly)
+            // TODO: is ensured that invalid date/time combinations are never set here?
+            serverPolicy.SetCertificateProperty("NotBefore", validationResult.NotBefore);
+            serverPolicy.SetCertificateProperty("NotAfter", validationResult.NotAfter);
+
+            #endregion
+
+            #region Issue certificate (or put in pending state)
+
+            // TODO: Decide if we want a possibility to override a denied request? It might have larger implications than we might think (e.g. validation/modification not getting applied).
+            if (!validationResult.DeniedForIssuance || bNewRequest == 0)
             {
-                _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, certificateTemplate.Name,
-                    string.Join("\n", validationResult.Description));
                 return result;
             }
 
             #endregion
 
-            #region Deny request
+            #region Deny request in any other case
 
             _logger.Log(Events.REQUEST_DENIED, requestId, certificateTemplate.Name,
                 string.Join("\n", validationResult.Description));

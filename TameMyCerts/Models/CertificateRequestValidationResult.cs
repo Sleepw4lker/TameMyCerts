@@ -21,6 +21,7 @@ namespace TameMyCerts.Models
 {
     internal class CertificateRequestValidationResult
     {
+        public bool ApplyPolicy = true;
         public DateTimeOffset NotBefore { get; set; }
         public DateTimeOffset NotAfter { get; set; }
         public int StatusCode { get; set; } = WinError.ERROR_SUCCESS;
