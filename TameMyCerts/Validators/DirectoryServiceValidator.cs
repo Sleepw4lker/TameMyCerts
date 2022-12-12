@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
@@ -51,14 +52,8 @@ namespace TameMyCerts.Validators
         {
             if (!forTesting)
             {
-                _forestRootDomain = GetForestRootDomain();
+                _forestRootDomain = Forest.GetCurrentForest().Name;
             }
-        }
-
-        private static string GetForestRootDomain()
-        {
-            var directoryEntry = new DirectoryEntry("LDAP://RootDSE");
-            return directoryEntry.Properties["rootDomainNamingContext"][0].ToString();
         }
 
         public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
@@ -69,6 +64,7 @@ namespace TameMyCerts.Validators
             var certificateAttribute = dsMapping.CertificateAttribute;
             var dsAttribute = dsMapping.DirectoryServicesAttribute;
             var objectCategory = dsMapping.ObjectCategory;
+            var loadExtendedAttributes = dsMapping.SubjectDistinguishedName.Count > 0;
 
             if (!templateInfo.EnrolleeSuppliesSubject)
             {
@@ -88,7 +84,7 @@ namespace TameMyCerts.Validators
 
             try
             {
-                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory, dsMapping.SearchRoot);
+                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory, dsMapping.SearchRoot, loadExtendedAttributes);
 
                 return VerifyRequest(result, requestPolicy, dsObject);
             }

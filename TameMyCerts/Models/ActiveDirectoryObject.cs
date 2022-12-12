@@ -26,7 +26,7 @@ namespace TameMyCerts.Models
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
         public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
-            string objectCategory, string searchRoot)
+            string objectCategory, string searchRoot, bool loadExtendedAttributes = false)
         {
             if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
             {
@@ -40,38 +40,22 @@ namespace TameMyCerts.Models
                     objectCategory));
             }
 
-            var searchRootEntry = string.IsNullOrEmpty(searchRoot)
-                ? new DirectoryEntry($"GC://{forestRootDomain}")
-                : new DirectoryEntry($"LDAP://{searchRoot}");
-
-            var directorySearcher = new DirectorySearcher(searchRoot)
+            // Automatically determine the searchRoot from the global catalog
+            if (string.IsNullOrEmpty(searchRoot))
             {
-                SearchRoot = searchRootEntry,
-                Filter = $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
-                PropertiesToLoad = {"memberOf", "userAccountControl", "objectSid"},
-                PageSize = 2
-            };
-
-            foreach (var s in DsRetrievalAttributes)
-            {
-                directorySearcher.PropertiesToLoad.Add(s);
+                var searchResult = GetDirectoryEntry($"GC://{forestRootDomain}", dsAttribute, identity, objectCategory,
+                    new List<string> {"distinguishedName"});
+                searchRoot = (string) searchResult.Properties["distinguishedName"][0];
             }
 
-            var searchResults = directorySearcher.FindAll();
+            var attributesToRetrieve = new List<string> {"memberOf", "userAccountControl", "objectSid"};
 
-            if (searchResults.Count < 1)
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                    objectCategory, dsAttribute, identity, searchRootEntry.Path));
-            }
+            attributesToRetrieve.AddRange(loadExtendedAttributes
+                ? DsRetrievalAttributes
+                : new List<string> {"dNSHostName", "userPrincipalName"}); // mandatory subset of DsRetrievalAttributes
 
-            if (searchResults.Count > 1)
-            {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
-                    objectCategory, dsAttribute, identity));
-            }
-
-            var dsObject = searchResults[0];
+            var dsObject = GetDirectoryEntry($"LDAP://{searchRoot}", dsAttribute, identity, objectCategory,
+                attributesToRetrieve);
 
             UserAccountControl = (UserAccountControl) Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
             SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
@@ -114,7 +98,7 @@ namespace TameMyCerts.Models
 
         private static IEnumerable<string> DsObjectTypes { get; } = new List<string> {"computer", "user"};
 
-        private static IEnumerable<string> DsRetrievalAttributes { get; } = new List<string>
+        private static List<string> DsRetrievalAttributes { get; } = new List<string>
         {
             "c", "co", "company", "department", "departmentNumber", "description", "displayName", "division",
             "dNSHostName", "employeeID", "employeeNumber", "employeeType", "extensionAttribute1",
@@ -127,5 +111,48 @@ namespace TameMyCerts.Models
             "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street",
             "streetAddress", "telephoneNumber", "telexNumber", "title", "userPrincipalName"
         };
+
+        private static SearchResult GetDirectoryEntry(string searchRoot, string dsAttribute, string identity,
+            string objectCategory, List<string> searchProperties)
+        {
+            var searchRootEntry = new DirectoryEntry(searchRoot);
+
+            var directorySearcher = new DirectorySearcher
+            {
+                SearchRoot = searchRootEntry,
+                Filter = $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
+                PageSize = 2,
+                ClientTimeout = new TimeSpan(0, 0, 15)
+            };
+
+            foreach (var s in searchProperties)
+            {
+                directorySearcher.PropertiesToLoad.Add(s);
+            }
+
+            SearchResultCollection searchResults;
+            try
+            {
+                searchResults = directorySearcher.FindAll();
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Query_Failed, ex.Message));
+            }
+
+            if (searchResults.Count < 1)
+            {
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
+                    objectCategory, dsAttribute, identity, searchRootEntry.Path));
+            }
+
+            if (searchResults.Count > 1)
+            {
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
+                    objectCategory, dsAttribute, identity));
+            }
+
+            return searchResults[0];
+        }
     }
 }
