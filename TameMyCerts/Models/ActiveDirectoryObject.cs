@@ -109,7 +109,7 @@ namespace TameMyCerts.Models
             "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
             "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalPager",
             "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street",
-            "streetAddress", "telephoneNumber", "telexNumber", "title", "userPrincipalName"
+            "streetAddress", "telephoneNumber", "title", "userPrincipalName"
         };
 
         private static SearchResult GetDirectoryEntry(string searchRoot, string dsAttribute, string identity,

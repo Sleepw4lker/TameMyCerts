@@ -115,68 +115,254 @@ You may specify the following Relative Distinguished Names (RDN) for the "Field"
 
 The following Active Directory attributes are supported as "DirectoryServicesAttribute":
 
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-c[c^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-co[co^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-company[company^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-department[department^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-departmentNumber[departmentNumber^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-description[description^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-displayName[displayName^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-division[division^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-dNSHostName[dNSHostName^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeID[employeeID^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeNumber[employeeNumber^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeType[employeeType^]
-* extensionAttribute1
-* extensionAttribute2
-* extensionAttribute3
-* extensionAttribute4
-* extensionAttribute5
-* extensionAttribute6
-* extensionAttribute7
-* extensionAttribute8
-* extensionAttribute9
-* extensionAttribute12
-* extensionAttribute10
-* extensionAttribute12
-* extensionAttribute11
-* extensionAttribute12
-* extensionAttribute13
-* extensionAttribute14
-* extensionAttribute15
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-facsimileTelephoneNumber[facsimileTelephoneNumber^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-gecos[gecos^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-givenName[givenName^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePhone[homePhone^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePostalAddress[homePostalAddress^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-info[info^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-initials[initials^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-l[l^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-location[location^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mail[mail^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mailNickname[mailNickname^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-middleName[middleName^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mobile[mobile^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-name[name^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMailbox[otherMailbox^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMobile[otherMobile^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherPager[otherPager^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherTelephone[otherTelephone^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-pager[pager^]
-* personalPager
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-personalTitle[personalTitle^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalAddress[postalAddress^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalCode[postalCode^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postOfficeBox[postOfficeBox^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sAMAccountName[sAMAccountName^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sn[sn^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-st[st^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-street[street^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-streetAddress[streetAddress^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-telephoneNumber[telephoneNumber^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-telexNumber[telexNumber^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-title[title^]
-* link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-userPrincipalName[userPrincipalName^]
+|===
+|Attribute |In Global Catalog |Remarks
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-c[c^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-co[co^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-company[company^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-department[department^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-departmentNumber[departmentNumber^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-description[description^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-displayName[displayName^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-division[division^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-dNSHostName[dNSHostName^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeID[employeeID^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeNumber[employeeNumber^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeType[employeeType^]
+|no
+|
+
+|extensionAttribute1
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute2
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute3
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute4
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute5
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute6
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute7
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute8
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute9
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute12
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute10
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute12
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute11
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute12
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute13
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute14
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|extensionAttribute15
+|no
+|only available when Microsoft Exchange is used in the environment
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-facsimileTelephoneNumber[facsimileTelephoneNumber^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-gecos[gecos^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-givenName[givenName^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePhone[homePhone^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-homePostalAddress[homePostalAddress^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-info[info^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-initials[initials^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-l[l^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-location[location^]
+|yes
+|Computer objects only
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mail[mail^]
+|yes
+|
+
+|mailNickname
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-middleName[middleName^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-mobile[mobile^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-name[name^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMailbox[otherMailbox^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherMobile[otherMobile^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherPager[otherPager^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-otherTelephone[otherTelephone^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-pager[pager^]
+|no
+|
+
+|personalPager
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-personalTitle[personalTitle^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalAddress[postalAddress^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postalCode[postalCode^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-postOfficeBox[postOfficeBox^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sAMAccountName[sAMAccountName^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-sn[sn^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-st[st^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-street[street^]
+|yes
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-streetAddress[streetAddress^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-telephoneNumber[telephoneNumber^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-title[title^]
+|no
+|
+
+|link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-userPrincipalName[userPrincipalName^]
+|yes
+|
+
+|===
 
 === Examples
 
