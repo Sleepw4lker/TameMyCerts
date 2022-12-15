@@ -152,7 +152,7 @@ The following Active Directory attributes are supported as "DirectoryServicesAtt
 
 |link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-dNSHostName[dNSHostName^]
 |yes
-|
+|Computer objects only
 
 |link:https://learn.microsoft.com/en-us/windows/win32/adschema/a-employeeID[employeeID^]
 |no

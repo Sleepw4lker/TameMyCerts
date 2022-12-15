@@ -50,9 +50,10 @@ namespace TameMyCerts.Models
 
             var attributesToRetrieve = new List<string> {"memberOf", "userAccountControl", "objectSid"};
 
+            // Only load extended attributes if we have a use for them (e.g. modifying Subject DN from AD attributes)
             attributesToRetrieve.AddRange(loadExtendedAttributes
                 ? DsRetrievalAttributes
-                : new List<string> {"dNSHostName", "userPrincipalName"}); // mandatory subset of DsRetrievalAttributes
+                : new List<string> {"sAMAccountName"}); // "sAMAccountName" attribute is mandatory
 
             var dsObject = GetDirectoryEntry($"LDAP://{searchRoot}", dsAttribute, identity, objectCategory,
                 attributesToRetrieve);
@@ -70,7 +71,8 @@ namespace TameMyCerts.Models
                 Attributes.Add(s, (string) dsObject.Properties[s][0]);
             }
 
-            Name = objectCategory.Equals("computer") ? Attributes["dNSHostName"] : Attributes["userPrincipalName"];
+            // I stumbled across the case that userPrincipalName is not populated, therefore the "sAMAccountName" attribute here
+            Name = Attributes["sAMAccountName"];
         }
 
         public ActiveDirectoryObject(string name, UserAccountControl userAccountControl, List<string> memberOf,
@@ -89,7 +91,8 @@ namespace TameMyCerts.Models
 
         public List<string> MemberOf { get; } = new List<string>();
 
-        public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Attributes { get; } =
+            new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         public SecurityIdentifier SecurityIdentifier { get; }
 
@@ -100,7 +103,7 @@ namespace TameMyCerts.Models
 
         private static List<string> DsRetrievalAttributes { get; } = new List<string>
         {
-            "c", "co", "company", "department", "departmentNumber", "description", "displayName", "division",
+            "c", "co", "cn", "company", "department", "departmentNumber", "description", "displayName", "division",
             "dNSHostName", "employeeID", "employeeNumber", "employeeType", "extensionAttribute1",
             "extensionAttribute10", "extensionAttribute11", "extensionAttribute12", "extensionAttribute13",
             "extensionAttribute14", "extensionAttribute15", "extensionAttribute2", "extensionAttribute3",
