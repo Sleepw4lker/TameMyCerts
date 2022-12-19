@@ -10,6 +10,8 @@ Name the file exactly as the certificate template ("cn" LDAP attribute) that sha
 
 NOTE: The policy configuration files get loaded each time a certificate request is processed. Therefore it is *not* needed to restart the certification authority service after a policy file has been created or changed.
 
+NOTE: If TameMyCerts is not able to parse the policy configuration file (e.g. because of a syntax error), the certificate request gets denied.
+
 You can then configure the file as desired.
 
 ** link:audit-only-mode.adoc[Audit only mode]

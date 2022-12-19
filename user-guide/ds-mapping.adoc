@@ -8,20 +8,22 @@ Directory Services mapping allows you to map an identity in a certificate reques
 * Verify that the object is not disabled.
 * Verify that the object is located in a specific Organizational Unit (OU).
 * Verify that the object is member of a specific security group.
-* Verify that the object is not member of a specific security group.
-* Enable features like supplementing the link:sid-extension.adoc[Security Identifier (SID) certificate extension] or to link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)].
+* Verify that the object is *not* member of a specific security group.
+* Enable features like supplementing the link:sid-extension.adoc[Security Identifier (SID) certificate extension] or link:modify-subject-dn.adoc[Modifying the Subject Distinguished Name (DN)].
 
 === Configuring
 
 Rules for Directory Mapping get specified within the *DirectoryServicesMapping* node.
 
-Example (enabling the mapping with default values for user objects):
+Example (enabling the mapping with default values for user objects in an offline template and for both types in online templates):
+
+NOTE: When using an online certificate template, the object category as well as certificate and directory services attributes are determined automatically.
 
 ....
 <DirectoryServicesMapping />
 ....
 
-Example (enabling the mapping with default values for computer objects):
+Example (enabling the mapping with default values for computer objects in an offline template):
 ....
 <DirectoryServicesMapping>
   <CertificateAttribute>dNSName</CertificateAttribute>
@@ -39,7 +41,7 @@ Example (enabling the mapping with default values for computer objects):
 
 |DirectoryServicesAttribute
 |no
-|The attribute of the Active Directory object that must match the certificate attribute. May be "cn", "name", "sAMAccountName", "userPrincipalName" or "dNSHostName". Defaults to "userPrincipalName".
+|The attribute of the Active Directory object that must match the certificate attribute. May be _"cn"_, _"name"_, _"sAMAccountName"_, _"userPrincipalName"_ or _"dNSHostName"_. Defaults to _"userPrincipalName"_.
 
 |ObjectCategory
 |no
@@ -67,7 +69,13 @@ Example (enabling the mapping with default values for computer objects):
 
 |===
 
+NOTE: Please be aware that the _cn_, _name and _sAMAccountName_ attributes are only unique per Domain, but not on Forest level. TameMyCerts denies a certificate request if more than one account with the same identifier is found.
+
+NOTE: Please be aware that the _userPrincipalName_ attribute may not be populated in all scenarios.
+
 NOTE: Please be aware that it is currently *not* possible to use the Primary Group of an AD object (Domain Users, Domain Guests, Domain Computers, Domain Controllers) for filtering.
+
+NOTE: Please be aware that the certification authority needs LDAP access to all Domain Controllers that are involved in the DS mapping process. Also, LDAP GC (Global Catalog) access is required as well when SearchRoot is not explicitly specified. Consult the official link:https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/config-firewall-for-ad-domains-and-trusts[Microsoft documentation^] for further information.
 
 === See also
 * link:sid-extension.adoc[Working with the Security Identifier (SID) certificate extension]

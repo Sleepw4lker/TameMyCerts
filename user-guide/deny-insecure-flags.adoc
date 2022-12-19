@@ -2,7 +2,7 @@
 
 TameMyCerts will automatically deny certificate requests when they contain a "san" request attribute and the certification authority has the insecure link:https://www.gradenegger.eu/?p=1486[EDITF_ATTRIBUTESUBJECTALTNAME2] flag set. This combination can allow an attacker to completely take over your Active Directory. Therefore, this behavior can neither be configured nor disabled.
 
-Instead of using the "san" request attribute in combination with EDITF_ATTRIBUTESUBJECTALTNAME2, you should ensure that certificate request already contain a Subject Alternative Name (SAN) extension. In case where this is not possible, the link:supplement-dns-names.adoc[Supplementing DNS Names and IP Addresses] can be used.
+Instead of using the "san" request attribute in combination with EDITF_ATTRIBUTESUBJECTALTNAME2, you should ensure that certificate request already contain a Subject Alternative Name (SAN) extension. In case where this is not possible, the link:supplement-dns-names.adoc[Supplementing DNS Names and IP Addresses] feature can be used.
 
 === See also
 * link:supplement-dns-names.adoc[Supplementing DNS Names and IP Addresses]
