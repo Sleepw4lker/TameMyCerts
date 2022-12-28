@@ -5,9 +5,9 @@
   Note that both properties are based on request attributes that could be altered by the requestor with enough effort.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <AllowedProcessNames>
+  <AllowedProcesses>
     <string>taskhostw.exe</string>
-  </AllowedProcessNames>
+  </AllowedProcesses>
   <AllowedCryptoProviders>
     <string>Microsoft Platform Crypto Provider</string>
   </AllowedCryptoProviders>

@@ -70,7 +70,7 @@ namespace TameMyCerts.Validators
             {
                 if (result.RequestAttributes.TryGetValue("RequestCSPProvider", out var requestCspProvider))
                 {
-                    if (!requestPolicy.AllowedCryptoProviders.Any(s =>
+                    if (requestPolicy.AllowedCryptoProviders.Count > 0 && !requestPolicy.AllowedCryptoProviders.Any(s =>
                             s.Equals(requestCspProvider, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Crypto_Provider_Not_Allowed,
@@ -108,7 +108,7 @@ namespace TameMyCerts.Validators
                 if (certificateRequestPkcs10.GetInlineRequestAttributeList()
                     .TryGetValue("ProcessName", out var processName))
                 {
-                    if (!requestPolicy.AllowedProcesses.Any(s =>
+                    if (requestPolicy.AllowedProcesses.Count > 0 && !requestPolicy.AllowedProcesses.Any(s =>
                             s.Equals(processName, COMPARISON)))
                     {
                         result.SetFailureStatus(string.Format(LocalizedStrings.ReqVal_Process_Not_Allowed,
