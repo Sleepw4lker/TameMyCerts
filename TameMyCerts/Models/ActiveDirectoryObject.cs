@@ -48,7 +48,8 @@ namespace TameMyCerts.Models
                 searchRoot = (string) searchResult.Properties["distinguishedName"][0];
             }
 
-            var attributesToRetrieve = new List<string> {"memberOf", "userAccountControl", "objectSid"};
+            var attributesToRetrieve = new List<string>
+                {"memberOf", "userAccountControl", "objectSid", "distinguishedName"};
 
             // Only load extended attributes if we have a use for them (e.g. modifying Subject DN from AD attributes)
             attributesToRetrieve.AddRange(loadExtendedAttributes
@@ -60,6 +61,7 @@ namespace TameMyCerts.Models
 
             UserAccountControl = (UserAccountControl) Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
             SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
+            DistinguishedName = (string) dsObject.Properties["distinguishedName"][0]; // userPrincipalName is not guaranteed to be populated
 
             for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
             {
@@ -70,22 +72,19 @@ namespace TameMyCerts.Models
             {
                 Attributes.Add(s, (string) dsObject.Properties[s][0]);
             }
-
-            // I stumbled across the case that userPrincipalName is not populated, therefore the "sAMAccountName" attribute here
-            Name = Attributes["sAMAccountName"];
         }
 
-        public ActiveDirectoryObject(string name, UserAccountControl userAccountControl, List<string> memberOf,
+        public ActiveDirectoryObject(string distinguishedName, UserAccountControl userAccountControl, List<string> memberOf,
             Dictionary<string, string> attributes, SecurityIdentifier securityIdentifier)
         {
-            Name = name;
+            DistinguishedName = distinguishedName;
             UserAccountControl = userAccountControl;
             MemberOf = memberOf;
             Attributes = attributes;
             SecurityIdentifier = securityIdentifier;
         }
 
-        public string Name { get; }
+        public string DistinguishedName { get; }
 
         public UserAccountControl UserAccountControl { get; set; }
 

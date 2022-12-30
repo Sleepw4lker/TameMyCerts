@@ -106,7 +106,7 @@ namespace TameMyCerts.Validators
                 !dsMapping.PermitDisabledAccounts)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                    string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory, dsObject.Name));
+                    string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory, dsObject.DistinguishedName));
                 return result;
             }
 
@@ -123,7 +123,7 @@ namespace TameMyCerts.Validators
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Groups_Not_Allowed,
-                        dsMapping.ObjectCategory, dsObject.Name));
+                        dsMapping.ObjectCategory, dsObject.DistinguishedName));
                 }
             }
 
@@ -138,7 +138,7 @@ namespace TameMyCerts.Validators
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Groups_Disallowed,
-                        dsMapping.ObjectCategory, dsObject.Name, group));
+                        dsMapping.ObjectCategory, dsObject.DistinguishedName, group));
                 }
             }
 
@@ -153,7 +153,7 @@ namespace TameMyCerts.Validators
                     if (rdn.Mandatory)
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field, dsObject.Name));
+                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field, dsObject.DistinguishedName));
                     }
 
                     continue;
@@ -165,7 +165,7 @@ namespace TameMyCerts.Validators
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Directory_Attribute,
-                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.Name));
+                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.DistinguishedName));
                     }
 
                     continue;
@@ -179,7 +179,7 @@ namespace TameMyCerts.Validators
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.DirVal_Rdn_Directory_Attribute_too_long, dsAttribute,
-                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.Name, RdnInfo[rdn.Field].MaxLength,
+                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.DistinguishedName, RdnInfo[rdn.Field].MaxLength,
                                 dsAttribute.Length));
                     }
 
