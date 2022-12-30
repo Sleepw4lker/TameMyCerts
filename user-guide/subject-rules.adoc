@@ -60,13 +60,15 @@ The "Pattern" Parameter is defined as follows:
 
 |TreatAs
 |no
-|Specifies how the expression is to be interpreted by TameMyCerts. Supported values are "RegEx" for a regular expression (the default) or "Cidr" to match against an IP subnet in CIDR notation (e.g. 192.168.0.0/16). To allow any IP Address, specify 0.0.0.0/0.
+|Specifies how the expression is to be interpreted by TameMyCerts. Supported values are "RegEx" for a regular expression (the default) or "Cidr" to match against an IPv4 subnet in CIDR notation (e.g. 192.168.0.0/16. To allow any IP Address, specify 0.0.0.0/0 as expression).
 
 |Action
 |no
 |Specifies if a match for the pattern will "Allow" the certificate to get issued (the default) or "Deny" the certificate request.
 
 |===
+
+NOTE: The use of CIDR masks is currently only supported for IPv4 addresses. IPv6 addresses are currently not supported.
 
 To define a policy for one or more subject Relative Distinguished Name (RDN) types, adjust the "field" to one of the following (as defined in link:https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520[ITU-T X.520^] and link:https://datatracker.ietf.org/doc/html/rfc4519#section-2[RFC 4519^]).
 
