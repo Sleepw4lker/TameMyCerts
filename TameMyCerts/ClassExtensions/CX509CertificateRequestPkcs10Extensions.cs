@@ -61,10 +61,8 @@ namespace TameMyCerts.ClassExtensions
 
                     try
                     {
-                        certificateRequestCmc.InitializeDecode(
-                            certificateRequest,
-                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                        );
+                        certificateRequestCmc.InitializeDecode(certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY);
 
                         var innerRequest = certificateRequestCmc.GetInnerRequest(InnerRequestLevel.LevelInnermost);
                         certificateRequest = innerRequest.get_RawData();
@@ -88,10 +86,8 @@ namespace TameMyCerts.ClassExtensions
 
                     try
                     {
-                        certificateRequestPkcs7.InitializeDecode(
-                            certificateRequest,
-                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                        );
+                        certificateRequestPkcs7.InitializeDecode(certificateRequest,
+                            EncodingType.XCN_CRYPT_STRING_BASE64_ANY);
 
                         var innerRequest = certificateRequestPkcs7.GetInnerRequest(InnerRequestLevel.LevelInnermost);
                         certificateRequest = innerRequest.get_RawData();
@@ -110,10 +106,7 @@ namespace TameMyCerts.ClassExtensions
 
             try
             {
-                certificateRequestPkcs10.InitializeDecode(
-                    certificateRequest,
-                    EncodingType.XCN_CRYPT_STRING_BASE64_ANY
-                );
+                certificateRequestPkcs10.InitializeDecode(certificateRequest, EncodingType.XCN_CRYPT_STRING_BASE64_ANY);
             }
             catch
             {
@@ -127,14 +120,9 @@ namespace TameMyCerts.ClassExtensions
         {
             switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
             {
-                case WinCrypt.szOID_ECC_PUBLIC_KEY:
-                    return "ECC";
-
-                case WinCrypt.szOID_RSA_RSA:
-                    return "RSA";
-
-                default:
-                    return certificateRequestPkcs10.PublicKey.Algorithm.Value;
+                case WinCrypt.szOID_ECC_PUBLIC_KEY: return "ECC";
+                case WinCrypt.szOID_RSA_RSA: return "RSA";
+                default: return certificateRequestPkcs10.PublicKey.Algorithm.Value;
             }
         }
 
@@ -176,10 +164,6 @@ namespace TameMyCerts.ClassExtensions
 
                     attributeList.Add("ProcessName", clientId.ProcessName.ToLowerInvariant());
                     attributeList.Add("MachineDnsName", clientId.MachineDnsName);
-                }
-                catch
-                {
-                    // we don't want an exception to be thrown
                 }
                 finally
                 {
