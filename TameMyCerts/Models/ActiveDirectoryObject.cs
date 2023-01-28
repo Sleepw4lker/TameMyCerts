@@ -139,7 +139,8 @@ namespace TameMyCerts.Models
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Query_Failed, ex.Message));
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Query_Failed, 
+                    ex.Message, directorySearcher.Filter, searchRoot));
             }
 
             if (searchResults.Count < 1)
