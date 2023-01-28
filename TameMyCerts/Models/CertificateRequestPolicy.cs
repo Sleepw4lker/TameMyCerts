@@ -39,6 +39,8 @@ namespace TameMyCerts.Models
         public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
         public bool SupplementDnsNames { get; set; }
 
+        public bool ReadSubjectFromRequest { get; set; }
+
         private static string ConvertToHumanReadableXml(string inputString)
         {
             var xmlWriterSettings = new XmlWriterSettings

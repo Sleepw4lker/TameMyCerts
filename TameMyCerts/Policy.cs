@@ -135,13 +135,13 @@ namespace TameMyCerts
 
             #endregion
 
-            // TODO: Attribute validation works only when a policy is configured
-
             var validationResult = new CertificateRequestValidationResult
             {
                 NotBefore = serverPolicy.GetDateCertificatePropertyOrDefault("NotBefore"),
                 NotAfter = serverPolicy.GetDateCertificatePropertyOrDefault("NotAfter"),
-                RequestAttributes = serverPolicy.GetRequestAttributes()
+                RequestAttributes = serverPolicy.GetRequestAttributes(),
+                CertificateExtensions = serverPolicy.GetCertificateExtensions(),
+                SubjectRelativeDistinguishedNames = serverPolicy.GetSubjectRelativeDistinguishedNames()
             };
 
             #region Process request policies
@@ -216,17 +216,14 @@ namespace TameMyCerts
                 validationResult.DisabledProperties.ForEach(x => serverPolicy.DisableCertificateProperty(x));
                 validationResult.Properties.ForEach(x => serverPolicy.SetCertificateProperty(x.Key, x.Value));
 
+                #endregion
             }
 
-            // TODO: is ensured that invalid date/time combinations are never set here?
             serverPolicy.SetCertificateProperty("NotBefore", validationResult.NotBefore);
             serverPolicy.SetCertificateProperty("NotAfter", validationResult.NotAfter);
 
-            #endregion
-
             #region Issue certificate (or put in pending state)
 
-            // TODO: Decide if we want a possibility to override a denied request? It might have larger implications than we might think (e.g. validation/modification not getting applied).
             if (!validationResult.DeniedForIssuance || bNewRequest == 0)
             {
                 return result;

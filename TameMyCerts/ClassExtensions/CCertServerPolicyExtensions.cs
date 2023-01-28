@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using CERTCLILib;
 using TameMyCerts.Enums;
@@ -22,6 +23,39 @@ namespace TameMyCerts.ClassExtensions
 {
     internal static class CCertServerPolicyExtensions
     {
+        #region GetSubjectDistinguishedName
+
+        public static List<KeyValuePair<string, string>> GetSubjectRelativeDistinguishedNames(
+            this CCertServerPolicy serverPolicy)
+        {
+            var rdnInfo =
+                new Dictionary<string, string>
+                {
+                    {"emailAddress", "Subject.Email"},
+                    {"commonName", "Subject.CommonName"},
+                    {"organizationName", "Subject.Organization"},
+                    {"organizationalUnitName", "Subject.OrgUnit"},
+                    {"localityName", "Subject.Locality"},
+                    {"stateOrProvinceName", "Subject.State"},
+                    {"countryName", "Subject.Country"},
+                    {"title", "Subject.Title"},
+                    {"givenName", "Subject.GivenName"},
+                    {"initials", "Subject.Initials"},
+                    {"surname", "Subject.SurName"},
+                    {"streetAddress", "Subject.StreetAddress"},
+                    {"unstructuredName", "Subject.UnstructuredName"},
+                    {"unstructuredAddress", "Subject.UnstructuredAddress"},
+                    {"serialNumber", "Subject.DeviceSerialNumber"}
+                };
+
+            return (from keyValuePair in rdnInfo
+                let value = serverPolicy.GetStringRequestPropertyOrDefault(keyValuePair.Value)
+                where value != null
+                select new KeyValuePair<string, string>(keyValuePair.Key, value)).ToList();
+        }
+
+        #endregion
+
         #region GetRequestAttributes
 
         public static Dictionary<string, string> GetRequestAttributes(this CCertServerPolicy serverPolicy)
@@ -44,6 +78,32 @@ namespace TameMyCerts.ClassExtensions
             serverPolicy.EnumerateAttributesClose();
 
             return attributeList;
+        }
+
+        #endregion
+
+        #region GetRequestExtensions
+
+        public static Dictionary<string, string> GetCertificateExtensions(this CCertServerPolicy serverPolicy)
+        {
+            var extensionList = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            string extensionOid;
+
+            serverPolicy.EnumerateExtensionsSetup(0);
+
+            do
+            {
+                extensionOid = serverPolicy.EnumerateExtensions();
+                if (extensionOid != null)
+                {
+                    extensionList.Add(extensionOid,
+                        Convert.ToBase64String(serverPolicy.GetCertificateExtensionOrDefault(extensionOid)));
+                }
+            } while (extensionOid != null);
+
+            serverPolicy.EnumerateExtensionsClose();
+
+            return extensionList;
         }
 
         #endregion
@@ -117,6 +177,38 @@ namespace TameMyCerts.ClassExtensions
         public static void DisableCertificateProperty(this CCertServerPolicy serverPolicy, string name)
         {
             serverPolicy.SetCertificateProperty(name, CertSrv.PROPTYPE_STRING, null);
+        }
+
+        #endregion
+
+        #region GetCertificateExtension
+
+        public static byte[] GetCertificateExtensionOrDefault(this CCertServerPolicy serverPolicy, string name)
+        {
+            // https://blogs.msdn.microsoft.com/alejacma/2008/08/04/how-to-modify-an-interop-assembly-to-change-the-return-type-of-a-method-vb-net/
+            var variantObjectPtr = Marshal.AllocHGlobal(2048);
+
+            try
+            {
+                // Get VARIANT containing certificate bytes
+                // Read ANSI BSTR information from the VARIANT as we know RawCertificate property is ANSI BSTR.
+                serverPolicy.GetCertificateExtension(name, CertSrv.PROPTYPE_BINARY, variantObjectPtr);
+                var bstrPtr = Marshal.ReadIntPtr(variantObjectPtr, 8);
+                var bstrLen = Marshal.ReadInt32(bstrPtr, -4);
+                var result = new byte[bstrLen];
+                Marshal.Copy(bstrPtr, result, 0, bstrLen);
+
+                return result;
+            }
+            catch
+            {
+                return default;
+            }
+            finally
+            {
+                OleAut32.VariantClear(variantObjectPtr);
+                Marshal.FreeHGlobal(variantObjectPtr);
+            }
         }
 
         #endregion

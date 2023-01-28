@@ -48,6 +48,30 @@ namespace TameMyCerts.ClassExtensions
             {"PHONE", "telephoneNumber"}
         };
 
+        public static Dictionary<string, string> GetRequestExtensions(
+            this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
+        {
+            var extensionList = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+            string[] desiredExtensions =
+            {
+                WinCrypt.szOID_DS_CA_SECURITY_EXT,
+                WinCrypt.szOID_SUBJECT_ALT_NAME2
+            };
+
+            foreach (var desiredExtension in desiredExtensions)
+            {
+                if (certificateRequestPkcs10.HasExtension(desiredExtension, out var index))
+                {
+                    extensionList.Add(desiredExtension,
+                        certificateRequestPkcs10.X509Extensions[index]
+                            .get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64));
+                }
+            }
+
+            return extensionList;
+        }
+
         public static bool TryInitializeFromInnerRequest(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
             string certificateRequest, int requestType)
         {
@@ -205,12 +229,6 @@ namespace TameMyCerts.ClassExtensions
         }
 
         public static bool HasExtension(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
-            string extensionOid)
-        {
-            return certificateRequestPkcs10.HasExtension(extensionOid, out _);
-        }
-
-        public static bool HasExtension(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
             string extensionOid, out int index)
         {
             index = 0;
@@ -230,84 +248,6 @@ namespace TameMyCerts.ClassExtensions
                 Marshal.ReleaseComObject(oid);
             }
 
-            return true;
-        }
-
-        public static bool TryGetSubjectAlternativeNameList(this IX509CertificateRequestPkcs10 certificateRequestPkcs10,
-            out List<KeyValuePair<string, string>> subjectAltNameList)
-        {
-            subjectAltNameList = new List<KeyValuePair<string, string>>();
-
-            if (!certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2, out var index))
-            {
-                // Request doesn't contain a SAN extension, thus we're done
-                return true;
-            }
-
-            var extension = certificateRequestPkcs10.X509Extensions[index];
-
-            var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
-
-            try
-            {
-                extensionAlternativeNames.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64,
-                    extension.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)
-                );
-
-                foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
-                {
-                    switch (san.Type)
-                    {
-                        case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
-
-                            subjectAltNameList.Add(
-                                new KeyValuePair<string, string>("dNSName", san.strValue));
-                            break;
-
-                        case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
-
-                            subjectAltNameList.Add(
-                                new KeyValuePair<string, string>("rfc822Name", san.strValue));
-                            break;
-
-                        case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
-
-                            subjectAltNameList.Add(
-                                new KeyValuePair<string, string>("uniformResourceIdentifier",
-                                    san.strValue));
-                            break;
-
-                        case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
-
-                            subjectAltNameList.Add(
-                                new KeyValuePair<string, string>("userPrincipalName",
-                                    san.strValue));
-                            break;
-
-                        case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
-
-                            subjectAltNameList.Add(new KeyValuePair<string, string>("iPAddress",
-                                new IPAddress(
-                                        Convert.FromBase64String(san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)))
-                                    .ToString()));
-                            break;
-
-                        default:
-
-                            Marshal.ReleaseComObject(san);
-                            return false;
-                    }
-
-                    Marshal.ReleaseComObject(san);
-                }
-            }
-            catch
-            {
-                Marshal.ReleaseComObject(extensionAlternativeNames);
-                return false;
-            }
-
-            Marshal.ReleaseComObject(extensionAlternativeNames);
             return true;
         }
 

@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using CERTENROLLLib;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
+using System.Runtime.InteropServices;
 using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models
@@ -36,6 +39,11 @@ namespace TameMyCerts.Models
 
         public Dictionary<string, string> RequestAttributes { get; set; } = new Dictionary<string, string>(
             StringComparer.InvariantCultureIgnoreCase);
+
+        public Dictionary<string, string> CertificateExtensions { get; set; } = new Dictionary<string, string>(
+            StringComparer.InvariantCultureIgnoreCase);
+
+        public List<KeyValuePair<string, string>> SubjectRelativeDistinguishedNames { get; set; } = new List<KeyValuePair<string, string>>();
 
         public void SetFailureStatus()
         {
@@ -101,6 +109,82 @@ namespace TameMyCerts.Models
             {
                 SetFailureStatus(WinError.ERROR_INVALID_TIME, LocalizedStrings.ReqVal_Err_NotAfter_Invalid);
             }
+        }
+
+        public bool TryGetSubjectAlternativeNameList(
+            out List<KeyValuePair<string, string>> subjectAltNameList)
+        {
+            subjectAltNameList = new List<KeyValuePair<string, string>>();
+
+            if (!CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2))
+            {
+                // Request doesn't contain a SAN extension, thus we're done
+                return true;
+            }
+
+            var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
+
+            try
+            {
+                extensionAlternativeNames.InitializeDecode(EncodingType.XCN_CRYPT_STRING_BASE64,
+                    CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]
+                );
+
+                foreach (IAlternativeName san in extensionAlternativeNames.AlternativeNames)
+                {
+                    switch (san.Type)
+                    {
+                        case AlternativeNameType.XCN_CERT_ALT_NAME_DNS_NAME:
+
+                            subjectAltNameList.Add(
+                                new KeyValuePair<string, string>("dNSName", san.strValue));
+                            break;
+
+                        case AlternativeNameType.XCN_CERT_ALT_NAME_RFC822_NAME:
+
+                            subjectAltNameList.Add(
+                                new KeyValuePair<string, string>("rfc822Name", san.strValue));
+                            break;
+
+                        case AlternativeNameType.XCN_CERT_ALT_NAME_URL:
+
+                            subjectAltNameList.Add(
+                                new KeyValuePair<string, string>("uniformResourceIdentifier",
+                                    san.strValue));
+                            break;
+
+                        case AlternativeNameType.XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME:
+
+                            subjectAltNameList.Add(
+                                new KeyValuePair<string, string>("userPrincipalName",
+                                    san.strValue));
+                            break;
+
+                        case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
+
+                            subjectAltNameList.Add(new KeyValuePair<string, string>("iPAddress",
+                                new IPAddress(
+                                        Convert.FromBase64String(san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)))
+                                    .ToString()));
+                            break;
+
+                        default:
+
+                            Marshal.ReleaseComObject(san);
+                            return false;
+                    }
+
+                    Marshal.ReleaseComObject(san);
+                }
+            }
+            catch
+            {
+                Marshal.ReleaseComObject(extensionAlternativeNames);
+                return false;
+            }
+
+            Marshal.ReleaseComObject(extensionAlternativeNames);
+            return true;
         }
     }
 }

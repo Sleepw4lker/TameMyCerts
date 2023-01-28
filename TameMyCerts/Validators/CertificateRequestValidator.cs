@@ -61,6 +61,12 @@ namespace TameMyCerts.Validators
                 return result;
             }
 
+            // This is for unit testing only. Note that this isn't inaccurate as it doesn't resolve nested requests.
+            if (result.CertificateExtensions.Count == 0)
+            {
+                result.CertificateExtensions = certificateRequestPkcs10.GetRequestExtensions();
+            }
+
             #endregion
 
             #region Process rules for cryptographic providers
@@ -173,12 +179,21 @@ namespace TameMyCerts.Validators
             {
                 #region Process Subject Relative Distinguished Names
 
-                if (!certificateRequestPkcs10.TryGetSubjectRdnList(out var subjectRdnList))
+                List<KeyValuePair<string, string>> subjectRdnList;
+
+                if (requestPolicy.ReadSubjectFromRequest)
                 {
-                    result.SetFailureStatus(WinError.CERTSRV_E_BAD_REQUESTSUBJECT,
-                        LocalizedStrings.ReqVal_Err_Parse_SubjectDn);
-                    Marshal.ReleaseComObject(certificateRequestPkcs10);
-                    return result;
+                    if (!certificateRequestPkcs10.TryGetSubjectRdnList(out subjectRdnList))
+                    {
+                        result.SetFailureStatus(WinError.CERTSRV_E_BAD_REQUESTSUBJECT,
+                            LocalizedStrings.ReqVal_Err_Parse_SubjectDn);
+                        Marshal.ReleaseComObject(certificateRequestPkcs10);
+                        return result;
+                    }
+                }
+                else
+                {
+                    subjectRdnList = result.SubjectRelativeDistinguishedNames;
                 }
 
                 result.Identities.AddRange(subjectRdnList);
@@ -193,7 +208,7 @@ namespace TameMyCerts.Validators
 
                 #region Process Subject Alternative Names
 
-                if (!certificateRequestPkcs10.TryGetSubjectAlternativeNameList(out var subjectAltNameList))
+                if (!result.TryGetSubjectAlternativeNameList(out var subjectAltNameList))
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_BAD_REQUESTSUBJECT,
                         string.Format(LocalizedStrings.ReqVal_Err_Parse_San, requestType));
@@ -213,7 +228,7 @@ namespace TameMyCerts.Validators
 
                 #region Process request extensions
 
-                if (certificateRequestPkcs10.HasExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT))
+                if (result.CertificateExtensions.ContainsKey(WinCrypt.szOID_DS_CA_SECURITY_EXT))
                 {
                     if (requestPolicy.SecurityIdentifierExtension.Equals("Deny", COMPARISON))
                     {
@@ -233,7 +248,7 @@ namespace TameMyCerts.Validators
                 #region Supplement DNS names (and IP addresses) from commonName to Subject Alternative Name
 
                 if (requestPolicy.SupplementDnsNames &&
-                    !certificateRequestPkcs10.HasExtension(WinCrypt.szOID_SUBJECT_ALT_NAME2))
+                    !result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2))
                 {
                     var uriHostNameTypes = new List<UriHostNameType>
                         {UriHostNameType.Dns, UriHostNameType.IPv4, UriHostNameType.IPv6};
