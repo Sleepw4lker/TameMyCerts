@@ -56,6 +56,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AutoVersionIncrement.tt</DependentUpon>
     </Compile>
+    <Compile Include="ClassExtensions\ByteArrayExtensions.cs" />
     <Compile Include="ClassExtensions\CCertServerPolicyExtensions.cs" />
     <Compile Include="Enums\CaType.cs" />
     <Compile Include="Enums\CertCli.cs" />
@@ -89,8 +90,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validators\CertificateRequestValidator.cs" />
     <Compile Include="Models\CertificateTemplateInfo.cs" />
-    <Compile Include="CX509ExtensionSecurityIdentifier.cs" />
     <Compile Include="Validators\RequestAttributeValidator.cs" />
+    <Compile Include="X509\X509CertificateExtension.cs" />
+    <Compile Include="X509\X509CertificateExtensionAuthorityInformationAccess.cs" />
+    <Compile Include="X509\X509CertificateExtensionCrlDistributionPoint.cs" />
+    <Compile Include="X509\X509CertificateExtensionOcspMustStaple.cs" />
+    <Compile Include="X509\X509CertificateExtensionSecurityIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CERTCLILib.il" />

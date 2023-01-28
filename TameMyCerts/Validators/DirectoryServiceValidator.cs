@@ -14,11 +14,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
+using TameMyCerts.X509;
 
 namespace TameMyCerts.Validators
 {
@@ -84,7 +84,8 @@ namespace TameMyCerts.Validators
 
             try
             {
-                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory, dsMapping.SearchRoot, loadExtendedAttributes);
+                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory,
+                    dsMapping.SearchRoot, loadExtendedAttributes);
 
                 return VerifyRequest(result, requestPolicy, dsObject);
             }
@@ -106,7 +107,8 @@ namespace TameMyCerts.Validators
                 !dsMapping.PermitDisabledAccounts)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                    string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory, dsObject.DistinguishedName));
+                    string.Format(LocalizedStrings.DirVal_Account_Disabled, dsMapping.ObjectCategory,
+                        dsObject.DistinguishedName));
                 return result;
             }
 
@@ -153,7 +155,8 @@ namespace TameMyCerts.Validators
                     if (rdn.Mandatory)
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field, dsObject.DistinguishedName));
+                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rdn.Field,
+                                dsObject.DistinguishedName));
                     }
 
                     continue;
@@ -179,7 +182,8 @@ namespace TameMyCerts.Validators
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.DirVal_Rdn_Directory_Attribute_too_long, dsAttribute,
-                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.DistinguishedName, RdnInfo[rdn.Field].MaxLength,
+                                rdn.DirectoryServicesAttribute, rdn.Field, dsObject.DistinguishedName,
+                                RdnInfo[rdn.Field].MaxLength,
                                 dsAttribute.Length));
                     }
 
@@ -195,10 +199,9 @@ namespace TameMyCerts.Validators
 
             if (requestPolicy.SecurityIdentifierExtension.Equals("Add", COMPARISON))
             {
-                var sidExt = new CX509ExtensionSecurityIdentifier();
-                sidExt.InitializeEncode(dsObject.SecurityIdentifier);
+                var sidExt = new X509CertificateExtensionSecurityIdentifier(dsObject.SecurityIdentifier);
 
-                result.Extensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT, Convert.ToBase64String(sidExt.RawData()));
+                result.Extensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT, Convert.ToBase64String(sidExt.RawData));
             }
 
             #endregion
