@@ -9,7 +9,7 @@ AD CS ships with a policy module (called "Windows Default"), which is strong for
 
 The caveat in developing a custom policy module is that there can only be one module active at a time. Usually this means that all the functionality of the Windows Default policy module would have to be replicated by the custom module. As this is nearly impossible to achieve, Microsoft link:https://learn.microsoft.com/en-us/windows/win32/seccrypto/writing-custom-modules[even recommends against using custom policy modules for Enterprise Certification Authorities^].
 
-NOTE: Note that Microsoft even states that _"An enterprise certification authority (CA) should use only the Microsoft-provided enterprise policy module."_ because of this limitation, though we think this statement has become obsolete in the mean time.
+NOTE: Microsoft even states in the above article that _"An enterprise certification authority (CA) should use only the Microsoft-provided enterprise policy module."_ because of this limitation, though we think this statement has become obsolete in the mean time
 
 === How TameMyCerts overcomes the given limitations
 
@@ -17,11 +17,11 @@ TameMyCerts solves the issue: It shims the Windows Default policy module, which 
 
 It passes incoming certificate requests to the Windows Default policy module and only gets active afterwards, if a link:configuring.adoc[configuration] has been made. This means all certificate templates that don't have a policy configuration file specified are completely left untouched and behave exactly as without having TameMyCerts installed.
 
-This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^] link:https://github.com/Sleepw4lker/capolmod/blob/main/Installer/Installer.wixproj[by Microsoft themselves^]. Though we can only speculate, we assume that this approach is newer than the original recommendation from the TechNet article to not use a custom policy module. We assume it should therefore be fine to pursue the approach we have taken to overcome the limitations of the original policy module.
+This approach was adopted from an link:https://github.com/Sleepw4lker/capolmod[old C++ code sample that initially was published on Codeplex^] link:https://github.com/Sleepw4lker/capolmod/blob/main/Installer/Installer.wixproj[by Microsoft themselves^]. Though we can only speculate, we assume that this approach is newer than the original recommendation from the TechNet article to not use a custom policy module. We assume it should therefore be fine to pursue the approach we have taken to overcome the limitations of the original policy module. This now two decades-old link:https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc783853(v=ws.10)#certificate-services-architecture[article from Microsoft encourages the approach TameMyCerts is using^].
 
 === How TameMyCerts applies it's rules to certificate requests
 
-You configure your rules in eXtended Markup Language (XML) files, one per certificate template you want to "tame". During installation, you point TameMyCerts to the path where it shall search for your configuration files. If there is no configuration file defined for a given certificate template, TameMyCerts does not apply any additional logic, thus preserving the original behavior of the Windows Default policy module.
+You configure your certificate templates as usual. You then define your rules in eXtended Markup Language (XML) files, one per certificate template you want to "tame". During installation, you point TameMyCerts to the path where it shall search for your configuration files. If there is no configuration file defined for a given certificate template, TameMyCerts does not apply any additional logic, thus preserving the original behavior of the Windows Default policy module.
 
 === See also
 * link:configuring.adoc[Configuring the TameMyCerts policy module]

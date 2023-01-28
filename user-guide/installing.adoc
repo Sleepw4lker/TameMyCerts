@@ -10,7 +10,7 @@ Example:
 
 NOTE: The install script restarts the certification authority service during installation and uninstallation.
 
-NOTE: As the policy module daisy-chains the Windows default policy module, it also uses all of it's registry settings. Therefore, the install script copies this data from the Windows Default module's Registry key to a new one for the TameMyCerts policy module. Each change you perform with certutil commands that would configure the Windows Default policy module is now written to the TameMyCerts policy module's Registry key. If you should decide to uninstall it later on, the settings get copied back so that they stay consistent.
+NOTE: As the policy module daisy-chains the Windows default policy module, it also uses all of it's registry settings. Therefore, the install script copies this data from the Windows Default module's Registry key to a new one for the TameMyCerts policy module. Each change you perform with certutil commands that would configure the Windows Default policy module is now written to the TameMyCerts policy module's Registry key. Should decide to uninstall it later on, use the provided installer script as well to ensure the settings get copied back so that they stay consistent.
 
 NOTE: Do not install the module on a standalone certification authority. Only install it on certification authorities that are integrated into Active Directory (Enterprise CA).
 

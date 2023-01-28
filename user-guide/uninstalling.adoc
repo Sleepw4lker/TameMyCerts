@@ -10,6 +10,8 @@ Example:
 
 The script will unregister the module, copy the registry settings back and configure the Windows Default policy module as the active one.
 
+NOTE: The install script restarts the certification authority service during installation and uninstallation.
+
 === See also
 
 * link:prerequisites.adoc[Prerequisites]

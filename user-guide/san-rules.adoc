@@ -18,7 +18,7 @@ To define a policy for one or more subject alternative name (SAN) type, adjust t
 
 NOTE: Other SAN types are currently not implemented (yet). However, the ones that are currently implemented should be sufficient for the majority of use cases.
 
-NOTE: Under certain circumstances, it is also posisble to link:supplement-dns-names.adoc[supplement DNS Names and IP Addresses from the Subject Distinguished Name into the Subject Alternative Name extension].
+NOTE: Under certain circumstances, it is also possible to link:supplement-dns-names.adoc[supplement DNS Names and IP Addresses from the Subject Distinguished Name into the Subject Alternative Name extension].
 
 === Examples
 

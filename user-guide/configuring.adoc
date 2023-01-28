@@ -1,6 +1,6 @@
 ﻿== Configuring the TameMyCerts policy module
 
-The TameMyCerts policy module uses XML files to describe what shall be done with incoming certificate requests for a given certificate template.
+The TameMyCerts policy module uses XML files to describe what shall be done with incoming certificate requests for a given certificate template. This approach has the benefit that changes can easily be tracked with version control and annotated with inline comments.
 
 === Creating a policy configuration file
 
