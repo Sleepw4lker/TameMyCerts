@@ -45,7 +45,8 @@ namespace TameMyCerts.ClassExtensions
                     {"streetAddress", "Subject.StreetAddress"},
                     {"unstructuredName", "Subject.UnstructuredName"},
                     {"unstructuredAddress", "Subject.UnstructuredAddress"},
-                    {"serialNumber", "Subject.DeviceSerialNumber"}
+                    {"serialNumber", "Subject.DeviceSerialNumber"},
+                    {"domainComponent", "Subject.DomainComponent"}
                 };
 
             return (from keyValuePair in rdnInfo
