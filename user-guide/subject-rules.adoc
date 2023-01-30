@@ -1,6 +1,6 @@
 ﻿== Configuring rules for subject relative distinguished names (RDNs)
 
-NOTE: Applies only *offline* certificate templates.
+NOTE: Applies only to *offline* certificate templates.
 
 TameMyCerts allows to take control about which certificate content can be requested vis an "offline" certificate template.
 
@@ -33,7 +33,7 @@ A "SubjectRule" can/must contain the following nodes:
 
 |MaxOccurrences
 |no
-|Specifies how often this field may appear within a certificate request. Should always be 1 for must subject RDN types. Defaults to 1.
+|Specifies how often this field may appear within a certificate request. Should always be 1 for must subject RDN types. Defaults to 1. Note that more than one field of same type can only be used when the _ReadSubjectFromRequest_ directive is set to _true_.
 
 |MinLength
 |no
@@ -74,7 +74,7 @@ To define a policy for one or more subject Relative Distinguished Name (RDN) typ
 
 NOTE: Each RDN type can only be defined once in a policy definition file!
 
-The following RDN types are enabled/allowed by default on AD CS:
+The following RDN types are enabled/allowed link:https://learn.microsoft.com/de-de/windows/win32/seccrypto/name-properties[by default^] on AD CS:
 
 * countryName
 * commonName
@@ -96,7 +96,7 @@ The following RDNs can additionally be defined but must also explicitly be enabl
 * unstructuredAddress
 * serialNumber
 
-It is also possible to enable any kind of RDNs in AD CS if the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag is enabled. This should enable the following:
+It is also possible to enable any kind of RDNs in AD CS if the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag is enabled at CA level. This will enable the following:
 
 * postalCode
 * description
@@ -106,7 +106,9 @@ It is also possible to enable any kind of RDNs in AD CS if the link:https://www.
 
 NOTE: Usually, it is recommended to avoid enabling the link:https://www.gradenegger.eu/?p=952[CRLF_REBUILD_MODIFIED_SUBJECT_ONLY^] flag, but when using this policy module, it should be fine as it allows fine-grained control about which RDN types are allowed and which not.
 
-NOTE: Please be aware that the SubjectTemplate value of the CA uses a different syntax for field type names.
+NOTE: Undefined relative distinguished names can only be detected when the _ReadSubjectFromRequest_ directive is set to _true_.
+
+NOTE: Please be aware that the _SubjectTemplate_ registry value of the CA uses a different syntax for field type names.
 
 NOTE: Under certain circumstances, it is also possible to link:modify-subject-dn.adoc[modify the Subject Distinguished Name (DN)] using values from a link:ds-mapping.adoc[mapped Active Directory object].
 
@@ -131,6 +133,18 @@ NOTE: Under certain circumstances, it is also possible to link:modify-subject-dn
     </SubjectRule>
 </Subject>
 ....
+
+=== Reading the Subject Distinguished Name from the certificate request
+
+By default, TameMyCerts will use the data from the record provided by the certification authority to analyze the Subject Distinguished Name. This allows for best compatibility and security, but has it's drawbacks. The certification authority design assumes that there is only a specific set of field types and that there is only one per type.
+
+If you have the need to inspect Subject Relative Distinguished Names that are not part of the default set, or if you intend to issue certificates with more than one RDN of the same type, you can instruct TameMyCerts to parse the original Subject Distinguished Name from the certificate request by setting the _ReadSubjectFromRequest_ directive.
+
+....
+<ReadSubjectFromRequest>true<ReadSubjectFromRequest>
+....
+
+However, this mode may have trouble with malformed certificate requests.
 
 === See also
 * link:san-rules.adoc[Rules for the Subject Alternative Name (SAN)]
