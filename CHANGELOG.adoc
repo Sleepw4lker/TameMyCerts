@@ -1,8 +1,17 @@
 == Changelog for the TameMyCerts Policy Module
 
-=== 1.4.728.502 (Dec 29, 2022)
+=== 1.5.760.827 (Jan 31, 2023)
 
-This is a bug fix only release. TameMyCerts is now covered by link:TameMyCerts.IntegrationTests[automated integration tests^] featuring Pester and link:https://github.com/Sleepw4lker/PSCertificateEnrollment[PSCertificateEnrollment^] which allows to test parts of the code base not testable with unit tests.
+This is a quality improvement only release. TameMyCerts now uses the interfaces provided by the certification authority to determine Subject and Subject Alternative Name information.
+
+* Fix a security vulnerability causing nested certificate requests to bypass subject alternative name rule processing. *All users of previous versions are urged to upgrade!*
+* Subject RDN inspection is now done against the properties constructed by the certification authority (how the CA would issue the certificate. Previously it was done against the original inline PKCS#10 certificate request). This should enhance compatibility with malformed certificate requests but does not work with undefined relative distinguished names. Behavior can be changed back to previous logic by setting _ReadSubjectFromRequest_ to true in request policy.
+* Enhance logging for directory service query failures.
+* Refactor the code for building the security identifier certificate extension.
+
+=== 1.4.728.502 (Dec 30, 2022)
+
+This is a quality improvement only release. TameMyCerts is now covered by link:TameMyCerts.IntegrationTests[automated integration tests^] featuring Pester and link:https://github.com/Sleepw4lker/PSCertificateEnrollment[PSCertificateEnrollment^] which allows to test parts of the code base not testable with unit tests.
 
 * Fix a bug causing directory mapping not finding all of mapped object's attributes when using global catalog (no SearchRoot configured in policy) to find an object.
 * Fix a bug causing to not display the correct error message in case no connection to Active Directory is possible during directory validation.
@@ -14,6 +23,7 @@ This is a bug fix only release. TameMyCerts is now covered by link:TameMyCerts.I
 * Fix a bug causing an exception with directory mapping when the telexNumber directory attribute is populated for an object, as the property is not of string data type. Support for the telexNumber directory attribute has therefore been dropped.
 * Fix a bug causing requests using a valid process name to get denied when only DisallowedProcesses is configured.
 * Fix a bug causing requests using a valid cryptographic provider to get denied when only DisallowedCryptoProviders is configured.
+* Attributes used for modification of a certificate's subject distinguished name are now only retrieved from AD if the feature is enabled for a certificate template.
 
 === 1.3.683.747 (Nov 15, 2022)
 

@@ -10,8 +10,8 @@ using System.Reflection;
 //      Build Number
 //      Revision
 
-[assembly: AssemblyVersion("1.4.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
-[assembly: AssemblyFileVersion("1.4.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
+[assembly: AssemblyVersion("1.5.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
+[assembly: AssemblyFileVersion("1.5.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
 <#+
     // Days that have passed since Jan 1, 2021 00:00:00
     int BuildNumber = (int)(DateTime.UtcNow - new DateTime(
