@@ -160,7 +160,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Directory query failed because {0}. Search filter was {1} in {2}..
+        ///   Looks up a localized string similar to Directory query {0} in {1} failed because {2}.
         /// </summary>
         internal static string DirVal_Query_Failed {
             get {

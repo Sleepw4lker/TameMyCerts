@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using TameMyCerts.Enums;
 
@@ -61,7 +62,7 @@ namespace TameMyCerts.Models
 
             UserAccountControl = (UserAccountControl) Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
             SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
-            DistinguishedName = (string) dsObject.Properties["distinguishedName"][0]; // userPrincipalName is not guaranteed to be populated
+            DistinguishedName = (string) dsObject.Properties["distinguishedName"][0];
 
             for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
             {
@@ -74,8 +75,8 @@ namespace TameMyCerts.Models
             }
         }
 
-        public ActiveDirectoryObject(string distinguishedName, UserAccountControl userAccountControl, List<string> memberOf,
-            Dictionary<string, string> attributes, SecurityIdentifier securityIdentifier)
+        public ActiveDirectoryObject(string distinguishedName, UserAccountControl userAccountControl,
+            List<string> memberOf, Dictionary<string, string> attributes, SecurityIdentifier securityIdentifier)
         {
             DistinguishedName = distinguishedName;
             UserAccountControl = userAccountControl;
@@ -117,36 +118,37 @@ namespace TameMyCerts.Models
         private static SearchResult GetDirectoryEntry(string searchRoot, string dsAttribute, string identity,
             string objectCategory, List<string> searchProperties)
         {
-            var searchRootEntry = new DirectoryEntry(searchRoot);
-
-            var directorySearcher = new DirectorySearcher
-            {
-                SearchRoot = searchRootEntry,
-                Filter = $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))",
-                PageSize = 2,
-                ClientTimeout = new TimeSpan(0, 0, 15)
-            };
-
-            foreach (var s in searchProperties)
-            {
-                directorySearcher.PropertiesToLoad.Add(s);
-            }
-
+            var filter = $"(&({dsAttribute}={identity})(objectCategory={objectCategory}))";
             SearchResultCollection searchResults;
+
             try
             {
+                var directorySearcher = new DirectorySearcher
+                {
+                    SearchRoot = new DirectoryEntry(searchRoot),
+                    Filter = filter,
+                    PageSize = 2,
+                    ClientTimeout = new TimeSpan(0, 0, 15)
+                };
+
+                foreach (var s in searchProperties)
+                {
+                    directorySearcher.PropertiesToLoad.Add(s);
+                }
+
                 searchResults = directorySearcher.FindAll();
             }
             catch (Exception ex)
             {
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Query_Failed, 
-                    ex.Message, directorySearcher.Filter, searchRoot));
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Query_Failed,
+                    filter, searchRoot,
+                    ex is COMException ? $"0x{ex.HResult:X} ({ex.HResult}): {ex.Message}" : ex.Message));
             }
 
             if (searchResults.Count < 1)
             {
                 throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                    objectCategory, dsAttribute, identity, searchRootEntry.Path));
+                    objectCategory, dsAttribute, identity, searchRoot));
             }
 
             if (searchResults.Count > 1)

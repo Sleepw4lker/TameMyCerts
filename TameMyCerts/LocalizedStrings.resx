@@ -270,7 +270,7 @@
     <value>No matching identity found for the {0} attribute in certificate request.</value>
   </data>
   <data name="DirVal_Query_Failed" xml:space="preserve">
-    <value>Directory query failed because {0}. Search filter was {1} in {2}.</value>
+    <value>Directory query {0} in {1} failed because {2}</value>
   </data>
   <data name="DirVal_Rdn_Directory_Attribute_too_long" xml:space="preserve">
     <value>The value "{0}" for directory attribute "{1}" that was specified for construction of the mandatory "{2}" subject relative distinguished name for {3} is too long. The maximum length is {4} characters for this RDN but the attribute is {5} characters long.</value>
