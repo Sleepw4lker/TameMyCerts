@@ -4,6 +4,8 @@ NOTE: Please download the binary package from the link:https://github.com/Sleepw
 
 NOTE: Please consult the link:CHANGELOG.adoc[changelog] if upgrading from a previous version.
 
+IMPORTANT: Commercial support and maintenance contracts can be offered on request. link:https://www.gradenegger.eu/?page_id=7[Contact me for details^].
+
 TameMyCerts is a link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture[policy module^] for Microsoft link:https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services[Active Directory Certificate Services (AD CS)^] enterprise certification authorities, written in C#, that enables security automation for a lot of use cases in the PKI field.
 
 The module supports, amongst other functions, checking certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested Subject string or Subject Alternative Name (SAN) violates the defined rules, the certificate request automatically gets denied by the certification authority. This concept is also known as applying "name constraints" to certificates. The module therefore helps you to tame your certs!
