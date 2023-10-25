@@ -1,0 +1,45 @@
+<!-- 
+  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  It ensures that the requests contain a syntacical valid commonName in the Subject DN.
+  We allow our enrollees to request an organizationName RDN of any kind in the certificate request.
+  If an organizationName RDN is requested, the requested value will be used.
+  If no organizationName RDN is requested, the configured static value will be set.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- This ensures the required information is present for directory mapping -->
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+    <!-- We allow our enrollees to request an organizationName RDN of any kind in the certificate request -->
+    <SubjectRule>
+      <Field>organizationName</Field>
+      <Mandatory>false</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^.*$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+   <!-- This adds an organizationName RDN with content "Contoso Corp."" to each issued certificate's Subject DN. -->
+   <StaticSubject>
+    <StaticSubjectRule>
+      <Field>organizationName</Field>
+      <Value>Contoso Corp.</Value>
+      <!-- If a request contains an organizationName RDN, the static value will not be applied -->
+      <Overwrite>false</Overwrite>
+    </StaticSubjectRule>
+  </StaticSubject>
+</CertificateRequestPolicy>

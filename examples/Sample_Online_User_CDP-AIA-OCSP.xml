@@ -1,0 +1,20 @@
+<!--
+  This is an example configuration file for user online certificate requests.
+  The issued certificate will not use the CDP/AIA/OCSP URIs as cnfigured in the certification authority registry, but instead the values we define below.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- We overwrite the CRL distribution points configuration of the CA with these values -->
+  <CrlDistributionPoints>
+    <string>http://%1/CertData/%3%8%9.crl</string>
+    <string>ldap:///CN=%7%8,CN=%3,CN=cdp,CN=Public Key Services,CN=Services,%6%10</string>
+  </CrlDistributionPoints>
+  <!-- We overwrite the AIA distribution points configuration of the CA with these values -->
+  <AuthorityInformationAccess>
+    <string>http://%1/CertData/%3%4.crt</string>
+    <string>ldap:///CN=%7,CN=AIA,CN=Public Key Services,CN=Services,%6%11</string>
+  </AuthorityInformationAccess>
+  <!-- We overwrite the OCSP distribution points configuration of the CA with these values -->
+  <OnlineCertificateStatusProtocol>
+    <string>http://ocsp.adcslabor.de/ocsp</string>
+  </OnlineCertificateStatusProtocol>
+</CertificateRequestPolicy>

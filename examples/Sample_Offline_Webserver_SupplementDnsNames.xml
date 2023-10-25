@@ -1,10 +1,9 @@
 <!--
   This is an example for a Web Server certificate template.
-  It is configured to supplement any DNS names found in the commonName subject RDN and add them to a newly created subject alternative names certificate extension.
+  It is configured to supplement any DNS names found in the commonName Subject RDN and add them to a newly created subject alternative names certificate extension.
   This ensures issued certificates are compliant to RFC 2818.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <KeyAlgorithm>RSA</KeyAlgorithm>
   <MinimumKeyLength>2048</MinimumKeyLength>
   <MaximumKeyLength>4096</MaximumKeyLength>
   <Subject>
@@ -16,7 +15,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*\.adcslabor\.de$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -30,7 +29,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*\.adcslabor\.de$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>

@@ -1,0 +1,21 @@
+<!--
+  This is an example configuration file for user certificate requests.
+  Ensures that all certificates issued for this template expire on 31st December 2022, 23:59:59 (Europe/Berlin time).
+  Offline requests must include syntax and optiionally directory services mapping rules there.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <NotAfter>2022-12-31T23:59:59.0000000+01:00</NotAfter>
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+</CertificateRequestPolicy>

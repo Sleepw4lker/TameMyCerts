@@ -17,7 +17,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[a-zA-Z0-9]*(\@intra\.adcslabor\.de)$</Expression>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>

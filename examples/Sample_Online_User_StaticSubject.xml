@@ -1,0 +1,13 @@
+<!--
+  This is an example configuration file for user online certificate requests.
+  The issued certificate will contain an organizationName RDN with the configured static value.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- This adds an organizationName RDN with content "Contoso Corp. to each issued certificate's Subject DN "-->
+  <StaticSubject>
+    <StaticSubjectRule>
+      <Field>organizationName</Field>
+      <Value>Contoso Corp.</Value>
+    </StaticSubjectRule>
+  </StaticSubject>
+</CertificateRequestPolicy>

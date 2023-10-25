@@ -1,0 +1,30 @@
+<!-- 
+  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  It ensures that the requests contain a syntacical valid userPrincipalName extension.
+  After verification, this information is used to search a corresponding user account in Active Directory.
+  It's objectSid property will be written into the SID URI Subject Alternative Name when the certificate is issued.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- 
+    This ensures the required information for directory mapping is present in the CSR
+    Note that a commonName seems not to be sufficient anymore when NPS is in use.
+  -->
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <!-- Default behavior is mapping the userPrincipalName for user objects. -->
+  <DirectoryServicesMapping>
+    <!-- This adds the SID URI to any issued certificate. -->
+    <AddSidUniformResourceIdentifier>true</AddSidUniformResourceIdentifier>
+  </DirectoryServicesMapping>
+</CertificateRequestPolicy>

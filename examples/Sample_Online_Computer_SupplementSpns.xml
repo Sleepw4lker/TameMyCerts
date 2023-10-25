@@ -1,0 +1,8 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DirectoryServicesMapping>
+    <CertificateAttribute>dNSName</CertificateAttribute>
+    <DirectoryServicesAttribute>dNSHostName</DirectoryServicesAttribute>
+    <ObjectCategory>computer</ObjectCategory>
+    <SupplementServicePrincipalNames>true</SupplementServicePrincipalNames>
+  </DirectoryServicesMapping>
+</CertificateRequestPolicy>
