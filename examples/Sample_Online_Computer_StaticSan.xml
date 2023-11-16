@@ -1,8 +1,9 @@
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <StaticSubjectAlternativeName>
-    <StaticSubjectRule>
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <OutboundSubjectAlternativeName>
+    <OutboundSubjectRule>
       <Field>rfc822Name</Field>
       <Value>techsupport@tamemycerts.com</Value>
-    </StaticSubjectRule>
-  </StaticSubjectAlternativeName>
+    </OutboundSubjectRule>
+  </OutboundSubjectAlternativeName>
 </CertificateRequestPolicy>

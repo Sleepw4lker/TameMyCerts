@@ -39,10 +39,11 @@ namespace TameMyCerts.Validators
             }
         }
 
-        // This method is intended to be called by the policy module. It will retrieve the mapped AD object by the defined criteria.
-        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-            CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, CertificateTemplate template)
+        public CertificateRequestValidationResult GetMappedActiveDirectoryObject(CertificateRequestValidationResult result,
+            CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, CertificateTemplate template, out ActiveDirectoryObject dsObject)
         {
+            dsObject = null;
+
             if (result.DeniedForIssuance || null == policy.DirectoryServicesMapping)
             {
                 return result;
@@ -53,10 +54,6 @@ namespace TameMyCerts.Validators
             var certificateAttribute = dsMapping.CertificateAttribute;
             var dsAttribute = dsMapping.DirectoryServicesAttribute;
             var objectCategory = dsMapping.ObjectCategory;
-            var loadExtendedAttributes =
-                dsMapping.DsBoundSubject.Count > 0 || 
-                dsMapping.DsBoundSubjectAlternativeName.Count > 0 ||
-                dsMapping.DirectoryObjectRules.Count > 0;
 
             if (!template.EnrolleeSuppliesSubject)
             {
@@ -79,22 +76,26 @@ namespace TameMyCerts.Validators
 
             try
             {
-                var dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory,
-                    dsMapping.SearchRoot, loadExtendedAttributes);
-
-                return VerifyRequest(result, policy, dsObject);
+                dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory,
+                    dsMapping.SearchRoot);
             }
             catch (Exception ex)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);
-                return result;
             }
+
+            return result;
         }
 
         // This method is intended to be called from unit tests and the other Initialize method. It takes a given AD object to work with.
         public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
             CertificateRequestPolicy policy, ActiveDirectoryObject dsObject)
         {
+            if (result.DeniedForIssuance || null == policy.DirectoryServicesMapping || null == dsObject)
+            {
+                return result;
+            }
+
             var dsMapping = policy.DirectoryServicesMapping;
 
             #region Process enablement status of the account
@@ -200,98 +201,6 @@ namespace TameMyCerts.Validators
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Groups_Disallowed,
                         dsMapping.ObjectCategory, dsObject.DistinguishedName, group));
-                }
-            }
-
-            #endregion
-
-            #region Process addition of Subject Relative Distinguished Names
-
-            foreach (var rule in dsMapping.DsBoundSubject)
-            {
-                if (!RdnTypes.ToList().Where(x => x != RdnTypes.DomainComponent).Contains(rule.Field))
-                {
-                    if (rule.Mandatory)
-                    {
-                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Field, rule.Field,
-                                dsObject.DistinguishedName));
-                    }
-
-                    continue;
-                }
-
-                if (!dsObject.Attributes.ContainsKey(rule.DirectoryServicesAttribute))
-                {
-                    if (rule.Mandatory)
-                    {
-                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Invalid_Directory_Attribute,
-                                rule.DirectoryServicesAttribute, rule.Field, dsObject.DistinguishedName));
-                    }
-
-                    continue;
-                }
-
-                var dsAttribute = dsObject.Attributes[rule.DirectoryServicesAttribute];
-
-                if (dsAttribute.Length > RdnTypes.LengthConstraint[rule.Field])
-                {
-                    if (rule.Mandatory)
-                    {
-                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_Rdn_Directory_Attribute_too_long, dsAttribute,
-                                rule.DirectoryServicesAttribute, rule.Field, dsObject.DistinguishedName,
-                                RdnTypes.LengthConstraint[rule.Field],
-                                dsAttribute.Length));
-                    }
-
-                    continue;
-                }
-
-                result.CertificateProperties.Add(
-                    new KeyValuePair<string, string>(RdnTypes.NameProperty[rule.Field], dsAttribute));
-            }
-
-            #endregion
-
-            #region Process addition of Subject Alternative Names
-
-            foreach (var rule in dsMapping.DsBoundSubjectAlternativeName)
-            {
-                if (!SanTypes.ToList().Contains(rule.Field))
-                {
-                    if (rule.Mandatory)
-                    {
-                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_San_Invalid_Field, rule.Field,
-                                dsObject.DistinguishedName));
-                    }
-
-                    continue;
-                }
-
-                if (!dsObject.Attributes.ContainsKey(rule.DirectoryServicesAttribute))
-                {
-                    if (rule.Mandatory)
-                    {
-                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                            string.Format(LocalizedStrings.DirVal_San_Invalid_Directory_Attribute,
-                                rule.DirectoryServicesAttribute, rule.Field, dsObject.DistinguishedName));
-                    }
-
-                    continue;
-                }
-
-                var dsAttribute = dsObject.Attributes[rule.DirectoryServicesAttribute];
-
-                if (!result.SubjectAlternativeNameExtension.TryAddAlternativeName(rule.Field, dsAttribute) &&
-                    rule.Mandatory)
-                {
-                    // TODO: Implement better error message
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                        string.Format(LocalizedStrings.DirVal_San_Failed_to_add,
-                            rule.DirectoryServicesAttribute, rule.Field, dsObject.DistinguishedName));
                 }
             }
 

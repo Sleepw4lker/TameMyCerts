@@ -2,7 +2,8 @@
   This is an example for a Web Server certificate template.
   It contains various examples for fine-granular contolling the certificate content.
 -->
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <MinimumKeyLength>2048</MinimumKeyLength>
   <MaximumKeyLength>4096</MaximumKeyLength>
   <Subject>

@@ -1,1 +1,1 @@
-This file has moved link:https://github.com/Sleepw4lker/TameMyCerts.Docs/blob/main/user-guide/deny-insecure-flags.md[here].
+This file has moved link:https://docs.tamemycerts.com/#deny-insecure-flags[here].

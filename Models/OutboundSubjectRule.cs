@@ -15,10 +15,11 @@
 namespace TameMyCerts.Models
 {
     // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    public class StaticSubjectRule
+    public class OutboundSubjectRule
     {
         public string Field { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
+        public bool Mandatory { get; set; }
         public bool Force { get; set; }
     }
 }

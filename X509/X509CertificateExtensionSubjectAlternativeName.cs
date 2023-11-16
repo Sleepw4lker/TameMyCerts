@@ -254,9 +254,12 @@ namespace TameMyCerts.X509
         /// </summary>
         /// <param name="type"></param>
         /// <param name="value"></param>
-        public void AddAlternativeName(string type, string value)
+        public void AddAlternativeName(string type, string value, bool throwOnError = false)
         {
-            _ = TryAddAlternativeName(type, value);
+            if (!TryAddAlternativeName(type, value) && throwOnError)
+            {
+                throw new ArgumentException(string.Format(LocalizedStrings.San_unable_to_add, type, value));
+            }
         }
 
         public bool TryAddAlternativeName(string type, string value)

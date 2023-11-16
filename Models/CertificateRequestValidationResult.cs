@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.X509;
 
@@ -99,14 +100,29 @@ namespace TameMyCerts.Models
         /// <summary>
         ///     A list of certificate properties that shall be set after TameMyCerts has processed the certificate request
         /// </summary>
-        public List<KeyValuePair<string, string>> CertificateProperties { get; } =
-            new List<KeyValuePair<string, string>>();
+        public Dictionary<string, string> CertificateProperties { get; } = new Dictionary<string, string>();
 
         // TODO: Implement setter method
         /// <summary>
         ///     The Subject Alternative Name certificate extension class. It allows to inspect or add or remove entries.
         /// </summary>
         public X509CertificateExtensionSubjectAlternativeName SubjectAlternativeNameExtension { get; }
+
+        public void SetSubjectDistinguishedName(string key, string value)
+        {
+            if (!RdnTypes.ToList().Contains(key))
+            {
+                throw new NotSupportedException(string.Format(LocalizedStrings.Rdn_Invalid_Field, key));
+            }
+
+            if (value.Length > RdnTypes.LengthConstraint[key])
+            {
+                throw new NotSupportedException(string.Format(LocalizedStrings.Rdn_Value_Too_Long, value,
+                    key, RdnTypes.LengthConstraint[key], value.Length));
+            }
+
+            CertificateProperties[RdnTypes.NameProperty[key]] = value;
+        }
 
         public void AddCertificateExtension(string key, byte[] value)
         {

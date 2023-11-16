@@ -1,8 +1,10 @@
 <!--
   This is an example configuration file for user online certificate requests.
-  The issued certificate will not use the CDP/AIA/OCSP URIs as cnfigured in the certification authority registry, but instead the values we define below.
+  The issued certificate will not use the CDP/AIA/OCSP URIs as cnfigured in the certification
+authority registry, but instead the values we define below.
 -->
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- We overwrite the CRL distribution points configuration of the CA with these values -->
   <CrlDistributionPoints>
     <string>http://%1/CertData/%3%8%9.crl</string>

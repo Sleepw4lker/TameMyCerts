@@ -409,6 +409,24 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The field name &quot;{0}&quot; that was specified for construction of a Subject Relative Distinguished name is unsupported..
+        /// </summary>
+        internal static string Rdn_Invalid_Field {
+            get {
+                return ResourceManager.GetString("Rdn_Invalid_Field", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for that was specified for construction of the Subject Relative Distinguished Name of type &quot;{1}&quot; is too long. The maximum length is {2} characters for this RDN, but the attribute is {3} characters long..
+        /// </summary>
+        internal static string Rdn_Value_Too_Long {
+            get {
+                return ResourceManager.GetString("Rdn_Value_Too_Long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cryptographic provider &quot;{0}&quot; used to create the certificate request is explicitly disallowed..
         /// </summary>
         internal static string ReqVal_Crypto_Provider_Disallowed {
@@ -634,20 +652,20 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The field name &quot;{0}&quot; that was specified for construction of a static subject relative distinguished is unsupported..
+        ///   Looks up a localized string similar to Unable to add entry of type &quot;{0}&quot; with value &quot;{1}&quot; to the Subject Alternative Name certificate extension. Either type or value is invalid..
         /// </summary>
-        internal static string StatVal_Rdn_Invalid_Field {
+        internal static string San_unable_to_add {
             get {
-                return ResourceManager.GetString("StatVal_Rdn_Invalid_Field", resourceCulture);
+                return ResourceManager.GetString("San_unable_to_add", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; for that was specified for construction of the static subject relative distinguished name with type &quot;{1}&quot; is too long. The maximum length is {2} characters for this RDN but the attribute is {3} characters long..
+        ///   Looks up a localized string similar to The &quot;{0}&quot; token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field..
         /// </summary>
-        internal static string StatVal_Rdn_Value_Too_Long {
+        internal static string Token_invalid {
             get {
-                return ResourceManager.GetString("StatVal_Rdn_Value_Too_Long", resourceCulture);
+                return ResourceManager.GetString("Token_invalid", resourceCulture);
             }
         }
     }

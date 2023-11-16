@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace TameMyCerts.Models
+using System.Text.RegularExpressions;
+
+namespace TameMyCerts.ClassExtensions
 {
-    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    public class DsBoundSubjectRule
+    public static class StringExtensions
     {
-        public string Field { get; set; } = string.Empty;
-        public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
-        public bool Mandatory { get; set; }
+        public static string ReplaceCaseInsensitive(this string input, string from, string to)
+        {
+            return Regex.Replace(input, from, to, RegexOptions.IgnoreCase);
+        }
     }
 }

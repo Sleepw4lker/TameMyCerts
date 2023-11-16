@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="ClassExtensions\ByteArrayExtensions.cs" />
     <Compile Include="ClassExtensions\CCertServerPolicyExtensions.cs" />
+    <Compile Include="ClassExtensions\StringExtensions.cs" />
     <Compile Include="Enums\CaType.cs" />
     <Compile Include="Enums\CertCli.cs" />
     <Compile Include="Enums\EditFlag.cs" />
@@ -83,7 +84,7 @@
     <Compile Include="Models\RdnTypes.cs" />
     <Compile Include="Models\DsBoundSubjectRule.cs" />
     <Compile Include="Models\SanTypes.cs" />
-    <Compile Include="Models\StaticSubjectRule.cs" />
+    <Compile Include="Models\OutboundSubjectRule.cs" />
     <Compile Include="Models\SubjectRule.cs" />
     <Compile Include="Enums\UserAccountControl.cs" />
     <Compile Include="Enums\WinCrypt.cs" />
@@ -104,7 +105,7 @@
     <Compile Include="Models\CertificateTemplateCache.cs" />
     <Compile Include="Validators\FinalResultValidator.cs" />
     <Compile Include="Validators\RequestAttributeValidator.cs" />
-    <Compile Include="Validators\StaticContentValidator.cs" />
+    <Compile Include="Validators\CertificateContentValidator.cs" />
     <Compile Include="X509\X509CertificateExtension.cs" />
     <Compile Include="X509\X509CertificateExtensionAuthorityInformationAccess.cs" />
     <Compile Include="X509\X509CertificateExtensionAuthorityKeyIdentifier.cs" />

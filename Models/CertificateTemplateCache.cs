@@ -88,7 +88,7 @@ namespace TameMyCerts.Models
         {
             foreach (var algorithmName in Enum.GetNames(typeof(KeyAlgorithmType)))
             {
-                if (keyAlgorithmString.Contains(algorithmName))
+                if (keyAlgorithmString.Contains($"msPKI-Asymmetric-Algorithm`PZPWSTR`{algorithmName}`"))
                 {
                     return (KeyAlgorithmType)Enum.Parse(typeof(KeyAlgorithmType), algorithmName);
                 }

@@ -1,7 +1,7 @@
 #Requires -PSEdition Desktop -Version 5.1 
 <#
     .SYNOPSIS
-    Install script für the TameMyCerts rpolicy module.
+    Install script for the TameMyCerts policy module.
     Installs the module, configures the registry and activates the module.
 
     .PARAMETER PolicyDirectory

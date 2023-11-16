@@ -28,7 +28,7 @@ namespace TameMyCerts.Models
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
         public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
-            string objectCategory, string searchRoot, bool loadExtendedAttributes = false)
+            string objectCategory, string searchRoot)
         {
             if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
             {
@@ -55,10 +55,7 @@ namespace TameMyCerts.Models
                 "memberOf", "userAccountControl", "objectSid", "distinguishedName", "servicePrincipalName"
             };
 
-            // Only load extended attributes if we have a use for them (e.g. modifying Subject DN from AD attributes)
-            attributesToRetrieve.AddRange(loadExtendedAttributes
-                ? DsRetrievalAttributes
-                : new List<string> {"sAMAccountName"}); // "sAMAccountName" attribute is mandatory
+            attributesToRetrieve.AddRange(DsRetrievalAttributes);
 
             var dsObject = GetDirectoryEntry($"LDAP://{searchRoot}", dsAttribute, identity, objectCategory,
                 attributesToRetrieve);

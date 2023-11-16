@@ -1,1 +1,1 @@
-This file has moved link:https://github.com/Sleepw4lker/TameMyCerts.Docs/blob/main/user-guide/supplement-dns-names.md[here].
+This file has moved link:https://docs.tamemycerts.com/#supplement-dns-names[here].

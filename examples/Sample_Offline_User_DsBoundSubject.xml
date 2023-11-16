@@ -1,10 +1,13 @@
 <!-- 
-  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  This is an example configuration file for user offline certificate requests that are submitted by a
+mobile device management system.
   It ensures that the requests contain a syntacical valid userPrincipalName extension.
-  After verification, this information is used to search a corresponding user account in Active Directory.
+  After verification, this information is used to search a corresponding user account in Active
+Directory.
   The Subject Distinguished Name gets built from the properties of the AD account.
 -->
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- This ensures the required information is present for directory mapping -->
   <SubjectAlternativeName>
     <SubjectRule>
@@ -14,62 +17,62 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+          <Expression>^[a-zA-Z0-9]*\@intra\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
   </SubjectAlternativeName>
-  <DirectoryServicesMapping>
-    <DsBoundSubject>
-      <DsBoundSubjectRule>
-        <Field>emailAddress</Field>
-        <DirectoryServicesAttribute>mail</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>commonName</Field>
-        <DirectoryServicesAttribute>displayName</DirectoryServicesAttribute>
-        <Mandatory>true</Mandatory>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>organizationName</Field>
-        <DirectoryServicesAttribute>company</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>organizationalUnitName</Field>
-        <DirectoryServicesAttribute>department</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>localityName</Field>
-        <DirectoryServicesAttribute>l</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>    
-      <DsBoundSubjectRule>
-        <Field>stateOrProvinceName</Field>
-        <DirectoryServicesAttribute>st</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>countryName</Field>
-        <DirectoryServicesAttribute>c</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>title</Field>
-        <DirectoryServicesAttribute>title</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>    
-      <DsBoundSubjectRule>
-        <Field>givenName</Field>
-        <DirectoryServicesAttribute>givenName</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>initials</Field>
-        <DirectoryServicesAttribute>initials</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>    
-      <DsBoundSubjectRule>
-        <Field>surname</Field>
-        <DirectoryServicesAttribute>sn</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-      <DsBoundSubjectRule>
-        <Field>streetAddress</Field>
-        <DirectoryServicesAttribute>streetAddress</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-    </DsBoundSubject>
-  </DirectoryServicesMapping>
+  <DirectoryServicesMapping />
+  <OutboundSubject>
+    <OutboundSubjectRule>
+      <Field>emailAddress</Field>
+      <Value>{ad:mail}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>commonName</Field>
+      <Value>{ad:displayName}</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>organizationName</Field>
+      <Value>{ad:company}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>organizationalUnitName</Field>
+      <Value>{ad:department}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>localityName</Field>
+      <Value>{ad:l}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>stateOrProvinceName</Field>
+      <Value>{ad:st}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>countryName</Field>
+      <Value>{ad:c}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>title</Field>
+      <Value>{ad:title}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>givenName</Field>
+      <Value>{ad:givenName}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>initials</Field>
+      <Value>{ad:initials}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>surname</Field>
+      <Value>{ad:sn}</Value>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>streetAddress</Field>
+      <Value>{ad:streetAddress}</Value>
+    </OutboundSubjectRule>
+  </OutboundSubject>
 </CertificateRequestPolicy>

@@ -31,7 +31,5 @@ namespace TameMyCerts.Models
         public bool PermitDisabledAccounts { get; set; } = false;
         public bool SupplementServicePrincipalNames { get; set; } = false;
         public bool AddSidUniformResourceIdentifier { get; set; } = false;
-        public List<DsBoundSubjectRule> DsBoundSubject { get; set; } = new List<DsBoundSubjectRule>();
-        public List<DsBoundSubjectRule> DsBoundSubjectAlternativeName { get; set; } = new List<DsBoundSubjectRule>();
     }
 }

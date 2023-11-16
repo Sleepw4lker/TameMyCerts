@@ -1,13 +1,18 @@
 <!--
-  This is an example configuration file for computer offline certificate requests that are submitted by a mobile device management system.
+  This is an example configuration file for computer offline certificate requests that are submitted
+by a mobile device management system.
   It ensures that the requests contain a syntacical valid dNSName extension.
-  After verification, this information is used to search a corresponding computer account in Active Directory.
-  It's objectSid property will be written into the SID certificate extension when the certificate is issued.
+  After verification, this information is used to search a corresponding computer account in Active
+Directory.
+  It's objectSid property will be written into the SID certificate extension when the certificate is
+issued.
 -->
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- 
     This ensures the required information for directory mapping is present in the CSR
-    Note that a commonName seems not to be sufficient anymore when NPS is in use and KB5014754 is installed.
+    Note that a commonName seems not to be sufficient anymore when NPS is in use and KB5014754 is
+  installed.
   -->
   <SubjectAlternativeName>
     <SubjectRule>
@@ -17,7 +22,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+          <Expression>^[a-zA-Z0-9]*\@intra\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -27,6 +32,7 @@
     <DirectoryServicesAttribute>dNSHostName</DirectoryServicesAttribute>
     <ObjectCategory>computer</ObjectCategory>
   </DirectoryServicesMapping>
-  <!-- This adds the SID extension to any issued certificate. If the request already contains this extension, it will be overwritten. -->
+  <!-- This adds the SID extension to any issued certificate. If the request already contains this
+  extension, it will be overwritten. -->
   <SecurityIdentifierExtension>Add</SecurityIdentifierExtension>
 </CertificateRequestPolicy>

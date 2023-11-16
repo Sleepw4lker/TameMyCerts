@@ -300,11 +300,11 @@
   <data name="DirVal_Invalid_Rule_Attribute" xml:space="preserve">
     <value>The mandatory "{0}" attribute is not present on {1}. Unable to apply syntax rules.</value>
   </data>
-  <data name="StatVal_Rdn_Invalid_Field" xml:space="preserve">
-    <value>The field name "{0}" that was specified for construction of a static subject relative distinguished is unsupported.</value>
+  <data name="Rdn_Invalid_Field" xml:space="preserve">
+    <value>The field name "{0}" that was specified for construction of a Subject Relative Distinguished name is unsupported.</value>
   </data>
-  <data name="StatVal_Rdn_Value_Too_Long" xml:space="preserve">
-    <value>The value "{0}" for that was specified for construction of the static subject relative distinguished name with type "{1}" is too long. The maximum length is {2} characters for this RDN but the attribute is {3} characters long.</value>
+  <data name="Rdn_Value_Too_Long" xml:space="preserve">
+    <value>The value "{0}" for that was specified for construction of the Subject Relative Distinguished Name of type "{1}" is too long. The maximum length is {2} characters for this RDN, but the attribute is {3} characters long.</value>
   </data>
   <data name="DirVal_San_Failed_to_add" xml:space="preserve">
     <value>The attempt to add the mandatory directory attribute "{0}" to the mandatory "{1}" subject alternative name type failed for {2}. This may be because of an incompatibility of data types.</value>
@@ -317,5 +317,12 @@
   </data>
   <data name="FinVal_No_Identity" xml:space="preserve">
     <value>The resulting certificate wouldn't contain any identity in form of a commonName or a Subject Alternative Name.</value>
+  </data>
+  <data name="San_unable_to_add" xml:space="preserve">
+    <value>Unable to add entry of type "{0}" with value "{1}" to the Subject Alternative Name certificate extension. Either type or value is invalid.</value>
+  </data>
+  <data name="Token_invalid" xml:space="preserve">
+    <value>The "{0}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
+    <comment>"</comment>
   </data>
 </root>

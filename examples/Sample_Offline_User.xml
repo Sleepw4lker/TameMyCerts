@@ -1,11 +1,16 @@
 <!-- 
-  This is an example configuration file for user offline certificate requests that are submitted by a mobile device management system.
+  This is an example configuration file for user offline certificate requests that are submitted by a
+mobile device management system.
   It ensures that the requests contain a syntacical valid userPrincipalName extension.
-  After verification, this information is used to search a corresponding user account in Active Directory.
-  The user account must be member of the whitelisted security group(s) and must not be member of the blacklisted one(s).
-  If the CSR contains a SID extension, it will be written into the issued certificate, but none would be added from AD if not.
+  After verification, this information is used to search a corresponding user account in Active
+Directory.
+  The user account must be member of the whitelisted security group(s) and must not be member of the
+blacklisted one(s).
+  If the CSR contains a SID extension, it will be written into the issued certificate, but none would
+be added from AD if not.
 -->
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- This ensures the required information is present for directory mapping -->
   <SubjectAlternativeName>
     <SubjectRule>
@@ -15,7 +20,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[a-zA-Z0-9]*(\@intra\.tamemycerts\.com)$</Expression>
+          <Expression>^[a-zA-Z0-9]*\@intra\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -35,6 +40,7 @@
       <string>CN=Administrative Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
     </DisallowedSecurityGroups>
   </DirectoryServicesMapping>
-  <!-- This allows SID extension to be issued if present in the CSR, but would not add one from the AD object if not. -->
+  <!-- This allows SID extension to be issued if present in the CSR, but would not add one from the
+  AD object if not. -->
   <SecurityIdentifierExtension>Allow</SecurityIdentifierExtension>
 </CertificateRequestPolicy>

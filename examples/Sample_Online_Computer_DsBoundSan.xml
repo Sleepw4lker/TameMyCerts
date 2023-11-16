@@ -1,13 +1,16 @@
-<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <DirectoryServicesMapping>
     <CertificateAttribute>dNSName</CertificateAttribute>
-    <DirectoryServicesAttribute>dNSHostName</DirectoryServicesAttribute>
+    <Value>{ad:dNSHostName}</Value>
     <ObjectCategory>computer</ObjectCategory>
-    <DsBoundSubjectAlternativeName>
-      <DsBoundSubjectRule>
-        <Field>dNSName</Field>
-        <DirectoryServicesAttribute>extensionAttribute1</DirectoryServicesAttribute>
-      </DsBoundSubjectRule>
-    </DsBoundSubjectAlternativeName>
   </DirectoryServicesMapping>
+  <OutboundSubjectAlternativeName>
+    <OutboundSubjectRule>
+      <Field>dNSName</Field>
+      <Value>{ad:extensionAttribute1}</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+  </OutboundSubjectAlternativeName>
 </CertificateRequestPolicy>

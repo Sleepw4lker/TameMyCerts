@@ -50,6 +50,11 @@ namespace TameMyCerts.Enums
         public const int CERTSRV_E_KEY_LENGTH = unchecked((int)0x80094811);
 
         /// <summary>
+        ///     The certificate is not valid for the requested usage.
+        /// </summary>
+        public const int CERT_E_WRONG_USAGE = unchecked((int)0x800B0110);
+
+        /// <summary>
         ///     The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.
         /// </summary>
         public const int CERT_E_INVALID_NAME = unchecked((int)0x800B0114);

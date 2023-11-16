@@ -37,8 +37,8 @@ namespace TameMyCerts.Models
         public int MaximumKeyLength { get; set; }
         public List<SubjectRule> Subject { get; set; } = new List<SubjectRule>();
         public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
-        public List<StaticSubjectRule> StaticSubject { get; set; } = new List<StaticSubjectRule>();
-        public List<StaticSubjectRule> StaticSubjectAlternativeName { get; set; } = new List<StaticSubjectRule>();
+        public List<OutboundSubjectRule> OutboundSubject { get; set; } = new List<OutboundSubjectRule>();
+        public List<OutboundSubjectRule> OutboundSubjectAlternativeName { get; set; } = new List<OutboundSubjectRule>();
         public string SecurityIdentifierExtension { get; set; } = "Deny";
         public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
         public bool SupplementDnsNames { get; set; }

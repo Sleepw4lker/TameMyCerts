@@ -36,7 +36,7 @@ namespace TameMyCerts
         private readonly CertificateRequestValidator _crValidator = new CertificateRequestValidator();
         private readonly DirectoryServiceValidator _dsValidator = new DirectoryServiceValidator();
         private readonly RequestAttributeValidator _raValidator = new RequestAttributeValidator();
-        private readonly StaticContentValidator _scValidator = new StaticContentValidator();
+        private readonly CertificateContentValidator _ccValidator = new CertificateContentValidator();
         private readonly FinalResultValidator _frValidator = new FinalResultValidator();
         private readonly CertificateTemplateCache _templateCache = new CertificateTemplateCache();
         private CertificateAuthorityConfiguration _caConfig;
@@ -160,8 +160,11 @@ namespace TameMyCerts
                 #region Process policy-dependent validators
 
                 result = _crValidator.VerifyRequest(result, policy, dbRow, template);
-                result = _dsValidator.VerifyRequest(result, policy, dbRow, template);
-                result = _scValidator.VerifyRequest(result, policy, dbRow, _caConfig);
+
+                result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
+
+                result = _dsValidator.VerifyRequest(result, policy, dsObject);
+                result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig);
                 result = _frValidator.VerifyRequest(result, policy, dbRow);
 
                 #endregion
@@ -193,7 +196,7 @@ namespace TameMyCerts
                 result.DisabledCertificateProperties.ForEach(name =>
                     serverPolicy.DisableCertificateProperty(name));
 
-                result.CertificateProperties.ForEach(keyValuePair =>
+                result.CertificateProperties.ToList().ForEach(keyValuePair =>
                     serverPolicy.SetCertificateProperty(keyValuePair.Key, keyValuePair.Value));
 
                 #endregion
@@ -215,7 +218,7 @@ namespace TameMyCerts
             #region Deny request in any other case
 
             _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
-                string.Join("\n", result.Description));
+                string.Join("\n", result.Description.Distinct().ToList()));
 
             // Seems that lower error codes must be thrown as exception
             if (result.StatusCode > CertSrv.VR_INSTANT_BAD &&

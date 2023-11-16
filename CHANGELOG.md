@@ -1,20 +1,15 @@
 ## Changelog for the TameMyCerts policy module {#changelog}
 
-### Version \<ProductVersion\>
+### Version 1.6.1045.1129
 
-_This version was released on \<DocumentDate\>_.
+_This version was released on Nov 12, 2023._
 
-> **NOTE**
 > TameMyCerts has developed into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
 This is a major release containing lots of bug fixes for edge-cases as well as many new exciting features, whilst staying backwards-compatible to existing configuration files.
 
--   The _SubjectDistingushedName_ directive within _DirectoryServicesMapping_ has been renamed to _DsBoundSubject_. **Note that this breaks existing policy files. These must be adjusted when upgrading.**
--   The _RelativeDistingushedName_ directive within _DirectoryServicesMapping_ has been renamed to _DsBoundSubjectRule_. **Note that this breaks existing policy files. These must be adjusted when upgrading.**
--   TameMyCerts now implements caching for policy configuration files. Instead of loading them over and over again for any incoming request, this is now only done if the file has changed.
--   TameMyCerts now supports for building or extending the Subject Alternative Name extension of issued certificates with configurable attributes from a mapped Active Directory object. You configure a _DsBoundSubjectAlternativeName_ Node containing at least one _DsBoundSubjectRule_ within _DirectoryServicesMapping_.
--   TameMyCerts now supports setting static values into the Subject Relative Distinguished Name with the _StaticSubject_ directive containing at least one _StaticSubjectRule_.
--   TameMyCerts now supports setting static values into the Subject Alternative Name with the _StaticSubjectAlternativeName_ directive containing at least one _StaticSubjectRule_.
+-   TameMyCerts now supports modifying the Subject Distinguished Name and Subject Alternative Name of issued certificates with attributes of mapped Active Directory objects, values from certificate request fields, static strings, or a combination of all these. **Note that this breaks existing policy files. These must be adjusted when upgrading.**
+-   TameMyCerts now implements caching for policy configuration files. Instead of loading them over and over again for any incoming request, this is now only done if the file has changed..
 -   TameMyCerts now supports configuring per-Template CRL Distribution Point, Authority Information Access, and Online Certificate Status Protocol URIs. Configure them with the _CrlDistributionPoints_, _AuthorityInformationAccess_ and _OnlineCertificateStatusProtocol_ directives.
 -   TameMyCerts now automatically determines the desired key algorithm from the certificate template. The _KeyAlgorithm_ parameter has therefore been removed. Existing configurations will continue to work but without using the configured _KeyAlgorithm_.
 -   TameMyCerts now reads all available request properties directly from the certification authority instead of parsing the inline request. The inline certificate request will now only be parsed when _AllowedProcesses_ or _DisallowedProcesses_ directives are configured, as this information cannot be obtained from the CA directly. There are rare cases where it may not be possible to parse the inline certificate request. In this case, the requested properties will be treated as non-existent.
