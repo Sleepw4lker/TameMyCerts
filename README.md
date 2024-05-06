@@ -1,7 +1,6 @@
 # The "Tame My Certs" policy module for Active Directory Certificate Services
 
-> **Note**
-> **Commercial support** and **maintenance agreements** are available on demand. [Contact me](https://www.gradenegger.eu/?page_id=7) for details if you are interested.
+> **Commercial support**, **consulting services** and **maintenance agreements** are available on demand. [Contact me](https://www.gradenegger.eu/en/imprint/) for details if you are interested.
 
 TameMyCerts is a [policy module](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture) for Microsoft [Active Directory Certificate Services (AD CS)](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services) enterprise certification authorities that enables security automation for a lot of use cases in the PKI field.
 
@@ -10,8 +9,6 @@ The module supports, amongst other functions, inspecting certificate requests fo
 The module therefore helps you to tame your certs! It has proven itself in countless environments of enterprise-grade scale.
 
 ## Getting started
-
-Find the most recent version of TameMyCerts as a ready-to-use, digitally signed binary package on the [releases page](https://github.com/Sleepw4lker/TameMyCerts/releases).
 
 Consult the [user guide](https://docs.tamemycerts.com/) to learn how to install, configure and use the module.
 
