@@ -171,6 +171,11 @@ process {
             Write-Verbose "Setting the active policy module back to Microsoft Default policy module"
             Set-ItemProperty -Path "$($RegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "$DefaultPolicyModuleName"
         }
+
+        If ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $true) {
+            Write-Verbose -Message "Deleting Windows event source ""$PolicyModuleName"""
+            [System.Diagnostics.EventLog]::DeleteEventSource("$PolicyModuleName", 'Application')
+        }
     }
 
     # (Re)Install
