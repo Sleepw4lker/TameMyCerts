@@ -48,6 +48,12 @@ namespace TameMyCerts.X509
 
         private void InitializeDecode(string rawData)
         {
+            // There are rare cases when the CA database contains an empty SAN extension
+            if (rawData.Equals(string.Empty))
+            {
+                return;
+            }
+
             var extensionAlternativeNames = new CX509ExtensionAlternativeNames();
 
             try
