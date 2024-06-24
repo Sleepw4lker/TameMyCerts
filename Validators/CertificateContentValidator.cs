@@ -33,19 +33,35 @@ namespace TameMyCerts.Validators
         private static string ReplaceTokenValues(string input, string identifier,
             IReadOnlyCollection<KeyValuePair<string, string>> list)
         {
+            var output = input;
+
             // This extracts all tokens and verifies if the given list contains (=knows) the token
-            foreach (Match match in new Regex(@"{" + identifier + ":([\\-a-zA-Z0-9]*?)}").Matches(input))
+            foreach (Match match in new Regex(@"{" + identifier + ":([\\-a-zA-Z0-9]*?)(:upper|:lower|:capital)?}").Matches(input))
             {
                 var token = match.Groups[1].Value;
+                var modifier = match.Groups[2].Value;
 
                 if (!list.Any(x => x.Key.Equals(token, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     throw new Exception(string.Format(LocalizedStrings.Token_invalid, token));
                 }
-            }
+                var value = list.First(kvp => kvp.Key == token).Value;
 
-            var output = list.Aggregate(input, (current, identity) =>
-                current.ReplaceCaseInsensitive($"{{{identifier}:{identity.Key}}}", identity.Value));
+                switch (modifier)
+                {
+                    case ":upper":
+                        value = value.ToUpper();
+                        break;
+                    case ":lower":
+                        value = value.ToLower();
+                        break;
+                    case ":capital":
+                        value = value.ToLower().Capitalize();
+                        break;
+                }
+
+                output = output.Replace($"{{{identifier}:{token}{modifier}}}", value);
+            }
 
             return output;
         }
