@@ -5,6 +5,7 @@
 TameMyCerts is a [policy module](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture) for Microsoft [Active Directory Certificate Services (AD CS)](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services) enterprise certification authorities that enables security automation for a lot of use cases in the PKI field.
 
 The module supports, amongst other functions, inspecting certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested identities violates the defined rules, the certificate request automatically gets denied by the certification authority. Requested identities can also be mapped against Active Directory to apply restrictions based on group memberships, or even to pull certificate content from AD.
+The module supports, amongst other functions, inspecting certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested identities violates the defined rules, the certificate request automatically gets denied by the certification authority. Requested identities can also be mapped against Active Directory to apply restrictions based on group memberships, or even to pull certificate content from AD.
 
 The module therefore helps you to tame your certs! It has proven itself in countless environments of enterprise-grade scale.
 
