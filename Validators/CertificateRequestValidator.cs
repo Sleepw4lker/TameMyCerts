@@ -203,7 +203,12 @@ namespace TameMyCerts.Validators
                             switch (Uri.CheckHostName(identity))
                             {
                                 case UriHostNameType.Dns:
-                                    result.SubjectAlternativeNameExtension.AddDnsName(identity);
+                                    if (policy.SupplementUnqualifiedNames ||
+                                        (!policy.SupplementUnqualifiedNames && identity.Contains(".")))
+                                    {
+                                        result.SubjectAlternativeNameExtension.AddDnsName(identity);
+                                    }
+
                                     break;
 
                                 case UriHostNameType.IPv4:

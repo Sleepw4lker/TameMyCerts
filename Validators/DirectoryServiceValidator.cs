@@ -39,8 +39,10 @@ namespace TameMyCerts.Validators
             }
         }
 
-        public CertificateRequestValidationResult GetMappedActiveDirectoryObject(CertificateRequestValidationResult result,
-            CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, CertificateTemplate template, out ActiveDirectoryObject dsObject)
+        public CertificateRequestValidationResult GetMappedActiveDirectoryObject(
+            CertificateRequestValidationResult result,
+            CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, CertificateTemplate template,
+            out ActiveDirectoryObject dsObject)
         {
             dsObject = null;
 
@@ -218,7 +220,11 @@ namespace TameMyCerts.Validators
                          into identity
                          select identity)
                 {
-                    result.SubjectAlternativeNameExtension.AddDnsName(identity);
+                    if (policy.SupplementUnqualifiedNames ||
+                        (!policy.SupplementUnqualifiedNames && identity.Contains(".")))
+                    {
+                        result.SubjectAlternativeNameExtension.AddDnsName(identity);
+                    }
                 }
             }
 
