@@ -391,6 +391,24 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request {0} for {1} will get issued..
+        /// </summary>
+        internal static string Events_SUCCESS_ISSUED {
+            get {
+                return ResourceManager.GetString("Events_SUCCESS_ISSUED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} for {1} will be put into pending state..
+        /// </summary>
+        internal static string Events_SUCCESS_PENDING {
+            get {
+                return ResourceManager.GetString("Events_SUCCESS_PENDING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
         /// </summary>
         internal static string Events_VALIDITY_REDUCED {

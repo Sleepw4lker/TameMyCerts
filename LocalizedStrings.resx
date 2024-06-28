@@ -325,4 +325,10 @@
     <value>The "{0}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
     <comment>"</comment>
   </data>
+  <data name="Events_SUCCESS_ISSUED" xml:space="preserve">
+    <value>Request {0} for {1} will get issued.</value>
+  </data>
+  <data name="Events_SUCCESS_PENDING" xml:space="preserve">
+    <value>Request {0} for {1} will be put into pending state.</value>
+  </data>
 </root>
