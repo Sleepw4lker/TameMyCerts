@@ -174,7 +174,7 @@ process {
 
         If ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $true) {
             Write-Verbose -Message "Deleting Windows event source ""$PolicyModuleName"""
-            [System.Diagnostics.EventLog]::DeleteEventSource("$PolicyModuleName", 'Application')
+            [System.Diagnostics.EventLog]::DeleteEventSource($PolicyModuleName)
         }
     }
 
@@ -213,7 +213,7 @@ process {
 
         If ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $false) {
             Write-Verbose -Message "Registering Windows event source ""$PolicyModuleName"""
-            [System.Diagnostics.EventLog]::CreateEventSource("$PolicyModuleName", 'Application')
+            [System.Diagnostics.EventLog]::CreateEventSource($PolicyModuleName, "Application")
         }
     }
 
