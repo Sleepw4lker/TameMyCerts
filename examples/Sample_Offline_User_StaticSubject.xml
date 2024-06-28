@@ -12,7 +12,6 @@ mobile device management system.
   <Subject>
     <SubjectRule>
       <Field>commonName</Field>
-      <Field>userPrincipalName</Field>
       <Mandatory>true</Mandatory>
       <MaxOccurrences>1</MaxOccurrences>
       <MaxLength>64</MaxLength>

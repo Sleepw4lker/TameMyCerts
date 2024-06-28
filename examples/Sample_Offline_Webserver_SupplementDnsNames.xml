@@ -17,7 +17,7 @@ newly created subject alternative names certificate extension.
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
+          <Expression>^[\-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -31,7 +31,7 @@ newly created subject alternative names certificate extension.
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
+          <Expression>^[\-_a-zA-Z0-9]*\.tamemycerts\.com$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
