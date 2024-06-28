@@ -30,6 +30,11 @@ namespace TameMyCerts.Validators
         public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
             CertificateDatabaseRow dbRow, CertificateAuthorityConfiguration caConfig)
         {
+            if (result.DeniedForIssuance)
+            {
+                return result;
+            }
+
             #region Process insecure flag/attribute combinations
 
             if (caConfig.EditFlags.HasFlag(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2) &&
