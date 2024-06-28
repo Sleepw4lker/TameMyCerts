@@ -1,10 +1,22 @@
 ## Changelog for the TameMyCerts policy module {#changelog}
 
+> TameMyCerts has developed into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
+
+### Version 1.7.x.y
+
+_This version was not yet released._
+
+This is mainly a quality improvement release, adding several non-essential functionality and fixes some minor bugs.
+
+- Fix the module denying certificate requests with error 0x80131500 when the certificate request contains a Subject Alternative Name extension with empty content (Issue #20).
+- Fix the installer script not removing the event source on uninstall (Issue #22).
+- Introducing (verbose) Event IDs 12 and 13 that indicate certificate requests getting issued or put into pending state.
+- Introducing a _SupplementUnqualifiedNames_ switch to use in combination with supplementing of DNS names (both _SupplementDnsNames_ and _SupplementServicePrincipalNames_). To keep compatibility with the previous behavior, this setting defaults to _true_. If set to false, supplementation logic will not include DNS names that are not fully qualified.
+- Improved documentation, especially description of event logs and use cases.
+
 ### Version 1.6.1045.1129
 
 _This version was released on Nov 12, 2023._
-
-> TameMyCerts has developed into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
 This is a major release containing lots of bug fixes for edge-cases as well as many new exciting features, whilst staying backwards-compatible to existing configuration files.
 
