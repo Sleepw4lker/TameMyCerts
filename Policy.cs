@@ -33,11 +33,11 @@ namespace TameMyCerts
     {
         private readonly string _appName;
         private readonly string _appVersion;
+        private readonly CertificateContentValidator _ccValidator = new CertificateContentValidator();
         private readonly CertificateRequestValidator _crValidator = new CertificateRequestValidator();
         private readonly DirectoryServiceValidator _dsValidator = new DirectoryServiceValidator();
-        private readonly RequestAttributeValidator _raValidator = new RequestAttributeValidator();
-        private readonly CertificateContentValidator _ccValidator = new CertificateContentValidator();
         private readonly FinalResultValidator _frValidator = new FinalResultValidator();
+        private readonly RequestAttributeValidator _raValidator = new RequestAttributeValidator();
         private readonly CertificateTemplateCache _templateCache = new CertificateTemplateCache();
         private CertificateAuthorityConfiguration _caConfig;
         private Logger _logger;
@@ -209,6 +209,16 @@ namespace TameMyCerts
             {
                 serverPolicy.SetCertificateProperty("NotBefore", result.NotBefore);
                 serverPolicy.SetCertificateProperty("NotAfter", result.NotAfter);
+
+                switch (disposition)
+                {
+                    case CertSrv.VR_PENDING:
+                        _logger.Log(Events.SUCCESS_PENDING, requestId, template.Name);
+                        break;
+                    case CertSrv.VR_INSTANT_OK:
+                        _logger.Log(Events.SUCCESS_ISSUED, requestId, template.Name);
+                        break;
+                }
 
                 return disposition;
             }
