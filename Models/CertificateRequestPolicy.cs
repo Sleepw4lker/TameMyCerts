@@ -22,27 +22,77 @@ using System.Xml.Serialization;
 namespace TameMyCerts.Models
 {
     // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+    [XmlRoot(ElementName = "CertificateRequestPolicy")]
     public class CertificateRequestPolicy
     {
+        [XmlElement(ElementName = "AuditOnly")]
         public bool AuditOnly { get; set; }
+
+        [XmlElement(ElementName = "NotAfter")] 
         public string NotAfter { get; set; } = string.Empty;
+
+        [XmlArray(ElementName = "AllowedProcesses")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> AllowedProcesses { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "DisallowedProcesses")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> DisallowedProcesses { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "AllowedCryptoProviders")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> AllowedCryptoProviders { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "DisallowedCryptoProviders")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> DisallowedCryptoProviders { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "CrlDistributionPoints")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> CrlDistributionPoints { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "AuthorityInformationAccess")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> AuthorityInformationAccess { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "OnlineCertificateStatusProtocol")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> OnlineCertificateStatusProtocol { get; set; } = new List<string>();
+
+        [XmlElement(ElementName = "MinimumKeyLength")]
         public int MinimumKeyLength { get; set; }
+
+        [XmlElement(ElementName = "MaximumKeyLength")]
         public int MaximumKeyLength { get; set; }
+
+        [XmlArray(ElementName = "Subject")] 
         public List<SubjectRule> Subject { get; set; } = new List<SubjectRule>();
+
+        [XmlArray(ElementName = "SubjectAlternativeName")]
         public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
+
+        [XmlArray(ElementName = "OutboundSubject")]
         public List<OutboundSubjectRule> OutboundSubject { get; set; } = new List<OutboundSubjectRule>();
+
+        [XmlArray(ElementName = "OutboundSubjectAlternativeName")]
         public List<OutboundSubjectRule> OutboundSubjectAlternativeName { get; set; } = new List<OutboundSubjectRule>();
+
+        [XmlElement(ElementName = "SecurityIdentifierExtension")]
         public string SecurityIdentifierExtension { get; set; } = "Deny";
+
+        [XmlElement(ElementName = "DirectoryServicesMapping")]
         public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
+
+        [XmlElement(ElementName = "SupplementDnsNames")]
         public bool SupplementDnsNames { get; set; }
+
+        [XmlElement(ElementName = "SupplementUnqualifiedNames")]
+        public bool SupplementUnqualifiedNames { get; set; } = true;
+
+        [XmlElement(ElementName = "ReadSubjectFromRequest")]
         public bool ReadSubjectFromRequest { get; set; }
+
+        [XmlElement(ElementName = "PermitEmptyIdentities")]
         public bool PermitEmptyIdentities { get; set; }
 
         private static string ConvertToHumanReadableXml(string inputString)
@@ -88,7 +138,7 @@ namespace TameMyCerts.Models
 
             using (var reader = new StreamReader(path))
             {
-                return (CertificateRequestPolicy) xmlSerializer.Deserialize(reader.BaseStream);
+                return (CertificateRequestPolicy)xmlSerializer.Deserialize(reader.BaseStream);
             }
         }
     }

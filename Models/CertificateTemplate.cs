@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Xml.Serialization;
 using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models

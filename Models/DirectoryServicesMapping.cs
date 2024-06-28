@@ -13,23 +13,52 @@
 // limitations under the License.
 
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace TameMyCerts.Models
 {
     // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+    [XmlRoot(ElementName = "DirectoryServicesMapping")]
     public class DirectoryServicesMapping
     {
+        [XmlElement(ElementName = "SearchRoot")]
         public string SearchRoot { get; set; }
+
+        [XmlElement(ElementName = "CertificateAttribute")]
         public string CertificateAttribute { get; set; } = "userPrincipalName";
+
+        [XmlElement(ElementName = "DirectoryServicesAttribute")]
         public string DirectoryServicesAttribute { get; set; } = "userPrincipalName";
+
+        [XmlElement(ElementName = "ObjectCategory")]
         public string ObjectCategory { get; set; } = "user";
+
+        [XmlArray(ElementName = "DirectoryObjectRules")]
         public List<DirectoryObjectRule> DirectoryObjectRules { get; set; } = new List<DirectoryObjectRule>();
+
+        [XmlArray(ElementName = "AllowedSecurityGroups")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> AllowedSecurityGroups { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "DisallowedSecurityGroups")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> DisallowedSecurityGroups { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "AllowedOrganizationalUnits")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> AllowedOrganizationalUnits { get; set; } = new List<string>();
+
+        [XmlArray(ElementName = "DisallowedOrganizationalUnits")]
+        [XmlArrayItem(ElementName = "string")]
         public List<string> DisallowedOrganizationalUnits { get; set; } = new List<string>();
-        public bool PermitDisabledAccounts { get; set; } = false;
-        public bool SupplementServicePrincipalNames { get; set; } = false;
-        public bool AddSidUniformResourceIdentifier { get; set; } = false;
+
+        [XmlElement(ElementName = "PermitDisabledAccounts")]
+        public bool PermitDisabledAccounts { get; set; }
+
+        [XmlElement(ElementName = "SupplementServicePrincipalNames")]
+        public bool SupplementServicePrincipalNames { get; set; }
+
+        [XmlElement(ElementName = "AddSidUniformResourceIdentifier")]
+        public bool AddSidUniformResourceIdentifier { get; set; }
     }
 }

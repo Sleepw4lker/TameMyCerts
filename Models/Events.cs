@@ -111,6 +111,20 @@ namespace TameMyCerts.Models
             MessageText = LocalizedStrings.Events_PDEF_REQUEST_DENIED_MESSAGE
         };
 
+        public static readonly Event SUCCESS_ISSUED = new Event
+        {
+            Id = 12,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            MessageText = LocalizedStrings.Events_SUCCESS_ISSUED
+        };
+
+        public static readonly Event SUCCESS_PENDING = new Event
+        {
+            Id = 12,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            MessageText = LocalizedStrings.Events_SUCCESS_PENDING
+        };
+
         public static readonly Event DEBUG = new Event
         {
             Id = 99,

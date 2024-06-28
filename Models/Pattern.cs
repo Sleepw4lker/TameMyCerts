@@ -15,15 +15,22 @@
 using System;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 using TameMyCerts.ClassExtensions;
 
 namespace TameMyCerts.Models
 {
     // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+    [XmlRoot(ElementName = "Pattern")]
     public class Pattern
     {
+        [XmlElement(ElementName = "Expression")]
         public string Expression { get; set; }
+
+        [XmlElement(ElementName = "TreatAs")] 
         public string TreatAs { get; set; } = "RegEx";
+
+        [XmlElement(ElementName = "Action")] 
         public string Action { get; set; } = "Allow";
 
         public bool IsMatch(string term, bool matchOnError = false)
