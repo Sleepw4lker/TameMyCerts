@@ -73,14 +73,6 @@ namespace TameMyCerts.Models
             MessageText = LocalizedStrings.Events_MODULE_NOT_SUPPORTED
         };
 
-        public static readonly Event REQUEST_DENIED_NO_TEMPLATE_INFO = new Event
-        {
-            Id = 10,
-            LogLevel = CertSrv.CERTLOG_ERROR,
-            Type = EventLogEntryType.Error,
-            MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_TEMPLATE_INFO
-        };
-
         public static readonly Event REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL = new Event
         {
             Id = 10,
@@ -120,7 +112,7 @@ namespace TameMyCerts.Models
 
         public static readonly Event SUCCESS_PENDING = new Event
         {
-            Id = 12,
+            Id = 13,
             LogLevel = CertSrv.CERTLOG_VERBOSE,
             MessageText = LocalizedStrings.Events_SUCCESS_PENDING
         };

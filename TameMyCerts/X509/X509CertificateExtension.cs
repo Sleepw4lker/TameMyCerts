@@ -23,7 +23,7 @@ namespace TameMyCerts.X509
     {
         public byte[] RawData { get; internal set; } = Array.Empty<byte>();
 
-        internal byte[] Asn1BuildNode(byte identifier, byte[] content)
+        protected byte[] Asn1BuildNode(byte identifier, byte[] content)
         {
             var result = new[] {identifier};
 
