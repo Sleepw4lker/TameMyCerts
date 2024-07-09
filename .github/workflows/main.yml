@@ -2,19 +2,24 @@ name: Build .NET Framework
 
 on:
   push:
-  workflow_dispatch:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     name: Build
     runs-on: windows-latest
   
-  steps:
-  
+    steps:
+
     - name: Checkout Code
       uses: actions/checkout@v3
       with:
-      fetch-depth: 0
+        fetch-depth: 0
+
+    - name: Setup VSTest
+      uses: darenm/Setup-VSTest@v1.2  
 
     - name: Setup MSBuild Path
       uses: microsoft/setup-msbuild@v1.3
