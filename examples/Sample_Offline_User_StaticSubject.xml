@@ -34,15 +34,42 @@ mobile device management system.
         </Pattern>
       </Patterns>
     </SubjectRule>
+    <!-- We allow our enrollees to request a stateOrProviceName RDN of any kind in the certificate
+    request -->
+    <SubjectRule>
+      <Field>stateOrProviceName</Field>
+      <Mandatory>false</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^.*$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
   </Subject>
-  <!-- This adds an organizationName RDN with content "Contoso Corp."" to each issued certificate's
-  Subject DN. -->
   <OutboundSubject>
+    <!-- This adds an organizationName RDN with content "Contoso Corp."" to each issued
+    certificate's Subject DN. -->
     <OutboundSubjectRule>
       <Field>organizationName</Field>
       <Value>Contoso Corp.</Value>
       <!-- If a request contains an organizationName RDN, the static value will not be applied -->
       <Overwrite>false</Overwrite>
+    </OutboundSubjectRule>
+    <!-- This removes any stateOrProviceName before issuing the certificate -->
+    <OutboundSubjectRule>
+      <Field>stateOrProviceName</Field>
+      <Value></Value> <!-- note that the value is empty -->
+      <Overwrite>true</Overwrite>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+    <!-- This transfers the value of the requested stateOrProvinceName into the serialNumber -->
+    <OutboundSubjectRule>
+      <Field>serialNumber</Field>
+      <Value>{sdn:stateOrProvinceName}</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
     </OutboundSubjectRule>
   </OutboundSubject>
 </CertificateRequestPolicy>

@@ -50,6 +50,8 @@ You may specify the following Relative Distinguished Names (RDN) for the "Field"
 
 The _Value_ may contain a static string, or can be combined with attributes of mapped Active Directory objects, or content from the certificate request.
 
+> It is also possible to remove a requested relative distinguished name from an issued certificate by setting the _Value_ to an empty string.
+
 You configure variables with the following syntax:
 
 ```
@@ -71,6 +73,8 @@ The following modifiers are currently supported:
 -   Configuring an invalid **Field** will lead to certificate requests getting denied.
 
 -   Configuring a **Value** that violates length constraints for the selected **Field** will lead to certificate requests getting denied.
+
+-   It is possible to remove a relative distinguished name by setting the **Value** to an empty string. A more advanced variant of this is to transfer a value from one requested RDN to another one and then remove the original one.
 
 ### Examples
 
@@ -146,6 +150,40 @@ Transfering the first _dNSName_ of the Subject Alternative Name into the _common
   <OutboundSubjectRule>
     <Field>commonName</Field>
     <Value>{san:dNSName}</Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+</OutboundSubject>
+```
+
+The _stateOrProvinceName_ will be removed if present in the certificate request.
+
+```xml
+<DirectoryServicesMapping />
+<OutboundSubject>
+  <OutboundSubjectRule>
+    <Field>stateOrProvinceName</Field>
+    <Value></Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+</OutboundSubject>
+```
+
+The _stateOrProvinceName_ will be transferred from the certificate request into the _serialNumber_ and then it will be removed from the issued certificate.
+
+```xml
+<DirectoryServicesMapping />
+<OutboundSubject>
+  <OutboundSubjectRule>
+    <Field>stateOrProvinceName</Field>
+    <Value></Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+  <OutboundSubjectRule>
+    <Field>serialNumber</Field>
+    <Value>{sdn:stateOrProvinceName}</Value>
     <Mandatory>true</Mandatory>
     <Force>true</Force>
   </OutboundSubjectRule>

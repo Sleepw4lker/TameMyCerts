@@ -101,6 +101,11 @@ namespace TameMyCerts.Tests
             {
                 Console.WriteLine($@"CDP: {Convert.ToBase64String(cdpExt)}");
             }
+
+            foreach (var item in result.CertificateProperties)
+            {
+                Console.WriteLine($"{item.Key} -> {item.Value}");
+            }
         }
 
         [TestMethod]
@@ -392,6 +397,47 @@ namespace TameMyCerts.Tests
             Assert.IsTrue(result.CertificateProperties
                 .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]))
                 .Any(x => x.Value.Equals("intranet.adcslabor.de")));
+        }
+
+        [TestMethod]
+        public void Does_transfer_RDN_to_RDN_and_clears_original_RDN()
+        {
+            var policy = new CertificateRequestPolicy
+            {
+                OutboundSubject = new List<OutboundSubjectRule>
+                {
+                    new OutboundSubjectRule
+                    {
+                        Field = RdnTypes.CommonName,
+                        Value = string.Empty,
+                        Mandatory = true,
+                        Force = true
+                    },
+                    new OutboundSubjectRule
+                    {
+                        Field = RdnTypes.Organization,
+                        Value = "{sdn:commonName}",
+                        Mandatory = true,
+                        Force = true
+                    }
+                }
+            };
+
+            var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+            Assert.IsTrue(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]) &&
+                          result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]
+                              .Equals(string.Empty));
+            Assert.IsTrue(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.Organization]) &&
+                          result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.Organization]]
+                              .Equals("intranet.adcslabor.de"));
         }
 
         [TestMethod]
@@ -1250,6 +1296,93 @@ namespace TameMyCerts.Tests
 
             Assert.IsFalse(result.DeniedForIssuance);
             Assert.IsFalse(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.Country]));
+        }
+
+        [TestMethod]
+        public void Does_clear_existing_RDN()
+        {
+            var policy = new CertificateRequestPolicy
+            {
+                OutboundSubject = new List<OutboundSubjectRule>
+                {
+                    new OutboundSubjectRule
+                    {
+                        Field = RdnTypes.CommonName,
+                        Value = string.Empty,
+                        Force = true
+                    }
+                }
+            };
+
+            var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+            Assert.IsTrue(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]) &&
+                          result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]
+                              .Equals(string.Empty));
+        }
+
+        [TestMethod]
+        public void Does_clear_nonexisting_RDN()
+        {
+            var policy = new CertificateRequestPolicy
+            {
+                OutboundSubject = new List<OutboundSubjectRule>
+                {
+                    new OutboundSubjectRule
+                    {
+                        Field = RdnTypes.State,
+                        Value = string.Empty,
+                        Force = true
+                    }
+                }
+            };
+
+            var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+            Assert.IsTrue(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.State]) &&
+                          result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.State]].Equals(string.Empty));
+        }
+
+        [TestMethod]
+        public void Does_not_clear_existing_RDN_if_not_mandatory()
+        {
+            var policy = new CertificateRequestPolicy
+            {
+                OutboundSubject = new List<OutboundSubjectRule>
+                {
+                    new OutboundSubjectRule
+                    {
+                        Field = RdnTypes.CommonName,
+                        Value = string.Empty,
+                        Force = false
+                    }
+                }
+            };
+
+            var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+            Assert.IsFalse(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]));
         }
 
         [TestMethod]
