@@ -854,6 +854,115 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
+        public void Deny_Subject_RDN_too_often()
+        {
+            // 2048 Bit RSA Key
+            // CN=intranet.adcslabor.de,CN=extranet.adcslabor.de
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEjTCCAvUCAQAwQDEeMBwGA1UEAxMVZXh0cmFuZXQuYWRjc2xhYm9yLmRlMR4w\n" +
+                "HAYDVQQDExVpbnRyYW5ldC5hZGNzbGFib3IuZGUwggGiMA0GCSqGSIb3DQEBAQUA\n" +
+                "A4IBjwAwggGKAoIBgQClf+SLosrRPwLQAv506dNTA2O7dSUndsTwzp3kE3w9XM1p\n" +
+                "mD4C51a+yqFQ6bVjns1zv/R4EiFdI1TG6J6iYb2p4QFw+apD9kwsMJ+rVhMCR+iN\n" +
+                "XGFSMeBqHcRQ1UzWOYqEqiKGHMaYVKw18b8zweExQFPUKc+BediroJwjkyiOnjNJ\n" +
+                "300PyW1urGeeukpcofcqPrq+oiBFbxrjfMVGZZ6h0dc8dPd1opCQxDPp5ozUVs0c\n" +
+                "FdJQhM/q0woX8Xn1IH2cmTWTPS3+0HcBuA+6DBwGPcKTTCcHSgj31BD/K5ao8NTJ\n" +
+                "vUxWDo5h+1wzGFyFwjPWaoY8mNro3deMr0xZgVDnKQ111Ez16dM1ID1MPv0z3/xq\n" +
+                "Ks9klfZuKcxz8gPMSYiRFh2AahOhccckLphQQvyNMVW94jsVc+glMXvSl0unb4CJ\n" +
+                "9xsOrCedmfx9t+q5Y4GTF6EiJNR6bzcH9orIAaAa294CNT4XflqRYW5Hscgo9F7Q\n" +
+                "aG7QQbeIXuL1RpksfWkCAwEAAaCCAQYwHAYKKwYBBAGCNw0CAzEOFgwxMC4wLjIy\n" +
+                "NjMxLjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYE\n" +
+                "FAbGtMxnZvfqTwkAZ4sPOCPB8E57MD4GCSsGAQQBgjcVFDExMC8CAQUMCkxBUFRP\n" +
+                "UC1VV0UMDkxBUFRPUC1VV0VcdXdlDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3\n" +
+                "DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBl\n" +
+                "ACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMA0G\n" +
+                "CSqGSIb3DQEBCwUAA4IBgQAPAXa0K4dR1vMo5O8WQ4/0Emm98CkHVP8JuGFniYIk\n" +
+                "lV5oJomLR3judj+Dife52OCk1Qb889R3uVNou3rhhqQA+tlPHjGjO/UJP4p4E1E9\n" +
+                "ZjuyKXMhZS7B9S64dbmeKA5dF48a0L/TDeGpKb8Oypz/kfvdq8F4kLdTu5iPjcIU\n" +
+                "Z+PxPgEeEp8nMB8wTIQCwpKSFLFez2demQODenqaJnmy02MX9tC0awkKxyidUYVI\n" +
+                "5k6pfjxVi2ZMLkOTTpBvgC+fLGd/c9GtPHa9DoewHoBTeRntD2e1gKRmHc6Rz1+3\n" +
+                "A1C/PooSy2bn9M+ueEDbhVuOodQwVBlBw/0beG0iuwab93XtQCkW7C2Z6j4VSITY\n" +
+                "QWyxarUJfIpb5K+9dJgXvo0r9ffwxuyNx5XZ/aZijfuw3vvzcblZsMmIJiO6+yQn\n" +
+                "JboGWSyOZeAx4g4bYH07N/49Q3bAkEPYIBb9wjWWSngjF+9CgaMGtXjECBrpWrNq\n" +
+                "/H61T5lzfmEDPUg8TDWX+2w=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            result = _validator.VerifyRequest(result, _policy, dbRow, _template);
+
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        }
+
+        [TestMethod]
+        public void Allow_Subject_RDN_more_than_once()
+        {
+            var policy = _policy;
+
+            policy.Subject.Clear();
+
+            policy.Subject.Add(
+                new SubjectRule
+                {
+                    Field = RdnTypes.CommonName,
+                    Mandatory = true,
+                    MaxOccurrences = 2,
+                    Patterns = new List<Pattern>
+                    {
+                        new Pattern { Expression = @"^(intranet|extranet)\.adcslabor\.de$" }
+                    }
+                }
+            );
+
+            // 2048 Bit RSA Key
+            // CN=intranet.adcslabor.de,CN=extranet.adcslabor.de
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIEjTCCAvUCAQAwQDEeMBwGA1UEAxMVZXh0cmFuZXQuYWRjc2xhYm9yLmRlMR4w\n" +
+                "HAYDVQQDExVpbnRyYW5ldC5hZGNzbGFib3IuZGUwggGiMA0GCSqGSIb3DQEBAQUA\n" +
+                "A4IBjwAwggGKAoIBgQClf+SLosrRPwLQAv506dNTA2O7dSUndsTwzp3kE3w9XM1p\n" +
+                "mD4C51a+yqFQ6bVjns1zv/R4EiFdI1TG6J6iYb2p4QFw+apD9kwsMJ+rVhMCR+iN\n" +
+                "XGFSMeBqHcRQ1UzWOYqEqiKGHMaYVKw18b8zweExQFPUKc+BediroJwjkyiOnjNJ\n" +
+                "300PyW1urGeeukpcofcqPrq+oiBFbxrjfMVGZZ6h0dc8dPd1opCQxDPp5ozUVs0c\n" +
+                "FdJQhM/q0woX8Xn1IH2cmTWTPS3+0HcBuA+6DBwGPcKTTCcHSgj31BD/K5ao8NTJ\n" +
+                "vUxWDo5h+1wzGFyFwjPWaoY8mNro3deMr0xZgVDnKQ111Ez16dM1ID1MPv0z3/xq\n" +
+                "Ks9klfZuKcxz8gPMSYiRFh2AahOhccckLphQQvyNMVW94jsVc+glMXvSl0unb4CJ\n" +
+                "9xsOrCedmfx9t+q5Y4GTF6EiJNR6bzcH9orIAaAa294CNT4XflqRYW5Hscgo9F7Q\n" +
+                "aG7QQbeIXuL1RpksfWkCAwEAAaCCAQYwHAYKKwYBBAGCNw0CAzEOFgwxMC4wLjIy\n" +
+                "NjMxLjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYE\n" +
+                "FAbGtMxnZvfqTwkAZ4sPOCPB8E57MD4GCSsGAQQBgjcVFDExMC8CAQUMCkxBUFRP\n" +
+                "UC1VV0UMDkxBUFRPUC1VV0VcdXdlDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3\n" +
+                "DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBl\n" +
+                "ACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMA0G\n" +
+                "CSqGSIb3DQEBCwUAA4IBgQAPAXa0K4dR1vMo5O8WQ4/0Emm98CkHVP8JuGFniYIk\n" +
+                "lV5oJomLR3judj+Dife52OCk1Qb889R3uVNou3rhhqQA+tlPHjGjO/UJP4p4E1E9\n" +
+                "ZjuyKXMhZS7B9S64dbmeKA5dF48a0L/TDeGpKb8Oypz/kfvdq8F4kLdTu5iPjcIU\n" +
+                "Z+PxPgEeEp8nMB8wTIQCwpKSFLFez2demQODenqaJnmy02MX9tC0awkKxyidUYVI\n" +
+                "5k6pfjxVi2ZMLkOTTpBvgC+fLGd/c9GtPHa9DoewHoBTeRntD2e1gKRmHc6Rz1+3\n" +
+                "A1C/PooSy2bn9M+ueEDbhVuOodQwVBlBw/0beG0iuwab93XtQCkW7C2Z6j4VSITY\n" +
+                "QWyxarUJfIpb5K+9dJgXvo0r9ffwxuyNx5XZ/aZijfuw3vvzcblZsMmIJiO6+yQn\n" +
+                "JboGWSyOZeAx4g4bYH07N/49Q3bAkEPYIBb9wjWWSngjF+9CgaMGtXjECBrpWrNq\n" +
+                "/H61T5lzfmEDPUg8TDWX+2w=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        }
+
+        [TestMethod]
         public void Deny_dnsName_forbidden()
         {
             // 2048 Bit RSA Key
