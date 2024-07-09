@@ -1,7 +1,7 @@
 <!--
   This is an example for a Web Server certificate template.
   It is configured to supplement any DNS names found in the commonName Subject RDN and add them to a
-newly created subject alternative names certificate extension.
+  newly created subject alternative names certificate extension.
   This ensures issued certificates are compliant to RFC 2818.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,5 +36,9 @@ newly created subject alternative names certificate extension.
       </Patterns>
     </SubjectRule>
   </SubjectAlternativeName>
+  <!-- This transfers all DNS names and IP addresses found in the Subject DN into the Subject
+  Alternative Name -->
   <SupplementDnsNames>true</SupplementDnsNames>
+  <!-- This ensures that only qualified DNS names are supplemented -->
+  <SupplementUnqualifiedNames>false</SupplementUnqualifiedNames>
 </CertificateRequestPolicy>

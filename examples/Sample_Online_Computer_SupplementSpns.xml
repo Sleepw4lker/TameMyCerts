@@ -6,4 +6,6 @@
     <ObjectCategory>computer</ObjectCategory>
     <SupplementServicePrincipalNames>true</SupplementServicePrincipalNames>
   </DirectoryServicesMapping>
+  <!-- This ensures that only qualified DNS names are supplemented -->
+  <SupplementUnqualifiedNames>false</SupplementUnqualifiedNames>
 </CertificateRequestPolicy>

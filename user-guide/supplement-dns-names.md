@@ -18,9 +18,16 @@ You enable the feature by configuring **SupplementDnsNames** directive.
 <SupplementDnsNames>true</SupplementDnsNames>
 ```
 
+By default, TameMyCerts will supplement both qualified (e.g. "host.domain.tld") and unqualified DNS names (e.g. "host"). You can suppress supplementation of unqialified names by setting the _SupplementUnqualifiedNames_ to _false_.
+
+```xml
+<SupplementDnsNames>true</SupplementDnsNames>
+<SupplementUnqualifiedNames>false</SupplementUnqualifiedNames>
+```
+
 ### Examples
 
-This configuration accepts certificate requests with a commonName and dNSName withing the tamemycerts.com DNS domain. WHilst the commonName field is mandatory, the dNSName field is optional. Should the request not contain a SAN in form of a dNSName, the value within the commonName will be used to create a SAN extension containing it in form of a dNSName.
+This configuration accepts certificate requests with a commonName and dNSName within the tamemycerts.com DNS domain. Whilst the _commonName_ field is mandatory, the _dNSName_ field is optional. Should the request not contain a SAN in form of a dNSName, the value within the _commonName_ will be used to create a SAN extension containing it in form of a _dNSName_.
 
 ```xml
 <Subject>

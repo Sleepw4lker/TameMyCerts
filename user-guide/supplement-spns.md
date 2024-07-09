@@ -23,3 +23,13 @@ You enable the feature by configuring **SupplementServicePrincipalNames** direct
   <SupplementServicePrincipalNames>true</SupplementServicePrincipalNames>
 </DirectoryServicesMapping>
 ```
+
+By default, TameMyCerts will supplement both qualified (e.g. "host.domain.tld") and unqualified DNS names (e.g. "host"). You can suppress supplementation of unqialified names by setting the _SupplementUnqualifiedNames_ to _false_.
+
+```xml
+<DirectoryServicesMapping>
+  <!-- other directives have been left out for simplicity -->
+  <SupplementServicePrincipalNames>true</SupplementServicePrincipalNames>
+</DirectoryServicesMapping>
+<SupplementUnqualifiedNames>false</SupplementUnqualifiedNames>
+```
