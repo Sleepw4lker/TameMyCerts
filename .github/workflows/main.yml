@@ -1,0 +1,25 @@
+name: Build .NET Framework
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+  
+  steps:
+  
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+      fetch-depth: 0
+
+    - name: Setup MSBuild Path
+      uses: microsoft/setup-msbuild@v1.3
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        
+    - name: Build Debug
+      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
