@@ -1,4 +1,4 @@
-### How TameMyCerts can reduce severity of attacks against the ESC1 attach vector {#uc-esc1}
+### How TameMyCerts can reduce severity of attacks against the ESC1 attack vector {#uc-esc1}
 
 Attacks on Microsoft certification authorities include the abuse of permissions on certificate templates. In many cases, certificate templates must be configured to allow the enrollee request any kind of identity, which can lead to account impersonation and elevation of privileges. These kinds of attacks are known as ESC1 (<https://posts.specterops.io/certified-pre-owned-d95910965cd2>) in the security scene.
 
@@ -8,7 +8,7 @@ ESC1 abuses a certificate template that is configured with the "Enrollee supplie
 
 TameMyCerts can contain the damage done in such a case, and in even prevent the attack in many cases:
 
-- TameMyCerts can [enforce identity types](#subject-rules) and thus ensure that only definiec certificate fields are allowed to get issued.
+- TameMyCerts can [enforce identity types](#subject-rules) and thus ensure that only defined certificate fields are allowed to get issued.
 - TameMyCerts can [apply syntax rules](#subject-rules) to certificate requests and thus ensure that certificates only get issued if the certificate content matched defined naming conventions.
 - TameMyCerts can [map requested identities](#ds-mapping) back to the according object in Active Directory and apply rules bases on accont status, security group or organizational unit membership.
 

@@ -43,7 +43,7 @@ This configuration accepts certificate requests with a commonName and dNSName wi
 </Subject>
 <SubjectAlternativeName>
   <SubjectRule>
-    <Field>userPrincipalName</Field>
+    <Field>dNSName</Field>
     <Mandatory>false</Mandatory>
     <Patterns>
       <Pattern>

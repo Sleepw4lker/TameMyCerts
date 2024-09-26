@@ -8,7 +8,7 @@ TamyMyCerts allows modifying the Subject Distinguished Name (DN) of a certificat
 
 This is useful in the following scenarios:
 
-- Issued certificates issued via Autoenrollment shall have another value as the "cn" Attribute for the commonName.
+- Certificates issued via Autoenrollment shall have another value as the "cn" Attribute for the _commonName_ field (which would be the only combination with the original Microsoft policy module).
 - Issued certificates shall contain additional Relative Distinguished Names that have not been requested by the enrollee.
 - Issued certificates shall contain identities in form of a specific syntax which goes beyond built-in capabilities.
 - A value from one certificate field shall be transferred to another one before issuing the certificate.
@@ -78,7 +78,7 @@ The following modifiers are currently supported:
 
 ### Examples
 
-Issued certificates will have a _commonName_ field which will contain the content of the _userPrincipalName_ AD attribute of the mapped AD object. Furthermore, the _emailAddress_ field will be populated with the content of the _mail_ AD attribute. Should the _userPrincipalName_ AD attribute not be populated in AD, the request will get denied. Should the _mail_ AD attribute not be populated in AD, the certificate will get issued but not include an _emailAddress_ field.
+Issued certificates will have a _commonName_ field which will contain the content of the _userPrincipalName_ Active Directoy attribute of the mapped object. Furthermore, the _emailAddress_ field will be populated with the content of the _mail_ AD attribute. Should the _userPrincipalName_ AD attribute not be populated in AD, the request will get denied. Should the _mail_ AD attribute not be populated in AD, the certificate will get issued but not include an _emailAddress_ field.
 
 ```xml
 <DirectoryServicesMapping />
@@ -96,7 +96,7 @@ Issued certificates will have a _commonName_ field which will contain the conten
 </OutboundSubject>
 ```
 
-The _commonName_ will be built out of the two AD attributes _sn_ (surname) and _givenName_. Assuming the given name is "John" and the surname is "Doe", the _commonName_ in the issued certificate will be "Doe, John".
+The _commonName_ will be built out of the two Active Directory attributes _sn_ (surname) and _givenName_. Assuming the given name is "John" and the surname is "Doe", the _commonName_ in the issued certificate will be "Doe, John".
 
 ```xml
 <DirectoryServicesMapping />
@@ -110,7 +110,7 @@ The _commonName_ will be built out of the two AD attributes _sn_ (surname) and _
 </OutboundSubject>
 ```
 
-The _commonName_ will be built out of the AD attribute _name_ and a static string. Assuming the name is "John Doe", the _commonName_ in the issued certificate will be "John Doe is an awesome fellow!".
+The _commonName_ will be built out of the _name_ Active Directory attribute and a static string. Assuming the _name_ attribute contains "John Doe", the _commonName_ in the issued certificate will be "John Doe is an awesome fellow!".
 
 ```xml
 <DirectoryServicesMapping />
@@ -124,7 +124,7 @@ The _commonName_ will be built out of the AD attribute _name_ and a static strin
 </OutboundSubject>
 ```
 
-The _commonName_ will be built out of the _displayName_ AD attribute. The _organizationName_ will be "TameMyCerts", regardless if the originating certificate request did contain this field.
+The _commonName_ will be built out of the _displayName_ Active Directory attribute. The _organizationName_ will be set to "TameMyCerts", regardless if the originating certificate request did contain this field or not.
 
 ```xml
 <OutboundSubject>
@@ -142,7 +142,7 @@ The _commonName_ will be built out of the _displayName_ AD attribute. The _organ
 </OutboundSubject>
 ```
 
-Transfering the first _dNSName_ of the Subject Alternative Name into the _commonName_ field of the issued certificate.
+Transfering the **first** _dNSName_ of the Subject Alternative Name into the _commonName_ field of the issued certificate.
 
 ```xml
 <!-- does not require DirectoryServicesMapping -->
@@ -156,7 +156,7 @@ Transfering the first _dNSName_ of the Subject Alternative Name into the _common
 </OutboundSubject>
 ```
 
-The _stateOrProvinceName_ will be removed if present in the certificate request.
+The content of the _stateOrProvinceName_ field will be removed from the issueed certificate, if present in the certificate request.
 
 ```xml
 <DirectoryServicesMapping />
@@ -170,7 +170,7 @@ The _stateOrProvinceName_ will be removed if present in the certificate request.
 </OutboundSubject>
 ```
 
-The _stateOrProvinceName_ will be transferred from the certificate request into the _serialNumber_ and then it will be removed from the issued certificate.
+The content of the _stateOrProvinceName_ field will be transferred from the certificate request into the _serialNumber_ field of the issued certificate, and the _stateOrProvinceName_ field will be removed from the issued certificate.
 
 ```xml
 <DirectoryServicesMapping />

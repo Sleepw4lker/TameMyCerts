@@ -18,7 +18,6 @@ Each of those can contain one or more uniform resource identifiers (URIs). TameM
 |ServerShortName |The NetBIOS name of the CA server|%2|
 |CaName |The name of the CA |%3|
 |Cert_Suffix |The renewal extension of the CA|%4|
-|CertificateName |Not applicable.|%4|
 |ConfigurationContainer |The location of the configuration container in Active Directory|%6|
 |CATruncatedName|The "sanitized" name of the CA, 32 characters with a hash on the end|%7|
 |CRLNameSuffix|The renewal extension for the CRL |%8 |

@@ -33,8 +33,5 @@ When an invalid date is being requested, the certificate request will get denied
 Requesting a certificate that shall be valid from Mar 1, 2022 08:00 until Mar 1, 2022 16:00:
 
 ```
-certreq ^
-  -config "caserver.tamemycerts.local\TameMyCerts CA" ^
-  -attrib "CertificateTemplate:TameMyCertsWebServer\nStartDate:Tue, 1 Mar 2022 08:00:00 GMT\nExpirationDate:Tue, 1 Mar 2022 16:00:00 GMT" ^
-  -submit "MyCertificateRequest.req"
+certreq.exe -config "caserver.tamemycerts.local\TameMyCerts CA" -attrib "CertificateTemplate:TameMyCertsWebServer\nStartDate:Tue, 1 Mar 2022 08:00:00 GMT\nExpirationDate:Tue, 1 Mar 2022 16:00:00 GMT" -submit "MyCertificateRequest.req"
 ```
