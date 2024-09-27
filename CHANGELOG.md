@@ -11,9 +11,12 @@ This is mainly a quality improvement release, adding several non-essential funct
 - Fix the module denying certificate requests with error 0x80131500 when the certificate request contains a Subject Alternative Name extension with empty content (Issue #20).
 - Fix the installer script not removing the event source on uninstall (Issue #22).
 - Introducing (verbose) Event IDs 12 and 13 that indicate certificate requests getting issued or put into pending state.
+- Introduding Event 14 which will contain warnings that occurred during the processing of a certificate request.
+    - Currently, the detection of the "san" request attribute will get logged regardless if the dangerous **EDITF\_ATTRIBUTESUBJECTALTNAME2** flag is enabled or not. This allows to silently detect attack attempts on the certification authority.
 - Introducing a _SupplementUnqualifiedNames_ switch to use in combination with supplementing of DNS names (both _SupplementDnsNames_ and _SupplementServicePrincipalNames_). To keep compatibility with the previous behavior, this setting defaults to _true_. If set to false, supplementation logic will not include DNS names that are not fully qualified.
-- Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates:
-    - Allow to set the default bevaior to globally deny when no policy configuration file is found.
+- Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates (the default behavior stays as before):
+    - Allow to set the default behavior to globally deny a certificate request when no policy configuration file is found for the requested certificate template.
+    - Allow to certificate requests containing insecure request attribute and certification authority flag combinations to get issued (Only for testing purposes. Use at your own risk!).
 - Improved documentation, especially description of event logs and use cases.
 
 ### Version 1.6.1045.1129
