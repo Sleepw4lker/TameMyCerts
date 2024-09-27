@@ -125,6 +125,13 @@ namespace TameMyCerts.Models
             MessageText = LocalizedStrings.Events_SUCCESS_PENDING
         };
 
+        public static readonly Event REQUEST_CONTAINS_WARNINGS = new Event
+        {
+            Id = 14,
+            Type = EventLogEntryType.Warning,
+            MessageText = LocalizedStrings.Events_REQUEST_CONTAINS_WARNINGS
+        };
+
         public static readonly Event DEBUG = new Event
         {
             Id = 99,

@@ -5,7 +5,7 @@ TameMyCerts
 |Flag|Numerical value|Description|
 |---|---|---|
 |TMC_DENY_IF_NO_POLICY|0x1|Denies certificate request in case there is no policy configuration defined. Note that this causes the certification authority to globally deny all certificate requests by default until a policy configuration has been defined the published certificate templates.|
-|TMC_WARN_ONLY_ON_INSECURE_FLAGS|0x2|not yet implemented|
+|TMC_WARN_ONLY_ON_INSECURE_FLAGS|0x2|Causes the policy module to not deny a certificate request when it contains the "san" request attribute and the **EDITF\_ATTRIBUTESUBJECTALTNAME2** flag has been enabled on the certification authority. Refer to section [Denying certificate requests for insecure combinations](#deny-insecure-flags) for more information. **It is recommended to not enable this flag.**|
 |TMC_DEEP_LDAP_SEARCH|0x4|not yet implemented|
 
 > Flags can be combined with each other.

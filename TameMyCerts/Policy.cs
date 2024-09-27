@@ -208,6 +208,16 @@ namespace TameMyCerts
                 #endregion
             }
 
+            #region Log warnings, if any
+
+            if (result.Warnings.Count > 0)
+            {
+                _logger.Log(Events.REQUEST_CONTAINS_WARNINGS, requestId, template.Name,
+                    string.Join("\n", result.Warnings.Distinct().ToList()));
+            }
+
+            #endregion
+
             #region Modify certificate validity period, if changed by a validator
 
             // Modify certificate validity period (if changed) and issue certificate (or put in pending state)

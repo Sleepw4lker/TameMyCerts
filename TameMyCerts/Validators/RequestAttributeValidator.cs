@@ -37,10 +37,15 @@ namespace TameMyCerts.Validators
 
             #region Process insecure flag/attribute combinations
 
-            if (caConfig.EditFlags.HasFlag(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2) &&
-                dbRow.RequestAttributes.ContainsKey("san"))
+            if (dbRow.RequestAttributes.ContainsKey("san"))
             {
-                result.SetFailureStatus(WinError.NTE_FAIL, LocalizedStrings.AttribVal_Insecure_Flags);
+                result.AddWarning(LocalizedStrings.AttribVal_Insecure_Flags_detected);
+
+                if (caConfig.EditFlags.HasFlag(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2) &&
+                    !caConfig.TmcFlags.HasFlag(TmcFlag.TMC_WARN_ONLY_ON_INSECURE_FLAGS))
+                {
+                    result.SetFailureStatus(WinError.NTE_FAIL, LocalizedStrings.AttribVal_Insecure_Flags);
+                }
             }
 
             #endregion

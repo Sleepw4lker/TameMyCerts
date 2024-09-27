@@ -79,6 +79,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute. If the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag, this is a highly dangerous configuration..
+        /// </summary>
+        internal static string AttribVal_Insecure_Flags_detected {
+            get {
+                return ResourceManager.GetString("AttribVal_Insecure_Flags_detected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to adjust begin of certificate validity period to {0} (UTC) as requested by &quot;StartDate&quot; request attribute. The requested date is invalid..
         /// </summary>
         internal static string AttribVal_Invalid_StartDate {
@@ -339,6 +348,16 @@ namespace TameMyCerts {
         internal static string Events_POLICY_NOT_FOUND {
             get {
                 return ResourceManager.GetString("Events_POLICY_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The following warnings have been logged during the processing of request {0} for {1}:
+        ///{2}.
+        /// </summary>
+        internal static string Events_REQUEST_CONTAINS_WARNINGS {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_CONTAINS_WARNINGS", resourceCulture);
             }
         }
         

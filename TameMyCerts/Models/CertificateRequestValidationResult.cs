@@ -64,6 +64,11 @@ namespace TameMyCerts.Models
         public List<string> Description { get; } = new List<string>();
 
         /// <summary>
+        ///     A textual description of warnings that occurred during validation.
+        /// </summary>
+        public List<string> Warnings { get; } = new List<string>();
+
+        /// <summary>
         ///     The X.509 certificate extensions that shall be set after TameMyCerts has processed the certificate request
         /// </summary>
         public Dictionary<string, byte[]> CertificateExtensions
@@ -164,6 +169,10 @@ namespace TameMyCerts.Models
             Description.AddRange(descriptionList);
         }
 
+        public void AddWarning(string description)
+        {
+            Warnings.Add(description);
+        }
         public void SetNotAfter(string desiredNotAfter)
         {
             if (desiredNotAfter == string.Empty)
