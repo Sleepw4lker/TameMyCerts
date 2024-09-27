@@ -140,6 +140,12 @@ namespace TameMyCerts
 
             if (cacheEntry == null)
             {
+                if (_caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY))
+                {
+                    _logger.Log(Events.REQUEST_DENIED_POLICY_NOT_FOUND, template.Name, requestId);
+                    return WinError.NTE_FAIL;
+                }
+
                 _logger.Log(Events.POLICY_NOT_FOUND, template.Name, requestId);
             }
             else

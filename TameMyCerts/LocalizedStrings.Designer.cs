@@ -391,6 +391,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to find policy file for {0}. Request {1} will get denied..
+        /// </summary>
+        internal static string Events_REQUEST_DENIED_POLICY_NOT_FOUND {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_POLICY_NOT_FOUND", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Request {0} for {1} will get issued..
         /// </summary>
         internal static string Events_SUCCESS_ISSUED {

@@ -66,6 +66,7 @@
     <Compile Include="Enums\KeyAlgorithmFamily.cs" />
     <Compile Include="Enums\KeyAlgorithmType.cs" />
     <Compile Include="Enums\SubjectNameFlag.cs" />
+    <Compile Include="Enums\TmcFlag.cs" />
     <Compile Include="Models\CertificateDatabaseRow.cs" />
     <Compile Include="Models\CertificateRequestPolicy.cs" />
     <Compile Include="Models\CertificateRequestPolicyCache.cs" />

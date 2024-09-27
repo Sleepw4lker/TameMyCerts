@@ -4,7 +4,7 @@
 
 ### Version 1.7.x.y
 
-_This version was not yet released._
+_This version has not yet been released._
 
 This is mainly a quality improvement release, adding several non-essential functionality and fixes some minor bugs.
 
@@ -12,13 +12,15 @@ This is mainly a quality improvement release, adding several non-essential funct
 - Fix the installer script not removing the event source on uninstall (Issue #22).
 - Introducing (verbose) Event IDs 12 and 13 that indicate certificate requests getting issued or put into pending state.
 - Introducing a _SupplementUnqualifiedNames_ switch to use in combination with supplementing of DNS names (both _SupplementDnsNames_ and _SupplementServicePrincipalNames_). To keep compatibility with the previous behavior, this setting defaults to _true_. If set to false, supplementation logic will not include DNS names that are not fully qualified.
+- Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates:
+    - Allow to set the default bevaior to globally deny when no policy configuration file is found.
 - Improved documentation, especially description of event logs and use cases.
 
 ### Version 1.6.1045.1129
 
 _This version was released on Nov 12, 2023._
 
-This is a major release containing lots of bug fixes for edge-cases as well as many new exciting features, whilst staying backwards-compatible to existing configuration files.
+This is a major release containing lots of bug fixes for edge-cases as well as many new exciting features, whilst (mostly) staying backwards-compatible to existing configuration files.
 
 -   TameMyCerts now supports modifying the Subject Distinguished Name and Subject Alternative Name of issued certificates with attributes of mapped Active Directory objects, values from certificate request fields, static strings, or a combination of all these. **Note that this breaks existing policy files. These must be adjusted when upgrading.**
 -   TameMyCerts now implements caching for policy configuration files. Instead of loading them over and over again for any incoming request, this is now only done if the file has changed..

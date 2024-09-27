@@ -138,6 +138,9 @@
   <data name="Events_POLICY_NOT_FOUND" xml:space="preserve">
     <value>Unable to find policy file for {0}. Request {1} will get issued.</value>
   </data>
+  <data name="Events_REQUEST_DENIED_POLICY_NOT_FOUND" xml:space="preserve">
+    <value>Unable to find policy file for {0}. Request {1} will get denied.</value>
+  </data>
   <data name="Events_REQUEST_DENIED" xml:space="preserve">
     <value>Request {0} for {1} was denied because:
 {2}</value>

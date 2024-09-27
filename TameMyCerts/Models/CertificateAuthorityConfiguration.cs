@@ -50,6 +50,7 @@ namespace TameMyCerts.Models
             ConfigurationContainer = (string) Registry.GetValue(serverRoot, "DSConfigDN", string.Empty);
             PolicyDirectory = (string) Registry.GetValue(activePolicyModuleRoot, "PolicyDirectory", Path.GetTempPath());
             EditFlags = (EditFlag) (int) Registry.GetValue(activePolicyModuleRoot, "EditFlags", 0);
+            TmcFlags = (TmcFlag) (int)Registry.GetValue(activePolicyModuleRoot, "TmcFlags", 0);
         }
 
         // TODO: Merge the two testing constructors, move default values to Unit test project
@@ -81,6 +82,7 @@ namespace TameMyCerts.Models
 
         public string PolicyDirectory { get; }
         public EditFlag EditFlags { get; }
+        public TmcFlag TmcFlags { get; }
         public CaType Type { get; }
         public bool IsSupportedCaType => Type == CaType.ENUM_ENTERPRISE_ROOTCA || Type == CaType.ENUM_ENTERPRISE_SUBCA;
         public int LogLevel { get; }

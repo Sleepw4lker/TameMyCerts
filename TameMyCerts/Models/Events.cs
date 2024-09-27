@@ -65,6 +65,14 @@ namespace TameMyCerts.Models
             MessageText = LocalizedStrings.Events_POLICY_NOT_FOUND
         };
 
+        public static readonly Event REQUEST_DENIED_POLICY_NOT_FOUND = new Event
+        {
+            Id = 8,
+            LogLevel = CertSrv.CERTLOG_VERBOSE,
+            Type = EventLogEntryType.Warning,
+            MessageText = LocalizedStrings.Events_REQUEST_DENIED_POLICY_NOT_FOUND
+        };
+
         public static readonly Event MODULE_NOT_SUPPORTED = new Event
         {
             Id = 9,

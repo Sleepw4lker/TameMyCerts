@@ -32,6 +32,8 @@ TameMyCerts is Open Source Software. Find it on [GitHub](https://github.com/Slee
 
 - [Configuring the TameMyCerts policy module](#configuring)
 
+    - [Global settings](#global-settings)
+
     - [Audit only mode](#audit-only-mode)
 
     - [Configuring rules for the key pair of a CSR](#key-rules)
