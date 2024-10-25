@@ -167,18 +167,18 @@ namespace TameMyCerts.Validators
 
                 #region Process request extensions
 
-                if (dbRow.CertificateExtensions.ContainsKey(WinCrypt.szOID_DS_CA_SECURITY_EXT))
+                if (dbRow.CertificateExtensions.ContainsKey(WinCrypt.szOID_NTDS_CA_SECURITY_EXT))
                 {
                     if (policy.SecurityIdentifierExtension.Equals("Deny", Comparison))
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                             string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
-                                WinCrypt.szOID_DS_CA_SECURITY_EXT, nameof(WinCrypt.szOID_DS_CA_SECURITY_EXT)));
+                                WinCrypt.szOID_NTDS_CA_SECURITY_EXT, nameof(WinCrypt.szOID_NTDS_CA_SECURITY_EXT)));
                     }
 
                     if (policy.SecurityIdentifierExtension.Equals("Remove", Comparison))
                     {
-                        result.DisabledCertificateExtensions.Add(WinCrypt.szOID_DS_CA_SECURITY_EXT);
+                        result.DisabledCertificateExtensions.Add(WinCrypt.szOID_NTDS_CA_SECURITY_EXT);
                     }
                 }
 

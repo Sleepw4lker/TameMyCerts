@@ -1047,6 +1047,7 @@ namespace TameMyCerts.Tests
                 "-----END NEW CERTIFICATE REQUEST-----";
 
             var policy = _policy;
+
             policy.SupplementDnsNames = true;
 
             var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
@@ -2058,7 +2059,7 @@ namespace TameMyCerts.Tests
             PrintResult(result);
 
             Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsTrue(result.DisabledCertificateExtensions.Contains(WinCrypt.szOID_DS_CA_SECURITY_EXT));
+            Assert.IsTrue(result.DisabledCertificateExtensions.Contains(WinCrypt.szOID_NTDS_CA_SECURITY_EXT));
         }
 
         [TestMethod]

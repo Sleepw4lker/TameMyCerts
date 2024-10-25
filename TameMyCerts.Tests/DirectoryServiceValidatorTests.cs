@@ -221,9 +221,9 @@ namespace TameMyCerts.Tests
 
             Assert.IsFalse(result.DeniedForIssuance);
             Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
-            Assert.IsTrue(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_DS_CA_SECURITY_EXT) &&
+            Assert.IsTrue(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_NTDS_CA_SECURITY_EXT) &&
                           Convert.ToBase64String(
-                                  result.CertificateExtensions[WinCrypt.szOID_DS_CA_SECURITY_EXT])
+                                  result.CertificateExtensions[WinCrypt.szOID_NTDS_CA_SECURITY_EXT])
                               .Equals(expectedSecurityIdentifier));
         }
 
@@ -262,7 +262,7 @@ namespace TameMyCerts.Tests
             PrintResult(result);
 
             Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsFalse(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_DS_CA_SECURITY_EXT));
+            Assert.IsFalse(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_NTDS_CA_SECURITY_EXT));
         }
 
         [TestMethod]
@@ -278,7 +278,7 @@ namespace TameMyCerts.Tests
             PrintResult(result);
 
             Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsFalse(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_DS_CA_SECURITY_EXT));
+            Assert.IsFalse(result.CertificateExtensions.ContainsKey(WinCrypt.szOID_NTDS_CA_SECURITY_EXT));
         }
 
         [TestMethod]

@@ -236,7 +236,7 @@ namespace TameMyCerts.Validators
             {
                 var sidExt = new X509CertificateExtensionSecurityIdentifier(dsObject.SecurityIdentifier);
 
-                result.AddCertificateExtension(WinCrypt.szOID_DS_CA_SECURITY_EXT, sidExt.RawData);
+                result.AddCertificateExtension(WinCrypt.szOID_NTDS_CA_SECURITY_EXT, sidExt.RawData);
             }
 
             #endregion
