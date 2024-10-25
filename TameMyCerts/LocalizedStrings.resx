@@ -338,7 +338,7 @@
     <value>Unable to add entry of type "{0}" with value "{1}" to the Subject Alternative Name certificate extension. Either type or value is invalid.</value>
   </data>
   <data name="Token_invalid" xml:space="preserve">
-    <value>The "{0}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
+    <value>The "{0}:{1}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
     <comment>"</comment>
   </data>
   <data name="Events_SUCCESS_ISSUED" xml:space="preserve">
@@ -346,5 +346,26 @@
   </data>
   <data name="Events_SUCCESS_PENDING" xml:space="preserve">
     <value>Request {0} for {1} will be put into pending state.</value>
+  </data>
+  <data name="YKVal_Allowed_Firmware_Version" xml:space="preserve">
+    <value>This Yubikey's firmware "{0}", is not on the list of allowed firmwares.</value>
+  </data>
+  <data name="YKVal_Allowed_PIN_Policy" xml:space="preserve">
+    <value>This Yubikey's PIN policy "{0}", is not on the list of allowed PIN policies.</value>
+  </data>
+  <data name="YKVal_Allowed_Touch_Policy" xml:space="preserve">
+    <value>This Yubikey's touch policy "{0}", is not on the list of allowed touch policies.</value>
+  </data>
+  <data name="YKVal_Disallowed_Firmware_Version" xml:space="preserve">
+    <value>The Yubikey's firmware "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Disallowed_PIN_Policy" xml:space="preserve">
+    <value>The Yubikey's PIN Policy "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Disallowed_Touch_Policy" xml:space="preserve">
+    <value>The Yubikey's Touch Policy "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
+    <value>The module was unable to read the embedded certificates. Actual error: {0}</value>
   </data>
 </root>

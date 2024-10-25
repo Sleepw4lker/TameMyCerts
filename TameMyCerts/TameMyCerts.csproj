@@ -67,6 +67,9 @@
     <Compile Include="Enums\KeyAlgorithmType.cs" />
     <Compile Include="Enums\SubjectNameFlag.cs" />
     <Compile Include="Enums\TmcFlag.cs" />
+    <Compile Include="Enums\YubikeyOID.cs" />
+    <Compile Include="Models\YubikeyPolicy.cs" />
+    <Compile Include="Models\YubikeyObject.cs" />
     <Compile Include="Models\CertificateDatabaseRow.cs" />
     <Compile Include="Models\CertificateRequestPolicy.cs" />
     <Compile Include="Models\CertificateRequestPolicyCache.cs" />
@@ -89,6 +92,7 @@
     <Compile Include="Enums\UserAccountControl.cs" />
     <Compile Include="Enums\WinCrypt.cs" />
     <Compile Include="Enums\WinError.cs" />
+    <Compile Include="Validators\YubikeyValidator.cs" />
     <Compile Include="Validators\DirectoryServiceValidator.cs" />
     <Compile Include="ClassExtensions\IPAddressExtensions.cs" />
     <Compile Include="LocalizedStrings.Designer.cs">

@@ -725,11 +725,74 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The &quot;{0}&quot; token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field..
+        ///   Looks up a localized string similar to The &quot;{0}:{1}&quot; token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field..
         /// </summary>
         internal static string Token_invalid {
             get {
                 return ResourceManager.GetString("Token_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s firmware &quot;{0}&quot;, is not on the list of allowed firmwares..
+        /// </summary>
+        internal static string YKVal_Allowed_Firmware_Version {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_Firmware_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s PIN policy &quot;{0}&quot;, is not on the list of allowed PIN policies..
+        /// </summary>
+        internal static string YKVal_Allowed_PIN_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_PIN_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s touch policy &quot;{0}&quot;, is not on the list of allowed touch policies..
+        /// </summary>
+        internal static string YKVal_Allowed_Touch_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_Touch_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s firmware &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_Firmware_Version {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_Firmware_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s PIN Policy &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_PIN_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_PIN_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s Touch Policy &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_Touch_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_Touch_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The module was unable to read the embedded certificates. Actual error: {0}.
+        /// </summary>
+        internal static string YKVal_Unable_to_read_embedded_certificates {
+            get {
+                return ResourceManager.GetString("YKVal_Unable_to_read_embedded_certificates", resourceCulture);
             }
         }
     }

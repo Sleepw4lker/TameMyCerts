@@ -38,6 +38,7 @@ namespace TameMyCerts
         private readonly DirectoryServiceValidator _dsValidator = new DirectoryServiceValidator();
         private readonly FinalResultValidator _frValidator = new FinalResultValidator();
         private readonly RequestAttributeValidator _raValidator = new RequestAttributeValidator();
+        private readonly YubikeyValidator _ykValidator = new YubikeyValidator();
         private readonly CertificateTemplateCache _templateCache = new CertificateTemplateCache();
         private CertificateAuthorityConfiguration _caConfig;
         private Logger _logger;
@@ -169,8 +170,11 @@ namespace TameMyCerts
 
                 result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
 
+                result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
+
                 result = _dsValidator.VerifyRequest(result, policy, dsObject);
-                result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig);
+                result = _ykValidator.VerifyRequest(result, policy, ykObject);
+                result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig, ykObject);
                 result = _frValidator.VerifyRequest(result, policy, dbRow);
 
                 #endregion
