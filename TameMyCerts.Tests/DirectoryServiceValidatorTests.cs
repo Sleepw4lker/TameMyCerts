@@ -734,5 +734,38 @@ namespace TameMyCerts.Tests
             Assert.IsTrue(result.DeniedForIssuance);
             Assert.IsTrue(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
         }
+
+        [TestMethod]
+        public void Allow_if_user_password_age_is_good()
+        {
+            var policy = _policy;
+            var result = new CertificateRequestValidationResult(_dbRow);
+
+            policy.DirectoryServicesMapping.MaximumPasswordAge = 30;
+            ActiveDirectoryObject dsObject = _dsObject;
+            dsObject.Attributes.Add("pwdLastSet", DateTime.Now.AddMinutes(-15).ToFileTimeUtc().ToString());
+            result = _validator.VerifyRequest(result, policy, _dsObject);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        }
+        [TestMethod]
+        public void Deny_if_user_passwordchange_is_too_close()
+        {
+            var policy = _policy;
+            var result = new CertificateRequestValidationResult(_dbRow);
+
+            policy.DirectoryServicesMapping.MaximumPasswordAge = 30;
+            ActiveDirectoryObject dsObject = _dsObject;
+            dsObject.Attributes.Add("pwdLastSet", DateTime.Now.AddMinutes(-45).ToFileTimeUtc().ToString());
+            result = _validator.VerifyRequest(result, policy, _dsObject);
+
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.IsTrue(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+        }
     }
 }

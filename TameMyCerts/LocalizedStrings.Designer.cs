@@ -124,6 +124,24 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The password for the {0} failed to parse..
+        /// </summary>
+        internal static string DirVal_Account_Password_failed_to_parse {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Password_failed_to_parse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password is older than the allowed {0} minutes..
+        /// </summary>
+        internal static string DirVal_Account_Password_to_old {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Password_to_old", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The value &quot;{0}&quot; does match the expression {1} which disallowed for the object name of {2}..
         /// </summary>
         internal static string DirVal_Disallow_Match {
