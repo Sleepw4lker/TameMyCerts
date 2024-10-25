@@ -1,3 +1,7 @@
+<!--
+  This is an example configuration file for online certificate templates.
+  All issued certificates will contain a Subject Alternative Name with a static email address.
+-->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <OutboundSubjectAlternativeName>

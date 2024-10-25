@@ -1,5 +1,5 @@
 <!--
-  This is an example configuration file for user online certificate requests.
+  This is an example configuration file for online certificate templates.
   Ensures that all certificates issued for this template expire on 31st December 2022, 23:59:59
 (Europe/Berlin time).
 -->

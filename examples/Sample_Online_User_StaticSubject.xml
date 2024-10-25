@@ -1,5 +1,5 @@
 <!--
-  This is an example configuration file for user online certificate requests.
+  This is an example configuration file for online certificate templates.
   The issued certificate will contain an organizationName RDN with the configured static value.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
