@@ -1,0 +1,5 @@
+[NewRequest]
+Subject="CN=www.intra.tamemycerts-tests.local"
+KeyAlgorithm=RSA
+KeyLength=2048
+RequestType=PKCS10

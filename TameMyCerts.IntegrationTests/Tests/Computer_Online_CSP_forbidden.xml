@@ -1,0 +1,6 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DisallowedCryptoProviders>
+    <string>Microsoft Software Key Storage Provider</string>
+  </DisallowedCryptoProviders>
+</CertificateRequestPolicy>

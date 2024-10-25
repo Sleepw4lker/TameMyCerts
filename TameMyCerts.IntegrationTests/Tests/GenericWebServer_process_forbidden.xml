@@ -1,0 +1,20 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DisallowedProcesses>
+    <string>mmc.exe</string>
+    <string>powershell.exe</string>
+  </DisallowedProcesses>
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>3</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+</CertificateRequestPolicy>

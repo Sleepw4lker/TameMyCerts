@@ -1,0 +1,39 @@
+dn: CN=User_Offline_Sid_Deny,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=local
+changetype: add
+objectClass: top
+objectClass: pKICertificateTemplate
+cn: User_Offline_Sid_Deny
+distinguishedName: 
+ CN=User_Offline_Sid_Deny,CN=Certificate Templates,CN=Public Key Services,CN=Se
+ rvices,CN=Configuration,DC=tamemycerts-tests,DC=local
+instanceType: 4
+displayName: User_Offline_Sid_Deny
+showInAdvancedViewOnly: TRUE
+name: User_Offline_Sid_Deny
+flags: 131642
+revision: 100
+objectCategory: 
+ CN=PKI-Certificate-Template,CN=Schema,CN=Configuration,DC=tamemycerts-tests,DC
+ =local
+pKIDefaultKeySpec: 1
+pKIKeyUsage:: oAA=
+pKIMaxIssuingDepth: 0
+pKICriticalExtensions: 2.5.29.15
+pKICriticalExtensions: 2.5.29.7
+pKIExpirationPeriod:: AEAepOhl+v8=
+pKIOverlapPeriod:: AICmCv/e//8=
+pKIExtendedKeyUsage: 1.3.6.1.5.5.7.3.2
+pKIDefaultCSPs: 1,Microsoft Software Key Storage Provider
+msPKI-RA-Signature: 0
+msPKI-Enrollment-Flag: 0
+msPKI-Private-Key-Flag: 33685520
+msPKI-Certificate-Name-Flag: 1
+msPKI-Minimal-Key-Size: 2048
+msPKI-Template-Schema-Version: 3
+msPKI-Template-Minor-Revision: 13
+msPKI-Certificate-Application-Policy: 1.3.6.1.5.5.7.3.2
+msPKI-RA-Application-Policies: 
+ msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA1`msPKI
+ -Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetr
+ ic-Key-Length`DWORD`168`
+

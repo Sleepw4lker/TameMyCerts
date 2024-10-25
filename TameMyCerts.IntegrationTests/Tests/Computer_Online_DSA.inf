@@ -1,0 +1,6 @@
+[NewRequest]
+Subject="CN="
+KeyAlgorithm=DSA
+RequestType=PKCS10
+KeyLength=1024
+ProviderName="Microsoft Base DSS Cryptographic Provider"

@@ -1,0 +1,7 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DisallowedProcesses>
+    <string>mmc.exe</string>
+    <string>powershell.exe</string>
+  </DisallowedProcesses>
+</CertificateRequestPolicy>

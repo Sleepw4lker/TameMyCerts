@@ -1,0 +1,27 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SubjectAlternativeName>
+    <SubjectRule>
+      <Field>userPrincipalName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*(\@tamemycerts-tests\.local)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </SubjectAlternativeName>
+  <DirectoryServicesMapping>
+    <DirectoryObjectRules>
+      <DirectoryObjectRule>
+        <DirectoryServicesAttribute>userPrincipalName</DirectoryServicesAttribute>
+        <Mandatory>true</Mandatory>
+        <Patterns>
+          <Pattern>
+            <Expression>^[a-zA-Z]*1(\@tamemycerts-tests\.local)$</Expression>
+          </Pattern>
+        </Patterns>
+      </DirectoryObjectRule>
+    </DirectoryObjectRules>
+  </DirectoryServicesMapping>
+</CertificateRequestPolicy>
