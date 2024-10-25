@@ -76,7 +76,14 @@ namespace TameMyCerts.Models
 
             foreach (var s in DsRetrievalAttributes.Where(s => dsObject.Properties[s].Count > 0))
             {
-                Attributes.Add(s, (string) dsObject.Properties[s][0]);
+                if (dsObject.Properties[s][0] is Int64)
+                {
+                    Attributes.Add(s, dsObject.Properties[s][0].ToString());
+                }
+                else
+                {
+                    Attributes.Add(s, (string)dsObject.Properties[s][0]);
+                }
             }
         }
 
@@ -121,7 +128,7 @@ namespace TameMyCerts.Models
             "extensionAttribute8", "extensionAttribute9", "facsimileTelephoneNumber", "gecos", "givenName", "homePhone",
             "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
             "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalPager",
-            "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "sAMAccountName", "sn", "st", "street",
+            "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "pwdLastSet", "sAMAccountName", "sn", "st", "street",
             "streetAddress", "telephoneNumber", "title", "userPrincipalName"
         };
 

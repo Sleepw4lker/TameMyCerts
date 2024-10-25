@@ -268,6 +268,12 @@
   <data name="DirVal_Account_Groups_Not_Allowed" xml:space="preserve">
     <value>The {0} account for {1} is not member of any allowed group.</value>
   </data>
+  <data name="DirVal_Account_Password_failed_to_parse" xml:space="preserve">
+    <value>The password for the {0} failed to parse.</value>
+  </data>
+  <data name="DirVal_Account_Password_to_old" xml:space="preserve">
+    <value>The password is older than the allowed {0} minutes.</value>
+  </data>
   <data name="DirVal_Invalid_Directory_Attribute" xml:space="preserve">
     <value>An invalid directory attribute was specified in request policy: {0}.</value>
   </data>
