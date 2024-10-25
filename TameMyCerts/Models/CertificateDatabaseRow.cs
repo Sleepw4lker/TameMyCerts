@@ -1,4 +1,18 @@
-﻿using System;
+﻿// Copyright 2021-2024 Uwe Gradenegger <uwe@gradenegger.eu>
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,6 +32,7 @@ namespace TameMyCerts.Models
             NotBefore = serverPolicy.GetDateCertificatePropertyOrDefault("NotBefore");
             NotAfter = serverPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
             KeyLength = serverPolicy.GetLongCertificatePropertyOrDefault("PublicKeyLength");
+            PublicKey = serverPolicy.GetBinaryCertificatePropertyOrDefault("RawPublicKey");
             RawRequest = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
             RequestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
             Upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN") ?? string.Empty;
@@ -52,6 +67,7 @@ namespace TameMyCerts.Models
                     ? new List<KeyValuePair<string, string>>()
                     : GetDnComponents(DistinguishedName);
                 SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
+                PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
                 RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
                 RequestType = CertCli.CR_IN_PKCS10;
             }
@@ -138,6 +154,12 @@ namespace TameMyCerts.Models
         ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There
         ///     are rare cases in which it is not possible to parse the inline request. The property returns an empty collection in
         ///     this case.
+        /// </summary>
+        public byte[] PublicKey { get; }
+
+        /// <summary>
+        ///     This is a base64 encoded string of the public key. It is extracted from the certificate request and can be used to
+        ///     validate the yubikey attestation.
         /// </summary>
         public Dictionary<string, string> InlineRequestAttributes
         {

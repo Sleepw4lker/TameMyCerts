@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataModelSerializationTests.cs" />
+    <Compile Include="YubikeyValidatorTests.cs" />
     <Compile Include="DirectoryServiceValidatorTests.cs" />
     <Compile Include="CertificateRequestValidatorTests.cs" />
     <Compile Include="FinalResultValidatorTests.cs" />
