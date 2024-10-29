@@ -347,4 +347,35 @@
   <data name="Events_SUCCESS_PENDING" xml:space="preserve">
     <value>Request {0} for {1} will be put into pending state.</value>
   </data>
+  <data name="event_DirVal_Debug_Matched_AllowedGroups" xml:space="preserve">
+    <value>The Directory Services Validator matched the user group:
+{0}
+
+in the allowed groups:
+{1}</value>
+  </data>
+  <data name="event_DirVal_Debug_Matched_DisallowedGroups" xml:space="preserve">
+    <value>The Directory Services Validator matched the requestor group:
+{0}
+
+in the disallowed groups:
+{1}</value>
+  </data>
+  <data name="event_DirVal_Debug_No_Matched_AllowedGroups" xml:space="preserve">
+    <value>The Directory Services Validator failed to matched the users groups: 
+{0}
+
+in the allowed groups:
+{1}</value>
+  </data>
+  <data name="event_DirVal_Debug_No_Matched_DisallowedGroups" xml:space="preserve">
+    <value>The Directory Services Validator failed to matched the group:
+{0}
+
+in the disallowed groups:
+{1}</value>
+  </data>
+  <data name="event_TameMyCerts_Initialized" xml:space="preserve">
+    <value>The TameMyCerts policy module has been initialized.</value>
+  </data>
 </root>

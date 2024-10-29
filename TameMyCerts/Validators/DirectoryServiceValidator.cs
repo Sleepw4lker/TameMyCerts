@@ -189,9 +189,14 @@ namespace TameMyCerts.Validators
 
                 if (matches == 0)
                 {
+                    AdvancedLogging.Log.DirVal_Debug_No_Matched_AllowedGroups(string.Join(System.Environment.NewLine, dsObject.MemberOf.ToList()), string.Join(System.Environment.NewLine, dsMapping.AllowedSecurityGroups.ToList()));
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Groups_Not_Allowed,
                         dsMapping.ObjectCategory, dsObject.DistinguishedName));
+                }
+                else
+                {
+                    AdvancedLogging.Log.DirVal_Debug_Matched_AllowedGroups(string.Join(System.Environment.NewLine, dsObject.MemberOf.ToList()), string.Join(System.Environment.NewLine, dsMapping.AllowedSecurityGroups.ToList()));
                 }
             }
 
@@ -200,6 +205,7 @@ namespace TameMyCerts.Validators
                 foreach (var group in dsObject.MemberOf.Where(group =>
                              dsMapping.DisallowedSecurityGroups.Any(s => s.Equals(group, Comparison))))
                 {
+                    AdvancedLogging.Log.DirVal_Debug_Matched_DisallowedGroups(string.Join(System.Environment.NewLine, dsObject.MemberOf.ToList()), string.Join(System.Environment.NewLine, dsMapping.AllowedSecurityGroups.ToList()));
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Groups_Disallowed,
                         dsMapping.ObjectCategory, dsObject.DistinguishedName, group));
