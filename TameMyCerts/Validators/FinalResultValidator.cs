@@ -17,37 +17,36 @@ using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 
-namespace TameMyCerts.Validators
+namespace TameMyCerts.Validators;
+
+internal class FinalResultValidator
 {
-    internal class FinalResultValidator
+    public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
+        CertificateRequestPolicy policy,
+        CertificateDatabaseRow dbRow)
     {
-        public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-            CertificateRequestPolicy policy,
-            CertificateDatabaseRow dbRow)
+        if (result.DeniedForIssuance)
         {
-            if (result.DeniedForIssuance)
-            {
-                return result;
-            }
-
-            #region Deny if the final certificate has no identity
-
-            if (!policy.PermitEmptyIdentities &&
-                (!dbRow.SubjectRelativeDistinguishedNames.Any(x =>
-                     x.Key.Equals(RdnTypes.CommonName) && !x.Value.Equals(string.Empty)) ||
-                 (policy.ReadSubjectFromRequest && !dbRow.InlineSubjectRelativeDistinguishedNames.Any(x =>
-                     x.Key.Equals(RdnTypes.CommonName) && !x.Value.Equals(string.Empty)))) &&
-                !result.CertificateProperties.Any(x =>
-                    x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]) && !x.Value.Equals(string.Empty)) &&
-                dbRow.SubjectAlternativeNameExtension.AlternativeNames.Count.Equals(0) &&
-                result.SubjectAlternativeNameExtension.AlternativeNames.Count.Equals(0))
-            {
-                result.SetFailureStatus(WinError.CERT_E_INVALID_NAME, LocalizedStrings.FinVal_No_Identity);
-            }
-
-            #endregion
-
             return result;
         }
+
+        #region Deny if the final certificate has no identity
+
+        if (!policy.PermitEmptyIdentities &&
+            (!dbRow.SubjectRelativeDistinguishedNames.Any(x =>
+                 x.Key.Equals(RdnTypes.CommonName) && !x.Value.Equals(string.Empty)) ||
+             (policy.ReadSubjectFromRequest && !dbRow.InlineSubjectRelativeDistinguishedNames.Any(x =>
+                 x.Key.Equals(RdnTypes.CommonName) && !x.Value.Equals(string.Empty)))) &&
+            !result.CertificateProperties.Any(x =>
+                x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]) && !x.Value.Equals(string.Empty)) &&
+            dbRow.SubjectAlternativeNameExtension.AlternativeNames.Count.Equals(0) &&
+            result.SubjectAlternativeNameExtension.AlternativeNames.Count.Equals(0))
+        {
+            result.SetFailureStatus(WinError.CERT_E_INVALID_NAME, LocalizedStrings.FinVal_No_Identity);
+        }
+
+        #endregion
+
+        return result;
     }
 }

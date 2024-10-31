@@ -14,26 +14,25 @@
 
 using System.Collections.Generic;
 
-namespace TameMyCerts.Models
-{
-    internal static class SanTypes
-    {
-        public const string DnsName = "dNSName";
-        public const string Rfc822Name = "rfc822Name";
-        public const string UniformResourceIdentifier = "uniformResourceIdentifier";
-        public const string UserPrincipalName = "userPrincipalName";
-        public const string IpAddress = "iPAddress";
+namespace TameMyCerts.Models;
 
-        public static List<string> ToList()
+internal static class SanTypes
+{
+    public const string DnsName = "dNSName";
+    public const string Rfc822Name = "rfc822Name";
+    public const string UniformResourceIdentifier = "uniformResourceIdentifier";
+    public const string UserPrincipalName = "userPrincipalName";
+    public const string IpAddress = "iPAddress";
+
+    public static List<string> ToList()
+    {
+        return new List<string>
         {
-            return new List<string>
-            {
-                DnsName,
-                IpAddress,
-                Rfc822Name,
-                UniformResourceIdentifier,
-                UserPrincipalName
-            };
-        }
+            DnsName,
+            IpAddress,
+            Rfc822Name,
+            UniformResourceIdentifier,
+            UserPrincipalName
+        };
     }
 }

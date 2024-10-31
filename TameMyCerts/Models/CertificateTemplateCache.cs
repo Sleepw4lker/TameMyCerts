@@ -19,82 +19,81 @@ using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using TameMyCerts.Enums;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+internal class CertificateTemplateCache
 {
-    internal class CertificateTemplateCache
+    private static readonly Regex IsLegacyTemplate = new(@"^[a-zA-z]*$");
+    private readonly object _lockObject = new();
+    private readonly int _refreshInterval;
+
+    // TODO: Can't this be a dictionary?
+    private List<CertificateTemplate> _certificateTemplateList;
+    private DateTime _lastRefreshTime = new(1970, 1, 1);
+
+    public CertificateTemplateCache(int refreshInterval = 5)
     {
-        private static readonly Regex IsLegacyTemplate = new Regex(@"^[a-zA-z]*$");
-        private readonly object _lockObject = new object();
-        private readonly int _refreshInterval;
+        _refreshInterval = refreshInterval;
+    }
 
-        // TODO: Can't this be a dictionary?
-        private List<CertificateTemplate> _certificateTemplateList;
-        private DateTime _lastRefreshTime = new DateTime(1970, 1, 1);
+    private void UpdateCache()
+    {
+        var machineBaseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+        var templateBaseKey =
+            machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
 
-        public CertificateTemplateCache(int refreshInterval = 5)
+        if (templateBaseKey == null)
         {
-            _refreshInterval = refreshInterval;
+            return;
         }
 
-        private void UpdateCache()
-        {
-            var machineBaseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            var templateBaseKey =
-                machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
+        var templateNames = templateBaseKey.GetSubKeyNames();
 
-            if (templateBaseKey == null)
+        var newObjects = (from templateName in templateNames
+            let templateSubKey = templateBaseKey.OpenSubKey(templateName)
+            where templateSubKey != null
+            let flags = Convert.ToInt32(templateSubKey.GetValue("Flags"))
+            let certificateNameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"))
+            let raApplicationPolicies = (string[])templateSubKey.GetValue("msPKI-RA-Application-Policies")
+            select new CertificateTemplate
+            (
+                templateName, ((SubjectNameFlag)certificateNameFlags).HasFlag(SubjectNameFlag
+                    .CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT), raApplicationPolicies.Length > 0
+                    ? GetKeyAlgorithm(raApplicationPolicies[0])
+                    : KeyAlgorithmType.RSA, !((GeneralFlag)flags).HasFlag(GeneralFlag.CT_FLAG_MACHINE_TYPE),
+                ((string[])templateSubKey.GetValue("msPKI-Cert-Template-OID"))[0])).ToList();
+
+        _lastRefreshTime = DateTime.Now;
+        _certificateTemplateList = newObjects;
+    }
+
+    public CertificateTemplate GetCertificateTemplate(string identifier)
+    {
+        lock (_lockObject)
+        {
+            if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now)
             {
-                return;
+                UpdateCache();
             }
-
-            var templateNames = templateBaseKey.GetSubKeyNames();
-
-            var newObjects = (from templateName in templateNames
-                let templateSubKey = templateBaseKey.OpenSubKey(templateName)
-                where templateSubKey != null
-                let flags = Convert.ToInt32(templateSubKey.GetValue("Flags"))
-                let certificateNameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"))
-                let raApplicationPolicies = (string[])templateSubKey.GetValue("msPKI-RA-Application-Policies")
-                select new CertificateTemplate
-                (
-                    templateName, ((SubjectNameFlag)certificateNameFlags).HasFlag(SubjectNameFlag
-                        .CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT), raApplicationPolicies.Length > 0
-                        ? GetKeyAlgorithm(raApplicationPolicies[0])
-                        : KeyAlgorithmType.RSA, !((GeneralFlag)flags).HasFlag(GeneralFlag.CT_FLAG_MACHINE_TYPE),
-                    ((string[])templateSubKey.GetValue("msPKI-Cert-Template-OID"))[0])).ToList();
-
-            _lastRefreshTime = DateTime.Now;
-            _certificateTemplateList = newObjects;
         }
 
-        public CertificateTemplate GetCertificateTemplate(string identifier)
+        // V1 templates are identified by their object name (containing only letters)
+        // V2 and newer templates are identified by an OID (numbers separated by dots)
+        return IsLegacyTemplate.IsMatch(identifier)
+            ? _certificateTemplateList.FirstOrDefault(template => template.Name == identifier)
+            : _certificateTemplateList.FirstOrDefault(template => template.Oid == identifier);
+    }
+
+    private static KeyAlgorithmType GetKeyAlgorithm(string keyAlgorithmString)
+    {
+        foreach (var algorithmName in Enum.GetNames(typeof(KeyAlgorithmType)))
         {
-            lock (_lockObject)
+            if (keyAlgorithmString.Contains($"msPKI-Asymmetric-Algorithm`PZPWSTR`{algorithmName}`"))
             {
-                if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now)
-                {
-                    UpdateCache();
-                }
+                return (KeyAlgorithmType)Enum.Parse(typeof(KeyAlgorithmType), algorithmName);
             }
-
-            // V1 templates are identified by their object name (containing only letters)
-            // V2 and newer templates are identified by an OID (numbers separated by dots)
-            return IsLegacyTemplate.IsMatch(identifier)
-                ? _certificateTemplateList.FirstOrDefault(template => template.Name == identifier)
-                : _certificateTemplateList.FirstOrDefault(template => template.Oid == identifier);
         }
 
-        private static KeyAlgorithmType GetKeyAlgorithm(string keyAlgorithmString)
-        {
-            foreach (var algorithmName in Enum.GetNames(typeof(KeyAlgorithmType)))
-            {
-                if (keyAlgorithmString.Contains($"msPKI-Asymmetric-Algorithm`PZPWSTR`{algorithmName}`"))
-                {
-                    return (KeyAlgorithmType)Enum.Parse(typeof(KeyAlgorithmType), algorithmName);
-                }
-            }
-
-            return KeyAlgorithmType.RSA;
-        }
+        return KeyAlgorithmType.RSA;
     }
 }

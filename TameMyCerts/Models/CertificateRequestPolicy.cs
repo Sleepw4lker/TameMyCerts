@@ -19,127 +19,126 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+// Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+[XmlRoot(ElementName = "CertificateRequestPolicy")]
+public class CertificateRequestPolicy
 {
-    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    [XmlRoot(ElementName = "CertificateRequestPolicy")]
-    public class CertificateRequestPolicy
+    [XmlElement(ElementName = "AuditOnly")]
+    public bool AuditOnly { get; set; }
+
+    [XmlElement(ElementName = "NotAfter")] 
+    public string NotAfter { get; set; } = string.Empty;
+
+    [XmlArray(ElementName = "AllowedProcesses")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> AllowedProcesses { get; set; } = new();
+
+    [XmlArray(ElementName = "DisallowedProcesses")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> DisallowedProcesses { get; set; } = new();
+
+    [XmlArray(ElementName = "AllowedCryptoProviders")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> AllowedCryptoProviders { get; set; } = new();
+
+    [XmlArray(ElementName = "DisallowedCryptoProviders")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> DisallowedCryptoProviders { get; set; } = new();
+
+    [XmlArray(ElementName = "CrlDistributionPoints")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> CrlDistributionPoints { get; set; } = new();
+
+    [XmlArray(ElementName = "AuthorityInformationAccess")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> AuthorityInformationAccess { get; set; } = new();
+
+    [XmlArray(ElementName = "OnlineCertificateStatusProtocol")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> OnlineCertificateStatusProtocol { get; set; } = new();
+
+    [XmlElement(ElementName = "MinimumKeyLength")]
+    public int MinimumKeyLength { get; set; }
+
+    [XmlElement(ElementName = "MaximumKeyLength")]
+    public int MaximumKeyLength { get; set; }
+
+    [XmlArray(ElementName = "Subject")] 
+    public List<SubjectRule> Subject { get; set; } = new();
+
+    [XmlArray(ElementName = "SubjectAlternativeName")]
+    public List<SubjectRule> SubjectAlternativeName { get; set; } = new();
+
+    [XmlArray(ElementName = "OutboundSubject")]
+    public List<OutboundSubjectRule> OutboundSubject { get; set; } = new();
+
+    [XmlArray(ElementName = "OutboundSubjectAlternativeName")]
+    public List<OutboundSubjectRule> OutboundSubjectAlternativeName { get; set; } = new();
+
+    [XmlElement(ElementName = "SecurityIdentifierExtension")]
+    public string SecurityIdentifierExtension { get; set; } = "Deny";
+
+    [XmlElement(ElementName = "DirectoryServicesMapping")]
+    public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
+
+    [XmlElement(ElementName = "SupplementDnsNames")]
+    public bool SupplementDnsNames { get; set; }
+
+    [XmlElement(ElementName = "SupplementUnqualifiedNames")]
+    public bool SupplementUnqualifiedNames { get; set; } = true;
+
+    [XmlElement(ElementName = "ReadSubjectFromRequest")]
+    public bool ReadSubjectFromRequest { get; set; }
+
+    [XmlElement(ElementName = "PermitEmptyIdentities")]
+    public bool PermitEmptyIdentities { get; set; }
+
+    private static string ConvertToHumanReadableXml(string inputString)
     {
-        [XmlElement(ElementName = "AuditOnly")]
-        public bool AuditOnly { get; set; }
-
-        [XmlElement(ElementName = "NotAfter")] 
-        public string NotAfter { get; set; } = string.Empty;
-
-        [XmlArray(ElementName = "AllowedProcesses")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AllowedProcesses { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "DisallowedProcesses")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> DisallowedProcesses { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "AllowedCryptoProviders")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AllowedCryptoProviders { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "DisallowedCryptoProviders")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> DisallowedCryptoProviders { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "CrlDistributionPoints")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> CrlDistributionPoints { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "AuthorityInformationAccess")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AuthorityInformationAccess { get; set; } = new List<string>();
-
-        [XmlArray(ElementName = "OnlineCertificateStatusProtocol")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> OnlineCertificateStatusProtocol { get; set; } = new List<string>();
-
-        [XmlElement(ElementName = "MinimumKeyLength")]
-        public int MinimumKeyLength { get; set; }
-
-        [XmlElement(ElementName = "MaximumKeyLength")]
-        public int MaximumKeyLength { get; set; }
-
-        [XmlArray(ElementName = "Subject")] 
-        public List<SubjectRule> Subject { get; set; } = new List<SubjectRule>();
-
-        [XmlArray(ElementName = "SubjectAlternativeName")]
-        public List<SubjectRule> SubjectAlternativeName { get; set; } = new List<SubjectRule>();
-
-        [XmlArray(ElementName = "OutboundSubject")]
-        public List<OutboundSubjectRule> OutboundSubject { get; set; } = new List<OutboundSubjectRule>();
-
-        [XmlArray(ElementName = "OutboundSubjectAlternativeName")]
-        public List<OutboundSubjectRule> OutboundSubjectAlternativeName { get; set; } = new List<OutboundSubjectRule>();
-
-        [XmlElement(ElementName = "SecurityIdentifierExtension")]
-        public string SecurityIdentifierExtension { get; set; } = "Deny";
-
-        [XmlElement(ElementName = "DirectoryServicesMapping")]
-        public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
-
-        [XmlElement(ElementName = "SupplementDnsNames")]
-        public bool SupplementDnsNames { get; set; }
-
-        [XmlElement(ElementName = "SupplementUnqualifiedNames")]
-        public bool SupplementUnqualifiedNames { get; set; } = true;
-
-        [XmlElement(ElementName = "ReadSubjectFromRequest")]
-        public bool ReadSubjectFromRequest { get; set; }
-
-        [XmlElement(ElementName = "PermitEmptyIdentities")]
-        public bool PermitEmptyIdentities { get; set; }
-
-        private static string ConvertToHumanReadableXml(string inputString)
+        var xmlWriterSettings = new XmlWriterSettings
         {
-            var xmlWriterSettings = new XmlWriterSettings
-            {
-                OmitXmlDeclaration = true,
-                Indent = true,
-                NewLineOnAttributes = true
-            };
+            OmitXmlDeclaration = true,
+            Indent = true,
+            NewLineOnAttributes = true
+        };
 
-            var stringBuilder = new StringBuilder();
+        var stringBuilder = new StringBuilder();
 
-            var xElement = XElement.Parse(inputString);
+        var xElement = XElement.Parse(inputString);
 
-            using (var xmlWriter = XmlWriter.Create(stringBuilder, xmlWriterSettings))
-            {
-                xElement.Save(xmlWriter);
-            }
-
-            return stringBuilder.ToString();
+        using (var xmlWriter = XmlWriter.Create(stringBuilder, xmlWriterSettings))
+        {
+            xElement.Save(xmlWriter);
         }
 
-        public void SaveToFile(string path)
+        return stringBuilder.ToString();
+    }
+
+    public void SaveToFile(string path)
+    {
+        var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
+
+        using (var stringWriter = new StringWriter())
         {
-            var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-
-            using (var stringWriter = new StringWriter())
+            using (var xmlWriter = XmlWriter.Create(stringWriter))
             {
-                using (var xmlWriter = XmlWriter.Create(stringWriter))
-                {
-                    xmlSerializer.Serialize(xmlWriter, this);
-                    var xmlData = stringWriter.ToString();
+                xmlSerializer.Serialize(xmlWriter, this);
+                var xmlData = stringWriter.ToString();
 
-                    File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
-                }
+                File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
             }
         }
+    }
 
-        public static CertificateRequestPolicy LoadFromFile(string path)
+    public static CertificateRequestPolicy LoadFromFile(string path)
+    {
+        var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
+
+        using (var reader = new StreamReader(path))
         {
-            var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-
-            using (var reader = new StreamReader(path))
-            {
-                return (CertificateRequestPolicy)xmlSerializer.Deserialize(reader.BaseStream);
-            }
+            return (CertificateRequestPolicy)xmlSerializer.Deserialize(reader.BaseStream);
         }
     }
 }

@@ -18,45 +18,42 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using TameMyCerts.ClassExtensions;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+// Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+[XmlRoot(ElementName = "Pattern")]
+public class Pattern
 {
-    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    [XmlRoot(ElementName = "Pattern")]
-    public class Pattern
+    [XmlElement(ElementName = "Expression")]
+    public string Expression { get; set; }
+
+    [XmlElement(ElementName = "TreatAs")] public string TreatAs { get; set; } = "RegEx";
+
+    [XmlElement(ElementName = "Action")] public string Action { get; set; } = "Allow";
+
+    public bool IsMatch(string term, bool matchOnError = false)
     {
-        [XmlElement(ElementName = "Expression")]
-        public string Expression { get; set; }
-
-        [XmlElement(ElementName = "TreatAs")] 
-        public string TreatAs { get; set; } = "RegEx";
-
-        [XmlElement(ElementName = "Action")] 
-        public string Action { get; set; } = "Allow";
-
-        public bool IsMatch(string term, bool matchOnError = false)
+        try
         {
-            try
+            switch (TreatAs.ToLowerInvariant())
             {
-                switch (TreatAs.ToLowerInvariant())
-                {
-                    case "regexignorecase":
-                        return Regex.IsMatch(term, @"" + Expression + "", RegexOptions.IgnoreCase);
-                    case "regex":
-                        return Regex.IsMatch(term, @"" + Expression + "");
-                    case "cidr":
-                        return IPAddress.Parse(term).IsInRange(Expression);
-                    case "exactmatchignorecase":
-                        return Expression.Equals(term, StringComparison.InvariantCultureIgnoreCase);
-                    case "exactmatch":
-                        return Expression.Equals(term);
-                    default:
-                        return matchOnError;
-                }
+                case "regexignorecase":
+                    return Regex.IsMatch(term, @"" + Expression + "", RegexOptions.IgnoreCase);
+                case "regex":
+                    return Regex.IsMatch(term, @"" + Expression + "");
+                case "cidr":
+                    return IPAddress.Parse(term).IsInRange(Expression);
+                case "exactmatchignorecase":
+                    return Expression.Equals(term, StringComparison.InvariantCultureIgnoreCase);
+                case "exactmatch":
+                    return Expression.Equals(term);
+                default:
+                    return matchOnError;
             }
-            catch
-            {
-                return matchOnError;
-            }
+        }
+        catch
+        {
+            return matchOnError;
         }
     }
 }

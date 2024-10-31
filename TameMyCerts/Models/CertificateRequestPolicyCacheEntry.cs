@@ -14,28 +14,27 @@
 
 using System;
 
-namespace TameMyCerts.Models
-{
-    internal class CertificateRequestPolicyCacheEntry
-    {
-        public CertificateRequestPolicyCacheEntry(string fileName)
-        {
-            try
-            {
-                CertificateRequestPolicy = CertificateRequestPolicy.LoadFromFile(fileName);
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.InnerException != null
-                    ? $"{ex.Message} {ex.InnerException.Message}"
-                    : ex.Message;
-            }
+namespace TameMyCerts.Models;
 
-            LastUpdate = DateTimeOffset.Now;
+internal class CertificateRequestPolicyCacheEntry
+{
+    public CertificateRequestPolicyCacheEntry(string fileName)
+    {
+        try
+        {
+            CertificateRequestPolicy = CertificateRequestPolicy.LoadFromFile(fileName);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.InnerException != null
+                ? $"{ex.Message} {ex.InnerException.Message}"
+                : ex.Message;
         }
 
-        public CertificateRequestPolicy CertificateRequestPolicy { get; }
-        public DateTimeOffset LastUpdate { get; }
-        public string ErrorMessage { get; } = string.Empty;
+        LastUpdate = DateTimeOffset.Now;
     }
+
+    public CertificateRequestPolicy CertificateRequestPolicy { get; }
+    public DateTimeOffset LastUpdate { get; }
+    public string ErrorMessage { get; } = string.Empty;
 }

@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace TameMyCerts.Enums
+namespace TameMyCerts.Enums;
+
+internal enum KeyAlgorithmFamily
 {
-    internal enum KeyAlgorithmFamily
-    {
-        UNKNOWN = 0,
-        RSA = 1,
-        DSA = 2,
-        ECC = 3
-    }
+    UNKNOWN = 0,
+    RSA = 1,
+    DSA = 2,
+    ECC = 3
 }

@@ -17,39 +17,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TameMyCerts.X509
+namespace TameMyCerts.X509;
+
+public class X509CertificateExtensionAuthorityInformationAccess : X509CertificateExtension
 {
-    public class X509CertificateExtensionAuthorityInformationAccess : X509CertificateExtension
+    private readonly List<KeyValuePair<Uri, bool>> _uris = new();
+
+    public void AddUniformResourceIdentifier(string uri, bool isOcsp = false)
     {
-        private readonly List<KeyValuePair<Uri, bool>> _uris = new List<KeyValuePair<Uri, bool>>();
-
-        public void AddUniformResourceIdentifier(string uri, bool isOcsp = false)
+        if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
         {
-            if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
-            {
-                AddUniformResourceIdentifier(uriObject, isOcsp);
-            }
+            AddUniformResourceIdentifier(uriObject, isOcsp);
         }
+    }
 
-        public void AddUniformResourceIdentifier(Uri uri, bool isOcsp = false)
-        {
-            _uris.Add(new KeyValuePair<Uri, bool>(uri, isOcsp));
-        }
+    public void AddUniformResourceIdentifier(Uri uri, bool isOcsp = false)
+    {
+        _uris.Add(new KeyValuePair<Uri, bool>(uri, isOcsp));
+    }
 
-        public void InitializeEncode(bool encodeUris = false)
-        {
-            var result = Array.Empty<byte>();
+    public void InitializeEncode(bool encodeUris = false)
+    {
+        var result = Array.Empty<byte>();
 
-            result = (from keyValuePair in _uris
-                let node = keyValuePair.Value
-                    ? new byte[] {0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x01} // 1.3.6.1.5.5.7.48.1
-                    : new byte[] {0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x02} // 1.3.6.1.5.5.7.48.2
-                let uri = keyValuePair.Key.ToString()
-                select node.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(uri) : uri)))
-                    .ToArray()).Aggregate(result,
-                (current, node) => current.Concat(Asn1BuildNode(0x30, node)).ToArray());
+        result = (from keyValuePair in _uris
+            let node = keyValuePair.Value
+                ? new byte[] { 0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x01 } // 1.3.6.1.5.5.7.48.1
+                : new byte[] { 0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x02 } // 1.3.6.1.5.5.7.48.2
+            let uri = keyValuePair.Key.ToString()
+            select node.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(uri) : uri)))
+                .ToArray()).Aggregate(result,
+            (current, node) => current.Concat(Asn1BuildNode(0x30, node)).ToArray());
 
-            RawData = Asn1BuildNode(0x30, result);
-        }
+        RawData = Asn1BuildNode(0x30, result);
     }
 }

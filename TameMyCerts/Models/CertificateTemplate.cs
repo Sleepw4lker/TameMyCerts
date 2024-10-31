@@ -12,45 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Xml.Serialization;
 using TameMyCerts.Enums;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+internal class CertificateTemplate
 {
-    internal class CertificateTemplate
+    public CertificateTemplate(string name, bool enrolleeSuppliesSubject, KeyAlgorithmType keyAlgorithm,
+        bool userScope = false, string oid = null)
     {
-        public CertificateTemplate(string name, bool enrolleeSuppliesSubject, KeyAlgorithmType keyAlgorithm,
-            bool userScope = false, string oid = null)
-        {
-            Name = name;
-            Oid = oid ?? string.Empty;
-            EnrolleeSuppliesSubject = enrolleeSuppliesSubject;
-            UserScope = userScope;
-            KeyAlgorithm = keyAlgorithm;
-        }
+        Name = name;
+        Oid = oid ?? string.Empty;
+        EnrolleeSuppliesSubject = enrolleeSuppliesSubject;
+        UserScope = userScope;
+        KeyAlgorithm = keyAlgorithm;
+    }
 
-        public string Name { get; }
-        public string Oid { get; }
-        public bool EnrolleeSuppliesSubject { get; }
-        public bool UserScope { get; }
-        public KeyAlgorithmType KeyAlgorithm { get; }
+    public string Name { get; }
+    public string Oid { get; }
+    public bool EnrolleeSuppliesSubject { get; }
+    public bool UserScope { get; }
+    public KeyAlgorithmType KeyAlgorithm { get; }
 
-        public KeyAlgorithmFamily KeyAlgorithmFamily
+    public KeyAlgorithmFamily KeyAlgorithmFamily
+    {
+        get
         {
-            get
+            switch (KeyAlgorithm)
             {
-                switch (KeyAlgorithm)
-                {
-                    case KeyAlgorithmType.DSA: return KeyAlgorithmFamily.DSA;
-                    case KeyAlgorithmType.ECDH_P256: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.ECDH_P384: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.ECDH_P521: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.ECDSA_P256: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.ECDSA_P384: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.ECDSA_P521: return KeyAlgorithmFamily.ECC;
-                    case KeyAlgorithmType.RSA: return KeyAlgorithmFamily.RSA;
-                    default: return KeyAlgorithmFamily.UNKNOWN;
-                }
+                case KeyAlgorithmType.DSA: return KeyAlgorithmFamily.DSA;
+                case KeyAlgorithmType.ECDH_P256: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.ECDH_P384: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.ECDH_P521: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.ECDSA_P256: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.ECDSA_P384: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.ECDSA_P521: return KeyAlgorithmFamily.ECC;
+                case KeyAlgorithmType.RSA: return KeyAlgorithmFamily.RSA;
+                default: return KeyAlgorithmFamily.UNKNOWN;
             }
         }
     }

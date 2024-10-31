@@ -14,112 +14,111 @@
 
 using System.Collections.Generic;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+internal static class RdnTypes
 {
-    internal static class RdnTypes
+    public const string Email = "emailAddress";
+    public const string CommonName = "commonName";
+    public const string Organization = "organizationName";
+    public const string OrgUnit = "organizationalUnitName";
+    public const string Locality = "localityName";
+    public const string State = "stateOrProvinceName";
+    public const string Country = "countryName";
+    public const string Title = "title";
+    public const string GivenName = "givenName";
+    public const string Initials = "initials";
+    public const string SurName = "surname";
+    public const string StreetAddress = "streetAddress";
+    public const string UnstructuredName = "unstructuredName";
+    public const string UnstructuredAddress = "unstructuredAddress";
+    public const string DeviceSerialNumber = "serialNumber";
+    public const string DomainComponent = "domainComponent";
+
+    public static readonly Dictionary<string, string> NameProperty = new()
     {
-        public const string Email = "emailAddress";
-        public const string CommonName = "commonName";
-        public const string Organization = "organizationName";
-        public const string OrgUnit = "organizationalUnitName";
-        public const string Locality = "localityName";
-        public const string State = "stateOrProvinceName";
-        public const string Country = "countryName";
-        public const string Title = "title";
-        public const string GivenName = "givenName";
-        public const string Initials = "initials";
-        public const string SurName = "surname";
-        public const string StreetAddress = "streetAddress";
-        public const string UnstructuredName = "unstructuredName";
-        public const string UnstructuredAddress = "unstructuredAddress";
-        public const string DeviceSerialNumber = "serialNumber";
-        public const string DomainComponent = "domainComponent";
+        { Email, "Subject.Email" },
+        { CommonName, "Subject.CommonName" },
+        { Organization, "Subject.Organization" },
+        { OrgUnit, "Subject.OrgUnit" },
+        { Locality, "Subject.Locality" },
+        { State, "Subject.State" },
+        { Country, "Subject.Country" },
+        { Title, "Subject.Title" },
+        { GivenName, "Subject.GivenName" },
+        { Initials, "Subject.Initials" },
+        { SurName, "Subject.SurName" },
+        { StreetAddress, "Subject.StreetAddress" },
+        { UnstructuredName, "Subject.UnstructuredName" },
+        { UnstructuredAddress, "Subject.UnstructuredAddress" },
+        { DeviceSerialNumber, "Subject.DeviceSerialNumber" },
+        { DomainComponent, "Subject.DomainComponent" }
+    };
 
-        public static readonly Dictionary<string, string> NameProperty = new Dictionary<string, string>
+    public static readonly Dictionary<string, int> LengthConstraint = new()
+    {
+        { Email, 128 },
+        { CommonName, 64 },
+        { Organization, 64 },
+        { OrgUnit, 64 },
+        { Locality, 128 },
+        { State, 128 },
+        { Country, 2 },
+        { Title, 64 },
+        { GivenName, 16 },
+        { Initials, 5 },
+        { SurName, 40 },
+        { StreetAddress, 30 },
+        { UnstructuredName, 1024 },
+        { UnstructuredAddress, 1024 },
+        { DeviceSerialNumber, 1024 },
+        { DomainComponent, 128 }
+    };
+
+    public static readonly Dictionary<string, string> ShortToLongName = new()
+    {
+        { "C", Country },
+        { "CN", CommonName },
+        { "DC", DomainComponent },
+        { "E", Email },
+        { "L", Locality },
+        { "O", Organization },
+        { "OU", OrgUnit },
+        { "S", State },
+        { "G", GivenName },
+        { "I", Initials },
+        { "SN", SurName },
+        { "STREET", StreetAddress },
+        { "T", Title },
+        { "OID.1.2.840.113549.1.9.2", UnstructuredName },
+        { "OID.1.2.840.113549.1.9.8", UnstructuredAddress },
+        { "SERIALNUMBER", DeviceSerialNumber },
+        { "POSTALCODE", "postalCode" },
+        { "DESCRIPTION", "description" },
+        { "POBOX", "postOfficeBox" },
+        { "PHONE", "telephoneNumber" }
+    };
+
+    public static List<string> ToList()
+    {
+        return new List<string>
         {
-            {Email, "Subject.Email"},
-            {CommonName, "Subject.CommonName"},
-            {Organization, "Subject.Organization"},
-            {OrgUnit, "Subject.OrgUnit"},
-            {Locality, "Subject.Locality"},
-            {State, "Subject.State"},
-            {Country, "Subject.Country"},
-            {Title, "Subject.Title"},
-            {GivenName, "Subject.GivenName"},
-            {Initials, "Subject.Initials"},
-            {SurName, "Subject.SurName"},
-            {StreetAddress, "Subject.StreetAddress"},
-            {UnstructuredName, "Subject.UnstructuredName"},
-            {UnstructuredAddress, "Subject.UnstructuredAddress"},
-            {DeviceSerialNumber, "Subject.DeviceSerialNumber"},
-            {DomainComponent, "Subject.DomainComponent"}
+            Email,
+            CommonName,
+            Organization,
+            OrgUnit,
+            Locality,
+            State,
+            Country,
+            Title,
+            GivenName,
+            Initials,
+            SurName,
+            StreetAddress,
+            UnstructuredName,
+            UnstructuredAddress,
+            DeviceSerialNumber,
+            DomainComponent
         };
-
-        public static readonly Dictionary<string, int> LengthConstraint = new Dictionary<string, int>
-        {
-            {Email, 128},
-            {CommonName, 64},
-            {Organization, 64},
-            {OrgUnit, 64},
-            {Locality, 128},
-            {State, 128},
-            {Country, 2},
-            {Title, 64},
-            {GivenName, 16},
-            {Initials, 5},
-            {SurName, 40},
-            {StreetAddress, 30},
-            {UnstructuredName, 1024},
-            {UnstructuredAddress, 1024},
-            {DeviceSerialNumber, 1024},
-            {DomainComponent, 128}
-        };
-
-        public static readonly Dictionary<string, string> ShortToLongName = new Dictionary<string, string>
-        {
-            {"C", Country},
-            {"CN", CommonName},
-            {"DC", DomainComponent},
-            {"E", Email},
-            {"L", Locality},
-            {"O", Organization},
-            {"OU", OrgUnit},
-            {"S", State},
-            {"G", GivenName},
-            {"I", Initials},
-            {"SN", SurName},
-            {"STREET", StreetAddress},
-            {"T", Title},
-            {"OID.1.2.840.113549.1.9.2", UnstructuredName},
-            {"OID.1.2.840.113549.1.9.8", UnstructuredAddress},
-            {"SERIALNUMBER", DeviceSerialNumber},
-            {"POSTALCODE", "postalCode"},
-            {"DESCRIPTION", "description"},
-            {"POBOX", "postOfficeBox"},
-            {"PHONE", "telephoneNumber"}
-        };
-
-        public static List<string> ToList()
-        {
-            return new List<string>
-            {
-                Email,
-                CommonName,
-                Organization,
-                OrgUnit,
-                Locality,
-                State,
-                Country,
-                Title,
-                GivenName,
-                Initials,
-                SurName,
-                StreetAddress,
-                UnstructuredName,
-                UnstructuredAddress,
-                DeviceSerialNumber,
-                DomainComponent
-            };
-        }
     }
 }

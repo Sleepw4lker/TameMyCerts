@@ -14,13 +14,12 @@
 
 using System.Text.RegularExpressions;
 
-namespace TameMyCerts.ClassExtensions
+namespace TameMyCerts.ClassExtensions;
+
+public static class StringExtensions
 {
-    public static class StringExtensions
+    public static string ReplaceCaseInsensitive(this string input, string from, string to)
     {
-        public static string ReplaceCaseInsensitive(this string input, string from, string to)
-        {
-            return Regex.Replace(input, from, to, RegexOptions.IgnoreCase);
-        }
+        return Regex.Replace(input, from, to, RegexOptions.IgnoreCase);
     }
 }

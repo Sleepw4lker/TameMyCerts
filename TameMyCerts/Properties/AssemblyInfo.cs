@@ -2,16 +2,13 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
 [assembly: AssemblyTitle("TameMyCerts")]
-[assembly:
-    AssemblyDescription("A policy module that allows applying advanced rules to certificate requests.")]
+[assembly: AssemblyDescription("A policy module that allows applying advanced rules to certificate requests.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("TameMyCerts")]
 [assembly: AssemblyCopyright("Copyright © Uwe Gradenegger")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

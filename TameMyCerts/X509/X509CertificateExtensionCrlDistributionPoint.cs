@@ -17,40 +17,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TameMyCerts.X509
+namespace TameMyCerts.X509;
+
+public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExtension
 {
-    public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExtension
+    private readonly List<Uri> _uris = new();
+
+    public void AddUniformResourceIdentifier(string uri)
     {
-        private readonly List<Uri> _uris = new List<Uri>();
-
-        public void AddUniformResourceIdentifier(string uri)
+        if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
         {
-            if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
-            {
-                AddUniformResourceIdentifier(uriObject);
-            }
+            AddUniformResourceIdentifier(uriObject);
         }
+    }
 
-        public void AddUniformResourceIdentifier(Uri uri)
-        {
-            _uris.Add(uri);
-        }
+    public void AddUniformResourceIdentifier(Uri uri)
+    {
+        _uris.Add(uri);
+    }
 
-        public void InitializeEncode(bool encodeUris = false)
-        {
-            var result = Array.Empty<byte>();
+    public void InitializeEncode(bool encodeUris = false)
+    {
+        var result = Array.Empty<byte>();
 
-            result = _uris.Select(uri => uri.ToString()).Aggregate(result,
-                (current, input) =>
-                    current.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(input) : input)))
-                        .ToArray());
+        result = _uris.Select(uri => uri.ToString()).Aggregate(result,
+            (current, input) =>
+                current.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(input) : input)))
+                    .ToArray());
 
-            result = Asn1BuildNode(0xA0, result);
-            result = Asn1BuildNode(0xA0, result);
-            result = Asn1BuildNode(0x30, result);
-            result = Asn1BuildNode(0x30, result);
+        result = Asn1BuildNode(0xA0, result);
+        result = Asn1BuildNode(0xA0, result);
+        result = Asn1BuildNode(0x30, result);
+        result = Asn1BuildNode(0x30, result);
 
-            RawData = result;
-        }
+        RawData = result;
     }
 }
