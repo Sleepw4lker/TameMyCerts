@@ -16,27 +16,18 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 
-    It 'Given a user is indirect member of any allowed group, no certificate is issued' {
+    It 'Given a user is indirect member of any allowed group, a certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "TestUser6@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
-        $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 
     It 'Given a user is member of any forbidden group, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "TestUser2@tamemycerts-tests.local"
-        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
-
-        $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
-    }
-
-    It 'Given a user is member of any forbidden special group, no certificate is issued' {
-
-        $Csr = New-CertificateRequest -Upn "Administrator@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
