@@ -29,7 +29,6 @@ namespace TameMyCerts.Validators
     {
         private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
         private readonly string _forestRootDomain;
-        private readonly int _domainLevel;
 
         public DirectoryServiceValidator(bool forTesting = false)
         {
@@ -37,8 +36,7 @@ namespace TameMyCerts.Validators
             if (!forTesting)
             {
                 _forestRootDomain = Forest.GetCurrentForest().Name;
-                _domainLevel = Domain.GetCurrentDomain().DomainModeLevel;
-            }       
+            }
         }
 
         public CertificateRequestValidationResult GetMappedActiveDirectoryObject(
@@ -80,7 +78,7 @@ namespace TameMyCerts.Validators
 
             try
             {
-                dsObject = new ActiveDirectoryObject(_forestRootDomain, _domainLevel, dsAttribute, identity, objectCategory,
+                dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity, objectCategory,
                     dsMapping.SearchRoot);
             }
             catch (Exception ex)
