@@ -83,7 +83,7 @@ namespace TameMyCerts.Models
         [XmlElement(ElementName = "DirectoryServicesMapping")]
         public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
         [XmlElement(ElementName = "YubikeyPolicy")]
-        public YubikeyPolicy YubikeyPolicy { get; set; }
+        public List<YubikeyPolicy> YubikeyPolicy { get; set; }
 
         [XmlElement(ElementName = "SupplementDnsNames")]
         public bool SupplementDnsNames { get; set; }

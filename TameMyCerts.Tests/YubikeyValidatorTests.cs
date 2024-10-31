@@ -13,7 +13,8 @@ namespace TameMyCerts.Tests
     [TestClass]
     public class YubikeyValidatorTests
     {
-        private readonly CertificateDatabaseRow _dbRow;
+        private readonly CertificateDatabaseRow _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow;
+        private readonly CertificateDatabaseRow _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow;
         private readonly CertificateRequestPolicy _policy;
         private readonly YubikeyValidator _YKvalidator = new YubikeyValidator();
         private readonly CertificateContentValidator _CCvalidator = new CertificateContentValidator();
@@ -22,7 +23,7 @@ namespace TameMyCerts.Tests
         public YubikeyValidatorTests()
         {
             // Sample CSR from a Yubikey with attestion included
-            var request =
+            var yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR =
                 "-----BEGIN CERTIFICATE REQUEST-----\n" +
 "MIIItzCCB58CAQAwDzENMAsGA1UEAwwEdGFkYTCCASIwDQYJKoZIhvcNAQEBBQAD\n" +
 "ggEPADCCAQoCggEBAMNISyiNgES5Etvd834NoYVjJW4T4i8rEmjiynEWg3M0SrOv\n" +
@@ -73,16 +74,58 @@ namespace TameMyCerts.Tests
 "Oq0a7fphvaY3PqAsU4JOFVw55ukrXnUSof+z\n" +
 "-----END CERTIFICATE REQUEST-----\n";
 
+            string _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR = "-----BEGIN CERTIFICATE REQUEST-----\n" +
+"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\n" +
+"S2tYi7825f8=\n" +
+"-----END CERTIFICATE REQUEST-----\n";
 
-             _policy = new CertificateRequestPolicy {
-                 YubikeyPolicy = new YubikeyPolicy
+
+            _policy = new CertificateRequestPolicy {
+                YubikeyPolicy = new List<YubikeyPolicy>
                  {
-                            AllowedPinPolicies = new List<string>
-                                    { "Always" }
-                        }
-             };
+                     new YubikeyPolicy
+                     {
+                     }
+                 }
+            };
 
-            _dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+            _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow = new CertificateDatabaseRow(yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
+            _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR, CertCli.CR_IN_PKCS10);
         }
 
         internal void PrintResult(CertificateRequestValidationResult result)
@@ -95,95 +138,27 @@ namespace TameMyCerts.Tests
         [TestMethod]
         public void Extract_Genuine_Yubikey_Attestion()
         {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
 
-            Assert.IsTrue(yubikey.TouchPolicy == "Never");
-            Assert.IsTrue(yubikey.PinPolicy == "Once");
-            Assert.IsTrue(yubikey.FirmwareVersion.ToString() == "5.4.3");
-            Assert.IsTrue(yubikey.FormFactor == "UsbAKeychain");
+            Assert.IsTrue(yubikey.TouchPolicy == YubikeyTouchPolicy.Never);
+            Assert.IsTrue(yubikey.PinPolicy == YubikeyPinPolicy.Once);
+            Assert.IsTrue(yubikey.FirmwareVersion == new Version(5, 4, 3));
+            Assert.IsTrue(yubikey.FormFactor == YubikeyFormFactor.UsbAKeychain);
             Assert.IsTrue(yubikey.Slot == "9a");
+
             PrintResult(result);
 
         }
 
         [TestMethod]
-        public void Validate_Policy_Firmware_Disallow_5_4_3()
+        public void Validate_Policy_MinimumFirmware_5_7_1_should_Reject()
         {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-            
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    DisallowedFirmwareVersion = new List<string>
-                                    { "5.4.3" }
-                }
-            };
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
 
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsTrue(result.DeniedForIssuance);
-        }
-        [TestMethod]
-        public void Validate_Policy_Firmware_Allowed_5_7_1()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    AllowedFirmwareVersion = new List<string>
-                                    { "5.7.1" }
-                }
-            };
-
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsTrue(result.DeniedForIssuance);
-        }
-        [TestMethod]
-        public void Validate_PIN_Policy_Disallowed_Once_correct()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    DisallowedPinPolicies = new List<string>
-                                    { "Once" }
-                }
-            };
-
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsTrue(result.DeniedForIssuance);
-        }
-        [TestMethod]
-        public void Validate_PIN_Policy_Allowed_Never_incorrect()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    AllowedPinPolicies = new List<string>
-                                    { "Never" }
-                }
-            };
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
 
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
 
@@ -193,83 +168,13 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Validate_PIN_Policy_Allowed_Once_correct()
+        public void Validate_Policy_MinimumFirmware_5_7_1_should_Allow()
         {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow, out var yubikey);
 
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    AllowedPinPolicies = new List<string>
-                                    { "Once" }
-                }
-            };
-
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsFalse(result.DeniedForIssuance);
-        }
-        [TestMethod]
-        public void Validate_Touch_Policy_Disallowed_Never_correct()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    DisallowedTouchPolicies = new List<string>
-                                    { "Never" }
-                }
-            };
-
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsTrue(result.DeniedForIssuance);
-        }
-        [TestMethod]
-        public void Validate_Touch_Policy_Allowed_Always_incorrect()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    AllowedTouchPolicies = new List<string>
-                                    { "Always" }
-                }
-            };
-
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-
-            PrintResult(result);
-
-            Assert.IsTrue(result.DeniedForIssuance);
-        }
-
-        [TestMethod]
-        public void Validate_Touch_Policy_Allowed_Never_correct()
-        {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
-            {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                    AllowedTouchPolicies = new List<string>
-                                    { "Never" }
-                }
-            };
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
 
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
 
@@ -278,32 +183,147 @@ namespace TameMyCerts.Tests
             Assert.IsFalse(result.DeniedForIssuance);
         }
 
+        [TestMethod]
+        public void Validate_PIN_Policy_Once_should_Allow()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+           
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
+        [TestMethod]
+        public void Validate_PIN_Policy_Deny_Never_should_Allow()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Never);
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
+        public void Validate_PIN_Policy_Deny_Once_should_Deny()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+        }
+
+        [TestMethod]
+        public void Validate_PIN_Policy_VerifyAll()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
+            policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "5.4.0";
+            policy.YubikeyPolicy[0].MaximumFirmwareString = "5.7.0";
+            policy.YubikeyPolicy[0].Formfactor.Add(YubikeyFormFactor.UsbAKeychain);
+            policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.Normal);
+            policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.RSA);
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
+
+        [TestMethod]
+        public void Validate_Touch_Policy_Allow_Never_should_Allow()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
+        [TestMethod]
+        public void Validate_Touch_Policy_Deny_Never_should_Deny()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+        }
+
+        [TestMethod]
+        public void Validate_Touch_Policy_Allowed_Always_should_Deny()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Always);
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+        }
+
+        [TestMethod]
+        public void Validate_Require_Firemware_Above_5_7_1_to_allow_ECC_should_allow()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.ECC);
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
 
         [TestMethod]
         public void Rewrite_Subject_to_slot()
         {
-            var result = new CertificateRequestValidationResult(_dbRow);
-            result = _YKvalidator.ExtractAttestion(result, _policy, _dbRow, out var yubikey);
-
-            CertificateRequestPolicy policy = new CertificateRequestPolicy
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikeyInfo);
+            CertificateRequestPolicy policy = _policy;
+            policy.OutboundSubject.Add(new OutboundSubjectRule
             {
-                YubikeyPolicy = new YubikeyPolicy
-                {
-                },
-                OutboundSubject = new List<OutboundSubjectRule>
-                {
-                    new OutboundSubjectRule
-                    {
-                        Field = RdnTypes.CommonName,
-                        Value = "{yk:slot}",
-                        Mandatory = true,
-                        Force = true
-                    }
-                }
-            };
+                Field = RdnTypes.CommonName,
+                Value = "{yk:slot}",
+                Mandatory = true,
+                Force = true
+            }
+            );
 
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
-            result = _CCvalidator.VerifyRequest(result, policy, _dbRow, null, _caConfig, yubikey);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo);
+            result = _CCvalidator.VerifyRequest(result, policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, null, _caConfig, yubikeyInfo);
 
             PrintResult(result);
 
@@ -313,5 +333,61 @@ namespace TameMyCerts.Tests
     .Any(x => x.Value.Equals("9a"))
 );
         }
+
+        [TestMethod]
+        public void Validate_Accutial_Attestions_certificate_wrong_public_key()
+        {
+            #region CSR
+            string csr = "-----BEGIN CERTIFICATE REQUEST-----\n" +
+                "MIIGhjCCBi0CAQAwFjEUMBIGA1UEAxMLVGFtZU15Q2VydHMwWTATBgcqhkjOPQIB\n" +
+                "BggqhkjOPQMBBwNCAAQL7vD+BWCz9dE3w4LWyHynw26z+QjK6Mm6wKkGvnpAYY2R\n" +
+                "di8Dt01qG5X5art1njoS9gOvRbFnKHvHUwnPSOKooIIFszCCBa8GCSqGSIb3DQEJ\n" +
+                "DjGCBaAwggWcMIIChgYKKwYBBAGCxAoDCwSCAnYwggJyMIIBWqADAgECAhAB8pev\n" +
+                "E7/utfqJv2eZc/edMA0GCSqGSIb3DQEBCwUAMCExHzAdBgNVBAMMFll1YmljbyBQ\n" +
+                "SVYgQXR0ZXN0YXRpb24wIBcNMTYwMzE0MDAwMDAwWhgPMjA1MjA0MTcwMDAwMDBa\n" +
+                "MCUxIzAhBgNVBAMMGll1YmlLZXkgUElWIEF0dGVzdGF0aW9uIDlhMHYwEAYHKoZI\n" +
+                "zj0CAQYFK4EEACIDYgAEi8t88XhiXfaC1S7+rfkmLIQMm4HS8wa4O8Su4JvIxEoK\n" +
+                "rQd5C3JvRFa4wiLn72OD3VDuNB22RfxBQxBJn9dl/VtPZbhf1uMVIBQeo2V66KvW\n" +
+                "44TUKRdCyMJ+nveIPO5to04wTDARBgorBgEEAYLECgMDBAMFBwEwFAYKKwYBBAGC\n" +
+                "xAoDBwQGAgQBymbqMBAGCisGAQQBgsQKAwgEAgMCMA8GCisGAQQBgsQKAwkEAQMw\n" +
+                "DQYJKoZIhvcNAQELBQADggEBAAtzgqRrrmrLIrS8+ZAj9DXOakG1Z+1y+FRNxCfK\n" +
+                "KG7ukpB9p4Nl1mJGy/39/af4tRrG5PfUB67FhTasRADBCpm9MiQOxTgpydLrco6U\n" +
+                "3t2g+0vw+4ic0BtqRgy+IZWW3nIaLhnRAtM80jjSsAwH10hQc0kiFgkZ1znlrV2M\n" +
+                "HX1BU4IesaOI6dT/tqpAqljdp75IR5wc4drbHlxjfSDxg7GkZq9iZrhEb0XK4oTq\n" +
+                "/Enl6R2dO/W6YXCEFHlgaqmuByF4ICG6ajN34gnQYnbkqQ483Gz5TZ1QPP4f4KxV\n" +
+                "3S8I2t1g0rbA17AKSEwxjEan2ke0C7uermbeRiMai56UzcUwggMOBgorBgEEAYLE\n" +
+                "CgMCBIIC/jCCAvowggHioAMCAQICCQCW07/1/bKfejANBgkqhkiG9w0BAQsFADAr\n" +
+                "MSkwJwYDVQQDDCBZdWJpY28gUElWIFJvb3QgQ0EgU2VyaWFsIDI2Mzc1MTAgFw0x\n" +
+                "NjAzMTQwMDAwMDBaGA8yMDUyMDQxNzAwMDAwMFowITEfMB0GA1UEAwwWWXViaWNv\n" +
+                "IFBJViBBdHRlc3RhdGlvbjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\n" +
+                "ANn3GakWu9K02zQtp32VGaRejTBDa9G+n8bJRMwwPN6AUqj3JKBpsn/lsxob3Z/G\n" +
+                "+gRnH5qaUb+Psl8k9ANmK9TQ02xt99ZUs2dkc9AF5eVmTWsndXUCWtlebxYujfrT\n" +
+                "+sGtC+lJxwOsTl0kdwsPHTFprbeRfj3/cSyui29qasFZieq6cTtfP7jyGliTAbyA\n" +
+                "k4hV9uO8Zi66CUjqdNFIbK3oajo9OgwJed6dA9JQHVoJuSVA5/ew5z3+/xAZlfxW\n" +
+                "EO5/TBrNwuxqKZV7UvlbAGUZY8d2wv0vHBIgAF2vDpxtc5LtI7M88bGrrcliAEPF\n" +
+                "3PCd2tKz2tvA8sbbnGLggQMCAwEAAaMpMCcwEQYKKwYBBAGCxAoDAwQDBQcBMBIG\n" +
+                "A1UdEwEB/wQIMAYBAf8CAQAwDQYJKoZIhvcNAQELBQADggEBAKzmuDPAmjsO/wpP\n" +
+                "x6eoE1wibCzN71buOaoiwz7j+w4e7iufkCXzDgw7MdXkrL9a/ulIKQlRMypJoEF/\n" +
+                "B6+8JrJuquk3K972hektlwYnIv4+WTN+lnOSmjdMv7gSxlMtNtd/53ES8WaERsJL\n" +
+                "AyUfuuwqTAuWGAN0qG0x583PmbvP0AtmnJ7s+9ilPDG6MG6wlKvPL0UvbB+f3ABb\n" +
+                "/1lVRc+6FOHpETUUi/p/BjgdYuy3XczPFM1Zm8fG2shmyW8BUj+BUuLJK5n2HzG4\n" +
+                "HfJNIDHjxxZceg2CaWu5U1tXCTY3Q2KY6Ks5oK9cYFWwG+71mODskNL9HgSUUCSn\n" +
+                "1/BkKNEwCgYIKoZIzj0EAwIDRwAwRAIgJi8zizb0MmkYFW3FHfU2RngAIK+kS+uw\n" +
+                "iIv3qbQubxYCIFOtZseiiicTiReB+Tsh7RnkJx72zx71VE0XdbhroWl+\n" +
+                "-----END CERTIFICATE REQUEST-----\n";
+            CertificateDatabaseRow dbrow = new CertificateDatabaseRow(csr, CertCli.CR_IN_PKCS10);
+            #endregion
+            var result = new CertificateRequestValidationResult(dbrow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbrow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "0.0.0";
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+        }
+
     }
 }

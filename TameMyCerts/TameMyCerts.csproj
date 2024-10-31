@@ -67,7 +67,7 @@
     <Compile Include="Enums\KeyAlgorithmType.cs" />
     <Compile Include="Enums\SubjectNameFlag.cs" />
     <Compile Include="Enums\TmcFlag.cs" />
-    <Compile Include="Enums\YubikeyOID.cs" />
+    <Compile Include="Enums\Yubikey.cs" />
     <Compile Include="Models\YubikeyPolicy.cs" />
     <Compile Include="Models\YubikeyObject.cs" />
     <Compile Include="Models\CertificateDatabaseRow.cs" />

@@ -40,7 +40,7 @@ namespace TameMyCerts.Models
         public YubikeyObject()
         {
         }
-        public YubikeyObject(byte[] publicKey, X509Certificate2 AttestationCertificate, X509Certificate2 IntermediateCertificate)
+        public YubikeyObject(byte[] publicKey, X509Certificate2 AttestationCertificate, X509Certificate2 IntermediateCertificate, KeyAlgorithmFamily keyAlgorithm, int keyLength)
         {
 
             
@@ -70,6 +70,8 @@ namespace TameMyCerts.Models
                 throw new Exception("Certificate CSR does not match attestion certificate");
             }
 
+            this.Validated = true;
+
             #region Slot
             // the Slot number is located in the Subject for the Attestion certificate.
 
@@ -85,78 +87,18 @@ namespace TameMyCerts.Models
             if ( PinTouchPolicy.Length == 2)
             {
                 // Staring with the PIN Policy
-                switch (PinTouchPolicy[0])
-                {
-                    case 0:
-                        this.PinPolicy = "None";
-                        break;
-                    case 1:
-                        this.PinPolicy = "Never";
-                        break;
-                    case 2:
-                        this.PinPolicy = "Once";
-                        break;
-                    case 3:
-                        this.PinPolicy = "Always";
-                        break;
-                    case 4:
-                        this.PinPolicy = "MatchOnce";
-                        break;
-                    case 5:
-                        this.PinPolicy = "MatchAlways";
-                        break;
-                }
+                this.PinPolicy = (YubikeyPinPolicy)PinTouchPolicy[0];
                 // Update the TouchPolicy
-                switch (PinTouchPolicy[1])
-                {
-                    case 0:
-                        this.TouchPolicy = "None";
-                        break;
-                    case 1:
-                        this.TouchPolicy = "Never";
-                        break;
-                    case 2:
-                        this.TouchPolicy = "Always";
-                        break;
-                    case 3:
-                        this.TouchPolicy = "Cached";
-                        break;
-                }
+                this.TouchPolicy = (YubikeyTouchPolicy)PinTouchPolicy[1];
             }
             #endregion
             #region FormFactor
-            byte FormFactor = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyOID.FORMFACTOR)?.RawData[0] ?? 0;
-            switch (FormFactor)
-            {
-                case 1:
-                    this.FormFactor = "UsbAKeychain";
-                    break;
-                case 2:
-                    this.FormFactor = "UsbANano";
-                    break;
-                case 3:
-                    this.FormFactor = "UsbCKeychain";
-                    break;
-                case 4:
-                    this.FormFactor = "UsbCNano";
-                    break;
-                case 5:
-                    this.FormFactor = "UsbCLightning";
-                    break;
-                case 6:
-                    this.FormFactor = "UsbABiometricKeychain";
-                    break;
-                case 7:
-                    this.FormFactor = "UsbCBiometricKeychain";
-                    break;
-                default:
-                    this.FormFactor = "Unknown";
-                    break;
-            }
+            byte FormFactor = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.FORMFACTOR)?.RawData[0] ?? 0;
+            this.FormFactor = (YubikeyFormFactor)FormFactor;
             #endregion
             #region Firmware Version
             // Update the Firmware Version
-            byte[] FirmwareVersion = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyOID.FIRMWARE)?.RawData;
+            byte[] FirmwareVersion = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.FIRMWARE)?.RawData;
             if (FirmwareVersion.Length == 3)
             {
                 this.FirmwareVersion = new Version(FirmwareVersion[0], FirmwareVersion[1], FirmwareVersion[2]);
@@ -164,7 +106,7 @@ namespace TameMyCerts.Models
             #endregion
             #region Serial Number
             // Update the Serial Number
-            byte[] SerialNumber = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyOID.SERIALNUMBER)?.RawData;
+            byte[] SerialNumber = AttestationCertificate.Extensions.Cast<X509Extension>().FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.SERIALNUMBER)?.RawData;
             if (! (SerialNumber is null))
             {
                 if (BitConverter.IsLittleEndian)
@@ -175,43 +117,30 @@ namespace TameMyCerts.Models
             }
             #endregion
 
+            #region Key Algorithm and length for Policy use
+            this.keyAlgorithm = keyAlgorithm;
+            this.KeyLength = keyLength;
+            #endregion
+
             // Add to the attributes to allow for replacement
-            Attributes.Add("FormFactor", this.FormFactor);
+            Attributes.Add("FormFactor", this.FormFactor.ToString());
             Attributes.Add("FirmwareVersion", this.FirmwareVersion.ToString());
-            Attributes.Add("PinPolicy", this.PinPolicy);
-            Attributes.Add("TouchPolicy", this.TouchPolicy);
+            Attributes.Add("PinPolicy", this.PinPolicy.ToString());
+            Attributes.Add("TouchPolicy", this.TouchPolicy.ToString());
             Attributes.Add("Slot", this.Slot);
             Attributes.Add("SerialNumber", this.SerialNumber);
         }
 
-        private bool VerifyChain(X509Certificate2 Signed, X509Certificate2 Signer)
-        {
 
-            X509Chain chain = new X509Chain();
-            
-
-            // Get the raw data of the certificate's TBSCertificate
-            byte[] tbsCertificate = Signed.GetRawCertData();
-
-            // Get the signature of the certificate
-            //byte[] signature = Signed.GetSignature();
-
-            // Get the public key of the signing certificate
-            //RSACryptoServiceProvider rsa = (RSACryptoServiceProvider)Signer.PublicKey.Key;
-
-            // Verify the signature
-            //bool isSigned = rsa.VerifyData(tbsCertificate, CryptoConfig.MapNameToOID("SHA256"), signature);
-
-            //Console.WriteLine($"Chain status length: {isSigned}");
-            return true;
-        }
-
-        public string TouchPolicy { get; } = "";
-        public string PinPolicy { get; } = "";
-        public string FormFactor { get; } = "";
+        public YubikeyTouchPolicy TouchPolicy { get; }
+        public YubikeyPinPolicy PinPolicy { get; }
+        public YubikeyFormFactor FormFactor { get; }
         public string Slot { get; } = "";
         public string SerialNumber { get; } = "";
         public Version FirmwareVersion { get; } = new Version(0, 0, 0);
+        public KeyAlgorithmFamily keyAlgorithm { get; }
+        public int KeyLength { get; }
+
         public bool? Validated { get; } = false;
         private static string attestionSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
  

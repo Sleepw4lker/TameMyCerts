@@ -33,75 +33,53 @@ namespace TameMyCerts.Validators
     internal class YubikeyValidator
     {
         private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
-        private CertificateRequest _CertificateRequest;
 
         public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
             CertificateRequestPolicy policy, YubikeyObject yubikey)
         {
-            if (result.DeniedForIssuance || null == policy.YubikeyPolicy)
+            // If we are already denied for issuance or the policy does not contain any YubikeyPolicy, just continue
+            if (result.DeniedForIssuance || !policy.YubikeyPolicy.Any())
             {
                 return result;
             }
+            // If the Yubikey is not validated, we will not allow it
+            if (yubikey.Validated == false)
+            {
+                result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
+                LocalizedStrings.YKVal_Invalid_Attestion_with_YubikeyPolicy));
+                return result;
+
+            }
 
 
-            #region PIN Policy
-            if (policy.YubikeyPolicy.DisallowedPinPolicies.Any())
-            {
-                foreach (var PinPolicy in policy.YubikeyPolicy.DisallowedPinPolicies.Where(s => s.Equals(yubikey.PinPolicy, Comparison)))
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Disallowed_PIN_Policy, yubikey.PinPolicy));
-                }
-            }
-            if (policy.YubikeyPolicy.AllowedPinPolicies.Any())
-            {
-                if (!(policy.YubikeyPolicy.AllowedPinPolicies.Contains(yubikey.PinPolicy)))
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Allowed_PIN_Policy, yubikey.PinPolicy));
-                }
-            }
-            #endregion
+            bool foundMatch = false;
 
-            #region Touch Policy
-            if (policy.YubikeyPolicy.DisallowedTouchPolicies.Any())
+            foreach (YubikeyPolicy ykP in policy.YubikeyPolicy)
             {
-                foreach (var TouchPolicy in policy.YubikeyPolicy.DisallowedTouchPolicies.Where(s => s.Equals(yubikey.TouchPolicy, Comparison)))
+                //Console.WriteLine(ykP.SaveToString());
+                if (this.ObjectMatchesPolicy(ykP, yubikey))
                 {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Disallowed_Touch_Policy, yubikey.TouchPolicy));
+                    if (ykP.Action == YubikeyPolicyAction.Deny)
+                    {
+                        result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
+                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, ykP.SaveToString()));
+                        break;
+                    }
+                    foundMatch = true;
+                    break;
                 }
             }
-            if (policy.YubikeyPolicy.AllowedTouchPolicies.Any())
-            {
-                if (!(policy.YubikeyPolicy.AllowedTouchPolicies.Contains(yubikey.TouchPolicy)))
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Allowed_Touch_Policy, yubikey.TouchPolicy));
-                }
-            }
-            #endregion
 
-            #region Firmware Version
-            // Check if the firmware version is allowed
-            if (policy.YubikeyPolicy.DisallowedFirmwareVersion.Any())
+            // if non of the pin policies match, we will deny the request, not matching allowed = deny
+            if (foundMatch == false)
             {
-                foreach (var FirmwareVersion in policy.YubikeyPolicy.DisallowedFirmwareVersion.Where(s => s.Equals(yubikey.FirmwareVersion.ToString(), Comparison)))
+                // If all policies are deny policies, then if none match, we will allow the request
+                if (policy.YubikeyPolicy.Count(p => p.Action == YubikeyPolicyAction.Deny) != policy.YubikeyPolicy.Count)
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Disallowed_Firmware_Version, yubikey.FirmwareVersion.ToString()));
+                    LocalizedStrings.YKVal_No_Matching_Policy_Found));
                 }
             }
-            if (policy.YubikeyPolicy.AllowedFirmwareVersion.Any())
-            {
-                if (!(policy.YubikeyPolicy.AllowedFirmwareVersion.Contains(yubikey.FirmwareVersion.ToString())))
-                {
-                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                    LocalizedStrings.YKVal_Allowed_Firmware_Version, yubikey.FirmwareVersion.ToString()));
-                }
-            }
-            #endregion
-
             return result;
         }
         public CertificateRequestValidationResult ExtractAttestion(CertificateRequestValidationResult result,
@@ -114,15 +92,15 @@ namespace TameMyCerts.Validators
             }
 
             // Yubikey Attestation is stored in these two extensions in the CSR. If present , extract them, otherwise buuild an empty YubikeyObject.
-            if (dbRow.CertificateExtensions.ContainsKey(YubikeyOID.ATTESTION_DEVICE) && dbRow.CertificateExtensions.ContainsKey(YubikeyOID.ATTESTION_INTERMEDIATE))
+            if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE) && dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_INTERMEDIATE))
             {
                 try
                 {
-                    dbRow.CertificateExtensions.TryGetValue(YubikeyOID.ATTESTION_DEVICE, out var AttestionCertificateByte);
-                    dbRow.CertificateExtensions.TryGetValue(YubikeyOID.ATTESTION_INTERMEDIATE, out var IntermediateCertificateByte);
+                    dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_DEVICE, out var AttestionCertificateByte);
+                    dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, out var IntermediateCertificateByte);
                     X509Certificate2 AttestationCertificate = new X509Certificate2(AttestionCertificateByte);
                     X509Certificate2 IntermediateCertificate = new X509Certificate2(IntermediateCertificateByte);
-                    yubikey = new YubikeyObject(dbRow.PublicKey, AttestationCertificate, IntermediateCertificate);
+                    yubikey = new YubikeyObject(dbRow.PublicKey, AttestationCertificate, IntermediateCertificate, dbRow.KeyAlgorithm, dbRow.KeyLength);
                 }
                 catch (Exception ex)
                 {
@@ -135,6 +113,42 @@ namespace TameMyCerts.Validators
                 yubikey = new YubikeyObject();
             }
             return result;
+        }
+        private bool ObjectMatchesPolicy(YubikeyPolicy policy, YubikeyObject yubikey)
+        {
+            #region Firmware Version
+            if (!(policy.MinimumFirmwareString is null) && new Version(policy.MinimumFirmwareString) > yubikey.FirmwareVersion)
+            {
+                return false;
+            }
+            if (!(policy.MaximumFirmwareString is null) && new Version(policy.MaximumFirmwareString) < yubikey.FirmwareVersion)
+            {
+                return false;
+            }
+            #endregion
+
+            #region PIN Policy
+            if (policy.PinPolicies.Any() && ! policy.PinPolicies.Contains(yubikey.PinPolicy))
+            {
+                return false;
+            }
+            #endregion
+
+            #region Touch Policy
+            if (policy.TouchPolicies.Any() && !policy.TouchPolicies.Contains(yubikey.TouchPolicy))
+            {
+                return false;
+            }
+            #endregion
+
+            #region Form Factor
+            if (policy.Formfactor.Any() && !policy.Formfactor.Contains(yubikey.FormFactor))
+            {
+                return false;
+            }
+            #endregion
+
+            return true;
         }
     }
 }

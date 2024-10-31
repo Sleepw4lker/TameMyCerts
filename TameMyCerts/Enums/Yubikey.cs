@@ -1,5 +1,4 @@
-﻿// Copyright 2021-2024 Uwe Gradenegger <uwe@gradenegger.eu>
-// Copyright 2024 Oscar Virot <virot@virot.com>
+﻿// Copyright 2021-2023 Uwe Gradenegger <uwe@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +18,7 @@ namespace TameMyCerts.Enums
     ///     Constants from Yubico
     ///     https://developers.yubico.com/PIV/Introduction/PIV_attestation.html
     /// </summary>
-    internal static class YubikeyOID
+    internal static class YubikeyX509Extensions
     {
         public const string FIRMWARE = "1.3.6.1.4.1.41482.3.3";
         public const string SERIALNUMBER = "1.3.6.1.4.1.41482.3.7";
@@ -30,4 +29,50 @@ namespace TameMyCerts.Enums
         public const string ATTESTION_INTERMEDIATE = "1.3.6.1.4.1.41482.3.2";
         public const string ATTESTION_DEVICE = "1.3.6.1.4.1.41482.3.11";
     }
+
+    public enum YubikeyFormFactor
+    {
+        Unknown = 0,
+        UsbAKeychain = 1,
+        UsbANano = 2,
+        UsbCKeychain = 3,
+        UsbCNano = 4,
+        UsbCLightning = 5,
+        UsbABiometricKeychain = 6,
+        UsbCBiometricKeychain = 7,
+    }
+
+    public enum YubikeyTouchPolicy
+    {
+        None = 0,
+        Never = 1,
+        Always = 2,
+        Cached = 3,
+        Default = 32,
+    }
+
+    public enum YubikeyPinPolicy
+    {
+        None = 0,
+        Never = 1,
+        Once = 2,
+        Always = 3,
+        MatchOnce = 4,
+        MatchAlways = 5,
+        Default = 32,
+    }
+
+    public enum YubikeyPolicyAction
+    {
+        Allow,
+        Deny,
+    }
+
+    public enum YubikeyEdition
+    {
+        Normal,
+        FIPS,
+        CSPN,
+    }
+
 }

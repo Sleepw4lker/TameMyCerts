@@ -15,6 +15,13 @@
 
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System;
+using TameMyCerts.Enums;
+using System.IO;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml;
+using System.Runtime.CompilerServices;
 
 namespace TameMyCerts.Models
 {
@@ -22,26 +29,80 @@ namespace TameMyCerts.Models
     [XmlRoot(ElementName = "YubikeyPolicy")]
     public class YubikeyPolicy
     {
-        [XmlArray(ElementName = "AllowedPinPolicies")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AllowedPinPolicies { get; set; } = new List<string>();
-        [XmlArray(ElementName = "DisallowedPinPolicies")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> DisallowedPinPolicies { get; set; } = new List<string>();
-        [XmlArray(ElementName = "AllowedTouchPolicies")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AllowedTouchPolicies { get; set; } = new List<string>();
-        [XmlArray(ElementName = "DisallowedTouchPolicies")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> DisallowedTouchPolicies { get; set; } = new List<string>();
-        [XmlArray(ElementName = "DisallowedFirmwareVersion")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> DisallowedFirmwareVersion { get; set; } = new List<string>();
-        [XmlArray(ElementName = "AllowedFirmwareVersion")]
-        [XmlArrayItem(ElementName = "string")]
-        public List<string> AllowedFirmwareVersion { get; set; } = new List<string>();
-        [XmlElement(ElementName = "FIPSRequired")]
-        public bool FIPSRequired { get; set; }
 
+        [XmlElement(ElementName = "Action")]
+        public YubikeyPolicyAction Action { get; set; } = YubikeyPolicyAction.Allow;
+
+        [XmlArray(ElementName = "PinPolicy")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<YubikeyPinPolicy> PinPolicies { get; set; } = new List<YubikeyPinPolicy>();
+        [XmlArray(ElementName = "TouchPolicy")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<YubikeyTouchPolicy> TouchPolicies { get; set; } = new List<YubikeyTouchPolicy>();
+        [XmlArray(ElementName = "FormFactor")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<YubikeyFormFactor> Formfactor { get; set; } = new List<YubikeyFormFactor>();
+        [XmlElement(ElementName = "MaximumFirmwareVersion")]
+        public String MaximumFirmwareString { get; set; }
+        [XmlElement(ElementName = "MinimumFirmwareVersion")]
+        public String MinimumFirmwareString { get; set; }
+        [XmlArray(ElementName = "Edition")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<YubikeyEdition> Edition { get; set; } = new List<YubikeyEdition>();
+        [XmlArray(ElementName = "KeyAlgorithm")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<KeyAlgorithmFamily> KeyAlgorithmFamilies { get; set; } = new List<KeyAlgorithmFamily>();
+
+        private static string ConvertToHumanReadableXml(string inputString)
+        {
+            var xmlWriterSettings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = true,
+                Indent = true,
+                NewLineOnAttributes = true
+            };
+
+            var stringBuilder = new StringBuilder();
+
+            var xElement = XElement.Parse(inputString);
+
+            using (var xmlWriter = XmlWriter.Create(stringBuilder, xmlWriterSettings))
+            {
+                xElement.Save(xmlWriter);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        public void SaveToFile(string path)
+        {
+            var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
+
+            using (var stringWriter = new StringWriter())
+            {
+                using (var xmlWriter = XmlWriter.Create(stringWriter))
+                {
+                    xmlSerializer.Serialize(xmlWriter, this);
+                    var xmlData = stringWriter.ToString();
+
+                    File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
+                }
+            }
+        }
+        public string SaveToString()
+        {
+            var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
+
+            using (var stringWriter = new StringWriter())
+            {
+                using (var xmlWriter = XmlWriter.Create(stringWriter))
+                {
+                    xmlSerializer.Serialize(xmlWriter, this);
+                    var xmlData = stringWriter.ToString();
+
+                    return ConvertToHumanReadableXml(xmlData);
+                }
+            }
+        }
     }
 }

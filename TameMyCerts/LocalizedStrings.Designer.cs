@@ -788,6 +788,33 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The certificate request has been denied due to incorrect certificate request..
+        /// </summary>
+        internal static string YKVal_Invalid_Attestion_with_YubikeyPolicy {
+            get {
+                return ResourceManager.GetString("YKVal_Invalid_Attestion_with_YubikeyPolicy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request failed to find a matching yubikey policy, defaulting to deny..
+        /// </summary>
+        internal static string YKVal_No_Matching_Policy_Found {
+            get {
+                return ResourceManager.GetString("YKVal_No_Matching_Policy_Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request matched a deny yubikey policy: {0}.
+        /// </summary>
+        internal static string YKVal_Policy_Matches_with_Reject {
+            get {
+                return ResourceManager.GetString("YKVal_Policy_Matches_with_Reject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The module was unable to read the embedded certificates. Actual error: {0}.
         /// </summary>
         internal static string YKVal_Unable_to_read_embedded_certificates {

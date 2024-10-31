@@ -368,4 +368,13 @@
   <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
     <value>The module was unable to read the embedded certificates. Actual error: {0}</value>
   </data>
+  <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
+    <value>The request failed to find a matching yubikey policy, defaulting to deny.</value>
+  </data>
+  <data name="YKVal_Policy_Matches_with_Reject" xml:space="preserve">
+    <value>The request matched a deny yubikey policy: {0}</value>
+  </data>
+  <data name="YKVal_Invalid_Attestion_with_YubikeyPolicy" xml:space="preserve">
+    <value>The certificate request has been denied due to incorrect certificate request.</value>
+  </data>
 </root>
