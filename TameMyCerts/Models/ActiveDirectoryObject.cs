@@ -27,6 +27,7 @@ namespace TameMyCerts.Models
     internal class ActiveDirectoryObject
     {
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
+        private static readonly TimeSpan LdapClientTimeout = new TimeSpan(0, 0, 15);
 
         public ActiveDirectoryObject(string forestRootDomain, int domainMode, string dsAttribute, string identity,
             string objectCategory, string searchRoot)
@@ -47,8 +48,8 @@ namespace TameMyCerts.Models
             if (string.IsNullOrEmpty(searchRoot))
             {
                 var searchResult = GetDirectoryEntry($"GC://{forestRootDomain}", dsAttribute, identity, objectCategory,
-                    new List<string> {"distinguishedName"});
-                searchRoot = (string) searchResult.Properties["distinguishedName"][0];
+                    new List<string> { "distinguishedName" });
+                searchRoot = (string)searchResult.Properties["distinguishedName"][0];
             }
 
             var attributesToRetrieve = new List<string>
@@ -61,9 +62,9 @@ namespace TameMyCerts.Models
             var dsObject = GetDirectoryEntry($"LDAP://{searchRoot}", dsAttribute, identity, objectCategory,
                 attributesToRetrieve);
 
-            UserAccountControl = (UserAccountControl) Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
-            SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
-            DistinguishedName = (string) dsObject.Properties["distinguishedName"][0];
+            UserAccountControl = (UserAccountControl)Convert.ToInt32(dsObject.Properties["userAccountControl"][0]);
+            SecurityIdentifier = new SecurityIdentifier((byte[])dsObject.Properties["objectSid"][0], 0);
+            DistinguishedName = (string)dsObject.Properties["distinguishedName"][0];
 
             // If we are running newer versions, don't just read memberOf, Lets do a query for msds-memberOfTransitive, available from Windows 2012
             if (domainMode <= (int)DomainMode.Windows2008R2Domain)
@@ -75,17 +76,21 @@ namespace TameMyCerts.Models
             }
             else
             {
-                var directorySearcher = new DirectorySearcher {
+                var directorySearcher = new DirectorySearcher
+                {
                     SearchRoot = new DirectoryEntry($"LDAP://{DistinguishedName}"),
-                    PropertiesToLoad = {"msds-memberOfTransitive"},
-                    ClientTimeout = new TimeSpan(0, 0, 15),
+                    PropertiesToLoad = { "msds-memberOfTransitive" },
+                    ClientTimeout = LdapClientTimeout,
                     SearchScope = SearchScope.Base
                 };
 
                 var memberOfTransitive = directorySearcher.FindOne();
-                for (var index = 0; index < memberOfTransitive.Properties["msds-memberOfTransitive"].Count; index++)
+                if (memberOfTransitive != null)
                 {
-                    MemberOf.Add(memberOfTransitive.Properties["msds-memberOfTransitive"][index].ToString());
+                    for (var index = 0; index < memberOfTransitive.Properties["msds-memberOfTransitive"].Count; index++)
+                    {
+                        MemberOf.Add(memberOfTransitive.Properties["msds-memberOfTransitive"][index].ToString());
+                    }
                 }
             }
 
@@ -96,7 +101,7 @@ namespace TameMyCerts.Models
 
             foreach (var s in DsRetrievalAttributes.Where(s => dsObject.Properties[s].Count > 0))
             {
-                if (dsObject.Properties[s][0] is Int64)
+                if (dsObject.Properties[s][0] is long)
                 {
                     Attributes.Add(s, dsObject.Properties[s][0].ToString());
                 }
@@ -134,9 +139,9 @@ namespace TameMyCerts.Models
         public SecurityIdentifier SecurityIdentifier { get; }
 
         private static IEnumerable<string> DsMappingAttributes { get; } = new List<string>
-            {"cn", "name", "sAMAccountName", "userPrincipalName", "dNSHostName"};
+            { "cn", "name", "sAMAccountName", "userPrincipalName", "dNSHostName" };
 
-        private static IEnumerable<string> DsObjectTypes { get; } = new List<string> {"computer", "user"};
+        private static IEnumerable<string> DsObjectTypes { get; } = new List<string> { "computer", "user" };
 
         private static List<string> DsRetrievalAttributes { get; } = new List<string>
         {
@@ -148,7 +153,8 @@ namespace TameMyCerts.Models
             "extensionAttribute8", "extensionAttribute9", "facsimileTelephoneNumber", "gecos", "givenName", "homePhone",
             "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
             "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalPager",
-            "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "pwdLastSet", "sAMAccountName", "sn", "st", "street",
+            "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "pwdLastSet", "sAMAccountName", "sn", "st",
+            "street",
             "streetAddress", "telephoneNumber", "title", "userPrincipalName"
         };
 
@@ -165,7 +171,7 @@ namespace TameMyCerts.Models
                     SearchRoot = new DirectoryEntry(searchRoot),
                     Filter = filter,
                     PageSize = 2,
-                    ClientTimeout = new TimeSpan(0, 0, 15)
+                    ClientTimeout = LdapClientTimeout
                 };
 
                 foreach (var s in searchProperties)
