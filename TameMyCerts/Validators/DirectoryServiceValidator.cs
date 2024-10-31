@@ -28,17 +28,19 @@ namespace TameMyCerts.Validators
     internal class DirectoryServiceValidator
     {
         private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
-        private readonly string _forestRootDomain;
         private readonly int _domainLevel;
+        private readonly string _forestRootDomain;
 
         public DirectoryServiceValidator(bool forTesting = false)
         {
-            // DirectoryServiceValidator gets instanced only once, thus this is more efficient than enumerating this each time an ActiveDirectoryObject is instanced
-            if (!forTesting)
+            if (forTesting)
             {
-                _forestRootDomain = Forest.GetCurrentForest().Name;
-                _domainLevel = Domain.GetCurrentDomain().DomainModeLevel;
-            }       
+                return;
+            }
+
+            // DirectoryServiceValidator gets instanced only once, thus this is more efficient than enumerating this each time an ActiveDirectoryObject is instanced
+            _forestRootDomain = Forest.GetCurrentForest().Name;
+            _domainLevel = Domain.GetCurrentDomain().DomainModeLevel;
         }
 
         public CertificateRequestValidationResult GetMappedActiveDirectoryObject(
@@ -80,8 +82,8 @@ namespace TameMyCerts.Validators
 
             try
             {
-                dsObject = new ActiveDirectoryObject(_forestRootDomain, _domainLevel, dsAttribute, identity, objectCategory,
-                    dsMapping.SearchRoot);
+                dsObject = new ActiveDirectoryObject(_forestRootDomain, _domainLevel, dsAttribute, identity,
+                    objectCategory, dsMapping.SearchRoot);
             }
             catch (Exception ex)
             {
@@ -254,31 +256,36 @@ namespace TameMyCerts.Validators
             #endregion
 
             #region Process Maximum password age
+
             if (dsMapping.MaximumPasswordAge > 0)
             {
-                if (!(dsObject.Attributes.ContainsKey("pwdlastset")))
+                if (!dsObject.Attributes.ContainsKey("pwdlastset"))
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.DirVal_Account_Password_failed_to_parse, dsMapping.MaximumPasswordAge));
                 }
+
                 try
                 {
-                    long.TryParse(dsObject.Attributes["pwdlastSet"], out long pwdLastSetLong);
-                    UInt32 PasswordAge = (UInt32)DateTime.UtcNow.Subtract(DateTime.FromFileTimeUtc(pwdLastSetLong)).TotalMinutes;
+                    long.TryParse(dsObject.Attributes["pwdlastSet"], out var pwdLastSetLong);
+                    var PasswordAge = (uint)DateTime.UtcNow.Subtract(DateTime.FromFileTimeUtc(pwdLastSetLong))
+                        .TotalMinutes;
                     Console.WriteLine($"Password age: {PasswordAge}");
                     if (dsMapping.MaximumPasswordAge < PasswordAge)
                     {
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                        LocalizedStrings.DirVal_Account_Password_to_old, dsMapping.MaximumPasswordAge));
+                            LocalizedStrings.DirVal_Account_Password_to_old, dsMapping.MaximumPasswordAge));
                     }
                 }
                 catch
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-    LocalizedStrings.DirVal_Account_Password_failed_to_parse, dsMapping.MaximumPasswordAge));
+                        LocalizedStrings.DirVal_Account_Password_failed_to_parse, dsMapping.MaximumPasswordAge));
                 }
             }
+
             #endregion
+
             return result;
         }
     }
