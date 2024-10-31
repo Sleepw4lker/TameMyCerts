@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -27,7 +28,7 @@ namespace TameMyCerts.Models
     {
         private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
 
-        public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
+        public ActiveDirectoryObject(string forestRootDomain, int domainMode, string dsAttribute, string identity,
             string objectCategory, string searchRoot)
         {
             if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
@@ -64,9 +65,28 @@ namespace TameMyCerts.Models
             SecurityIdentifier = new SecurityIdentifier((byte[]) dsObject.Properties["objectSid"][0], 0);
             DistinguishedName = (string) dsObject.Properties["distinguishedName"][0];
 
-            for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
+            // If we are running newer versions, don't just read memberOf, Lets do a query for msds-memberOfTransitive, available from Windows 2012
+            if (domainMode <= (int)DomainMode.Windows2008R2Domain)
             {
-                MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
+                for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
+                {
+                    MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
+                }
+            }
+            else
+            {
+                var directorySearcher = new DirectorySearcher {
+                    SearchRoot = new DirectoryEntry($"LDAP://{DistinguishedName}"),
+                    PropertiesToLoad = {"msds-memberOfTransitive"},
+                    ClientTimeout = new TimeSpan(0, 0, 15),
+                    SearchScope = SearchScope.Base
+                };
+
+                var memberOfTransitive = directorySearcher.FindOne();
+                for (var index = 0; index < memberOfTransitive.Properties["msds-memberOfTransitive"].Count; index++)
+                {
+                    MemberOf.Add(memberOfTransitive.Properties["msds-memberOfTransitive"][index].ToString());
+                }
             }
 
             for (var index = 0; index < dsObject.Properties["servicePrincipalName"].Count; index++)
