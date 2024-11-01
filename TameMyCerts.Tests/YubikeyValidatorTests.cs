@@ -14,6 +14,7 @@ namespace TameMyCerts.Tests
     public class YubikeyValidatorTests
     {
         private readonly CertificateDatabaseRow _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow;
+        private readonly CertificateDatabaseRow _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow;
         private readonly CertificateDatabaseRow _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow;
         private readonly CertificateRequestPolicy _policy;
         private readonly YubikeyValidator _YKvalidator = new YubikeyValidator();
@@ -113,7 +114,57 @@ namespace TameMyCerts.Tests
 "UlIxjH4CMQDCIY2BUxFRNejz+acAsrMBs/ZFRBRLyXTBG7FqmHTnZoOG8C3g1SXt\n" +
 "S2tYi7825f8=\n" +
 "-----END CERTIFICATE REQUEST-----\n";
-
+            string _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_CSR = "-----BEGIN CERTIFICATE REQUEST-----\n" +
+                "MIIJATCCB7kCAQAwFjEUMBIGA1UEAxMLVGFtZU15Q2VydHMwggEiMA0GCSqGSIb3\n" +
+                "DQEBAQUAA4IBDwAwggEKAoIBAQDeOyoR9WOrkZnop6csbCcg56iTZIphvzwacn0f\n" +
+                "FCjB/KlvxiUOfnT6cPEowHybdq3Uf9eAP7VRvJC96CAiaWnDwiGAHf9VPNAcoWKY\n" +
+                "mTWKhGpNXEb2mzn/wFfKaEmZbePuvgCSGAg4F15maIkAoD4FuBlgVXNnRs2d0SRg\n" +
+                "/cNVlTAntXEgNed8l26845lB9uwu/lFRQNMN5QlzoDowslDts4GUeQukwhJPM3IG\n" +
+                "3dv2PyofL6W7XPt2RyWAh9/sgI/Hv8LnNN+X9IjtkfoNj7AEpwOlj0m0pVc6PErt\n" +
+                "bDtMPN+b8dvDHiISoUYMOSEK6ntVj/1QJ4LtINNsHTduWOJ9AgMBAAGgggZ0MIIG\n" +
+                "cAYJKoZIhvcNAQkOMYIGYTCCBl0wggM0BgorBgEEAYLECgMLBIIDJDCCAyAwggII\n" +
+                "oAMCAQICEAGGZrGxJU5oBjuULRfjUpgwDQYJKoZIhvcNAQELBQAwITEfMB0GA1UE\n" +
+                "AwwWWXViaWNvIFBJViBBdHRlc3RhdGlvbjAgFw0xNjAzMTQwMDAwMDBaGA8yMDUy\n" +
+                "MDQxNzAwMDAwMFowJTEjMCEGA1UEAwwaWXViaUtleSBQSVYgQXR0ZXN0YXRpb24g\n" +
+                "OWEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDeOyoR9WOrkZnop6cs\n" +
+                "bCcg56iTZIphvzwacn0fFCjB/KlvxiUOfnT6cPEowHybdq3Uf9eAP7VRvJC96CAi\n" +
+                "aWnDwiGAHf9VPNAcoWKYmTWKhGpNXEb2mzn/wFfKaEmZbePuvgCSGAg4F15maIkA\n" +
+                "oD4FuBlgVXNnRs2d0SRg/cNVlTAntXEgNed8l26845lB9uwu/lFRQNMN5QlzoDow\n" +
+                "slDts4GUeQukwhJPM3IG3dv2PyofL6W7XPt2RyWAh9/sgI/Hv8LnNN+X9IjtkfoN\n" +
+                "j7AEpwOlj0m0pVc6PErtbDtMPN+b8dvDHiISoUYMOSEK6ntVj/1QJ4LtINNsHTdu\n" +
+                "WOJ9AgMBAAGjTjBMMBEGCisGAQQBgsQKAwMEAwUEAzAUBgorBgEEAYLECgMHBAYC\n" +
+                "BAG6WQYwEAYKKwYBBAGCxAoDCAQCAgMwDwYKKwYBBAGCxAoDCQQBgTANBgkqhkiG\n" +
+                "9w0BAQsFAAOCAQEArE7iI5PZjIYtCVQ2qrOL6QD9szE+3DhzA9WBoT77kBSqL3Xe\n" +
+                "T/I/WI4Eq6wZziu+uFsy3EuCVKu2CfVVAGFtvL+icnrcyreYAjdL48KmsePFk+jd\n" +
+                "o/4w4eWUTcWY+09TSetajnnHTQ+cR4EltbyklEKRyHfIjU9e1ctHxYWJM86GOLeR\n" +
+                "7tklp+crKTDNAcFzIyM/CMS0OfnafjzKsvVI8DvLTeyUtwQw/QOV+aPWFVCxdjqq\n" +
+                "NvsPuQtgiokiV3QggYu/Fr0fJyp+FE/1wtHUEqQWrODK0mAn13MWMtj1D+KK2XjS\n" +
+                "E/w1r05lFaQQqcJ2AQtkgBONaGqZJNlVjsIIGzCCAyEGCisGAQQBgsQKAwIEggMR\n" +
+                "MIIDDTCCAfWgAwIBAgIJAJrfc9rkKdzuMA0GCSqGSIb3DQEBCwUAMCsxKTAnBgNV\n" +
+                "BAMMIFl1YmljbyBQSVYgUm9vdCBDQSBTZXJpYWwgMjYzNzUxMCAXDTE2MDMxNDAw\n" +
+                "MDAwMFoYDzIwNTIwNDE3MDAwMDAwWjAhMR8wHQYDVQQDDBZZdWJpY28gUElWIEF0\n" +
+                "dGVzdGF0aW9uMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyxuU2atQ\n" +
+                "MWgdBUJ/9ebFvorSlQC0ia6a9mDSnh9AAhUbwy89MC1GNKb+Blrqx+A/LHokn289\n" +
+                "mGZ2dGEw1LZhiLC0m2KpGCoin2Cx3T1w3VNHzFFezTatYDwLvx1p250odzJJWRBD\n" +
+                "pUGr9ey+mMz9v0byyLt3Zsy/vlzgZZfzswxDtLOXSz02pxQ2fLGzt7Ayw57ip1hP\n" +
+                "AtrKjfAaA82z8fZZ9yvl2Fo+Tu/kCk1AG/2tfPXGLXSrZgwYUKlUohtBMLeaocJc\n" +
+                "q3ympCdICuqykMq5YYjek9Gf6XLpc6AdYtyVaGBo0LubUBTu6LA7yPjOQYElCu0V\n" +
+                "+lqCjVjFGgcbsQIDAQABozwwOjARBgorBgEEAYLECgMDBAMFBAMwEQYKKwYBBAGC\n" +
+                "xAoDCgQDAgEHMBIGA1UdEwEB/wQIMAYBAf8CAQAwDQYJKoZIhvcNAQELBQADggEB\n" +
+                "AGXyYgCspGVK12JwEbj6zFrNHttekQXI9lbYLdywZEw5xDBgQ3VtDm45naR9Nt0/\n" +
+                "w4NmUxo6z2sw9/5tBsAr/RF+LFp+9Gv8qm/wXwYMZD2g+2RiujY0WeXIss9nS3t9\n" +
+                "8G/B5OO5ePAKb2eTt3NfgX5wsigbY4KH1XibjuNZmcLJyaWwxQAImR9ibnqeLw9W\n" +
+                "mm/jVJ3JA3u5WPNohbme39pX4dDdHTOvdmkaYcXr373HxTFRXM/D37jqrHBXy55S\n" +
+                "pgX7kjtedi7QL2f+FymWu41topVIeFL4jTXEtgFqX4cpSpvSLW2W2+H+uvA4QoLy\n" +
+                "rJno24gpVaPaAgPB6YUedZcwPQYJKoZIhvcNAQEKMDCgDTALBglghkgBZQMEAgGh\n" +
+                "GjAYBgkqhkiG9w0BAQgwCwYJYIZIAWUDBAIBogMCASADggEBADIDrl526qQMXSn8\n" +
+                "ADsKiQ8D4fPTaAnuecivKu7rplZDptLvCDu/1tduIgz6osNvsEsGgWjFWDDFTq4s\n" +
+                "PwmEdxxFHsTDbTEYdEuowubPw33Tj2FCwy3yHFGGUxXZTYAE1g+/9AcoL8M2zmfp\n" +
+                "/GP5+ha52/GPqmkB1KbEL8XzlucpMGRi+n0zFf33lhXeN4r0DP8aVHNxcBN4wyw3\n" +
+                "gLHyB5Sob3b6b0qLKTFAE91MY3h+GSrMXW3uLlI+a5o5QHlkZ2M4wARb003Mqbmc\n" +
+                "BBIbMd9kK+Np20xMNNRXBK7X37ISmMNBfNmT0zPZ7gq80Shts5Y7wDLR2lWax8II\n" +
+                "4gDDulQ=\n" +
+                "-----END CERTIFICATE REQUEST-----\n";
 
             _policy = new CertificateRequestPolicy {
                 YubikeyPolicy = new List<YubikeyPolicy>
@@ -126,6 +177,7 @@ namespace TameMyCerts.Tests
 
             _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow = new CertificateDatabaseRow(yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
             _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR, CertCli.CR_IN_PKCS10);
+            _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
         }
 
         internal void PrintResult(CertificateRequestValidationResult result)
@@ -211,6 +263,7 @@ namespace TameMyCerts.Tests
 
             Assert.IsFalse(result.DeniedForIssuance);
         }
+        [TestMethod]
         public void Validate_PIN_Policy_Deny_Once_should_Deny()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -224,7 +277,32 @@ namespace TameMyCerts.Tests
 
             Assert.IsTrue(result.DeniedForIssuance);
         }
+        [TestMethod]
+        public void Validate_FIPS_Edition_Should_Deny()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.FIPS);
 
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+            PrintResult(result);
+
+            Assert.IsTrue(result.DeniedForIssuance);
+        }
+        [TestMethod]
+        public void Validate_FIPS_Edition_Should_Allow()
+        {
+            var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow, out var yubikey);
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.FIPS);
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey);
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+        }
         [TestMethod]
         public void Validate_PIN_Policy_VerifyAll()
         {

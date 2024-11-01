@@ -117,11 +117,11 @@ namespace TameMyCerts.Validators
         private bool ObjectMatchesPolicy(YubikeyPolicy policy, YubikeyObject yubikey)
         {
             #region Firmware Version
-            if (!(policy.MinimumFirmwareString is null) && new Version(policy.MinimumFirmwareString) >= yubikey.FirmwareVersion)
+            if (!(policy.MinimumFirmwareString is null) && ! (new Version(policy.MinimumFirmwareString) <= yubikey.FirmwareVersion))
             {
                 return false;
             }
-            if (!(policy.MaximumFirmwareString is null) && new Version(policy.MaximumFirmwareString) <= yubikey.FirmwareVersion)
+            if (!(policy.MaximumFirmwareString is null) && ! (new Version(policy.MaximumFirmwareString) >= yubikey.FirmwareVersion))
             {
                 return false;
             }
@@ -147,6 +147,16 @@ namespace TameMyCerts.Validators
                 return false;
             }
             #endregion
+
+            if (policy.KeyAlgorithmFamilies.Any() && ! policy.KeyAlgorithmFamilies.Contains(yubikey.keyAlgorithm))
+            {
+                return false;
+            }
+
+            if (policy.Edition.Any() && ! policy.Edition.Contains(yubikey.Edition))
+            {
+                return false;
+            }
 
             return true;
         }

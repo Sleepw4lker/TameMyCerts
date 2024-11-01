@@ -117,6 +117,19 @@ namespace TameMyCerts.Models
             }
             #endregion
 
+            #region
+            // Check for the FIPS extension
+            if (IntermediateCertificate.Extensions.Cast<X509Extension>().Where(x => x.Oid.Value == YubikeyX509Extensions.FIPS_CERTIFIED).Any())
+            {
+                this.Edition = YubikeyEdition.FIPS;
+            }
+            else if (IntermediateCertificate.Extensions.Cast<X509Extension>().Where(x => x.Oid.Value == YubikeyX509Extensions.CPSN_CERTIFIED).Any())
+            {
+                this.Edition = YubikeyEdition.CSPN;
+            }
+
+            #endregion
+
             #region Key Algorithm and length for Policy use
             this.keyAlgorithm = keyAlgorithm;
             this.KeyLength = keyLength;
@@ -140,6 +153,7 @@ namespace TameMyCerts.Models
         public Version FirmwareVersion { get; } = new Version(0, 0, 0);
         public KeyAlgorithmFamily keyAlgorithm { get; }
         public int KeyLength { get; }
+        public YubikeyEdition Edition { get; } = YubikeyEdition.Normal;
 
         public bool? Validated { get; } = false;
         private static string attestionSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
