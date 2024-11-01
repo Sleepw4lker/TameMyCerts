@@ -30,8 +30,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         var sanExt = new X509CertificateExtensionSubjectAlternativeName();
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
-        Assert.True(sanExt.AlternativeNames.Count.Equals(0));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
+        Assert.Empty(sanExt.AlternativeNames);
     }
 
     [Fact]
@@ -40,8 +40,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         var sanExt = new X509CertificateExtensionSubjectAlternativeName(string.Empty);
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
-        Assert.True(sanExt.AlternativeNames.Count.Equals(0));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
+        Assert.Empty(sanExt.AlternativeNames);
     }
 
     [Fact]
@@ -50,8 +50,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         var sanExt = new X509CertificateExtensionSubjectAlternativeName(Array.Empty<byte>());
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
-        Assert.True(sanExt.AlternativeNames.Count.Equals(0));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
+        Assert.Empty(sanExt.AlternativeNames);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
             "tag:microsoft.com,2022-09-14:sid:S-1-5-21-1381186052-4247692386-135928078-1225");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddDnsName("some-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddIpAddress(IPAddress.Parse("192.168.0.1"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUserPrincipalName("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddEmailAddress(new MailAddress("Administrator@tamemycerts-tests.local"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddEmailAddress("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUniformResourceIdentifier(new Uri("http://some-test.tamemycerts-tests.local/"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUniformResourceIdentifier("http://some-test.tamemycerts-tests.local/");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveDnsName("some-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -185,8 +185,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         var sanExt = new X509CertificateExtensionSubjectAlternativeName(rawData);
 
-        Assert.True(sanExt.AlternativeNames[0].Key == SanTypes.IpAddress);
-        Assert.True(sanExt.AlternativeNames[0].Value == "192.168.0.1");
+        Assert.Equal(SanTypes.IpAddress, sanExt.AlternativeNames[0].Key);
+        Assert.Equal("192.168.0.1", sanExt.AlternativeNames[0].Value);
     }
 
     [Fact]
@@ -196,8 +196,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         var sanExt = new X509CertificateExtensionSubjectAlternativeName(rawData);
 
-        Assert.True(sanExt.AlternativeNames[0].Key == SanTypes.UserPrincipalName);
-        Assert.True(sanExt.AlternativeNames[0].Value == "Administrator@tamemycerts-tests.local");
+        Assert.Equal(SanTypes.UserPrincipalName, sanExt.AlternativeNames[0].Key);
+        Assert.Equal("Administrator@tamemycerts-tests.local", sanExt.AlternativeNames[0].Value);
     }
 
     [Fact]
@@ -218,8 +218,8 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         var sanExt = new X509CertificateExtensionSubjectAlternativeName(rawData);
 
-        Assert.True(sanExt.AlternativeNames[0].Key == SanTypes.UniformResourceIdentifier);
-        Assert.True(sanExt.AlternativeNames[0].Value == "http://some-test.tamemycerts-tests.local/");
+        Assert.Equal(SanTypes.UniformResourceIdentifier, sanExt.AlternativeNames[0].Key);
+        Assert.Equal("http://some-test.tamemycerts-tests.local/", sanExt.AlternativeNames[0].Value);
     }
 
     [Fact]
@@ -232,7 +232,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddDnsName("some-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName("thisisnotvalid", "some-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName(SanTypes.DnsName, "thisisnotvalid!?");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -262,7 +262,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName(SanTypes.IpAddress, "thisisnotvalid!?");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName(SanTypes.UserPrincipalName, "thisisnotvalid!?");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -282,7 +282,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName(SanTypes.Rfc822Name, "thisisnotvalid!?");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -292,7 +292,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddAlternativeName(SanTypes.UniformResourceIdentifier, "thisisnotvalid!?");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<byte>(), sanExt.RawData);
     }
 
     [Fact]
@@ -305,7 +305,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddIpAddress(IPAddress.Parse("192.168.0.1"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -319,7 +319,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUserPrincipalName("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -332,7 +332,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddEmailAddress(new MailAddress("Administrator@tamemycerts-tests.local"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -345,7 +345,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUniformResourceIdentifier(new Uri("http://some-test.tamemycerts-tests.local/"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -359,7 +359,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddDnsName("another-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -375,7 +375,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -391,7 +391,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -407,7 +407,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
 
         Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -420,7 +420,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddIpAddress(IPAddress.Parse("192.168.0.1"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -434,7 +434,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveDnsName("another-test.tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -447,7 +447,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveIpAddress(IPAddress.Parse("192.168.0.1"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -461,7 +461,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveUniformResourceIdentifier(new Uri("http://some-test.tamemycerts-tests.local/"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -475,7 +475,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveUniformResourceIdentifier("http://some-test.tamemycerts-tests.local/");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -489,7 +489,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveEmailAddress(new MailAddress("Administrator@tamemycerts-tests.local"));
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -503,7 +503,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveEmailAddress("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -517,7 +517,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveUserPrincipalName("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(sanExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
 
     [Fact]
@@ -527,6 +527,6 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.RemoveUserPrincipalName("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Assert.True(sanExt.RawData.Equals(Array.Empty<byte>()));
+        Assert.Equal(Array.Empty<Byte>(), sanExt.RawData);
     }
 }

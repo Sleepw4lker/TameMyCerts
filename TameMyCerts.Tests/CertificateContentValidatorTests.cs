@@ -307,7 +307,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
+        Assert.Equal(WinError.NTE_FAIL, result.StatusCode);
     }
 
     [Fact]
@@ -335,7 +335,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+        Assert.Equal(WinError.CERTSRV_E_TEMPLATE_DENIED, result.StatusCode);
     }
 
 
@@ -364,7 +364,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
     }
 
     [Fact]
@@ -392,7 +392,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties
             .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]))
             .Any(x => x.Value.Equals("intranet.adcslabor.de")));
@@ -430,7 +430,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]) &&
                     result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]
                         .Equals(string.Empty));
@@ -464,7 +464,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(
             result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
             Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
@@ -497,7 +497,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties
             .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]))
             .Any(x => x.Value.Equals("intranet.adcslabor.de")));
@@ -559,7 +559,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties
             .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
             .Any(x => x.Value.Equals("test")));
@@ -591,7 +591,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(
             result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
             Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
@@ -648,7 +648,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties
             .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
             .Any(x => x.Value.Equals("intranet.adcslabor.de")));
@@ -679,7 +679,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+        Assert.Equal(WinError.CERTSRV_E_TEMPLATE_DENIED, result.StatusCode);
     }
 
     [Fact]
@@ -1007,8 +1007,8 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
-        Assert.True(string.Join("\n", result.Description.ToList()).Contains("test-attribute"));
+        Assert.Equal(WinError.CERTSRV_E_TEMPLATE_DENIED, result.StatusCode);
+        Assert.Contains("test-attribute", string.Join("\n", result.Description.ToList()));
     }
 
     [Fact]
@@ -1321,7 +1321,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]) &&
                     result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]
                         .Equals(string.Empty));
@@ -1351,7 +1351,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.State]) &&
                     result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.State]].Equals(string.Empty));
     }
@@ -1380,7 +1380,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.False(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]));
     }
 
