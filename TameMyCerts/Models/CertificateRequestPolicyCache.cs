@@ -17,51 +17,50 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+internal class CertificateRequestPolicyCache
 {
-    internal class CertificateRequestPolicyCache
+    private readonly Dictionary<string, CertificateRequestPolicyCacheEntry> _cache = new();
+
+    private readonly DateTimeOffset _fileDoesNotExist = new(1601, 01, 01, 0, 0, 0, TimeSpan.Zero);
+    private readonly object _lockObject = new();
+    private readonly string _policyDirectory;
+
+    public CertificateRequestPolicyCache(string policyDirectory)
     {
-        private readonly Dictionary<string, CertificateRequestPolicyCacheEntry> _cache =
-            new Dictionary<string, CertificateRequestPolicyCacheEntry>();
-        private readonly DateTimeOffset _fileDoesNotExist = new DateTimeOffset(1601, 01, 01, 0, 0, 0, TimeSpan.Zero);
-        private readonly object _lockObject = new object();
-        private readonly string _policyDirectory;
+        _policyDirectory = policyDirectory;
+    }
 
-        public CertificateRequestPolicyCache(string policyDirectory)
+    public CertificateRequestPolicyCacheEntry GetCertificateRequestPolicy(string certificateTemplate)
+    {
+        var policyFileName = Path.Combine(_policyDirectory, RemoveInvalidFileNameChars($"{certificateTemplate}.xml"));
+        var policyFileLastChange = File.GetLastWriteTime(policyFileName);
+
+        if (policyFileLastChange == _fileDoesNotExist)
         {
-            _policyDirectory = policyDirectory;
+            return null;
         }
 
-        public CertificateRequestPolicyCacheEntry GetCertificateRequestPolicy(string certificateTemplate)
+        lock (_lockObject)
         {
-            var policyFileName = Path.Combine(_policyDirectory, RemoveInvalidFileNameChars($"{certificateTemplate}.xml"));
-            var policyFileLastChange = File.GetLastWriteTime(policyFileName);
-
-            if (policyFileLastChange == _fileDoesNotExist)
+            if (_cache.TryGetValue(certificateTemplate, out var cacheEntry) &&
+                cacheEntry.LastUpdate > policyFileLastChange)
             {
-                return null;
+                return cacheEntry;
             }
 
-            lock (_lockObject)
-            {
-                if (_cache.TryGetValue(certificateTemplate, out var cacheEntry) &&
-                    cacheEntry.LastUpdate > policyFileLastChange)
-                {
-                    return cacheEntry;
-                }
+            var newCacheEntry = new CertificateRequestPolicyCacheEntry(policyFileName);
 
-                var newCacheEntry = new CertificateRequestPolicyCacheEntry(policyFileName);
+            _cache[certificateTemplate] = newCacheEntry;
 
-                _cache[certificateTemplate] = newCacheEntry;
-
-                return newCacheEntry;
-            }
+            return newCacheEntry;
         }
+    }
 
-        private static string RemoveInvalidFileNameChars(string fileName)
-        {
-            return Path.GetInvalidFileNameChars()
-                .Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
-        }
+    private static string RemoveInvalidFileNameChars(string fileName)
+    {
+        return Path.GetInvalidFileNameChars()
+            .Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
     }
 }

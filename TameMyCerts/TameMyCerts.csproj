@@ -1,122 +1,32 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BB35A67E-8E22-48C3-B3F8-E852161ACB59}</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TameMyCerts</RootNamespace>
-    <AssemblyName>TameMyCerts</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyVersion>1.7.1399.542</AssemblyVersion>
+    <FileVersion>1.7.1399.542</FileVersion>
+    <AssemblyTitle>TameMyCerts</AssemblyTitle>
+    <Description>A policy module that allows applying advanced rules to certificate requests.</Description>
+    <Product>TameMyCerts</Product>
+    <Copyright>Copyright © Uwe Gradenegger</Copyright>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+	<PropertyGroup>
+		<EnableComHosting>true</EnableComHosting>
+	</PropertyGroup>
   <ItemGroup>
-    <Reference Include="CERTCLILib">
-      <HintPath>.\CERTCLILib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="CERTPOLICYLib">
-      <HintPath>.\CERTPOLICYLib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AutoVersionIncrement.cs">
+    <Compile Update="AutoVersionIncrement.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AutoVersionIncrement.tt</DependentUpon>
     </Compile>
-    <Compile Include="ClassExtensions\ByteArrayExtensions.cs" />
-    <Compile Include="ClassExtensions\CCertServerPolicyExtensions.cs" />
-    <Compile Include="ClassExtensions\StringExtensions.cs" />
-    <Compile Include="Enums\CaType.cs" />
-    <Compile Include="Enums\CertCli.cs" />
-    <Compile Include="Enums\EditFlag.cs" />
-    <Compile Include="Enums\GeneralFlag.cs" />
-    <Compile Include="Enums\KeyAlgorithmFamily.cs" />
-    <Compile Include="Enums\KeyAlgorithmType.cs" />
-    <Compile Include="Enums\SubjectNameFlag.cs" />
-    <Compile Include="Enums\TmcFlag.cs" />
-    <Compile Include="Enums\Yubikey.cs" />
-    <Compile Include="Models\YubikeyPolicy.cs" />
-    <Compile Include="Models\YubikeyObject.cs" />
-    <Compile Include="Models\CertificateDatabaseRow.cs" />
-    <Compile Include="Models\CertificateRequestPolicy.cs" />
-    <Compile Include="Models\CertificateRequestPolicyCache.cs" />
-    <Compile Include="Models\CertificateRequestPolicyCacheEntry.cs" />
-    <Compile Include="Models\CertificateRequestValidationResult.cs" />
-    <Compile Include="ClassExtensions\CX509CertificateRequestPkcs10Extensions.cs" />
-    <Compile Include="Models\ActiveDirectoryObject.cs" />
-    <Compile Include="Enums\CertSrv.cs" />
-    <Compile Include="Models\CertificateTemplate.cs" />
-    <Compile Include="Models\CertificateAuthorityConfiguration.cs" />
-    <Compile Include="Models\DirectoryObjectRule.cs" />
-    <Compile Include="Models\DirectoryServicesMapping.cs" />
-    <Compile Include="Models\Event.cs" />
-    <Compile Include="Models\Events.cs" />
-    <Compile Include="Models\Pattern.cs" />
-    <Compile Include="Models\RdnTypes.cs" />
-    <Compile Include="Models\SanTypes.cs" />
-    <Compile Include="Models\OutboundSubjectRule.cs" />
-    <Compile Include="Models\SubjectRule.cs" />
-    <Compile Include="Enums\UserAccountControl.cs" />
-    <Compile Include="Enums\WinCrypt.cs" />
-    <Compile Include="Enums\WinError.cs" />
-    <Compile Include="Validators\YubikeyValidator.cs" />
-    <Compile Include="Validators\DirectoryServiceValidator.cs" />
-    <Compile Include="ClassExtensions\IPAddressExtensions.cs" />
-    <Compile Include="LocalizedStrings.Designer.cs">
+    <Compile Update="LocalizedStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>LocalizedStrings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Logger.cs" />
-    <Compile Include="Enums\OleAut32.cs" />
-    <Compile Include="Policy.cs" />
-    <Compile Include="PolicyManage.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Validators\CertificateRequestValidator.cs" />
-    <Compile Include="Models\CertificateTemplateCache.cs" />
-    <Compile Include="Validators\FinalResultValidator.cs" />
-    <Compile Include="Validators\RequestAttributeValidator.cs" />
-    <Compile Include="Validators\CertificateContentValidator.cs" />
-    <Compile Include="X509\X509CertificateExtension.cs" />
-    <Compile Include="X509\X509CertificateExtensionAuthorityInformationAccess.cs" />
-    <Compile Include="X509\X509CertificateExtensionAuthorityKeyIdentifier.cs" />
-    <Compile Include="X509\X509CertificateExtensionCrlDistributionPoint.cs" />
-    <Compile Include="X509\X509CertificateExtensionOcspMustStaple.cs" />
-    <Compile Include="X509\X509CertificateExtensionSecurityIdentifier.cs" />
-    <Compile Include="X509\X509CertificateExtensionSubjectAlternativeName.cs" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="CERTENROLLLib">
@@ -139,11 +49,24 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="LocalizedStrings.resx">
+    <EmbeddedResource Update="LocalizedStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>LocalizedStrings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.1" />
+    <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CERTCLILib">
+      <HintPath>CERTCLILIB.dll</HintPath>
+    </Reference>
+    <Reference Include="CERTPOLICYLib">
+      <HintPath>CERTPOLICYLIB.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

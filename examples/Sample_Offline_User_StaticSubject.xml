@@ -1,6 +1,6 @@
 <!-- 
   This is an example configuration file for user offline certificate requests that are submitted by a
-mobile device management system.
+  mobile device management system.
   It ensures that the requests contain a syntacical valid commonName in the Subject DN.
   We allow our enrollees to request an organizationName RDN of any kind in the certificate request.
   If an organizationName RDN is requested, the requested value will be used.
@@ -56,20 +56,6 @@ mobile device management system.
       <Value>Contoso Corp.</Value>
       <!-- If a request contains an organizationName RDN, the static value will not be applied -->
       <Overwrite>false</Overwrite>
-    </OutboundSubjectRule>
-    <!-- This removes any stateOrProviceName before issuing the certificate -->
-    <OutboundSubjectRule>
-      <Field>stateOrProviceName</Field>
-      <Value></Value> <!-- note that the value is empty -->
-      <Overwrite>true</Overwrite>
-      <Force>true</Force>
-    </OutboundSubjectRule>
-    <!-- This transfers the value of the requested stateOrProvinceName into the serialNumber -->
-    <OutboundSubjectRule>
-      <Field>serialNumber</Field>
-      <Value>{sdn:stateOrProvinceName}</Value>
-      <Mandatory>true</Mandatory>
-      <Force>true</Force>
     </OutboundSubjectRule>
   </OutboundSubject>
 </CertificateRequestPolicy>

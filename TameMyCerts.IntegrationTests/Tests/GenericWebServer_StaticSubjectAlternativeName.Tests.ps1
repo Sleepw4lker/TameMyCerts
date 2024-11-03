@@ -1,0 +1,33 @@
+BeforeAll {
+
+    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+
+    $CertificateTemplate = "GenericWebServer_StaticSubjectAlternativeName"
+}
+
+Describe 'GenericWebServer_StaticSubjectAlternativeName.Tests' {
+
+    It 'Given a request doesnt contain it, a SAN is supplemented' {
+
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "rfc822Name=info@adcslabor.de"
+    }
+
+    It 'Given a request does contain it, no SAN is supplemented' {
+
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -RFC822Name "support@adcslabor.de"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "rfc822Name=support@adcslabor.de"
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Not -Contain "rfc822Name=info@adcslabor.de"
+    }
+
+}

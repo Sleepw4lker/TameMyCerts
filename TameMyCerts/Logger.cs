@@ -17,50 +17,49 @@ using System.Security;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 
-namespace TameMyCerts
+namespace TameMyCerts;
+
+internal class Logger
 {
-    internal class Logger
+    private readonly EventLog _eventLog;
+    private readonly int _logLevel;
+
+    public Logger(string eventSource, int logLevel = CertSrv.CERTLOG_WARNING)
     {
-        private readonly EventLog _eventLog;
-        private readonly int _logLevel;
+        const string logName = "Application";
 
-        public Logger(string eventSource, int logLevel = CertSrv.CERTLOG_WARNING)
+        _logLevel = logLevel;
+
+        _eventLog = new EventLog(logName)
         {
-            const string logName = "Application";
+            Source = CreateEventSource(eventSource, logName)
+        };
+    }
 
-            _logLevel = logLevel;
-
-            _eventLog = new EventLog(logName)
-            {
-                Source = CreateEventSource(eventSource, logName)
-            };
+    public void Log(Event logEvent, params object[] args)
+    {
+        if (_logLevel >= logEvent.LogLevel)
+        {
+            _eventLog.WriteEntry(string.Format(logEvent.MessageText, args), logEvent.Type, logEvent.Id);
         }
+    }
 
-        public void Log(Event logEvent, params object[] args)
+    private static string CreateEventSource(string currentAppName, string logName)
+    {
+        var eventSource = currentAppName;
+
+        try
         {
-            if (_logLevel >= logEvent.LogLevel)
+            if (!EventLog.SourceExists(eventSource))
             {
-                _eventLog.WriteEntry(string.Format(logEvent.MessageText, args), logEvent.Type, logEvent.Id);
+                EventLog.CreateEventSource(eventSource, logName);
             }
         }
-
-        private static string CreateEventSource(string currentAppName, string logName)
+        catch (SecurityException)
         {
-            var eventSource = currentAppName;
-
-            try
-            {
-                if (!EventLog.SourceExists(eventSource))
-                {
-                    EventLog.CreateEventSource(eventSource, logName);
-                }
-            }
-            catch (SecurityException)
-            {
-                eventSource = "Application";
-            }
-
-            return eventSource;
+            eventSource = "Application";
         }
+
+        return eventSource;
     }
 }

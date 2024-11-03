@@ -1,3 +1,9 @@
+<!--
+  This is an example configuration file for online computer certificate templates.
+  All issued certificates will contain a Subject Alternative Name in form of a DNS name containing
+  the value from the object's extensionAttribute1. This property must be populated in Active
+  Directory, otherwise, requests will get denied.
+-->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <DirectoryServicesMapping>

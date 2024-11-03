@@ -1,20 +1,18 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TameMyCerts.X509;
+using Xunit;
 
-namespace TameMyCerts.Tests
+namespace TameMyCerts.Tests;
+
+public class X509CertificateExtensionOcspMustStapleTests
 {
-    [TestClass]
-    public class X509CertificateExtensionOcspMustStapleTests
+    [Fact]
+    public void Building()
     {
-        [TestMethod]
-        public void Building()
-        {
-            const string expectedResult = "MAMCAQU=";
+        const string expectedResult = "MAMCAQU=";
 
-            var ocspStaplingExt = new X509CertificateExtensionOcspMustStaple();
+        var ocspStaplingExt = new X509CertificateExtensionOcspMustStaple();
 
-            Assert.IsTrue(Convert.ToBase64String(ocspStaplingExt.RawData).Equals(expectedResult));
-        }
+        Assert.True(Convert.ToBase64String(ocspStaplingExt.RawData).Equals(expectedResult));
     }
 }

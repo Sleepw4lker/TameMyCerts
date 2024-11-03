@@ -1,0 +1,17 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <NotAfter>2020-12-31T23:59:59.0000000+01:00</NotAfter>
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>3</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+</CertificateRequestPolicy>

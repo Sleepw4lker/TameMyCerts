@@ -1,3 +1,8 @@
+<!--
+  This is an example configuration file for online computer certificate templates.
+  The issued certificate will contain all service principal names of the AD object as DNS names, but
+  only if the DNS name is qualified.
+-->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <DirectoryServicesMapping>

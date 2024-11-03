@@ -1,0 +1,17 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MinimumKeyLength>2048</MinimumKeyLength>
+  <MaximumKeyLength>3072</MaximumKeyLength>
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+</CertificateRequestPolicy>

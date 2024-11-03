@@ -14,17 +14,16 @@
 
 using System;
 
-namespace TameMyCerts.ClassExtensions
+namespace TameMyCerts.ClassExtensions;
+
+internal static class ByteArrayExtensions
 {
-    internal static class ByteArrayExtensions
+    public static byte[] TrimEnd(this byte[] array)
     {
-        public static byte[] TrimEnd(this byte[] array)
-        {
-            var lastIndex = Array.FindLastIndex(array, b => b != 0);
+        var lastIndex = Array.FindLastIndex(array, b => b != 0);
 
-            Array.Resize(ref array, lastIndex + 1);
+        Array.Resize(ref array, lastIndex + 1);
 
-            return array;
-        }
+        return array;
     }
 }

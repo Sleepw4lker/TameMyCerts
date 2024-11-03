@@ -1,7 +1,7 @@
 <!--
   This is an example configuration file for user certificate requests.
   Ensures that all certificates issued for this template expire on 31st December 2022, 23:59:59
-(Europe/Berlin time).
+ (Europe/Berlin time).
   Offline requests must include syntax and optiionally directory services mapping rules there.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

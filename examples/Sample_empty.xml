@@ -1,0 +1,5 @@
+<!---
+You would need this policy if configured the TMC_DENY_IF_NO_POLICY flag to allow an online certificate template without any modifications.
+Note that this will not work without further configuration with offline certificate templates.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />

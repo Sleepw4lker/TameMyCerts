@@ -1,22 +1,23 @@
 ## Changelog for the TameMyCerts policy module {#changelog}
 
-> TameMyCerts has developed into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
+> TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
 ### Version 1.7.x.y
 
 _This version has not yet been released._
 
-This is mainly a quality improvement release, adding several non-essential functionality and fixes some minor bugs.
-
-- Fix the module denying certificate requests with error 0x80131500 when the certificate request contains a Subject Alternative Name extension with empty content (Issue #20).
-- Fix the installer script not removing the event source on uninstall (Issue #22).
+- The code base has been upgraded from .NET Framework 4.7.2 to .NET Core 8.0. Files are no longer installed into the System32 folder but unter the Program Files directory.
+- Fix the module denying certificate requests with error 0x80131500 when the certificate request contains a Subject Alternative Name extension with empty content (#20).
+- Fix the installer script not removing the event source on uninstall (#22).
+- Directory Services Mapping is now able to honor nested group memberships, if the certification authoritie's Active Directory Domain functional level is Windows 2012 R2 or newer (#38).
+- Directory Services Mapping now supports restricting certificate issuance based on remaining password validity time (#34).
 - Introducing (verbose) Event IDs 12 and 13 that indicate certificate requests getting issued or put into pending state.
 - Introduding Event 14 which will contain warnings that occurred during the processing of a certificate request.
     - Currently, the detection of the "san" request attribute will get logged regardless if the dangerous **EDITF\_ATTRIBUTESUBJECTALTNAME2** flag is enabled or not. This allows to silently detect attack attempts on the certification authority.
 - Introducing a _SupplementUnqualifiedNames_ switch to use in combination with supplementing of DNS names (both _SupplementDnsNames_ and _SupplementServicePrincipalNames_). To keep compatibility with the previous behavior, this setting defaults to _true_. If set to false, supplementation logic will not include DNS names that are not fully qualified.
 - Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates (the default behavior stays as before):
     - Allow to set the default behavior to globally deny a certificate request when no policy configuration file is found for the requested certificate template.
-    - Allow to certificate requests containing insecure request attribute and certification authority flag combinations to get issued (Only for testing purposes. Use at your own risk!).
+    - Allow to certificate requests containing insecure request attribute and certification authority flag combinations to get issued (**Only for testing purposes. Use at your own risk!**).
 - Improved documentation, especially description of event logs and use cases.
 
 ### Version 1.6.1045.1129

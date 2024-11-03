@@ -78,6 +78,19 @@ process {
         Return 
     }
 
+    try {
+        $DotNetCore = $((Get-ChildItem -Path (Get-Command dotnet).Path.Replace('dotnet.exe', 'shared\Microsoft.NETCore.App')).Name)
+    }
+    catch {
+        Write-Error -Message ".NET Core Runtime is not installed! Aborting."
+        Return
+    }
+
+    if (-not $DotNetCore.StartsWith("8.")) {
+        Write-Error -Message ".NET Core Runtime is not Version 8.0! Aborting."
+        Return
+    }
+
     # Ensuring the Script will be run with Elevation
     If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
         Write-Error -Message "This must be run as Administrator! Aborting."
@@ -126,30 +139,12 @@ process {
     }
 
     Write-Verbose -Message "Trying to unregister $PolicyModuleName policy module COM object"
-    "System32","SysWOW64" | ForEach-Object -Process {
 
-        $Path = "$($env:SystemRoot)\$($_)\$($PolicyModuleName).dll"
-
-        If (Test-Path -Path $Path) {
-
-            Start-Process `
-                -FilePath "$($env:SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" `
-                -ArgumentList "/unregister", $Path `
-                -Wait `
-                -WindowStyle Hidden
-        }
-    }
-
-    Write-Verbose -Message "Deleting policy module DLL file"
-    "System32","SysWOW64" | ForEach-Object -Process {
-
-        $Path = "$($env:SystemRoot)\$($_)\$($PolicyModuleName).dll"
-
-        If (Test-Path -Path $Path) {
-
-            Remove-Item -Path $Path -Force
-        }
-    }
+    Start-Process `
+        -FilePath "$($env:SystemRoot)\System32\regsvr32.exe" `
+        -ArgumentList "/s", "/u", """$env:ProgramFiles\TameMyCerts\TameMyCerts.comhost.dll""" `
+        -Wait `
+        -WindowStyle Hidden
     
     # Uninstall
     If ($Uninstall.IsPresent) {
@@ -182,19 +177,12 @@ process {
     If (-not $Uninstall.IsPresent) {
 
         Write-Verbose -Message "Registering $PolicyModuleName policy module COM Object"
-        "System32","SysWOW64" | ForEach-Object -Process {
 
-            $SourcePath = "$BaseDirectory\$($PolicyModuleName).dll"
-            $Path = "$($env:SystemRoot)\$($_)\$($PolicyModuleName).dll"
-    
-            Copy-Item -Path $SourcePath -Destination $Path -Force -ErrorAction Stop
-
-            Start-Process `
-                -FilePath "$($env:SystemRoot)\Microsoft.NET\Framework64\v4.0.30319\regasm.exe" `
-                -ArgumentList $Path `
-                -Wait `
-                -WindowStyle Hidden
-        }
+        Start-Process `
+            -FilePath "$($env:SystemRoot)\System32\regsvr32.exe" `
+            -ArgumentList "/s", """$env:ProgramFiles\TameMyCerts\TameMyCerts.comhost.dll""" `
+            -Wait `
+            -WindowStyle Hidden
 
         If (-not (Test-Path -Path $RegistryHiveCustom)) {
 

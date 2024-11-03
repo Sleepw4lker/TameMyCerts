@@ -1,9 +1,9 @@
 <!-- 
   This is an example configuration file for user offline certificate requests that are submitted by a
-mobile device management system.
+  mobile device management system.
   It ensures that the requests contain a syntacical valid userPrincipalName extension.
   After verification, this information is used to search a corresponding user account in Active
-Directory.
+  Directory.
   The Subject Distinguished Name gets built from the properties of the AD account.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -28,6 +28,8 @@ Directory.
       <Field>emailAddress</Field>
       <Value>{ad:mail}</Value>
     </OutboundSubjectRule>
+    <!-- Note that the  displayName AD attribute is the only field that is mandatory to be populated
+    into commonName -->
     <OutboundSubjectRule>
       <Field>commonName</Field>
       <Value>{ad:displayName}</Value>

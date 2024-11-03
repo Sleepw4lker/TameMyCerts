@@ -1,0 +1,4 @@
+[NewRequest]
+Subject="CN="
+KeyAlgorithm=ECDSA_P256
+RequestType=PKCS10

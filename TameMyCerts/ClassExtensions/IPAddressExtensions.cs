@@ -18,87 +18,86 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace TameMyCerts.ClassExtensions
+namespace TameMyCerts.ClassExtensions;
+
+internal static class IPAddressExtensions
 {
-    internal static class IPAddressExtensions
+    /// <summary>
+    ///     This code was adopted from a sample provided by Christoph Sonntag thus all credits go to the original author
+    /// </summary>
+    /// <param name="address"></param>
+    /// <param name="subnetMask"></param>
+    /// <see cref="https://stackoverflow.com/questions/1499269" />
+    /// <returns></returns>
+    public static bool IsInRange(this IPAddress address, string subnetMask)
     {
-        /// <summary>
-        ///     This code was adopted from a sample provided by Christoph Sonntag thus all credits go to the original author
-        /// </summary>
-        /// <param name="address"></param>
-        /// <param name="subnetMask"></param>
-        /// <see cref="https://stackoverflow.com/questions/1499269" />
-        /// <returns></returns>
-        public static bool IsInRange(this IPAddress address, string subnetMask)
+        IPAddress maskAddress;
+        int maskLength;
+
+        try
         {
-            IPAddress maskAddress;
-            int maskLength;
+            var parts = subnetMask.Split('/');
 
-            try
+            maskAddress = IPAddress.Parse(parts[0]);
+            maskLength = int.Parse(parts[1]);
+        }
+        catch
+        {
+            return false;
+        }
+
+        if (maskLength == 0)
+        {
+            return true;
+        }
+
+        if (maskLength < 0 || maskAddress.AddressFamily != address.AddressFamily)
+        {
+            return false;
+        }
+
+        switch (maskAddress.AddressFamily)
+        {
+            case AddressFamily.InterNetwork:
             {
-                var parts = subnetMask.Split('/');
+                if (maskLength > 32)
+                {
+                    return false;
+                }
 
-                maskAddress = IPAddress.Parse(parts[0]);
-                maskLength = int.Parse(parts[1]);
+                var maskAddressBits = BitConverter.ToInt32(maskAddress.GetAddressBytes(), 0);
+                var ipAddressBits = BitConverter.ToInt32(address.GetAddressBytes(), 0);
+                var maskBits = IPAddress.HostToNetworkOrder(-1 << (32 - maskLength));
+
+                return (ipAddressBits & maskBits) == (maskAddressBits & maskBits);
             }
-            catch
+            case AddressFamily.InterNetworkV6:
             {
-                return false;
-            }
+                if (maskLength > 128)
+                {
+                    return false;
+                }
 
-            if (maskLength == 0)
-            {
+                var maskAddressBits = new BitArray(maskAddress.GetAddressBytes().Reverse().ToArray());
+                var ipAddressBits = new BitArray(address.GetAddressBytes().Reverse().ToArray());
+
+                if (maskAddressBits.Length != ipAddressBits.Length)
+                {
+                    return false;
+                }
+
+                for (var i = ipAddressBits.Length - 1; i >= ipAddressBits.Length - maskLength; i--)
+                {
+                    if (ipAddressBits[i] != maskAddressBits[i])
+                    {
+                        return false;
+                    }
+                }
+
                 return true;
             }
-
-            if (maskLength < 0 || maskAddress.AddressFamily != address.AddressFamily)
-            {
+            default:
                 return false;
-            }
-
-            switch (maskAddress.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                {
-                    if (maskLength > 32)
-                    {
-                        return false;
-                    }
-
-                    var maskAddressBits = BitConverter.ToInt32(maskAddress.GetAddressBytes(), 0);
-                    var ipAddressBits = BitConverter.ToInt32(address.GetAddressBytes(), 0);
-                    var maskBits = IPAddress.HostToNetworkOrder(-1 << (32 - maskLength));
-
-                    return (ipAddressBits & maskBits) == (maskAddressBits & maskBits);
-                }
-                case AddressFamily.InterNetworkV6:
-                {
-                    if (maskLength > 128)
-                    {
-                        return false;
-                    }
-
-                    var maskAddressBits = new BitArray(maskAddress.GetAddressBytes().Reverse().ToArray());
-                    var ipAddressBits = new BitArray(address.GetAddressBytes().Reverse().ToArray());
-
-                    if (maskAddressBits.Length != ipAddressBits.Length)
-                    {
-                        return false;
-                    }
-
-                    for (var i = ipAddressBits.Length - 1; i >= ipAddressBits.Length - maskLength; i--)
-                    {
-                        if (ipAddressBits[i] != maskAddressBits[i])
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-                default:
-                    return false;
-            }
         }
     }
 }

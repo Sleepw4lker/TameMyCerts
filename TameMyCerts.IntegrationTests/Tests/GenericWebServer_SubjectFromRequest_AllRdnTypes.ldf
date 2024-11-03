@@ -1,0 +1,39 @@
+dn: CN=GenericWebServer_SubjectFromRequest_AllRdnTypes,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=local
+changetype: add
+objectClass: top
+objectClass: pKICertificateTemplate
+cn: GenericWebServer_SubjectFromRequest_AllRdnTypes
+distinguishedName: 
+ CN=GenericWebServer_SubjectFromRequest_AllRdnTypes,CN=Certificate Templates,CN
+ =Public Key Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=loca
+ l
+instanceType: 4
+displayName: GenericWebServer_SubjectFromRequest_AllRdnTypes
+showInAdvancedViewOnly: TRUE
+name: GenericWebServer_SubjectFromRequest_AllRdnTypes
+flags: 131649
+revision: 100
+objectCategory: 
+ CN=PKI-Certificate-Template,CN=Schema,CN=Configuration,DC=tamemycerts-tests,DC
+ =local
+pKIDefaultKeySpec: 1
+pKIKeyUsage:: oAA=
+pKIMaxIssuingDepth: 0
+pKICriticalExtensions: 2.5.29.15
+pKIExpirationPeriod:: AEAepOhl+v8=
+pKIOverlapPeriod:: AICmCv/e//8=
+pKIExtendedKeyUsage: 1.3.6.1.5.5.7.3.1
+pKIDefaultCSPs: 1,Microsoft Software Key Storage Provider
+msPKI-RA-Signature: 0
+msPKI-Enrollment-Flag: 0
+msPKI-Private-Key-Flag: 33685504
+msPKI-Certificate-Name-Flag: 1
+msPKI-Minimal-Key-Size: 2048
+msPKI-Template-Schema-Version: 3
+msPKI-Template-Minor-Revision: 5
+msPKI-Certificate-Application-Policy: 1.3.6.1.5.5.7.3.1
+msPKI-RA-Application-Policies: 
+ msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA1`msPKI
+ -Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetr
+ ic-Key-Length`DWORD`168`
+

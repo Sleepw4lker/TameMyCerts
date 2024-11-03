@@ -14,22 +14,18 @@
 
 using System.Xml.Serialization;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+// Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+[XmlRoot(ElementName = "OutboundSubjectRule")]
+public class OutboundSubjectRule
 {
-    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    [XmlRoot(ElementName = "OutboundSubjectRule")]
-    public class OutboundSubjectRule
-    {
-        [XmlElement(ElementName = "Field")]
-        public string Field { get; set; } = string.Empty;
+    [XmlElement(ElementName = "Field")] public string Field { get; set; } = string.Empty;
 
-        [XmlElement(ElementName = "Value")]
-        public string Value { get; set; } = string.Empty;
+    [XmlElement(ElementName = "Value")] public string Value { get; set; } = string.Empty;
 
-        [XmlElement(ElementName = "Mandatory")]
-        public bool Mandatory { get; set; }
+    [XmlElement(ElementName = "Mandatory")]
+    public bool Mandatory { get; set; }
 
-        [XmlElement(ElementName = "Force")]
-        public bool Force { get; set; }
-    }
+    [XmlElement(ElementName = "Force")] public bool Force { get; set; }
 }

@@ -15,28 +15,27 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace TameMyCerts.Models
+namespace TameMyCerts.Models;
+
+// Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
+[XmlRoot(ElementName = "SubjectRule")]
+public class SubjectRule
 {
-    // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    [XmlRoot(ElementName = "SubjectRule")]
-    public class SubjectRule
-    {
-        [XmlElement(ElementName = "Field")]
-        public string Field { get; set; } = string.Empty;
+    [XmlElement(ElementName = "Field")] 
+    public string Field { get; set; } = string.Empty;
 
-        [XmlElement(ElementName = "Mandatory")]
-        public bool Mandatory { get; set; }
+    [XmlElement(ElementName = "Mandatory")]
+    public bool Mandatory { get; set; }
 
-        [XmlElement(ElementName = "MaxOccurrences")]
-        public int MaxOccurrences { get; set; } = 1;
+    [XmlElement(ElementName = "MaxOccurrences")]
+    public int MaxOccurrences { get; set; } = 1;
 
-        [XmlElement(ElementName = "MinLength")]
-        public int MinLength { get; set; } = 1;
+    [XmlElement(ElementName = "MinLength")]
+    public int MinLength { get; set; } = 1;
 
-        [XmlElement(ElementName = "MaxLength")]
-        public int MaxLength { get; set; } = 128;
+    [XmlElement(ElementName = "MaxLength")]
+    public int MaxLength { get; set; } = 128;
 
-        [XmlArray(ElementName = "Patterns")] 
-        public List<Pattern> Patterns { get; set; } = new List<Pattern>();
-    }
+    [XmlArray(ElementName = "Patterns")] 
+    public List<Pattern> Patterns { get; set; } = new();
 }

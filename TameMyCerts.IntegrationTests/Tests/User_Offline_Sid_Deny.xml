@@ -1,0 +1,15 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^[a-zA-Z0-9]*$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+  <!-- Denying the Sid extension is the default behavior -->
+</CertificateRequestPolicy>

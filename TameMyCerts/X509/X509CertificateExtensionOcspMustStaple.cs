@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace TameMyCerts.X509
+namespace TameMyCerts.X509;
+
+public class X509CertificateExtensionOcspMustStaple : X509CertificateExtension
 {
-    public class X509CertificateExtensionOcspMustStaple : X509CertificateExtension
+    public X509CertificateExtensionOcspMustStaple()
     {
-        public X509CertificateExtensionOcspMustStaple()
-        {
-            RawData = new byte[] { 0x30, 0x03, 0x02, 0x01, 0x05 };
-        }
+        RawData = new byte[] { 0x30, 0x03, 0x02, 0x01, 0x05 };
     }
 }

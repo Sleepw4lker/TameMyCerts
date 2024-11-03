@@ -1,11 +1,11 @@
 <!--
   This is an example configuration file for computer offline certificate requests that are submitted
-by a mobile device management system.
+  by a mobile device management system.
   It ensures that the requests contain a syntacical valid dNSName extension.
   After verification, this information is used to search a corresponding computer account in Active
-Directory.
+  Directory.
   It's objectSid property will be written into the SID certificate extension when the certificate is
-issued.
+  issued.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">

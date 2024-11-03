@@ -17,47 +17,46 @@ using System.Collections.Generic;
 using System.Linq;
 using TameMyCerts.ClassExtensions;
 
-namespace TameMyCerts.X509
+namespace TameMyCerts.X509;
+
+public abstract class X509CertificateExtension
 {
-    public abstract class X509CertificateExtension
+    public byte[] RawData { get; internal set; } = Array.Empty<byte>();
+
+    protected byte[] Asn1BuildNode(byte identifier, byte[] content)
     {
-        public byte[] RawData { get; internal set; } = Array.Empty<byte>();
+        var result = new[] { identifier };
 
-        protected byte[] Asn1BuildNode(byte identifier, byte[] content)
+        result = result.Concat(Asn1GetLength(content.Length)).ToArray();
+        result = result.Concat(content).ToArray();
+
+        return result;
+    }
+
+    private static IEnumerable<byte> Asn1GetLength(int numDataOctets)
+    {
+        // Short form (for lengths between 0 and 127). One octet. 
+        // Bit 8 has value "0" and bits 7-1 give the length.
+
+        // Note that BitConverter.GetBytes always returns 32 Bit = 4 Bytes
+        if (numDataOctets <= 127)
         {
-            var result = new[] {identifier};
-
-            result = result.Concat(Asn1GetLength(content.Length)).ToArray();
-            result = result.Concat(content).ToArray();
-
-            return result;
+            return BitConverter.GetBytes(numDataOctets).TrimEnd();
         }
 
-        private static IEnumerable<byte> Asn1GetLength(int numDataOctets)
-        {
-            // Short form (for lengths between 0 and 127). One octet. 
-            // Bit 8 has value "0" and bits 7-1 give the length.
+        // Long form. Two to 127 octets.
+        // Second and following octets give the length, base 256, most significant digit first.
 
-            // Note that BitConverter.GetBytes always returns 32 Bit = 4 Bytes
-            if (numDataOctets <= 127)
-            {
-                return BitConverter.GetBytes(numDataOctets).TrimEnd();
-            }
+        var lengthOctets = BitConverter.GetBytes(numDataOctets).TrimEnd().Reverse().ToArray();
 
-            // Long form. Two to 127 octets.
-            // Second and following octets give the length, base 256, most significant digit first.
+        // Bit 8 of first octet has value "1" and bits 7-1 give the number of additional length octets.
+        return new[] { (byte)(0x80 | lengthOctets.Length) }.Concat(lengthOctets).ToArray();
+    }
 
-            var lengthOctets = BitConverter.GetBytes(numDataOctets).TrimEnd().Reverse().ToArray();
-
-            // Bit 8 of first octet has value "1" and bits 7-1 give the number of additional length octets.
-            return new[] {(byte) (0x80 | lengthOctets.Length)}.Concat(lengthOctets).ToArray();
-        }
-
-        internal static string EncodeUri(string input)
-        {
-            return input.StartsWith("http://") || input.StartsWith("https://") || input.StartsWith("ldap://")
-                ? input.Replace(" ", "%20")
-                : input;
-        }
+    internal static string EncodeUri(string input)
+    {
+        return input.StartsWith("http://") || input.StartsWith("https://") || input.StartsWith("ldap://")
+            ? input.Replace(" ", "%20")
+            : input;
     }
 }

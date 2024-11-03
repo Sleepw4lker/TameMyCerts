@@ -1,7 +1,7 @@
 <!--
-  This is an example configuration file for user online certificate requests.
+  This is an example configuration file for online certificate templates.
   The issued certificate will not use the CDP/AIA/OCSP URIs as cnfigured in the certification
-authority registry, but instead the values we define below.
+  authority registry, but instead the values we define below.
 -->
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">

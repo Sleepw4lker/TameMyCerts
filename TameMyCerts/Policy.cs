@@ -23,221 +23,169 @@ using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 
-namespace TameMyCerts
+namespace TameMyCerts;
+
+[ComVisible(true)]
+[ClassInterface(ClassInterfaceType.None)]
+[ProgId("TameMyCerts.Policy")]
+[Guid("432413c6-2e86-4667-9697-c1e038877ef9")] // must be distinct from PolicyManage Class
+public class Policy : ICertPolicy2
 {
-    [ComVisible(true)]
-    [ClassInterface(ClassInterfaceType.None)]
-    [ProgId("TameMyCerts.Policy")]
-    [Guid("432413c6-2e86-4667-9697-c1e038877ef9")] // must be distinct from PolicyManage Class
-    public class Policy : ICertPolicy2
+    private readonly string _appName;
+    private readonly string _appVersion;
+    private readonly CertificateContentValidator _ccValidator = new();
+    private readonly CertificateRequestValidator _crValidator = new();
+    private readonly DirectoryServiceValidator _dsValidator = new();
+    private readonly FinalResultValidator _frValidator = new();
+    private readonly RequestAttributeValidator _raValidator = new();
+    private readonly YubikeyValidator _ykValidator = new YubikeyValidator();
+    private readonly CertificateTemplateCache _templateCache = new();
+    private CertificateAuthorityConfiguration _caConfig;
+    private Logger _logger;
+    private CertificateRequestPolicyCache _policyCache;
+    private ICertPolicy2 _windowsDefaultPolicyModule;
+
+    #region Constructor
+
+    public Policy()
     {
-        private readonly string _appName;
-        private readonly string _appVersion;
-        private readonly CertificateContentValidator _ccValidator = new CertificateContentValidator();
-        private readonly CertificateRequestValidator _crValidator = new CertificateRequestValidator();
-        private readonly DirectoryServiceValidator _dsValidator = new DirectoryServiceValidator();
-        private readonly FinalResultValidator _frValidator = new FinalResultValidator();
-        private readonly RequestAttributeValidator _raValidator = new RequestAttributeValidator();
-        private readonly YubikeyValidator _ykValidator = new YubikeyValidator();
-        private readonly CertificateTemplateCache _templateCache = new CertificateTemplateCache();
-        private CertificateAuthorityConfiguration _caConfig;
-        private Logger _logger;
-        private CertificateRequestPolicyCache _policyCache;
-        private ICertPolicy2 _windowsDefaultPolicyModule;
+        var assembly = Assembly.GetExecutingAssembly();
 
-        #region Constructor
+        _appName = ((AssemblyTitleAttribute)assembly.GetCustomAttribute(
+            typeof(AssemblyTitleAttribute))).Title;
 
-        public Policy()
+        _appVersion = ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(
+            typeof(AssemblyFileVersionAttribute))).Version;
+    }
+
+    #endregion
+
+    #region ICertPolicy2 Members
+
+    public CCertManagePolicyModule GetManageModule()
+    {
+        return new PolicyManage();
+    }
+
+    #endregion
+
+    #region ICertPolicy Members
+
+    public string GetDescription()
+    {
+        return _appName;
+    }
+
+    public void Initialize(string strConfig)
+    {
+        _caConfig = new CertificateAuthorityConfiguration(strConfig, _appName);
+        _logger = new Logger(_appName, _caConfig.LogLevel);
+        _policyCache = new CertificateRequestPolicyCache(_caConfig.PolicyDirectory);
+
+        PreventModuleLoadOnStandaloneCa();
+        InitializeWindowsDefaultPolicyModule(strConfig);
+    }
+
+    public int VerifyRequest(string strConfig, int context, int isNewRequest, int flags)
+    {
+        var serverPolicy = new CCertServerPolicy();
+        serverPolicy.SetContext(context);
+
+        var requestId = serverPolicy.GetLongRequestPropertyOrDefault("RequestId");
+        int disposition;
+
+        #region Hand the request over to the Windows Default policy module
+
+        try
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            disposition = _windowsDefaultPolicyModule.VerifyRequest(strConfig, context, isNewRequest, flags);
+        }
+        catch (Exception ex)
+        {
+            _logger.Log(Events.PDEF_REQUEST_DENIED_MESSAGE, requestId, ex.Message);
+            throw;
+        }
 
-            _appName = ((AssemblyTitleAttribute)assembly.GetCustomAttribute(
-                typeof(AssemblyTitleAttribute))).Title;
-
-            _appVersion = ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(
-                typeof(AssemblyFileVersionAttribute))).Version;
+        if (!(disposition == CertSrv.VR_PENDING || disposition == CertSrv.VR_INSTANT_OK))
+        {
+            _logger.Log(Events.PDEF_REQUEST_DENIED, requestId);
+            return disposition;
         }
 
         #endregion
 
-        #region ICertPolicy2 Members
+        // It seems that the Windows default module invalidates our data if we put it ahead of the call
+        var dbRow = new CertificateDatabaseRow(serverPolicy);
 
-        public CCertManagePolicyModule GetManageModule()
+        #region Fetch certificate template information
+
+        var template = _templateCache.GetCertificateTemplate(dbRow.CertificateTemplate);
+
+        if (template == null)
         {
-            return new PolicyManage();
+            _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL, requestId);
+            return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
         }
 
         #endregion
 
-        #region ICertPolicy Members
+        var result = new CertificateRequestValidationResult(dbRow);
 
-        public string GetDescription()
+        #region Process policy-independent validators
+
+        result = _raValidator.VerifyRequest(result, dbRow, _caConfig);
+
+        #endregion
+
+        var cacheEntry = _policyCache.GetCertificateRequestPolicy(template.Name);
+
+        if (cacheEntry == null)
         {
-            return _appName;
+            if (_caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY))
+            {
+                _logger.Log(Events.REQUEST_DENIED_POLICY_NOT_FOUND, template.Name, requestId);
+                return WinError.NTE_FAIL;
+            }
+
+            _logger.Log(Events.POLICY_NOT_FOUND, template.Name, requestId);
         }
-
-        public void Initialize(string strConfig)
+        else
         {
-            _caConfig = new CertificateAuthorityConfiguration(strConfig, _appName);
-            _logger = new Logger(_appName, _caConfig.LogLevel);
-            _policyCache = new CertificateRequestPolicyCache(_caConfig.PolicyDirectory);
+            #region Load policy from cache
 
-            PreventModuleLoadOnStandaloneCa();
-            InitializeWindowsDefaultPolicyModule(strConfig);
-        }
+            var policy = cacheEntry.CertificateRequestPolicy;
 
-        public int VerifyRequest(string strConfig, int context, int isNewRequest, int flags)
-        {
-            var serverPolicy = new CCertServerPolicy();
-            serverPolicy.SetContext(context);
-
-            var requestId = serverPolicy.GetLongRequestPropertyOrDefault("RequestId");
-            int disposition;
-
-            #region Hand the request over to the Windows Default policy module
-
-            try
+            if (null == policy)
             {
-                disposition = _windowsDefaultPolicyModule.VerifyRequest(strConfig, context, isNewRequest, flags);
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(Events.PDEF_REQUEST_DENIED_MESSAGE, requestId, ex.Message);
-                throw;
-            }
-
-            if (!(disposition == CertSrv.VR_PENDING || disposition == CertSrv.VR_INSTANT_OK))
-            {
-                _logger.Log(Events.PDEF_REQUEST_DENIED, requestId);
-                return disposition;
+                _logger.Log(Events.REQUEST_DENIED_NO_POLICY, requestId, template.Name,
+                    cacheEntry.ErrorMessage);
+                return WinError.NTE_FAIL;
             }
 
             #endregion
 
-            // It seems that the Windows default module invalidates our data if we put it ahead of the call
-            var dbRow = new CertificateDatabaseRow(serverPolicy);
+            #region Process policy-dependent validators
 
-            #region Fetch certificate template information
+            result = _crValidator.VerifyRequest(result, policy, dbRow, template);
 
-            var template = _templateCache.GetCertificateTemplate(dbRow.CertificateTemplate);
+            result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
+            result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
 
-            if (template == null)
-            {
-                _logger.Log(Events.REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL, requestId);
-                return WinError.CERTSRV_E_UNSUPPORTED_CERT_TYPE;
-            }
-
-            #endregion
-
-            var result = new CertificateRequestValidationResult(dbRow);
-
-            #region Process policy-independent validators
-
-            result = _raValidator.VerifyRequest(result, dbRow, _caConfig);
+            result = _dsValidator.VerifyRequest(result, policy, dsObject);
+            result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig);
+            result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig, ykObject);
+            result = _frValidator.VerifyRequest(result, policy, dbRow);
 
             #endregion
 
-            var cacheEntry = _policyCache.GetCertificateRequestPolicy(template.Name);
+            #region Issue certificate if in audit mode
 
-            if (cacheEntry == null)
+            if (policy.AuditOnly)
             {
-                if (_caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY))
+                if (result.DeniedForIssuance)
                 {
-                    _logger.Log(Events.REQUEST_DENIED_POLICY_NOT_FOUND, template.Name, requestId);
-                    return WinError.NTE_FAIL;
-                }
-
-                _logger.Log(Events.POLICY_NOT_FOUND, template.Name, requestId);
-            }
-            else
-            {
-                #region Load policy from cache
-
-                var policy = cacheEntry.CertificateRequestPolicy;
-
-                if (null == policy)
-                {
-                    _logger.Log(Events.REQUEST_DENIED_NO_POLICY, requestId, template.Name,
-                        cacheEntry.ErrorMessage);
-                    return WinError.NTE_FAIL;
-                }
-
-                #endregion
-
-                #region Process policy-dependent validators
-
-                result = _crValidator.VerifyRequest(result, policy, dbRow, template);
-
-                result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
-
-                result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
-
-                result = _dsValidator.VerifyRequest(result, policy, dsObject);
-                result = _ykValidator.VerifyRequest(result, policy, ykObject);
-                result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig, ykObject);
-                result = _frValidator.VerifyRequest(result, policy, dbRow);
-
-                #endregion
-
-                #region Issue certificate if in audit mode
-
-                if (policy.AuditOnly)
-                {
-                    if (result.DeniedForIssuance)
-                    {
-                        _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, template.Name,
-                            string.Join("\n", result.Description));
-                    }
-
-                    return disposition;
-                }
-
-                #endregion
-
-                #region Modify certificate content, if changed by a validator
-
-                result.DisabledCertificateExtensions.ForEach(oid =>
-                    serverPolicy.DisableCertificateExtension(oid));
-
-                // TODO: There may be cases where the SAN extension must be made critical, how can we identify and accomplish this?
-                result.CertificateExtensions.ToList().ForEach(keyValuePair =>
-                    serverPolicy.SetCertificateExtension(keyValuePair.Key, keyValuePair.Value));
-
-                result.DisabledCertificateProperties.ForEach(name =>
-                    serverPolicy.DisableCertificateProperty(name));
-
-                result.CertificateProperties.ToList().ForEach(keyValuePair =>
-                    serverPolicy.SetCertificateProperty(keyValuePair.Key, keyValuePair.Value));
-
-                #endregion
-            }
-
-            #region Log warnings, if any
-
-            if (result.Warnings.Count > 0)
-            {
-                _logger.Log(Events.REQUEST_CONTAINS_WARNINGS, requestId, template.Name,
-                    string.Join("\n", result.Warnings.Distinct().ToList()));
-            }
-
-            #endregion
-
-            #region Modify certificate validity period, if changed by a validator
-
-            // Modify certificate validity period (if changed) and issue certificate (or put in pending state)
-            if (!result.DeniedForIssuance || isNewRequest == 0)
-            {
-                serverPolicy.SetCertificateProperty("NotBefore", result.NotBefore);
-                serverPolicy.SetCertificateProperty("NotAfter", result.NotAfter);
-
-                switch (disposition)
-                {
-                    case CertSrv.VR_PENDING:
-                        _logger.Log(Events.SUCCESS_PENDING, requestId, template.Name);
-                        break;
-                    case CertSrv.VR_INSTANT_OK:
-                        _logger.Log(Events.SUCCESS_ISSUED, requestId, template.Name);
-                        break;
+                    _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, template.Name,
+                        string.Join("\n", result.Description));
                 }
 
                 return disposition;
@@ -245,75 +193,125 @@ namespace TameMyCerts
 
             #endregion
 
-            #region Deny request in any other case
+            #region Modify certificate content, if changed by a validator
 
-            _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
-                string.Join("\n", result.Description.Distinct().ToList()));
+            result.DisabledCertificateExtensions.ForEach(oid =>
+                serverPolicy.DisableCertificateExtension(oid));
 
-            // Seems that lower error codes must be thrown as exception
-            if (result.StatusCode > CertSrv.VR_INSTANT_BAD &&
-                result.StatusCode <= WinError.ERROR_INVALID_TIME)
-            {
-                throw new COMException(string.Empty, result.StatusCode);
-            }
+            // TODO: There may be cases where the SAN extension must be made critical, how can we identify and accomplish this?
+            result.CertificateExtensions.ToList().ForEach(keyValuePair =>
+                serverPolicy.SetCertificateExtension(keyValuePair.Key, keyValuePair.Value));
 
-            return result.StatusCode;
+            result.DisabledCertificateProperties.ForEach(name =>
+                serverPolicy.DisableCertificateProperty(name));
+
+            result.CertificateProperties.ToList().ForEach(keyValuePair =>
+                serverPolicy.SetCertificateProperty(keyValuePair.Key, keyValuePair.Value));
 
             #endregion
         }
 
-        public void ShutDown()
+        #region Log warnings, if any
+
+        if (result.Warnings.Count > 0)
         {
-            try
-            {
-                _windowsDefaultPolicyModule.ShutDown();
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
-                throw;
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
-            }
+            _logger.Log(Events.REQUEST_CONTAINS_WARNINGS, requestId, template.Name,
+                string.Join("\n", result.Warnings.Distinct().ToList()));
         }
 
         #endregion
 
-        #region Helper Methods
+        #region Modify certificate validity period, if changed by a validator
 
-        private void PreventModuleLoadOnStandaloneCa()
+        // Modify certificate validity period (if changed) and issue certificate (or put in pending state)
+        if (!result.DeniedForIssuance || isNewRequest == 0)
         {
-            if (_caConfig.IsSupportedCaType)
+            serverPolicy.SetCertificateProperty("NotBefore", result.NotBefore);
+            serverPolicy.SetCertificateProperty("NotAfter", result.NotAfter);
+
+            switch (disposition)
             {
-                return;
+                case CertSrv.VR_PENDING:
+                    _logger.Log(Events.SUCCESS_PENDING, requestId, template.Name);
+                    break;
+                case CertSrv.VR_INSTANT_OK:
+                    _logger.Log(Events.SUCCESS_ISSUED, requestId, template.Name);
+                    break;
             }
 
-            _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
-            throw new NotSupportedException();
+            return disposition;
         }
 
-        private void InitializeWindowsDefaultPolicyModule(string strConfig)
+        #endregion
+
+        #region Deny request in any other case
+
+        _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
+            string.Join("\n", result.Description.Distinct().ToList()));
+
+        // Seems that lower error codes must be thrown as exception
+        if (result.StatusCode > CertSrv.VR_INSTANT_BAD &&
+            result.StatusCode <= WinError.ERROR_INVALID_TIME)
         {
-            try
-            {
-                _windowsDefaultPolicyModule =
-                    (ICertPolicy2)Activator.CreateInstance(
-                        Type.GetTypeFromProgID("CertificateAuthority_MicrosoftDefault.Policy", true));
-
-                _windowsDefaultPolicyModule.Initialize(strConfig);
-
-                _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(Events.PDEF_FAIL_INIT, ex);
-                Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
-                throw;
-            }
+            throw new COMException(string.Empty, result.StatusCode);
         }
+
+        return result.StatusCode;
 
         #endregion
     }
+
+    public void ShutDown()
+    {
+        try
+        {
+            _windowsDefaultPolicyModule.ShutDown();
+        }
+        catch (Exception ex)
+        {
+            _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
+            throw;
+        }
+        finally
+        {
+            Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
+        }
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    private void PreventModuleLoadOnStandaloneCa()
+    {
+        if (_caConfig.IsSupportedCaType)
+        {
+            return;
+        }
+
+        _logger.Log(Events.MODULE_NOT_SUPPORTED, _appName);
+        throw new NotSupportedException();
+    }
+
+    private void InitializeWindowsDefaultPolicyModule(string strConfig)
+    {
+        try
+        {
+            _windowsDefaultPolicyModule =
+                (ICertPolicy2)Activator.CreateInstance(
+                    Type.GetTypeFromProgID("CertificateAuthority_MicrosoftDefault.Policy", true));
+
+            _windowsDefaultPolicyModule.Initialize(strConfig);
+
+            _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
+        }
+        catch (Exception ex)
+        {
+            _logger.Log(Events.PDEF_FAIL_INIT, ex);
+            Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
+            throw;
+        }
+    }
+
+    #endregion
 }

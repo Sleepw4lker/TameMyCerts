@@ -1,0 +1,11 @@
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CrlDistributionPoints>
+    <string>http://crl.tamemycerts-custom.com/%3%8%9.crl</string>
+  </CrlDistributionPoints>
+  <AuthorityInformationAccess>
+    <string>http://tamemycerts-custom.com/%3%4.crt</string>
+  </AuthorityInformationAccess>
+  <OnlineCertificateStatusProtocol>
+    <string>http://ocsp.tamemycerts-custom.com</string>
+  </OnlineCertificateStatusProtocol>
+</CertificateRequestPolicy>

@@ -16,22 +16,21 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 
-namespace TameMyCerts.X509
+namespace TameMyCerts.X509;
+
+public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtension
 {
-    public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtension
+    public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
     {
-        public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
-        {
-            var result = Encoding.ASCII.GetBytes(sid.ToString());
+        var result = Encoding.ASCII.GetBytes(sid.ToString());
 
-            result = Asn1BuildNode(0x04, result);
-            result = Asn1BuildNode(0xA0, result);
-            result = new byte[] {0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x19, 0x02, 0x01}
-                .Concat(result).ToArray();
-            result = Asn1BuildNode(0xA0, result);
-            result = Asn1BuildNode(0x30, result);
+        result = Asn1BuildNode(0x04, result);
+        result = Asn1BuildNode(0xA0, result);
+        result = new byte[] { 0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x19, 0x02, 0x01 }
+            .Concat(result).ToArray();
+        result = Asn1BuildNode(0xA0, result);
+        result = Asn1BuildNode(0x30, result);
 
-            RawData = result;
-        }
+        RawData = result;
     }
 }
