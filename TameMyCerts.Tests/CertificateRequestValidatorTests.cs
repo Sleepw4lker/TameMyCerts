@@ -2058,7 +2058,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.DisabledCertificateExtensions.Contains(WinCrypt.szOID_NTDS_CA_SECURITY_EXT));
+        Assert.Contains(WinCrypt.szOID_NTDS_CA_SECURITY_EXT, result.DisabledCertificateExtensions);
     }
 
     [Fact]

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Security.Principal;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
@@ -185,8 +186,8 @@ public class CertificateContentValidatorTests
 
         PrintResult(result);
 
-        Assert.True(result.CertificateProperties.Any(x =>
-            x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]) && x.Value.Equals("ADCS Labor")));
+        Assert.Contains("ADCS Labor", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization])).Select(x => x.Value));
+
     }
 
     [Fact]
@@ -236,8 +237,7 @@ public class CertificateContentValidatorTests
 
         PrintResult(result);
 
-        Assert.False(result.CertificateProperties.Any(x =>
-            x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]) && x.Value.Equals("ADCS Labor")));
+        Assert.DoesNotContain("ADCS Labor", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization])).Select(x => x.Value));
     }
 
     [Fact]
@@ -288,8 +288,7 @@ public class CertificateContentValidatorTests
 
         PrintResult(result);
 
-        Assert.True(result.CertificateProperties.Any(x =>
-            x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]) && x.Value.Equals("ADCS Labor")));
+        Assert.Contains("ADCS Labor", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization])).Select(x => x.Value));
     }
 
     [Fact]
@@ -393,9 +392,7 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]))
-            .Any(x => x.Value.Equals("intranet.adcslabor.de")));
+        Assert.Contains("intranet.adcslabor.de", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization])).Select(x => x.Value));
     }
 
     [Fact]
@@ -431,12 +428,19 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.CommonName]) &&
-                    result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]
-                        .Equals(string.Empty));
-        Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.Organization]) &&
-                    result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.Organization]]
-                        .Equals("intranet.adcslabor.de"));
+
+        Assert.Multiple(() =>
+            {
+                Assert.Contains(RdnTypes.NameProperty[RdnTypes.CommonName], result.CertificateProperties.Keys.ToList());
+                Assert.Empty(result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.CommonName]]);
+            }
+        );
+        Assert.Multiple(() =>
+            {
+                Assert.Contains(RdnTypes.NameProperty[RdnTypes.Organization], result.CertificateProperties.Keys.ToList());
+                Assert.Equal("intranet.adcslabor.de", result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.Organization]]);
+            }
+        );
     }
 
     [Fact]
@@ -465,10 +469,12 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(
-            result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
-            Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
-                .Equals("MBeCFWludHJhbmV0LmFkY3NsYWJvci5kZQ=="));
+        Assert.Multiple(() =>
+        {
+            Assert.Contains(WinCrypt.szOID_SUBJECT_ALT_NAME2, result.CertificateExtensions.Keys.ToList());
+            Assert.Equal("MBeCFWludHJhbmV0LmFkY3NsYWJvci5kZQ==", Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]));
+        }
+       );
     }
 
     [Fact]
@@ -498,9 +504,7 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization]))
-            .Any(x => x.Value.Equals("intranet.adcslabor.de")));
+        Assert.Contains("intranet.adcslabor.de", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.Organization])).Select(x => x.Value));
     }
 
     [Fact]
@@ -560,9 +564,7 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("test")));
+        Assert.Contains("test", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
@@ -649,9 +651,7 @@ public class CertificateContentValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("intranet.adcslabor.de")));
+        Assert.Contains("intranet.adcslabor.de", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
@@ -858,10 +858,13 @@ public class CertificateContentValidatorTests
 
         PrintResult(result);
 
-        Assert.True(
-            result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
-            Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
-                .Equals(expectedResult));
+        Assert.Multiple(() =>
+            {
+                Assert.Contains(WinCrypt.szOID_SUBJECT_ALT_NAME2, result.CertificateExtensions.Keys.ToList());
+                Assert.Equal(expectedResult, Convert.ToBase64String(result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]));
+            }
+        );
+
     }
 
 
@@ -943,10 +946,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("rudi@intra.adcslabor.de"))
-        );
+        Assert.Contains("rudi@intra.adcslabor.de", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
@@ -975,10 +975,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("rudi@intra.adcslabor.de"))
-        );
+        Assert.Contains("rudi@intra.adcslabor.de", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
@@ -1065,10 +1062,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("Ratlos, Rudi"))
-        );
+        Assert.Contains("Ratlos, Rudi", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
@@ -1097,10 +1091,7 @@ public class CertificateContentValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.CertificateProperties
-            .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-            .Any(x => x.Value.Equals("Rudi is Rudi"))
-        );
+        Assert.Contains("Rudi is Rudi", result.CertificateProperties.Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName])).Select(x => x.Value));
     }
 
     [Fact]
