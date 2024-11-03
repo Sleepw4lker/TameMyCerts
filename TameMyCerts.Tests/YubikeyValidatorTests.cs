@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Principal;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 
 namespace TameMyCerts.Tests
 {
-    [TestClass]
     public class YubikeyValidatorTests
     {
         private readonly CertificateDatabaseRow _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow;
@@ -187,23 +186,23 @@ namespace TameMyCerts.Tests
             Console.WriteLine(string.Join("\n", result.Description));
         }
 
-        [TestMethod]
+        [Fact]
         public void Extract_Genuine_Yubikey_Attestion()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
             result = _YKvalidator.ExtractAttestion(result, _policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, out var yubikey);
 
-            Assert.IsTrue(yubikey.TouchPolicy == YubikeyTouchPolicy.Never);
-            Assert.IsTrue(yubikey.PinPolicy == YubikeyPinPolicy.Once);
-            Assert.IsTrue(yubikey.FirmwareVersion == new Version(5, 4, 3));
-            Assert.IsTrue(yubikey.FormFactor == YubikeyFormFactor.UsbAKeychain);
-            Assert.IsTrue(yubikey.Slot == "9a");
+            Assert.True(yubikey.TouchPolicy == YubikeyTouchPolicy.Never);
+            Assert.True(yubikey.PinPolicy == YubikeyPinPolicy.Once);
+            Assert.True(yubikey.FirmwareVersion == new Version(5, 4, 3));
+            Assert.True(yubikey.FormFactor == YubikeyFormFactor.UsbAKeychain);
+            Assert.True(yubikey.Slot == "9a");
 
             PrintResult(result);
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Policy_MinimumFirmware_5_7_1_should_Reject()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -216,10 +215,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Policy_MinimumFirmware_5_7_1_should_Allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow);
@@ -232,10 +231,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_PIN_Policy_Once_should_Allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -247,9 +246,9 @@ namespace TameMyCerts.Tests
            
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_PIN_Policy_Deny_Never_should_Allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -261,9 +260,9 @@ namespace TameMyCerts.Tests
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_PIN_Policy_Deny_Once_should_Deny()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -275,9 +274,9 @@ namespace TameMyCerts.Tests
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_FIPS_Edition_Should_Deny()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -288,9 +287,9 @@ namespace TameMyCerts.Tests
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_FIPS_Edition_Should_Allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow);
@@ -301,9 +300,9 @@ namespace TameMyCerts.Tests
             result = _YKvalidator.VerifyRequest(result, policy, yubikey);
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_PIN_Policy_VerifyAll()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -321,10 +320,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Touch_Policy_Allow_Never_should_Allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -336,9 +335,9 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
-        [TestMethod]
+        [Fact]
         public void Validate_Touch_Policy_Deny_Never_should_Deny()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -351,10 +350,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Touch_Policy_Allowed_Always_should_Deny()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -366,10 +365,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Require_Firemware_Above_5_7_1_to_allow_ECC_should_allow()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow);
@@ -382,10 +381,10 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.False(result.DeniedForIssuance);
         }
 
-        [TestMethod]
+        [Fact]
         public void Rewrite_Subject_to_slot()
         {
             var result = new CertificateRequestValidationResult(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow);
@@ -405,14 +404,14 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsTrue(result.CertificateProperties
+            Assert.False(result.DeniedForIssuance);
+            Assert.True(result.CertificateProperties
     .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
     .Any(x => x.Value.Equals("9a"))
 );
         }
 
-        [TestMethod]
+        [Fact]
         public void Validate_Accutial_Attestions_certificate_wrong_public_key()
         {
             #region CSR
@@ -464,7 +463,7 @@ namespace TameMyCerts.Tests
 
             PrintResult(result);
 
-            Assert.IsTrue(result.DeniedForIssuance);
+            Assert.True(result.DeniedForIssuance);
         }
 
     }
