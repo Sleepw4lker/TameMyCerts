@@ -29,7 +29,7 @@ public class X509CertificateExtensionAuthorityInformationAccessTests
 
         aiaExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(aiaExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(aiaExt.RawData));
     }
 
     [Fact]
@@ -44,6 +44,6 @@ public class X509CertificateExtensionAuthorityInformationAccessTests
         aiaExt.AddUniformResourceIdentifier("http://pki.tamemycerts-tests.local/CertData/TEST-CA.crt");
         aiaExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(aiaExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(aiaExt.RawData));
     }
 }

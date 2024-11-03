@@ -18,6 +18,6 @@ public class X509CertificateExtensionSecurityIdentifierTests
 
         var sidExt = new X509CertificateExtensionSecurityIdentifier(new SecurityIdentifier(sid));
 
-        Assert.True(Convert.ToBase64String(sidExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(sidExt.RawData));
     }
 }
