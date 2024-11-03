@@ -12,9 +12,15 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>
+    <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
 	<PropertyGroup>
 		<EnableComHosting>true</EnableComHosting>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/Sleepw4lker/TameMyCerts.git</RepositoryUrl>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <NoWarn>1701;1702;CA1416</NoWarn>
 	</PropertyGroup>
   <ItemGroup>
     <Compile Update="AutoVersionIncrement.cs">

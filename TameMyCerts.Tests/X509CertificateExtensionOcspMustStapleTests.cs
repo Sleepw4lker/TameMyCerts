@@ -13,6 +13,6 @@ public class X509CertificateExtensionOcspMustStapleTests
 
         var ocspStaplingExt = new X509CertificateExtensionOcspMustStaple();
 
-        Assert.True(Convert.ToBase64String(ocspStaplingExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(ocspStaplingExt.RawData));
     }
 }
