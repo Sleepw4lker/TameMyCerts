@@ -7,6 +7,7 @@ using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
@@ -17,8 +18,14 @@ public class CertificateRequestValidatorTests
     private readonly CertificateTemplate _template;
     private readonly CertificateRequestValidator _validator = new();
 
-    public CertificateRequestValidatorTests()
+    private readonly ITestOutputHelper _output;
+
+
+    public CertificateRequestValidatorTests(ITestOutputHelper output)
     {
+
+        this._output = output;
+
         // 2048 Bit RSA Key
         // CN=intranet.adcslabor.de
         _request =
@@ -110,9 +117,9 @@ public class CertificateRequestValidatorTests
 
     internal void PrintResult(CertificateRequestValidationResult result)
     {
-        Console.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
+        _output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
             new Win32Exception(result.StatusCode).Message);
-        Console.WriteLine(string.Join("\n", result.Description));
+        _output.WriteLine(string.Join("\n", result.Description));
     }
 
     [Fact]

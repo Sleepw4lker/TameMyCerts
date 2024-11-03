@@ -5,11 +5,19 @@ using System.Runtime.InteropServices;
 using TameMyCerts.Models;
 using TameMyCerts.X509;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
 public class X509CertificateExtensionSubjectAlternativeNameTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public X509CertificateExtensionSubjectAlternativeNameTests(ITestOutputHelper output)
+    {
+        this._output = output;
+    }
+
     [Fact]
     public void Does_not_build_with_invalid_string_input()
     {
@@ -373,7 +381,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUniformResourceIdentifier("http://some-test.tamemycerts-tests.local/");
         sanExt.InitializeEncode();
 
-        Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
+        _output.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
         Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
@@ -389,7 +397,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddEmailAddress(new MailAddress("Administrator@tamemycerts-tests.local"));
         sanExt.InitializeEncode();
 
-        Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
+        _output.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
         Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }
@@ -405,7 +413,7 @@ public class X509CertificateExtensionSubjectAlternativeNameTests
         sanExt.AddUserPrincipalName("Administrator@tamemycerts-tests.local");
         sanExt.InitializeEncode();
 
-        Console.WriteLine(Convert.ToBase64String(sanExt.RawData));
+        _output.WriteLine(Convert.ToBase64String(sanExt.RawData));
 
         Assert.Equal(expectedResult, Convert.ToBase64String(sanExt.RawData));
     }

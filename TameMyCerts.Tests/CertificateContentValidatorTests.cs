@@ -8,6 +8,7 @@ using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
@@ -20,10 +21,15 @@ public class CertificateContentValidatorTests
     private readonly ActiveDirectoryObject _dsObject;
 
     private readonly CertificateContentValidator _validator = new();
+    
+    private readonly ITestOutputHelper _output;
 
 
-    public CertificateContentValidatorTests()
+    public CertificateContentValidatorTests(ITestOutputHelper output)
     {
+
+        this._output = output;
+
         _caConfig = new CertificateAuthorityConfiguration(3, 1, "ADCS Labor Issuing CA 1",
             "ADCS Labor Issuing CA 1", "CA02", "pki.adcslabor.de", "CN=Configuration,DC=intra,DC=adcslabor,DC=de");
 
@@ -83,28 +89,28 @@ public class CertificateContentValidatorTests
 
     internal void PrintResult(CertificateRequestValidationResult result)
     {
-        Console.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
+        _output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
             new Win32Exception(result.StatusCode).Message);
-        Console.WriteLine(string.Join("\n", result.Description));
+        _output.WriteLine(string.Join("\n", result.Description));
 
         if (result.CertificateExtensions.TryGetValue(WinCrypt.szOID_SUBJECT_ALT_NAME2, out var sanExt))
         {
-            Console.WriteLine($@"SAN: {Convert.ToBase64String(sanExt)}");
+            _output.WriteLine($@"SAN: {Convert.ToBase64String(sanExt)}");
         }
 
         if (result.CertificateExtensions.TryGetValue(WinCrypt.szOID_AUTHORITY_INFO_ACCESS, out var aisExt))
         {
-            Console.WriteLine($@"AIA: {Convert.ToBase64String(aisExt)}");
+            _output.WriteLine($@"AIA: {Convert.ToBase64String(aisExt)}");
         }
 
         if (result.CertificateExtensions.TryGetValue(WinCrypt.szOID_CRL_DIST_POINTS, out var cdpExt))
         {
-            Console.WriteLine($@"CDP: {Convert.ToBase64String(cdpExt)}");
+            _output.WriteLine($@"CDP: {Convert.ToBase64String(cdpExt)}");
         }
 
         foreach (var item in result.CertificateProperties)
         {
-            Console.WriteLine($"{item.Key} -> {item.Value}");
+            _output.WriteLine($"{item.Key} -> {item.Value}");
         }
     }
 
