@@ -7,6 +7,7 @@ using Xunit;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests
 {
@@ -20,8 +21,11 @@ namespace TameMyCerts.Tests
         private readonly CertificateContentValidator _CCvalidator = new CertificateContentValidator();
         private readonly CertificateAuthorityConfiguration _caConfig;
 
-        public YubikeyValidatorTests()
+        private readonly ITestOutputHelper output;
+
+        public YubikeyValidatorTests(ITestOutputHelper output)
         {
+
             // Sample CSR from a Yubikey with attestion included
             var yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR =
                 "-----BEGIN CERTIFICATE REQUEST-----\n" +
@@ -177,13 +181,15 @@ namespace TameMyCerts.Tests
             _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow = new CertificateDatabaseRow(yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
             _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR, CertCli.CR_IN_PKCS10);
             _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
+
+            this.output = output;
         }
 
         internal void PrintResult(CertificateRequestValidationResult result)
         {
-            Console.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
+            output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
                 new Win32Exception(result.StatusCode).Message);
-            Console.WriteLine(string.Join("\n", result.Description));
+            output.WriteLine(string.Join("\n", result.Description));
         }
 
         [Fact]
@@ -405,10 +411,9 @@ namespace TameMyCerts.Tests
             PrintResult(result);
 
             Assert.False(result.DeniedForIssuance);
-            Assert.True(result.CertificateProperties
+            Assert.Contains("9a", result.CertificateProperties
     .Where(x => x.Key.Equals(RdnTypes.NameProperty[RdnTypes.CommonName]))
-    .Any(x => x.Value.Equals("9a"))
-);
+    .Select(x => x.Value));
         }
 
         [Fact]

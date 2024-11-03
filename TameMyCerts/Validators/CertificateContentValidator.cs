@@ -41,7 +41,7 @@ internal class CertificateContentValidator
 
             if (!list.Any(x => x.Key.Equals(token, StringComparison.InvariantCultureIgnoreCase)))
             {
-                throw new Exception(string.Format(LocalizedStrings.Token_invalid, token));
+                throw new Exception(string.Format(LocalizedStrings.Token_invalid, identifier, token));
             }
         }
 
