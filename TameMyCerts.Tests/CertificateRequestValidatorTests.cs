@@ -271,7 +271,7 @@ public class CertificateRequestValidatorTests
 
         Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_KEY_LENGTH));
-        Assert.True(string.Join(";", result.Description).Contains("ECC"));
+        Assert.Contains("ECC", string.Join(";", result.Description));
     }
 
     [Fact]
@@ -310,7 +310,7 @@ public class CertificateRequestValidatorTests
 
         Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_KEY_LENGTH));
-        Assert.True(string.Join(";", result.Description).Contains("DSA"));
+        Assert.Contains("DSA", string.Join(";", result.Description));
     }
 
     [Fact]
@@ -2058,7 +2058,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.DisabledCertificateExtensions.Contains(WinCrypt.szOID_NTDS_CA_SECURITY_EXT));
+        Assert.Contains(WinCrypt.szOID_NTDS_CA_SECURITY_EXT, result.DisabledCertificateExtensions);
     }
 
     [Fact]
@@ -2113,26 +2113,26 @@ public class CertificateRequestValidatorTests
 
         Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.CommonName)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Country)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Email)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.DomainComponent)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Locality)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Organization)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.OrgUnit)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.State)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.GivenName)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Initials)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.SurName)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.StreetAddress)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.Title)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.UnstructuredName)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.UnstructuredAddress)));
-        Assert.True(identities.Any(x => x.Key.Equals(RdnTypes.DeviceSerialNumber)));
-        Assert.True(identities.Any(x => x.Key.Equals("postalCode")));
-        Assert.True(identities.Any(x => x.Key.Equals("postOfficeBox")));
-        Assert.True(identities.Any(x => x.Key.Equals("telephoneNumber")));
-        Assert.True(identities.Any(x => x.Key.Equals("description")));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.CommonName));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Country));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Email));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.DomainComponent));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Locality));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Organization));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.OrgUnit));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.State));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.GivenName));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Initials));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.SurName));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.StreetAddress));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.Title));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.UnstructuredName));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.UnstructuredAddress));
+        Assert.Contains(identities, x => x.Key.Equals(RdnTypes.DeviceSerialNumber));
+        Assert.Contains(identities, x => x.Key.Equals("postalCode"));
+        Assert.Contains(identities, x => x.Key.Equals("postOfficeBox"));
+        Assert.Contains(identities, x => x.Key.Equals("telephoneNumber"));
+        Assert.Contains(identities, x => x.Key.Equals("description"));
     }
 
     [Fact]
@@ -2226,7 +2226,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        Assert.Equal(WinError.CERT_E_INVALID_NAME, result.StatusCode);
     }
 
     [Fact]
@@ -2281,7 +2281,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        Assert.Equal(WinError.CERT_E_INVALID_NAME, result.StatusCode);
     }
 
     [Fact]
@@ -2312,7 +2312,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        Assert.Equal(WinError.CERT_E_INVALID_NAME, result.StatusCode);
     }
 
     [Fact]
@@ -2345,7 +2345,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        Assert.Equal(WinError.CERT_E_INVALID_NAME, result.StatusCode);
     }
 
     [Fact]
@@ -2365,7 +2365,7 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
 
         Assert.True(result.NotAfter.Equals(DateTimeOffset.ParseExact(notAfter, "o",
             CultureInfo.InvariantCulture.DateTimeFormat,
@@ -2387,6 +2387,6 @@ public class CertificateRequestValidatorTests
         PrintResult(result);
 
         Assert.True(result.DeniedForIssuance);
-        Assert.True(result.StatusCode.Equals(WinError.ERROR_INVALID_TIME));
+        Assert.Equal(WinError.ERROR_INVALID_TIME, result.StatusCode);
     }
 }

@@ -19,6 +19,6 @@ public class X509CertificateExtensionAuthorityKeyIdentifierTests
 
         var akiExt = new X509CertificateExtensionAuthorityKeyIdentifier(akiBytes);
 
-        Assert.True(Convert.ToBase64String(akiExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(akiExt.RawData));
     }
 }

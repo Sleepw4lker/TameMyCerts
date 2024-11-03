@@ -28,7 +28,7 @@ public class X509CertificateExtensionCrlDistributionPointTests
 
         cdpExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(cdpExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(cdpExt.RawData));
     }
 
     [Fact]
@@ -43,6 +43,6 @@ public class X509CertificateExtensionCrlDistributionPointTests
         cdpExt.AddUniformResourceIdentifier("http://pki.tamemycerts-tests.local/CertData/TEST-CA.crl");
         cdpExt.InitializeEncode();
 
-        Assert.True(Convert.ToBase64String(cdpExt.RawData).Equals(expectedResult));
+        Assert.Equal(expectedResult, Convert.ToBase64String(cdpExt.RawData));
     }
 }
