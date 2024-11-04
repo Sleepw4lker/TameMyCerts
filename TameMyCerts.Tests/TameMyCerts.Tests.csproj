@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyTitle>TameMyCerts.Tests</AssemblyTitle>
     <Product>TameMyCerts.Tests</Product>
@@ -18,10 +18,6 @@
     <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="CERTENROLLLib">
       <Guid>{728AB348-217D-11DA-B2A4-000E7BBB2B09}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -34,11 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.18.1" />
-    <PackageReference Include="Fare" Version="2.1.1" />
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
       <PrivateAssets>all</PrivateAssets>
