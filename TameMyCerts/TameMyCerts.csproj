@@ -75,4 +75,9 @@
       <HintPath>CERTPOLICYLIB.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <None Update="install.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

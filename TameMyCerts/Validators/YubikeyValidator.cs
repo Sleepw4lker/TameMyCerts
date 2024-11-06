@@ -35,7 +35,7 @@ namespace TameMyCerts.Validators
         private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
 
         public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-            CertificateRequestPolicy policy, YubikeyObject yubikey)
+            CertificateRequestPolicy policy, YubikeyObject yubikey, int requestID)
         {
             // If we are already denied for issuance or the policy does not contain any YubikeyPolicy, just continue
             if (result.DeniedForIssuance || !policy.YubikeyPolicy.Any())
@@ -45,12 +45,12 @@ namespace TameMyCerts.Validators
             // If the Yubikey is not validated, we will not allow it
             if (yubikey.Validated == false)
             {
+                EWTLogger.Log.YKVal_4202_Denied_by_Policy(requestID);
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                 LocalizedStrings.YKVal_Invalid_Attestion_with_YubikeyPolicy));
                 return result;
 
             }
-
 
             bool foundMatch = false;
 
@@ -61,12 +61,18 @@ namespace TameMyCerts.Validators
                 {
                     if (ykP.Action == YubikeyPolicyAction.Deny)
                     {
+                        EWTLogger.Log.YKVal_4201_Denied_by_Policy(ykP.SaveToString(), requestID);
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.YKVal_Policy_Matches_with_Reject, ykP.SaveToString()));
-                        break;
+                        return result ;
                     }
+                    EWTLogger.Log.YKVal_4204_Matching_policy(ykP.SaveToString(), requestID);
                     foundMatch = true;
                     break;
+                }
+                else
+                {
+                    EWTLogger.Log.YKVal_4206_Debug_failed_to_match_policy(requestID, ykP.SaveToString());
                 }
             }
 
@@ -74,8 +80,9 @@ namespace TameMyCerts.Validators
             if (foundMatch == false)
             {
                 // If all policies are deny policies, then if none match, we will allow the request
-                if (policy.YubikeyPolicy.Count(p => p.Action == YubikeyPolicyAction.Deny) != policy.YubikeyPolicy.Count)
+                if (policy.YubikeyPolicy.Any(p => p.Action == YubikeyPolicyAction.Allow))
                 {
+                    EWTLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(requestID);
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                     LocalizedStrings.YKVal_No_Matching_Policy_Found));
                 }
@@ -100,11 +107,12 @@ namespace TameMyCerts.Validators
                     dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, out var IntermediateCertificateByte);
                     X509Certificate2 AttestationCertificate = new X509Certificate2(AttestionCertificateByte);
                     X509Certificate2 IntermediateCertificate = new X509Certificate2(IntermediateCertificateByte);
-                    yubikey = new YubikeyObject(dbRow.PublicKey, AttestationCertificate, IntermediateCertificate, dbRow.KeyAlgorithm, dbRow.KeyLength);
+                    yubikey = new YubikeyObject(dbRow.PublicKey, AttestationCertificate, IntermediateCertificate, dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
                 }
                 catch (Exception ex)
                 {
                     yubikey = new YubikeyObject();
+                    EWTLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
                 }
             }

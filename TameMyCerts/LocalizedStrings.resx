@@ -377,4 +377,63 @@
   <data name="YKVal_Invalid_Attestion_with_YubikeyPolicy" xml:space="preserve">
     <value>The certificate request has been denied due to incorrect certificate request.</value>
   </data>
+  <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
+    <value>The request {1}  was rejected due to policy: 
+{0}</value>
+  </data>
+  <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
+    <value>The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion.</value>
+  </data>
+  <data name="event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny" xml:space="preserve">
+    <value>The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator.</value>
+  </data>
+  <data name="event_YKVal_4204_Matching_policy" xml:space="preserve">
+    <value>The request {1} is matching policy: 
+{0}</value>
+  </data>
+  <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestion" xml:space="preserve">
+    <value>The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted.</value>
+  </data>
+  <data name="event_YKVal_4206_Debug_failed_to_match_policy" xml:space="preserve">
+    <value>The request {0} failed to match the Yubikey Policy: 
+{1}</value>
+  </data>
+  <data name="event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR" xml:space="preserve">
+    <value>The request {0}, attestion certificates public key missmatch with the certificate request.</value>
+  </data>
+  <data name="event_YKVal_4208_Yubikey_Attestion_Failed_to_build" xml:space="preserve">
+    <value>The request {0}, yubikey attestion failed to build trust chain to Yubikey CA.</value>
+  </data>
+  <data name="event_TMC_1_PolicyModule_Success_Initiated" xml:space="preserve">
+    <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>
+  </data>
+  <data name="event_TMC_2_PolicyModule_Failed_Initiated" xml:space="preserve">
+    <value>Error initializing Windows Default policy module:
+{0}</value>
+  </data>
+  <data name="event_TMC_12_Success_Issued" xml:space="preserve">
+    <value>Request {0} for {1} will get issued.</value>
+  </data>
+  <data name="event_TMC_13_Success_Pending" xml:space="preserve">
+    <value>Request {0} for {1} will be put into pending state.</value>
+  </data>
+  <data name="event_TMC_4_PolicyModule_Default_Shutdown_Failed" xml:space="preserve">
+    <value>Shutting down Windows Default policy module failed:
+{0}</value>
+  </data>
+  <data name="event_TMC_5_Analytical_Audit_only_Deny" xml:space="preserve">
+    <value>Audit mode is enabled for {1}. Request {0} would get denied because:
+{2}</value>
+  </data>
+  <data name="event_TMC_6_Deny_Issuing_Request" xml:space="preserve">
+    <value>Request {0} for {1} was denied because:
+{2}</value>
+  </data>
+  <data name="event_TMC_91_Read_Policy" xml:space="preserve">
+    <value>TameMyCerts read the policy from file: 
+{0} 
+ 
+with the content: 
+{1} </value>
+  </data>
 </root>

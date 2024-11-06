@@ -144,4 +144,20 @@ public class CertificateRequestPolicy
             return (CertificateRequestPolicy)xmlSerializer.Deserialize(reader.BaseStream);
         }
     }
+    public string SaveToString()
+    {
+        var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
+
+        using (var stringWriter = new StringWriter())
+        {
+            using (var xmlWriter = XmlWriter.Create(stringWriter))
+            {
+                xmlSerializer.Serialize(xmlWriter, this);
+                var xmlData = stringWriter.ToString();
+
+                return ConvertToHumanReadableXml(xmlData);
+            }
+        }
+    }
+
 }

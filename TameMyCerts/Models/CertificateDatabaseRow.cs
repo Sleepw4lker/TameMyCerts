@@ -34,6 +34,7 @@ internal class CertificateDatabaseRow
         KeyLength = serverPolicy.GetLongCertificatePropertyOrDefault("PublicKeyLength");
         PublicKey = serverPolicy.GetBinaryCertificatePropertyOrDefault("RawPublicKey");
         RawRequest = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
+        RequestID = serverPolicy.GetLongRequestPropertyOrDefault("RequestID");
         RequestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
         Upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN") ?? string.Empty;
         DistinguishedName = serverPolicy.GetStringRequestPropertyOrDefault("Request.DistinguishedName") ??
@@ -50,7 +51,7 @@ internal class CertificateDatabaseRow
   
     // To inject unit tests
     public CertificateDatabaseRow(string request, int requestType,
-        Dictionary<string, string> requestAttributes = null)
+        Dictionary<string, string> requestAttributes = null, int requestID = 0)
     {
         NotBefore = DateTimeOffset.Now;
         NotAfter = DateTimeOffset.Now.AddYears(1);
@@ -85,6 +86,7 @@ internal class CertificateDatabaseRow
                 RequestAttributes.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
+        RequestID = requestID;
     }
 
     public DateTimeOffset NotBefore { get; }
@@ -128,6 +130,11 @@ internal class CertificateDatabaseRow
     ///     The raw certificate request in binary form.
     /// </summary>
     public byte[] RawRequest { get; }
+
+    /// <summary>
+    ///     The internal RequestID.
+    /// </summary>
+    public int RequestID { get; }
 
     /// <summary>
     ///     The request type as defined in certcli.h (PKCS#10, PKCS#7 or CMS).

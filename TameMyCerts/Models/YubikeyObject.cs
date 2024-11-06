@@ -40,7 +40,7 @@ namespace TameMyCerts.Models
         public YubikeyObject()
         {
         }
-        public YubikeyObject(byte[] publicKey, X509Certificate2 AttestationCertificate, X509Certificate2 IntermediateCertificate, KeyAlgorithmFamily keyAlgorithm, int keyLength)
+        public YubikeyObject(byte[] publicKey, X509Certificate2 AttestationCertificate, X509Certificate2 IntermediateCertificate, KeyAlgorithmFamily keyAlgorithm, int keyLength, int requestID)
         {
 
             
@@ -48,15 +48,21 @@ namespace TameMyCerts.Models
             // This is cluncky.
 
             X509Chain chain = new X509Chain();
-            chain.ChainPolicy.ExtraStore.Add(YubikeyValidationCA);
+
+            // Set the chain policy 1 = CustomRootTrust, it was unavailable, but was there, something to troubleshoot
+            chain.ChainPolicy.TrustMode = (X509ChainTrustMode)1;
+            chain.ChainPolicy.CustomTrustStore.Add(YubikeyValidationCA);
             chain.ChainPolicy.ExtraStore.Add(IntermediateCertificate);
             chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
             if (! (chain.Build(AttestationCertificate)))
             {
+                EWTLogger.Log.YKVal_4208_Yubikey_Attestion_Failed_to_build(requestID);
                 throw new Exception("Failed to build certificate path");
             }
+            /*
+             * Not needed when switched to .NET 8
             if (chain.ChainElements.Count != 3)
             {
                 throw new Exception("Failed to build certificate path");
@@ -65,8 +71,10 @@ namespace TameMyCerts.Models
             {
                 throw new Exception("Certificate path does not end up at Yubikey CA");
             }
+            */
             if (! (publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData)))
             {
+                EWTLogger.Log.YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(requestID);
                 throw new Exception("Certificate CSR does not match attestion certificate");
             }
 
