@@ -31,4 +31,14 @@
     <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:TameMyCerts.Events.dll /target:library /win32res:TameMyCerts.Events.res"  WorkingDirectory="$(TargetDir)"/>
   </Target>
 
+  <Target Name="CopyOutputFiles" AfterTargets="Build">
+    <ItemGroup>
+      <!-- Include DLLs, XMLs, and JSON files from the output path -->
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.dll" />
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.man" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToCopy)"  DestinationFolder="..\TameMyCerts\bin\$(Configuration)\$(TargetFramework)\" SkipUnchangedFiles="true" />
+    
+  </Target>
 </Project>

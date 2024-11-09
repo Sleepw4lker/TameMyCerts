@@ -311,7 +311,6 @@ public class Policy : ICertPolicy2
             _windowsDefaultPolicyModule.Initialize(strConfig);
 
             EWTLogger.Log.TMC_1_PolicyModule_Success_Initiated(_appName, _appVersion);
-            _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
         }
         catch (Exception ex)
         {

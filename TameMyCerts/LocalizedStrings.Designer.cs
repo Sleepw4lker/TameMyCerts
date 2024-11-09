@@ -368,15 +368,32 @@ namespace TameMyCerts {
         ///with the content: 
         ///{1} .
         /// </summary>
-        internal static string event_TMC_91_Read_Policy {
+        internal static string event_TMC_91_Policy_Read {
             get {
-                return ResourceManager.GetString("event_TMC_91_Read_Policy", resourceCulture);
+                return ResourceManager.GetString("event_TMC_91_Policy_Read", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {1}  was rejected due to policy: 
-        ///{0}.
+        ///   Looks up a localized string similar to XML policy unknown Element: {0} at line {1}, position {2}.
+        /// </summary>
+        internal static string event_TMC_92_Policy_Unknown_XML_Element {
+            get {
+                return ResourceManager.GetString("event_TMC_92_Policy_Unknown_XML_Element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Attribute: {0}=&apos;{1}&apos; at line {2}, position {3}.
+        /// </summary>
+        internal static string event_TMC_93_Policy_Unknown_XML_Attribute {
+            get {
+                return ResourceManager.GetString("event_TMC_93_Policy_Unknown_XML_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {1}  was rejected due to policy: \r\n{0}.
         /// </summary>
         internal static string event_YKVal_4201_Denied_by_Policy {
             get {

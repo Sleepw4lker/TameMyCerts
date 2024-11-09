@@ -14,14 +14,16 @@ namespace TameMyCerts
     public sealed class EWTLogger : EventSource
     {
         public static EWTLogger Log = new EWTLogger();
+        private Logger _logger;
 
         public class Tasks
         {
             public const EventTask None = (EventTask)1;
             public const EventTask TameMyCerts = (EventTask)2;
             public const EventTask YubikeyValidator = (EventTask)10;
+            public const EventTask XMLParser = (EventTask)11;
         }
-        
+
         #region Tame My Certs
         [Event(1, Level = EventLevel.Informational, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts, Keywords = EventKeywords.None)]
         public void TMC_1_PolicyModule_Success_Initiated(string policyModule, string version)
@@ -29,6 +31,10 @@ namespace TameMyCerts
             if (IsEnabled())
             {
                 WriteEvent(1, policyModule, version);
+            }
+            else
+            {
+                _logger.Log(Events.PDEF_SUCCESS_INIT, policyModule, version);
             }
         }
         [Event(2, Level = EventLevel.Error, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts, Keywords = EventKeywords.None)]
@@ -79,16 +85,39 @@ namespace TameMyCerts
                 WriteEvent(13, requestID, template);
             }
         }
-        /*
-        [Event(91, Level = EventLevel.Informational, Channel = EventChannel.Debug, Task = Tasks.TameMyCerts, Keywords = EventKeywords.None)]
-        public void TMC_91_Read_Policy(string templateName, string policy)
+        [Event(91, Level = EventLevel.Informational, Channel = EventChannel.Debug, Task = Tasks.XMLParser, Keywords = EventKeywords.None)]
+        public void TMC_91_Policy_Read(string templateName, string policy)
         {
             if (IsEnabled())
             {
-                WriteEvent(13, templateName, policy);
+                WriteEvent(91, templateName, policy);
             }
         }
-        */
+        [Event(92, Level = EventLevel.Critical, Channel = EventChannel.Admin, Task = Tasks.XMLParser, Keywords = EventKeywords.None)]
+        public void TMC_92_Policy_Unknown_XML_Element(string elementName, int lineNumber, int linePosition)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(92, elementName, lineNumber, linePosition);
+            }
+            else
+            {
+                // Write to Application log if ETW is not enabled
+            }
+        }
+        [Event(93, Level = EventLevel.Critical, Channel = EventChannel.Admin, Task = Tasks.XMLParser, Keywords = EventKeywords.None)]
+        public void TMC_93_Policy_Unknown_XML_Attribute(string attributeName, string attributeValue, int lineNumber, int linePosition)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(93, attributeName, attributeValue, lineNumber, linePosition);
+            }
+            else
+            {
+                // Write to Application log if ETW is not enabled
+            }
+        }
+
         #endregion
 
         #region Yubico Validator events 4201-4399

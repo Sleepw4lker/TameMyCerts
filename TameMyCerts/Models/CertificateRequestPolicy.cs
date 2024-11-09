@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -138,6 +139,8 @@ public class CertificateRequestPolicy
     public static CertificateRequestPolicy LoadFromFile(string path)
     {
         var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
+        xmlSerializer.UnknownElement += new XmlElementEventHandler(UnknownElementHandler);
+        xmlSerializer.UnknownAttribute += new XmlAttributeEventHandler(UnknownAttributeHandler);
 
         using (var reader = new StreamReader(path))
         {
@@ -146,7 +149,7 @@ public class CertificateRequestPolicy
     }
     public string SaveToString()
     {
-        var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
+        var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
 
         using (var stringWriter = new StringWriter())
         {
@@ -158,6 +161,16 @@ public class CertificateRequestPolicy
                 return ConvertToHumanReadableXml(xmlData);
             }
         }
+    }
+    private static void UnknownElementHandler(object sender, XmlElementEventArgs e)
+    {
+        EWTLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
+    }
+
+    // Event handler for unknown attributes
+    private static void UnknownAttributeHandler(object sender, XmlAttributeEventArgs e)
+    {
+        EWTLogger.Log.TMC_93_Policy_Unknown_XML_Attribute(e.Attr.Name, e.Attr.Value, e.LineNumber, e.LinePosition);
     }
 
 }

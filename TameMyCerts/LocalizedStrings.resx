@@ -378,8 +378,7 @@
     <value>The certificate request has been denied due to incorrect certificate request.</value>
   </data>
   <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
-    <value>The request {1}  was rejected due to policy: 
-{0}</value>
+    <value>The request {1}  was rejected due to policy: \r\n{0}</value>
   </data>
   <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
     <value>The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion.</value>
@@ -429,11 +428,17 @@
     <value>Request {0} for {1} was denied because:
 {2}</value>
   </data>
-  <data name="event_TMC_91_Read_Policy" xml:space="preserve">
+  <data name="event_TMC_91_Policy_Read" xml:space="preserve">
     <value>TameMyCerts read the policy from file: 
 {0} 
  
 with the content: 
 {1} </value>
+  </data>
+  <data name="event_TMC_92_Policy_Unknown_XML_Element" xml:space="preserve">
+    <value>XML policy unknown Element: {0} at line {1}, position {2}</value>
+  </data>
+  <data name="event_TMC_93_Policy_Unknown_XML_Attribute" xml:space="preserve">
+    <value>Unknown Attribute: {0}='{1}' at line {2}, position {3}</value>
   </data>
 </root>
