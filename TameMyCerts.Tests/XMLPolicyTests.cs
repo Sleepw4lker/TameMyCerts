@@ -74,4 +74,26 @@ public class XMLPolicyTests
         File.Delete(filename);
     }
 
+    [Fact]
+    public void Test_Unknown_XML_Element2()
+    {
+        var filename = Path.GetTempFileName();
+
+        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+  xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+    <DirectoryServicesMapping><AllowedOrganizationalUnits><Test>This should fault</Test></AllowedOrganizationalUnits></DirectoryServicesMapping>
+</CertificateRequestPolicy>
+";
+        File.WriteAllText(filename, sampleXML);
+        _listener.ClearEvents();
+
+        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+
+        Assert.Empty(cacheEntry.ErrorMessage);
+        Assert.Equal(2, _listener.Events.Count);
+        Assert.Equal(92, _listener.Events[0].EventId);
+
+        File.Delete(filename);
+    }
+
 }
