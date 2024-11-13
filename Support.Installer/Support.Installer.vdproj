@@ -512,7 +512,7 @@
                 "ScatterAssemblies"
                 {
                 }
-            "SourcePath" = "8:..\\GenerateEWTManifest\\bin\\Release\\net8.0\\TameMyCerts.Events.dll"
+            "SourcePath" = "8:..\\Support.GenerateEWTManifest\\bin\\Release\\net8.0\\TameMyCerts.Events.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_76C668F665164353A3C0704D67D00B2C"
@@ -572,7 +572,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD7E18BDA23A48F889CD9E31C8005017"
             {
-            "SourcePath" = "8:..\\GenerateEWTManifest\\bin\\Release\\net8.0\\TameMyCerts.Events.man"
+            "SourcePath" = "8:..\\Support.GenerateEWTManifest\\bin\\Release\\net8.0\\TameMyCerts.Events.man"
             "TargetName" = "8:TameMyCerts.Events.man"
             "Tag" = "8:"
             "Folder" = "8:_76C668F665164353A3C0704D67D00B2C"
