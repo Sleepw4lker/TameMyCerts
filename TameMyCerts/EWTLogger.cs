@@ -14,8 +14,7 @@ namespace TameMyCerts
     public sealed class EWTLogger : EventSource
     {
         public static EWTLogger Log = new EWTLogger();
-        private Logger _logger;
-
+       
         public class Tasks
         {
             public const EventTask None = (EventTask)1;
@@ -31,10 +30,6 @@ namespace TameMyCerts
             if (IsEnabled())
             {
                 WriteEvent(1, policyModule, version);
-            }
-            else
-            {
-                _logger.Log(Events.PDEF_SUCCESS_INIT, policyModule, version);
             }
         }
         [Event(2, Level = EventLevel.Error, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts, Keywords = EventKeywords.None)]
@@ -100,10 +95,6 @@ namespace TameMyCerts
             {
                 WriteEvent(92, elementName, lineNumber, linePosition);
             }
-            else
-            {
-                // Write to Application log if ETW is not enabled
-            }
         }
         [Event(93, Level = EventLevel.Critical, Channel = EventChannel.Admin, Task = Tasks.XMLParser, Keywords = EventKeywords.None)]
         public void TMC_93_Policy_Unknown_XML_Attribute(string attributeName, string attributeValue, int lineNumber, int linePosition)
@@ -111,10 +102,6 @@ namespace TameMyCerts
             if (IsEnabled())
             {
                 WriteEvent(93, attributeName, attributeValue, lineNumber, linePosition);
-            }
-            else
-            {
-                // Write to Application log if ETW is not enabled
             }
         }
 
