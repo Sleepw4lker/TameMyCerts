@@ -173,8 +173,8 @@ process {
         }
 
         # If EWT Logging manifest exist unregister that one.
-        If (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.man") {
-	    Write-Verbose "Found the required files for EWT logging, unregistering with wevtutil"
+        If (((Get-WinEvent -ListProvider $PolicyModuleName -ErrorAction SilentlyContinue) -ne $Null) -and (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.man")) {
+	        Write-Verbose "Found the required files for EWT logging, unregistering with wevtutil"
             Start-Process `
                 -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
                 -ArgumentList "um", """$BaseDirectory\$($PolicyModuleName).events.man""" `
