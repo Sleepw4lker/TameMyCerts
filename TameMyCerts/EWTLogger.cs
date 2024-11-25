@@ -15,7 +15,7 @@ namespace TameMyCerts
     {
         public static EWTLogger Log = new EWTLogger();
        
-        public class Tasks
+        public static class Tasks
         {
             public const EventTask None = (EventTask)1;
             public const EventTask TameMyCerts = (EventTask)2;
