@@ -15,7 +15,7 @@
     <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
+   <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="CERTENROLLLib">

@@ -338,7 +338,7 @@
     <value>Unable to add entry of type "{0}" with value "{1}" to the Subject Alternative Name certificate extension. Either type or value is invalid.</value>
   </data>
   <data name="Token_invalid" xml:space="preserve">
-    <value>The "{0}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
+    <value>The "{0}:{1}" token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field.</value>
     <comment>"</comment>
   </data>
   <data name="Events_SUCCESS_ISSUED" xml:space="preserve">
@@ -346,5 +346,99 @@
   </data>
   <data name="Events_SUCCESS_PENDING" xml:space="preserve">
     <value>Request {0} for {1} will be put into pending state.</value>
+  </data>
+  <data name="YKVal_Allowed_Firmware_Version" xml:space="preserve">
+    <value>This Yubikey's firmware "{0}", is not on the list of allowed firmwares.</value>
+  </data>
+  <data name="YKVal_Allowed_PIN_Policy" xml:space="preserve">
+    <value>This Yubikey's PIN policy "{0}", is not on the list of allowed PIN policies.</value>
+  </data>
+  <data name="YKVal_Allowed_Touch_Policy" xml:space="preserve">
+    <value>This Yubikey's touch policy "{0}", is not on the list of allowed touch policies.</value>
+  </data>
+  <data name="YKVal_Disallowed_Firmware_Version" xml:space="preserve">
+    <value>The Yubikey's firmware "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Disallowed_PIN_Policy" xml:space="preserve">
+    <value>The Yubikey's PIN Policy "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Disallowed_Touch_Policy" xml:space="preserve">
+    <value>The Yubikey's Touch Policy "{0}" is actively being denied.</value>
+  </data>
+  <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
+    <value>The module was unable to read the embedded certificates. Actual error: {0}</value>
+  </data>
+  <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
+    <value>The request failed to find a matching yubikey policy, defaulting to deny.</value>
+  </data>
+  <data name="YKVal_Policy_Matches_with_Reject" xml:space="preserve">
+    <value>The request matched a deny yubikey policy: {0}</value>
+  </data>
+  <data name="YKVal_Invalid_Attestion_with_YubikeyPolicy" xml:space="preserve">
+    <value>The certificate request has been denied due to incorrect certificate request.</value>
+  </data>
+  <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
+    <value>The request {1}  was rejected due to policy: \r\n{0}</value>
+  </data>
+  <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
+    <value>The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion.</value>
+  </data>
+  <data name="event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny" xml:space="preserve">
+    <value>The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator.</value>
+  </data>
+  <data name="event_YKVal_4204_Matching_policy" xml:space="preserve">
+    <value>The request {1} is matching policy: 
+{0}</value>
+  </data>
+  <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestion" xml:space="preserve">
+    <value>The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted.</value>
+  </data>
+  <data name="event_YKVal_4206_Debug_failed_to_match_policy" xml:space="preserve">
+    <value>The request {0} failed to match the Yubikey Policy: 
+{1}</value>
+  </data>
+  <data name="event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR" xml:space="preserve">
+    <value>The request {0}, attestion certificates public key missmatch with the certificate request.</value>
+  </data>
+  <data name="event_YKVal_4208_Yubikey_Attestion_Failed_to_build" xml:space="preserve">
+    <value>The request {0}, yubikey attestion failed to build trust chain to Yubikey CA.</value>
+  </data>
+  <data name="event_TMC_1_PolicyModule_Success_Initiated" xml:space="preserve">
+    <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>
+  </data>
+  <data name="event_TMC_2_PolicyModule_Failed_Initiated" xml:space="preserve">
+    <value>Error initializing Windows Default policy module:
+{0}</value>
+  </data>
+  <data name="event_TMC_12_Success_Issued" xml:space="preserve">
+    <value>Request {0} for {1} will get issued.</value>
+  </data>
+  <data name="event_TMC_13_Success_Pending" xml:space="preserve">
+    <value>Request {0} for {1} will be put into pending state.</value>
+  </data>
+  <data name="event_TMC_4_PolicyModule_Default_Shutdown_Failed" xml:space="preserve">
+    <value>Shutting down Windows Default policy module failed:
+{0}</value>
+  </data>
+  <data name="event_TMC_5_Analytical_Audit_only_Deny" xml:space="preserve">
+    <value>Audit mode is enabled for {1}. Request {0} would get denied because:
+{2}</value>
+  </data>
+  <data name="event_TMC_6_Deny_Issuing_Request" xml:space="preserve">
+    <value>Request {0} for {1} was denied because:
+{2}</value>
+  </data>
+  <data name="event_TMC_91_Policy_Read" xml:space="preserve">
+    <value>TameMyCerts read the policy from file: 
+{0} 
+ 
+with the content: 
+{1} </value>
+  </data>
+  <data name="event_TMC_92_Policy_Unknown_XML_Element" xml:space="preserve">
+    <value>XML policy unknown Element: {0} at line {1}, position {2}</value>
+  </data>
+  <data name="event_TMC_93_Policy_Unknown_XML_Attribute" xml:space="preserve">
+    <value>Unknown Attribute: {0}='{1}' at line {2}, position {3}</value>
   </data>
 </root>

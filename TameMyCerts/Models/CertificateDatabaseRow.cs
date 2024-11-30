@@ -1,4 +1,18 @@
-﻿using System;
+﻿// Copyright 2021-2024 Uwe Gradenegger <uwe@gradenegger.eu>
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,7 +32,9 @@ internal class CertificateDatabaseRow
         NotBefore = serverPolicy.GetDateCertificatePropertyOrDefault("NotBefore");
         NotAfter = serverPolicy.GetDateCertificatePropertyOrDefault("NotAfter");
         KeyLength = serverPolicy.GetLongCertificatePropertyOrDefault("PublicKeyLength");
+        PublicKey = serverPolicy.GetBinaryCertificatePropertyOrDefault("RawPublicKey");
         RawRequest = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
+        RequestID = serverPolicy.GetLongRequestPropertyOrDefault("RequestID");
         RequestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
         Upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN") ?? string.Empty;
         DistinguishedName = serverPolicy.GetStringRequestPropertyOrDefault("Request.DistinguishedName") ??
@@ -32,10 +48,10 @@ internal class CertificateDatabaseRow
         SubjectRelativeDistinguishedNames = serverPolicy.GetSubjectRelativeDistinguishedNames();
         SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
     }
-
+  
     // To inject unit tests
     public CertificateDatabaseRow(string request, int requestType,
-        Dictionary<string, string> requestAttributes = null)
+        Dictionary<string, string> requestAttributes = null, int requestID = 0)
     {
         NotBefore = DateTimeOffset.Now;
         NotAfter = DateTimeOffset.Now.AddYears(1);
@@ -52,6 +68,7 @@ internal class CertificateDatabaseRow
                 ? new List<KeyValuePair<string, string>>()
                 : GetDnComponents(DistinguishedName);
             SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
+            PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
             RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
             RequestType = CertCli.CR_IN_PKCS10;
         }
@@ -69,6 +86,7 @@ internal class CertificateDatabaseRow
                 RequestAttributes.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
+        RequestID = requestID;
     }
 
     public DateTimeOffset NotBefore { get; }
@@ -114,6 +132,11 @@ internal class CertificateDatabaseRow
     public byte[] RawRequest { get; }
 
     /// <summary>
+    ///     The internal RequestID.
+    /// </summary>
+    public int RequestID { get; }
+
+    /// <summary>
     ///     The request type as defined in certcli.h (PKCS#10, PKCS#7 or CMS).
     /// </summary>
     public int RequestType { get; }
@@ -133,6 +156,13 @@ internal class CertificateDatabaseRow
     ///     templates are identified by their OID.
     /// </summary>
     public string CertificateTemplate { get; }
+  
+    /// <summary>
+    ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There
+    ///     are rare cases in which it is not possible to parse the inline request. The property returns an empty collection in
+    ///     this case.
+    /// </summary>
+    public byte[] PublicKey { get; }
 
     /// <summary>
     ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There

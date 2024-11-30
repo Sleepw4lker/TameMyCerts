@@ -295,6 +295,178 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} policy module version {1} is ready to process incoming certificate requests..
+        /// </summary>
+        internal static string event_TMC_1_PolicyModule_Success_Initiated {
+            get {
+                return ResourceManager.GetString("event_TMC_1_PolicyModule_Success_Initiated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} for {1} will get issued..
+        /// </summary>
+        internal static string event_TMC_12_Success_Issued {
+            get {
+                return ResourceManager.GetString("event_TMC_12_Success_Issued", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} for {1} will be put into pending state..
+        /// </summary>
+        internal static string event_TMC_13_Success_Pending {
+            get {
+                return ResourceManager.GetString("event_TMC_13_Success_Pending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error initializing Windows Default policy module:
+        ///{0}.
+        /// </summary>
+        internal static string event_TMC_2_PolicyModule_Failed_Initiated {
+            get {
+                return ResourceManager.GetString("event_TMC_2_PolicyModule_Failed_Initiated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shutting down Windows Default policy module failed:
+        ///{0}.
+        /// </summary>
+        internal static string event_TMC_4_PolicyModule_Default_Shutdown_Failed {
+            get {
+                return ResourceManager.GetString("event_TMC_4_PolicyModule_Default_Shutdown_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Audit mode is enabled for {1}. Request {0} would get denied because:
+        ///{2}.
+        /// </summary>
+        internal static string event_TMC_5_Analytical_Audit_only_Deny {
+            get {
+                return ResourceManager.GetString("event_TMC_5_Analytical_Audit_only_Deny", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} for {1} was denied because:
+        ///{2}.
+        /// </summary>
+        internal static string event_TMC_6_Deny_Issuing_Request {
+            get {
+                return ResourceManager.GetString("event_TMC_6_Deny_Issuing_Request", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TameMyCerts read the policy from file: 
+        ///{0} 
+        /// 
+        ///with the content: 
+        ///{1} .
+        /// </summary>
+        internal static string event_TMC_91_Policy_Read {
+            get {
+                return ResourceManager.GetString("event_TMC_91_Policy_Read", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XML policy unknown Element: {0} at line {1}, position {2}.
+        /// </summary>
+        internal static string event_TMC_92_Policy_Unknown_XML_Element {
+            get {
+                return ResourceManager.GetString("event_TMC_92_Policy_Unknown_XML_Element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown Attribute: {0}=&apos;{1}&apos; at line {2}, position {3}.
+        /// </summary>
+        internal static string event_TMC_93_Policy_Unknown_XML_Attribute {
+            get {
+                return ResourceManager.GetString("event_TMC_93_Policy_Unknown_XML_Attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {1}  was rejected due to policy: \r\n{0}.
+        /// </summary>
+        internal static string event_YKVal_4201_Denied_by_Policy {
+            get {
+                return ResourceManager.GetString("event_YKVal_4201_Denied_by_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion..
+        /// </summary>
+        internal static string event_YKVal_4202_Denied_by_Policy {
+            get {
+                return ResourceManager.GetString("event_YKVal_4202_Denied_by_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator..
+        /// </summary>
+        internal static string event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny {
+            get {
+                return ResourceManager.GetString("event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {1} is matching policy: 
+        ///{0}.
+        /// </summary>
+        internal static string event_YKVal_4204_Matching_policy {
+            get {
+                return ResourceManager.GetString("event_YKVal_4204_Matching_policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted..
+        /// </summary>
+        internal static string event_YKVal_4205_Failed_to_extract_Yubikey_Attestion {
+            get {
+                return ResourceManager.GetString("event_YKVal_4205_Failed_to_extract_Yubikey_Attestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0} failed to match the Yubikey Policy: 
+        ///{1}.
+        /// </summary>
+        internal static string event_YKVal_4206_Debug_failed_to_match_policy {
+            get {
+                return ResourceManager.GetString("event_YKVal_4206_Debug_failed_to_match_policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0}, attestion certificates public key missmatch with the certificate request..
+        /// </summary>
+        internal static string event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR {
+            get {
+                return ResourceManager.GetString("event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request {0}, yubikey attestion failed to build trust chain to Yubikey CA..
+        /// </summary>
+        internal static string event_YKVal_4208_Yubikey_Attestion_Failed_to_build {
+            get {
+                return ResourceManager.GetString("event_YKVal_4208_Yubikey_Attestion_Failed_to_build", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} policy module currently does not support standalone certification authorities..
         /// </summary>
         internal static string Events_MODULE_NOT_SUPPORTED {
@@ -725,11 +897,101 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The &quot;{0}&quot; token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field..
+        ///   Looks up a localized string similar to The &quot;{0}:{1}&quot; token for the construction of a Subject Relative Distinguished Name is unknown. Ensure that Directory Service Mapping is enabled if it is an AD attribute, and that the originating certificate request contains the token, if it is a request field..
         /// </summary>
         internal static string Token_invalid {
             get {
                 return ResourceManager.GetString("Token_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s firmware &quot;{0}&quot;, is not on the list of allowed firmwares..
+        /// </summary>
+        internal static string YKVal_Allowed_Firmware_Version {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_Firmware_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s PIN policy &quot;{0}&quot;, is not on the list of allowed PIN policies..
+        /// </summary>
+        internal static string YKVal_Allowed_PIN_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_PIN_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Yubikey&apos;s touch policy &quot;{0}&quot;, is not on the list of allowed touch policies..
+        /// </summary>
+        internal static string YKVal_Allowed_Touch_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Allowed_Touch_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s firmware &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_Firmware_Version {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_Firmware_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s PIN Policy &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_PIN_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_PIN_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Yubikey&apos;s Touch Policy &quot;{0}&quot; is actively being denied..
+        /// </summary>
+        internal static string YKVal_Disallowed_Touch_Policy {
+            get {
+                return ResourceManager.GetString("YKVal_Disallowed_Touch_Policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The certificate request has been denied due to incorrect certificate request..
+        /// </summary>
+        internal static string YKVal_Invalid_Attestion_with_YubikeyPolicy {
+            get {
+                return ResourceManager.GetString("YKVal_Invalid_Attestion_with_YubikeyPolicy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request failed to find a matching yubikey policy, defaulting to deny..
+        /// </summary>
+        internal static string YKVal_No_Matching_Policy_Found {
+            get {
+                return ResourceManager.GetString("YKVal_No_Matching_Policy_Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request matched a deny yubikey policy: {0}.
+        /// </summary>
+        internal static string YKVal_Policy_Matches_with_Reject {
+            get {
+                return ResourceManager.GetString("YKVal_Policy_Matches_with_Reject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The module was unable to read the embedded certificates. Actual error: {0}.
+        /// </summary>
+        internal static string YKVal_Unable_to_read_embedded_certificates {
+            get {
+                return ResourceManager.GetString("YKVal_Unable_to_read_embedded_certificates", resourceCulture);
             }
         }
     }

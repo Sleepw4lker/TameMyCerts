@@ -38,6 +38,7 @@ public class Policy : ICertPolicy2
     private readonly DirectoryServiceValidator _dsValidator = new();
     private readonly FinalResultValidator _frValidator = new();
     private readonly RequestAttributeValidator _raValidator = new();
+    private readonly YubikeyValidator _ykValidator = new YubikeyValidator();
     private readonly CertificateTemplateCache _templateCache = new();
     private CertificateAuthorityConfiguration _caConfig;
     private Logger _logger;
@@ -168,9 +169,11 @@ public class Policy : ICertPolicy2
             result = _crValidator.VerifyRequest(result, policy, dbRow, template);
 
             result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
+            result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
 
             result = _dsValidator.VerifyRequest(result, policy, dsObject);
-            result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig);
+            result = _ykValidator.VerifyRequest(result, policy, ykObject, dbRow.RequestID);
+            result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig, ykObject);
             result = _frValidator.VerifyRequest(result, policy, dbRow);
 
             #endregion
@@ -181,6 +184,8 @@ public class Policy : ICertPolicy2
             {
                 if (result.DeniedForIssuance)
                 {
+                    EWTLogger.Log.TMC_5_Analytical_Audit_only_Deny(requestId, template.Name,
+                                               string.Join("\n", result.Description));
                     _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, template.Name,
                         string.Join("\n", result.Description));
                 }
@@ -229,9 +234,11 @@ public class Policy : ICertPolicy2
             switch (disposition)
             {
                 case CertSrv.VR_PENDING:
+                    EWTLogger.Log.TMC_13_Success_Pending(requestId, template.Name);
                     _logger.Log(Events.SUCCESS_PENDING, requestId, template.Name);
                     break;
                 case CertSrv.VR_INSTANT_OK:
+                    EWTLogger.Log.TMC_12_Success_Issued(requestId, template.Name);
                     _logger.Log(Events.SUCCESS_ISSUED, requestId, template.Name);
                     break;
             }
@@ -243,6 +250,8 @@ public class Policy : ICertPolicy2
 
         #region Deny request in any other case
 
+        EWTLogger.Log.TMC_6_Deny_Issuing_Request(requestId, template.Name,
+                       string.Join("\n", result.Description.Distinct().ToList()));
         _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
             string.Join("\n", result.Description.Distinct().ToList()));
 
@@ -266,6 +275,7 @@ public class Policy : ICertPolicy2
         }
         catch (Exception ex)
         {
+            EWTLogger.Log.TMC_4_PolicyModule_Default_Shutdown_Failed(ex.ToString());
             _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
             throw;
         }
@@ -300,10 +310,11 @@ public class Policy : ICertPolicy2
 
             _windowsDefaultPolicyModule.Initialize(strConfig);
 
-            _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
+            EWTLogger.Log.TMC_1_PolicyModule_Success_Initiated(_appName, _appVersion);
         }
         catch (Exception ex)
         {
+            EWTLogger.Log.TMC_2_PolicyModule_Failed_Initiated(ex.ToString());
             _logger.Log(Events.PDEF_FAIL_INIT, ex);
             Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
             throw;

@@ -14,7 +14,7 @@
 
 namespace TameMyCerts.Enums;
 
-internal enum KeyAlgorithmFamily
+public enum KeyAlgorithmFamily
 {
     UNKNOWN = 0,
     RSA = 1,
