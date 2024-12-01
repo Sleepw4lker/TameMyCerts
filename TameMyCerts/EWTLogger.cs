@@ -10,7 +10,8 @@ using TameMyCerts.Validators;
 
 namespace TameMyCerts
 {
-    [EventSource(Name = "TameMyCerts", LocalizationResources = "TameMyCerts.LocalizedStrings")]
+    [EventSource(Name = "TameMyCerts-TameMyCerts-Policy", LocalizationResources = "TameMyCerts.LocalizedStrings")]
+    // This needs to be named Company-Product-Component, it is hardcoded into EventViewer.
     public sealed class EWTLogger : EventSource
     {
         public static EWTLogger Log = new EWTLogger();
@@ -21,6 +22,7 @@ namespace TameMyCerts
             public const EventTask TameMyCerts = (EventTask)2;
             public const EventTask YubikeyValidator = (EventTask)10;
             public const EventTask XMLParser = (EventTask)11;
+            public const EventTask FileSystemStorer = (EventTask)12;
         }
 
         #region Tame My Certs
@@ -172,6 +174,9 @@ namespace TameMyCerts
                 WriteEvent(4208, requestID);
             }
         }
+        #endregion
+
+        #region FileSystemStorer events 4401-4499
         #endregion
     }
 }
