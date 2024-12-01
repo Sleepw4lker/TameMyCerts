@@ -13,7 +13,7 @@ namespace TameMyCerts.Tests
 
         protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            if (eventSource.Name == "TameMyCerts")
+            if (eventSource.Name == "TameMyCerts-TameMyCerts-Policy")
             {
                 EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)(-1));
             }
