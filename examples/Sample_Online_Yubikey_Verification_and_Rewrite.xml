@@ -1,0 +1,32 @@
+<!--
+  This is an example configuration file for online certificate templates.
+  This template will verify the following from the Yubikey enclosed attestion:
+    * Does not run ECC if below version 5.7
+    * PINPolicy to be Always or Once.
+    * Will update the commonName of the format "<AD CN> [<Slot> <Serial>]"
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DirectoryServicesMapping>
+  </DirectoryServicesMapping>
+  <YubikeyPolicy>
+    <MaximumFirmwareVersion>5.6.9</MaximumFirmwareVersion>
+    <KeyAlgorithm><string>ECC</string></KeyAlgorithm>
+    <Action>Deny</Action>
+  </YubikeyPolicy>
+  <YubikeyPolicy>
+    <PinPolicy>
+      <string>Always</string>
+      <string>Once</string>
+    </PinPolicy> 
+    <Action>Allow</Action>
+  </YubikeyPolicy>
+  <OutboundSubject>
+    <OutboundSubjectRule>
+      <Field>commonName</Field>
+      <Value>{ad:cn} [{yk:Slot} {yk:SerialNumber}]</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+  </OutboundSubject>
+</CertificateRequestPolicy>
