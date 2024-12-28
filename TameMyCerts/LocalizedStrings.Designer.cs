@@ -295,6 +295,42 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Wont update request {0}. The subjectAltName &quot;{1}&quot; already exists with value &quot;{2}&quot;, ignoring &quot;{3}&quot; as Force is not True..
+        /// </summary>
+        internal static string event_CCVal_4651_SAN_Already_Exists {
+            get {
+                return ResourceManager.GetString("event_CCVal_4651_SAN_Already_Exists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updated request {0}. The subjectAltName &quot;{1}&quot; now has &quot;{2}&quot; added..
+        /// </summary>
+        internal static string event_CCVal_4652_SAN_Added {
+            get {
+                return ResourceManager.GetString("event_CCVal_4652_SAN_Added", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to add the subjectAltName &quot;{1}&quot; to &quot;{2}&quot; for requestID {0}..
+        /// </summary>
+        internal static string event_CCVal_4653_SAN_Failed_to_add {
+            get {
+                return ResourceManager.GetString("event_CCVal_4653_SAN_Failed_to_add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Denying requestid {0} as subjectAltName &quot;{1}&quot; is mandatory and failed..
+        /// </summary>
+        internal static string event_CCVal_4654_SAN_Failed_Mandatory {
+            get {
+                return ResourceManager.GetString("event_CCVal_4654_SAN_Failed_Mandatory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} policy module version {1} is ready to process incoming certificate requests..
         /// </summary>
         internal static string event_TMC_1_PolicyModule_Success_Initiated {

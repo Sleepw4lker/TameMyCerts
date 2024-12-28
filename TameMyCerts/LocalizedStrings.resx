@@ -441,4 +441,16 @@ with the content:
   <data name="event_TMC_93_Policy_Unknown_XML_Attribute" xml:space="preserve">
     <value>Unknown Attribute: {0}='{1}' at line {2}, position {3}</value>
   </data>
+  <data name="event_CCVal_4651_SAN_Already_Exists" xml:space="preserve">
+    <value>Wont update request {0}. The subjectAltName "{1}" already exists with value "{2}", ignoring "{3}" as Force is not True.</value>
+  </data>
+  <data name="event_CCVal_4652_SAN_Added" xml:space="preserve">
+    <value>Updated request {0}. The subjectAltName "{1}" now has "{2}" added.</value>
+  </data>
+  <data name="event_CCVal_4653_SAN_Failed_to_add" xml:space="preserve">
+    <value>Failed to add the subjectAltName "{1}" to "{2}" for requestID {0}.</value>
+  </data>
+  <data name="event_CCVal_4654_SAN_Failed_Mandatory" xml:space="preserve">
+    <value>Denying requestid {0} as subjectAltName "{1}" is mandatory and failed.</value>
+  </data>
 </root>

@@ -172,15 +172,53 @@ process {
             [System.Diagnostics.EventLog]::DeleteEventSource($PolicyModuleName)
         }
 
-        # If EWT Logging manifest exist unregister that one.
-        If (((Get-WinEvent -ListProvider $PolicyModuleName -ErrorAction SilentlyContinue) -ne $Null) -and (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.man")) {
-	        Write-Verbose "Found the required files for EWT logging, unregistering with wevtutil"
+       
+	#Find a few older and unregister those.
+	If ((Get-WinEvent -ListProvider "TameMyCerts-TameMyCerts-Policy" -ErrorAction SilentlyContinue) -ne $Null) {   
+            Write-Verbose "Removing the EventProvider TameMyCerts-TameMyCerts-Policy"
+            $tempfile = [System.IO.Path]::GetTempFileName()
+            $xmlcontent = @'
+<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
+ <instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
+  <events xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<provider name="TameMyCerts-TameMyCerts-Policy" guid="{01e38251-e8f1-5aea-594c-12c672505ecf}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCertsTameMyCertsPolicy">
+</provider>
+</events>
+</instrumentation>
+</instrumentationManifest>
+'@
+            Set-Content -Path $tempfile -Value $xmlcontent
             Start-Process `
                 -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
-                -ArgumentList "um", """$BaseDirectory\$($PolicyModuleName).events.man""" `
+                -ArgumentList "um", """$tempfile""" `
                 -Wait `
                 -WindowStyle Hidden
-	    }
+            Remove-Item $tempfile
+        }
+
+        
+	#Find a few older and unregister those.
+	If ((Get-WinEvent -ListProvider "TameMyCerts" -ErrorAction SilentlyContinue) -ne $Null) {   
+            Write-Verbose "Removing the EventProvider TameMyCerts"
+            $tempfile = [System.IO.Path]::GetTempFileName()
+            $xmlcontent = @'
+<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
+ <instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
+  <events xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<provider name="TameMyCerts" guid="{5ab879f8-8136-5440-4d8c-3d0ac8846520}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCerts">
+</provider>
+</events>
+</instrumentation>
+</instrumentationManifest>
+'@
+            Set-Content -Path $tempfile -Value $xmlcontent
+            Start-Process `
+                -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
+                -ArgumentList "um", """$tempfile""" `
+                -Wait `
+                -WindowStyle Hidden
+            Remove-Item $tempfile
+        }
     }
 
     # (Re)Install

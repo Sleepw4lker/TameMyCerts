@@ -23,9 +23,10 @@ namespace TameMyCerts
             public const EventTask YubikeyValidator = (EventTask)10;
             public const EventTask XMLParser = (EventTask)11;
             public const EventTask FileSystemStorer = (EventTask)12;
+            public const EventTask CertificateContentValidator = (EventTask)13;
         }
 
-        #region Tame My Certs
+        #region Tame My Certs events 1-299
         [Event(1, Level = EventLevel.Informational, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts, Keywords = EventKeywords.None)]
         public void TMC_1_PolicyModule_Success_Initiated(string policyModule, string version)
         {
@@ -177,6 +178,50 @@ namespace TameMyCerts
         #endregion
 
         #region FileSystemStorer events 4401-4499
+        #endregion
+
+        #region Certificate Content Validator events 4601-4799
+        [Event(4601, Level = EventLevel.Informational, Channel = EventChannel.Operational, Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
+        public void CCVal_4601_(string denyingPolicy, int requestID)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4601, denyingPolicy, requestID);
+            }
+        }
+        [Event(4651, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
+        public void CCVal_4651_SAN_Already_Exists(int requestID, string subjectAltName, string currentValue, string ignoredValue)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4651, requestID, subjectAltName, currentValue, ignoredValue);
+            }
+        }
+        [Event(4652, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
+        public void CCVal_4652_SAN_Added(int requestID, string subjectAltName, string addedValue)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4652, requestID, subjectAltName, addedValue);
+            }
+        }
+        [Event(4653, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
+        public void CCVal_4653_SAN_Failed_to_add(int requestID, string subjectAltName, string ignoredValue)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4653, requestID, subjectAltName, ignoredValue);
+            }
+        }
+        // Planned for future, not is use yet. 
+        [Event(4654, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
+        public void CCVal_4654_SAN_Failed_Mandatory(int requestID, string subjectAltName)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4654, requestID, subjectAltName);
+            }
+        }
         #endregion
     }
 }
