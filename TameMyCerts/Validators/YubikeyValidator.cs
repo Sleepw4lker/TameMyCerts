@@ -101,9 +101,28 @@ namespace TameMyCerts.Validators
             // Yubikey Attestation is stored in these two extensions in the CSR. If present , extract them, otherwise buuild an empty YubikeyObject.
             if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE) && dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_INTERMEDIATE))
             {
+                EWTLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE);
                 try
                 {
                     dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_DEVICE, out var AttestionCertificateByte);
+                    dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, out var IntermediateCertificateByte);
+                    X509Certificate2 AttestationCertificate = new X509Certificate2(AttestionCertificateByte);
+                    X509Certificate2 IntermediateCertificate = new X509Certificate2(IntermediateCertificateByte);
+                    yubikey = new YubikeyObject(dbRow.PublicKey, AttestationCertificate, IntermediateCertificate, dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
+                }
+                catch (Exception ex)
+                {
+                    yubikey = new YubikeyObject();
+                    EWTLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
+                    result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
+                }
+            }
+            else if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL) && dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_INTERMEDIATE))
+            {
+                EWTLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL);
+                try
+                {
+                    dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL, out var AttestionCertificateByte);
                     dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, out var IntermediateCertificateByte);
                     X509Certificate2 AttestationCertificate = new X509Certificate2(AttestionCertificateByte);
                     X509Certificate2 IntermediateCertificate = new X509Certificate2(IntermediateCertificateByte);

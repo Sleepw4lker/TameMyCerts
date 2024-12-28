@@ -175,6 +175,14 @@ namespace TameMyCerts
                 WriteEvent(4208, requestID);
             }
         }
+        [Event(4209, Level = EventLevel.Informational, Channel = EventChannel.Debug, Task = Tasks.YubikeyValidator, Keywords = EventKeywords.None)]
+        public void YKVal_4209_Found_Attestation_Location(int requestID, string attestationLocation)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(4209, requestID, attestationLocation);
+            }
+        }
         #endregion
 
         #region FileSystemStorer events 4401-4499

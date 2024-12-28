@@ -503,6 +503,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The YubiKey attestation was located in OID {1} for request: {0}..
+        /// </summary>
+        internal static string event_YKVal_4209_Found_Attestation_Location {
+            get {
+                return ResourceManager.GetString("event_YKVal_4209_Found_Attestation_Location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} policy module currently does not support standalone certification authorities..
         /// </summary>
         internal static string Events_MODULE_NOT_SUPPORTED {

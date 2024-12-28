@@ -453,4 +453,7 @@ with the content:
   <data name="event_CCVal_4654_SAN_Failed_Mandatory" xml:space="preserve">
     <value>Denying requestid {0} as subjectAltName "{1}" is mandatory and failed.</value>
   </data>
+  <data name="event_YKVal_4209_Found_Attestation_Location" xml:space="preserve">
+    <value>The YubiKey attestation was located in OID {1} for request: {0}.</value>
+  </data>
 </root>
