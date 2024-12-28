@@ -29,9 +29,10 @@ namespace TameMyCerts.Models
     [XmlRoot(ElementName = "YubikeyPolicy")]
     public class YubikeyPolicy
     {
-
         [XmlElement(ElementName = "Action")]
         public YubikeyPolicyAction Action { get; set; } = YubikeyPolicyAction.Allow;
+        [XmlElement(ElementName = "IncludeAttestationInCertificate")]
+        public Boolean IncludeAttestationInCertificate { get; set; } = false;
 
         [XmlArray(ElementName = "PinPolicy")]
         [XmlArrayItem(ElementName = "string")]

@@ -27,8 +27,8 @@ namespace TameMyCerts.Enums
         public const string FIPS_CERTIFIED = "1.3.6.1.4.1.41482.3.10";
         public const string CPSN_CERTIFIED = "1.3.6.1.4.1.41482.3.11";
         public const string ATTESTION_INTERMEDIATE = "1.3.6.1.4.1.41482.3.2";
-        public const string ATTESTION_DEVICE = "1.3.6.1.4.1.41482.3.11";
-        public const string ATTESTION_DEVICE_PIVTOOL = "1.3.6.1.4.1.41482.3.1";
+        public const string ATTESTION_DEVICE = "1.3.6.1.4.1.41482.3.1";
+        public const string ATTESTION_DEVICE_PIVTOOL = "1.3.6.1.4.1.41482.3.11";
     }
 
     public enum YubikeyFormFactor

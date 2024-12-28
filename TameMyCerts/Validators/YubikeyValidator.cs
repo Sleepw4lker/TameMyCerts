@@ -68,6 +68,16 @@ namespace TameMyCerts.Validators
                     }
                     EWTLogger.Log.YKVal_4204_Matching_policy(ykP.SaveToString(), requestID);
                     foundMatch = true;
+
+                    // Store the AttestionData and Intermediate Certificate in the certificate, if requested
+                    if (ykP.IncludeAttestationInCertificate)
+                    {
+                        var x509ExtAttestion = new X509Extension(YubikeyX509Extensions.ATTESTION_DEVICE, yubikey.AttestionCertificate.RawData, false);
+                        result.CertificateExtensions.Add(YubikeyX509Extensions.ATTESTION_DEVICE, x509ExtAttestion.RawData);
+                        var x509ExtIntermediate = new X509Extension(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, yubikey.IntermediateCertificate.RawData, false);
+                        result.CertificateExtensions.Add(YubikeyX509Extensions.ATTESTION_INTERMEDIATE, x509ExtIntermediate.RawData);
+                    }
+
                     break;
                 }
                 else
