@@ -143,6 +143,11 @@ namespace TameMyCerts.Models
             this.KeyLength = keyLength;
             #endregion
 
+            #region Lets save the certificates, if needed for the future
+            this.AttestionCertificate = AttestationCertificate;
+            this.IntermediateCertificate = IntermediateCertificate;
+            #endregion
+
             // Add to the attributes to allow for replacement
             Attributes.Add("FormFactor", this.FormFactor.ToString());
             Attributes.Add("FirmwareVersion", this.FirmwareVersion.ToString());
@@ -162,6 +167,8 @@ namespace TameMyCerts.Models
         public KeyAlgorithmFamily keyAlgorithm { get; }
         public int KeyLength { get; }
         public YubikeyEdition Edition { get; } = YubikeyEdition.Normal;
+        public X509Certificate2 AttestionCertificate { get; }
+        public X509Certificate2 IntermediateCertificate { get; }
 
         public bool? Validated { get; } = false;
         private static string attestionSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";

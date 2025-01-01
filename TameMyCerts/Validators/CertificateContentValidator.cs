@@ -53,16 +53,12 @@ internal class CertificateContentValidator
 
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, ActiveDirectoryObject dsObject,
-        CertificateAuthorityConfiguration caConfig)
+        CertificateAuthorityConfiguration caConfig, YubikeyObject yubikeyObject = null)
     {
-        YubikeyObject YubikeyObject = new YubikeyObject();
-        return VerifyRequest(result, policy, dbRow, dsObject, caConfig, YubikeyObject);
-    }
-
-    public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-        CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, ActiveDirectoryObject dsObject,
-        CertificateAuthorityConfiguration caConfig, YubikeyObject yubikeyObject)
-    {
+        if (yubikeyObject == null)
+        {
+            yubikeyObject = new YubikeyObject();
+        }
         if (result.DeniedForIssuance)
         {
             return result;
@@ -157,10 +153,14 @@ internal class CertificateContentValidator
 
         foreach (var rule in policy.OutboundSubjectAlternativeName)
         {
+            // Check if the SAN is already present unless it is forced
             if (!rule.Force && SanTypes.ToList().Contains(rule.Field) &&
                 result.SubjectAlternativeNameExtension.AlternativeNames.Any(x =>
                     x.Key.Equals(rule.Field, Comparison)))
             {
+                // Log that the SAN is already present and force has not been set.
+                string currentValue = result.SubjectAlternativeNameExtension.AlternativeNames.Where(x => x.Key.Equals(rule.Field, Comparison)).Select(x => x.Value).First();
+                EWTLogger.Log.CCVal_4651_SAN_Already_Exists(dbRow.RequestID, subjectAltName: rule.Field, currentValue: currentValue, ignoredValue: rule.Value);
                 continue;
             }
 
@@ -176,10 +176,16 @@ internal class CertificateContentValidator
                         : dbRow.SubjectRelativeDistinguishedNames);
                 value = ReplaceTokenValues(value, "san", dbRow.SubjectAlternativeNames);
 
+
                 result.SubjectAlternativeNameExtension.AddAlternativeName(rule.Field, value, true);
+
+                // Log that we are adding a SAN, only on success
+                EWTLogger.Log.CCVal_4652_SAN_Added(dbRow.RequestID, subjectAltName: rule.Field, addedValue: value);
             }
             catch (Exception ex)
             {
+                EWTLogger.Log.CCVal_4653_SAN_Failed_to_add(dbRow.RequestID, subjectAltName: rule.Field, rule.Value);
+
                 if (rule.Mandatory)
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);

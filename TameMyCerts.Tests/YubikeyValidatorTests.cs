@@ -243,6 +243,7 @@ namespace TameMyCerts.Tests
         [Fact]
         public void Extract_Genuine_Yubikey_Attestion_10001()
         {
+            _listener.ClearEvents();
             CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10001);
             var result = new CertificateRequestValidationResult(dbRow);
             result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikey);
@@ -252,6 +253,11 @@ namespace TameMyCerts.Tests
             Assert.True(yubikey.FirmwareVersion == new Version(5, 4, 3));
             Assert.True(yubikey.FormFactor == YubikeyFormFactor.UsbAKeychain);
             Assert.True(yubikey.Slot == "9a");
+
+            // Validate that we get a debug message with the attestation OID information
+            Assert.Contains(4209, _listener.Events.Select(e => e.EventId));
+            // Validate that the 4209 says that the attestion comes from the faulty PIVTOOL OID
+            Assert.Equal(YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL, _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
 
             PrintResult(result);
 
@@ -635,5 +641,23 @@ namespace TameMyCerts.Tests
             Assert.True(result.DeniedForIssuance);
         }
 
+
+        [Fact]
+        public void Include_the_AttestionData_in_Certificate_10016()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10014);
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].IncludeAttestationInCertificate = true;
+
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, 10016);
+
+            PrintResult(result);
+
+            Assert.False(result.DeniedForIssuance);
+            Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE));
+        }
     }
 }
