@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -29,8 +28,8 @@ internal class ActiveDirectoryObject
     private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
     private static readonly TimeSpan LdapClientTimeout = new(0, 0, 15);
 
-    public ActiveDirectoryObject(string forestRootDomain, int domainMode, string dsAttribute, string identity,
-        string objectCategory, string searchRoot)
+    public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
+        string objectCategory, string searchRoot, bool deepLdapSearch = false)
     {
         if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
         {
@@ -66,8 +65,7 @@ internal class ActiveDirectoryObject
         SecurityIdentifier = new SecurityIdentifier((byte[])dsObject.Properties["objectSid"][0], 0);
         DistinguishedName = (string)dsObject.Properties["distinguishedName"][0];
 
-        // If we are running newer versions, don't just read memberOf, Lets do a query for msds-memberOfTransitive, available from Windows 2012
-        if (domainMode <= (int)DomainMode.Windows2008R2Domain)
+        if (deepLdapSearch == false)
         {
             for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
             {
@@ -79,18 +77,24 @@ internal class ActiveDirectoryObject
             var directorySearcher = new DirectorySearcher
             {
                 SearchRoot = new DirectoryEntry($"LDAP://{DistinguishedName}"),
-                PropertiesToLoad = { "msds-memberOfTransitive" },
+                PropertiesToLoad = { "msds-TokenGroupNames" },
                 ClientTimeout = LdapClientTimeout,
                 SearchScope = SearchScope.Base
             };
 
-            var memberOfTransitive = directorySearcher.FindOne();
-            if (memberOfTransitive != null)
+            var tokenGroupNames = directorySearcher.FindOne();
+
+            if (tokenGroupNames == null || tokenGroupNames.Properties["msds-TokenGroupNames"].Count == 0)
             {
-                for (var index = 0; index < memberOfTransitive.Properties["msds-memberOfTransitive"].Count; index++)
-                {
-                    MemberOf.Add(memberOfTransitive.Properties["msds-memberOfTransitive"][index].ToString());
-                }
+                // msds-TokenGroupNames is only available on Windows 2016 or newer DCs
+                // Querying this attribute against an older OS DC will return an empty result.#
+                // We throw an exception and therefore cause the request being denied in that case.
+                throw new Exception(string.Format(LocalizedStrings.DirVal_TokenGroupNames_Failed, DistinguishedName));
+            }
+
+            for (var index = 0; index < tokenGroupNames.Properties["msds-TokenGroupNames"].Count; index++)
+            {
+                MemberOf.Add(tokenGroupNames.Properties["msds-TokenGroupNames"][index].ToString());
             }
         }
 

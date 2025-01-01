@@ -295,6 +295,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to determine the msds-TokenGroupNames attribute for {0}. Note that this attribute is only available on Windows Server 2016 and newer Domain Controllers..
+        /// </summary>
+        internal static string DirVal_TokenGroupNames_Failed {
+            get {
+                return ResourceManager.GetString("DirVal_TokenGroupNames_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wont update request {0}. The subjectAltName &quot;{1}&quot; already exists with value &quot;{2}&quot;, ignoring &quot;{3}&quot; as Force is not True..
         /// </summary>
         internal static string event_CCVal_4651_SAN_Already_Exists {

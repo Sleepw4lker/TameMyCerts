@@ -168,7 +168,7 @@ public class Policy : ICertPolicy2
 
             result = _crValidator.VerifyRequest(result, policy, dbRow, template);
 
-            result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, out var dsObject);
+            result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, _caConfig, out var dsObject);
             result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
 
             result = _dsValidator.VerifyRequest(result, policy, dsObject);

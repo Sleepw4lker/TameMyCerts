@@ -28,7 +28,6 @@ namespace TameMyCerts.Validators;
 internal class DirectoryServiceValidator
 {
     private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
-    private readonly int _domainLevel;
     private readonly string _forestRootDomain;
 
     public DirectoryServiceValidator(bool forTesting = false)
@@ -40,12 +39,12 @@ internal class DirectoryServiceValidator
 
         // DirectoryServiceValidator gets instanced only once, thus this is more efficient than enumerating this each time an ActiveDirectoryObject is instanced
         _forestRootDomain = Forest.GetCurrentForest().Name;
-        _domainLevel = Domain.GetCurrentDomain().DomainModeLevel;
     }
 
     public CertificateRequestValidationResult GetMappedActiveDirectoryObject(
         CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, CertificateTemplate template,
+        CertificateAuthorityConfiguration caConfig,
         out ActiveDirectoryObject dsObject)
     {
         dsObject = null;
@@ -82,8 +81,8 @@ internal class DirectoryServiceValidator
 
         try
         {
-            dsObject = new ActiveDirectoryObject(_forestRootDomain, _domainLevel, dsAttribute, identity,
-                objectCategory, dsMapping.SearchRoot);
+            dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity,
+                objectCategory, dsMapping.SearchRoot, caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DEEP_LDAP_SEARCH));
         }
         catch (Exception ex)
         {
