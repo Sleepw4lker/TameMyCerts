@@ -1,56 +1,47 @@
 ﻿<#
     .SYNOPSIS
-    Exports all certificate templates bound to our test certification authority to LDIF files.
+    Exports all certificate templates in an Active Directory Forest to LDIF files.
+    Needs ldifde.exe, thus run it on a Domain Controller.
 #>
-
-#Requires -Modules ADCSAdministration
-
+#requires -Modules ActiveDirectory
 [cmdletbinding()]
 param (
-    [Parameter(Mandatory=$False)]
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$true)]
+    [ValidateScript({Test-Path -Path $_})]
     [String]
-    $ConfigNC = "CN=Configuration,DC=tamemycerts-tests,DC=local"
+    $Path,
+
+    [Parameter(Mandatory=$false)]
+    [Switch]
+    $Generalize
 )
 
-New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2016 -Value 14393
+function Remove-InvalidFileNameChars {
 
-If ([int](Get-WmiObject -Class Win32_OperatingSystem).BuildNumber -lt $BUILD_NUMBER_WINDOWS_2016) {
-    Write-Error -Message "This must be run on Windows Server 2016 or newer! Aborting."
-    Return 
+    param([String]$Name)
+
+    $invalidChars = [IO.Path]::GetInvalidFileNameChars() -join ''
+    $re = "[{0}]" -f [RegEx]::Escape($invalidChars)
+    return ($Name -replace $re)
 }
 
-If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Error -Message "This must be run as Administrator! Aborting."
-    Return
+$Ldifde = "$($env:SystemRoot)\System32\ldifde.exe"
+
+If (-not (Test-Path -Path $Ldifde)) {
+    Write-Error -Message "$Ldifde not found! Run me on a DC!" -ErrorAction Stop
 }
 
-If (-not (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain) {
-    Write-Error "You must install the domain first!"
-    Return
-}
+$ForestRootDomain = $(Get-ADForest | Select-Object -ExpandProperty RootDomain | Get-ADDomain).DistinguishedName
+$ConfigNC = "CN=Configuration,$ForestRootDomain"
 
-Function Remove-InvalidFileNameChars {
+Get-ChildItem -Path "AD:\CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC" | ForEach-Object -Process {
 
-    [cmdletbinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [ValidateNotNullOrEmpty()]
-        [String]$Name
-    )
+    $Name = $_.name
+    $DistinguishedName = $_.distinguishedName
 
-    process {
+    $FilePath = "$Path\$(Remove-InvalidFileNameChars -Name $Name).ldf"
 
-        $invalidChars = [IO.Path]::GetInvalidFileNameChars() -join ''
-        $re = "[{0}]" -f [RegEx]::Escape($invalidChars)
-        return ($Name -replace $re)
-
-    }
-}
-
-Get-CATemplate | ForEach-Object -Process {
-
-    $FilePath = "$(Remove-InvalidFileNameChars -Name $_.Name).ldf"
+    Write-Verbose -Message "Exporting $Name to $FilePath"
 
     Remove-Item -Path $FilePath -ErrorAction SilentlyContinue
 
@@ -58,11 +49,15 @@ Get-CATemplate | ForEach-Object -Process {
         "-f"
         "$FilePath"
         "-d"
-        "CN=$($_.Name),CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
+        $DistinguishedName
         "-p"
         "Base"
         "-o"
         "dSCorePropagationData,whenChanged,whenCreated,uSNCreated,uSNChanged,objectGuid,msPKI-Cert-Template-OID"
     )
-    [void](& ldifde $Arguments)
+    [void](& $Ldifde $Arguments)
+
+    if ($Generalize.IsPresent) {
+        (Get-Content -Path $FilePath -Raw).Replace("`r`n ", "").Replace($ConfigNC, '{ConfigNC}') | Set-Content -Path $FilePath
+    }
 }

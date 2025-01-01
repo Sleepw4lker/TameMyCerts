@@ -1,20 +1,16 @@
-dn: CN=GenericWebServer_StaticSubject_Forced,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=local
+dn: CN=GenericWebServer_StaticSubject_Forced,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 changetype: add
 objectClass: top
 objectClass: pKICertificateTemplate
 cn: GenericWebServer_StaticSubject_Forced
-distinguishedName: 
- CN=GenericWebServer_StaticSubject_Forced,CN=Certificate Templates,CN=Public Ke
- y Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=local
+distinguishedName: CN=GenericWebServer_StaticSubject_Forced,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 instanceType: 4
 displayName: GenericWebServer_StaticSubject_Forced
 showInAdvancedViewOnly: TRUE
 name: GenericWebServer_StaticSubject_Forced
 flags: 131649
 revision: 100
-objectCategory: 
- CN=PKI-Certificate-Template,CN=Schema,CN=Configuration,DC=tamemycerts-tests,DC
- =local
+objectCategory: CN=PKI-Certificate-Template,CN=Schema,{ConfigNC}
 pKIDefaultKeySpec: 1
 pKIKeyUsage:: oAA=
 pKIMaxIssuingDepth: 0
@@ -31,8 +27,6 @@ msPKI-Minimal-Key-Size: 2048
 msPKI-Template-Schema-Version: 3
 msPKI-Template-Minor-Revision: 6
 msPKI-Certificate-Application-Policy: 1.3.6.1.5.5.7.3.1
-msPKI-RA-Application-Policies: 
- msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA1`msPKI
- -Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetr
- ic-Key-Length`DWORD`168`
+msPKI-RA-Application-Policies: msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA1`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168`
+
 
