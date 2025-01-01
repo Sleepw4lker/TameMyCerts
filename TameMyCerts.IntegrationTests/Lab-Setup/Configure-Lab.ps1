@@ -42,97 +42,11 @@ If (-not (Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain) {
 
 $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
-#region Declare functions
-
-Function Set-EnrollPermission {
-
-    param (
-        [Parameter(Mandatory=$True)]
-        [String]
-        $Path,
-
-        [Parameter(Mandatory=$False)]
-        [System.Security.Principal.SecurityIdentifier]
-        $SecurityIdentifier = "S-1-5-11"
-    )
-
-    $Acl = Get-ACL -Path $Path
-    
-    $Ace = New-Object -TypeName System.DirectoryServices.ExtendedRightAccessRule -ArgumentList @(
-        $SecurityIdentifier
-        [System.Security.AccessControl.AccessControlType]::Allow,
-        [System.Guid]"0E10C968-78FB-11D2-90D4-00C04F79DC55"
-    );
-
-    $Acl.AddAccessRule($Ace) 
-
-    Set-Acl -Path $Path -AclObject $Acl 
-}
-
-Function New-TemplateOID {
-
-    Param(
-        [Parameter(Mandatory=$True)]
-        [String]
-        $ConfigNC
-    )
-
-    $ForestOid = Get-ADObject `
-        -Identity "CN=OID,CN=Public Key Services,CN=Services,$ConfigNC" `
-        -Properties msPKI-Cert-Template-OID | Select-Object -ExpandProperty msPKI-Cert-Template-OID
-
-    do {
-
-        $OidSuffix1 = Get-Random -Minimum 1000000  -Maximum 99999999
-        $OidSuffix2 = Get-Random -Minimum 10000000 -Maximum 99999999
-        $Oid = "$ForestOid.$OidSuffix1.$OidSuffix2"
-
-    } until (-not (Get-OIDObject -Oid $Oid -ConfigNC $ConfigNC))
-
-    Return $Oid
-}
-
-Function Get-OIDObject {
-
-    param (
-        [Parameter(Mandatory=$True)]
-        [String]
-        $Oid,
-
-        [Parameter(Mandatory=$True)]
-        [String]
-        $ConfigNC 
-    )
-
-    return Get-ADObject `
-        -SearchBase "CN=OID,CN=Public Key Services,CN=Services,$ConfigNC" `
-        -Filter {msPKI-Cert-Template-OID -eq $Oid}
-}
-
-Function Test-AdcsServiceAvailability {
-
-    [cmdletbinding()]
-    param()
-
-    New-Variable -Option Constant -Name CC_LOCALCONFIG -Value 0x00000003
-    New-Variable -Option Constant -Name CR_PROP_CANAME -Value 0x00000006
-    New-Variable -Option Constant -Name PROPTYPE_STRING -Value 4
-
-    $CertConfig = New-Object -ComObject CertificateAuthority.Config
-    $ConfigString = $CertConfig.GetConfig($CC_LOCALCONFIG)
-    $CertAdmin = New-Object -ComObject CertificateAuthority.Admin.1
-
-    Try {
-        [void]($CertAdmin.GetCAProperty($ConfigString, $CR_PROP_CANAME, 0, $PROPTYPE_STRING,0))
-        Return $True
-    }
-    Catch {
-        Return $False
-    }
-
-}
-
-#endregion
+. $BaseDirectory\functions\Enable-Templatesynchronization.ps1
+. $BaseDirectory\functions\Grant-CertificateTemplatePermission.ps1
+. $BaseDirectory\functions\Import-CertificateTemplate.ps1
+. $BaseDirectory\functions\Invoke-AutoEnrollmentTask.ps1
+. $BaseDirectory\functions\Test-AdcsAvailability.ps1
 
 #region Configure Domain Environment
 
@@ -280,50 +194,27 @@ ForEach ($TemplateName in $Templates) {
 
     Write-Host "Importing $TemplateName"
 
-    $TemplatePath = "CN=$TemplateName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
-
-    If (Test-Path -Path "AD:$TemplatePath") {continue}
-
-    Write-Verbose -Message "Importing $TemplateName"
-
-    # Import template from LDIF
-
-    [void](& ldifde -i -f $FilePath)
-
-    # Restore OID object
-
-    $TemplateOid = New-TemplateOID -ConfigNC $ConfigNC
-    Set-AdObject -Identity $TemplatePath -Replace @{"msPKI-Cert-Template-OID" = $TemplateOid}
-
-    # This is a trick that will restore the msPKI-Enterprise-OID object which is linked to the pKICertificateTemplate object
-    [void](& certutil -f -oid $TemplateOid $TemplateName)
-
-    Get-OIDObject -Oid $TemplateOid -ConfigNC $ConfigNC | 
-        Set-AdObject -Replace @{DisplayName = $TemplateName}
-
-    # Grant Enroll permissions to everyone
-    Set-EnrollPermission -Path "AD:$TemplatePath"
+    Import-CertificateTemplate -File $FilePath -TemplateName $TemplateName
+    Grant-CertificateTemplatePermission -Name $TemplateName
 }
 
 Write-Host "Updating caches"
 
 Stop-Service -Name CertSvc
 
-[void](& certutil -pulse)
-[void](& certutil -pulse -user)
+Enable-TemplateSynchronization -Scope User
+Enable-TemplateSynchronization -Scope Computer
 
-do {
-    Start-Sleep -Seconds 1
-} while (
-    (Get-ScheduledTask -TaskPath \Microsoft\Windows\CertificateServicesClient\ -TaskName SystemTask).State -eq "Running" -or
-    (Get-ScheduledTask -TaskPath \Microsoft\Windows\CertificateServicesClient\ -TaskName UserTask).State -eq "Running"
-)
+Invoke-AutoEnrollmentTask -Task UserTask -Wait
+Invoke-AutoEnrollmentTask -Task SystemTask -Wait
 
 Start-Service -Name CertSvc
 
 do {
     Start-Sleep -Seconds 1
-} while (-not (Test-AdcsServiceAvailability))
+} while (-not (Test-AdcsAvailability -ConfigString "$([System.Net.Dns]::GetHostByName($env:computerName).HostName)\TEST-CA"))
+
+Import-Module -Name ADCSAdministration
 
 # Publish all imported templates
 ForEach ($TemplateName in $Templates) {
@@ -332,7 +223,7 @@ ForEach ($TemplateName in $Templates) {
     if ($TemplateName -eq "SpecialChars") { $TemplateName = "SpecialChars_Üöäß/&|()." }
 
     Write-Host "Binding $TemplateName to CA"
-    [void](& certutil -setCAtemplates +$TemplateName)
+    Add-CATemplate -Name $TemplateName -Force
 }
 
 # endregion
@@ -341,14 +232,13 @@ ForEach ($TemplateName in $Templates) {
 
 Write-Host "Requesting Enrollment Agent certificate"
 
-[void](& certutil -user -pulse)
-Start-Sleep -Seconds 60
+
 [void](& certreq -q -enroll TestLabEnrollmentAgent)
 
 #endregion
 
 #region Install Dependencies
-
+<#
 Write-Host "Installing PowerShell Modules"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -358,5 +248,5 @@ Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
 Install-Module -Name "PSCertificateEnrollment" -MinimumVersion 1.0.9 -Force
 Install-Module -Name "Pester" -Force -SkipPublisherCheck
-
+#>
 #endregion

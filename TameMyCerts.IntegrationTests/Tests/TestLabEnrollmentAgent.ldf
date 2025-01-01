@@ -1,20 +1,16 @@
-dn: CN=TestLabEnrollmentAgent,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=tamemycerts-tests,DC=local
+dn: CN=TestLabEnrollmentAgent,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 changetype: add
 objectClass: top
 objectClass: pKICertificateTemplate
 cn: TestLabEnrollmentAgent
-distinguishedName: 
- CN=TestLabEnrollmentAgent,CN=Certificate Templates,CN=Public Key Services,CN=S
- ervices,CN=Configuration,DC=tamemycerts-tests,DC=local
+distinguishedName: CN=TestLabEnrollmentAgent,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 instanceType: 4
 displayName: TestLabEnrollmentAgent
 showInAdvancedViewOnly: TRUE
 name: TestLabEnrollmentAgent
 flags: 131616
 revision: 100
-objectCategory: 
- CN=PKI-Certificate-Template,CN=Schema,CN=Configuration,DC=tamemycerts-tests,DC
- =local
+objectCategory: CN=PKI-Certificate-Template,CN=Schema,{ConfigNC}
 pKIDefaultKeySpec: 2
 pKIKeyUsage:: gAA=
 pKIMaxIssuingDepth: 0
@@ -32,4 +28,5 @@ msPKI-Minimal-Key-Size: 2048
 msPKI-Template-Schema-Version: 2
 msPKI-Template-Minor-Revision: 2
 msPKI-Certificate-Application-Policy: 1.3.6.1.4.1.311.20.2.1
+
 
