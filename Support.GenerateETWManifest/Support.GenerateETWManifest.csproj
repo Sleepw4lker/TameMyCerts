@@ -15,16 +15,21 @@
     <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <buildtools>C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64</buildtools>
+  </PropertyGroup>
+
   <Target Name="GenerateManifest" AfterTargets="Build">
     <Exec Command="$(TargetDir)\$(TargetName).exe  --outfile &quot;$(TargetDir)TameMyCerts.Events.man&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
+  <!-- There must not be quotes around $(TargetDir), as it adds a tempfile after and it breaks horribly if it has quotes-->
   <Target Name="MessageCompiler" AfterTargets="Build" DependsOnTargets="GenerateManifest">
-    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(buildtools)\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
   </Target>
   
   <Target Name="ResourceCompiler" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(buildtools)\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="BuildDll" AfterTargets="Build" DependsOnTargets="MessageCompiler">
