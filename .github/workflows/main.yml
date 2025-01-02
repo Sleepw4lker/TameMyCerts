@@ -34,29 +34,8 @@ jobs:
     - name: Build ETW Manifest
       run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release
 
-  Xunit:
-    name: XUnit tests
-    runs-on: windows-latest
-  
-    steps:
-
-    - uses: actions/checkout@v4
-
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Install dependencies
-      run: dotnet restore
-
-    - name: Setup MSBuild Path
-      uses: microsoft/setup-msbuild@v1.3
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-
-    - name: Build
+    - name: Build TameMyCerts.Test
       run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=release
 
     - name: Run xunit tests
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity minimal
