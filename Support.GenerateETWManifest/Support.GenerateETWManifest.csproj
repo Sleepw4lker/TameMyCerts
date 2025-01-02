@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <Target Name="GenerateManifest" AfterTargets="Build">
-    <Exec Command="$(TargetDir)\$(TargetName).exe" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="$(TargetDir)\$(TargetName).exe  --outfile &quot;$(TargetDir)TameMyCerts.Events.man&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="MessageCompiler" AfterTargets="Build" DependsOnTargets="GenerateManifest">
