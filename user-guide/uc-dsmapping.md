@@ -4,14 +4,14 @@ Enterprise use Mobile Device Management (MDM) products to provision and manage t
 
 Common MDM products include:
 
--   Microsoft Intune
--   VMware Workspace One (previously known as _AirWatch_)
--   Ivanti MobileIron UEM
--   Jamf Pro
--   Baramundi Enterprise Mobility Management
--   BlackBerry Enterprise Mobility Suite
--   Sophos Mobile Control
--   SOTI MobiControl
+- Microsoft Intune
+- VMware Workspace One (previously known as _AirWatch_)
+- Ivanti MobileIron UEM
+- Jamf Pro
+- Baramundi Enterprise Mobility Management
+- BlackBerry Enterprise Mobility Suite
+- Sophos Mobile Control
+- SOTI MobiControl
 
 All these systems follow a similar concept: They act as an intermediary between the managed device, the coprorate directory service, and the certification authority. All of them provide some kind connector to submit certificate requests to a Microsoft AD CS certification authority.
 

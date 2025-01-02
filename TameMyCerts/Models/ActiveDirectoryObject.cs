@@ -25,19 +25,19 @@ namespace TameMyCerts.Models;
 
 internal class ActiveDirectoryObject
 {
-    private const StringComparison COMPARISON = StringComparison.InvariantCultureIgnoreCase;
+    private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
     private static readonly TimeSpan LdapClientTimeout = new(0, 0, 15);
 
     public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
-        string objectCategory, string searchRoot, bool deepLdapSearch = false)
+        string objectCategory, string searchRoot, bool resolveNestedGroupMemberships = false)
     {
-        if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, COMPARISON)))
+        if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, Comparison)))
         {
             throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Directory_Attribute,
                 dsAttribute));
         }
 
-        if (!DsObjectTypes.Any(s => s.Equals(objectCategory, COMPARISON)))
+        if (!DsObjectTypes.Any(s => s.Equals(objectCategory, Comparison)))
         {
             throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Object_Category,
                 objectCategory));
@@ -65,14 +65,7 @@ internal class ActiveDirectoryObject
         SecurityIdentifier = new SecurityIdentifier((byte[])dsObject.Properties["objectSid"][0], 0);
         DistinguishedName = (string)dsObject.Properties["distinguishedName"][0];
 
-        if (deepLdapSearch == false)
-        {
-            for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
-            {
-                MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
-            }
-        }
-        else
+        if (resolveNestedGroupMemberships)
         {
             var directorySearcher = new DirectorySearcher
             {
@@ -87,7 +80,7 @@ internal class ActiveDirectoryObject
             if (tokenGroupNames == null || tokenGroupNames.Properties["msds-TokenGroupNames"].Count == 0)
             {
                 // msds-TokenGroupNames is only available on Windows 2016 or newer DCs
-                // Querying this attribute against an older OS DC will return an empty result.#
+                // Querying this attribute against an older OS DC will return an empty result.
                 // We throw an exception and therefore cause the request being denied in that case.
                 throw new Exception(string.Format(LocalizedStrings.DirVal_TokenGroupNames_Failed, DistinguishedName));
             }
@@ -95,6 +88,13 @@ internal class ActiveDirectoryObject
             for (var index = 0; index < tokenGroupNames.Properties["msds-TokenGroupNames"].Count; index++)
             {
                 MemberOf.Add(tokenGroupNames.Properties["msds-TokenGroupNames"][index].ToString());
+            }
+        }
+        else
+        {
+            for (var index = 0; index < dsObject.Properties["memberOf"].Count; index++)
+            {
+                MemberOf.Add(dsObject.Properties["memberOf"][index].ToString());
             }
         }
 
@@ -173,8 +173,8 @@ internal class ActiveDirectoryObject
             {
                 SearchRoot = new DirectoryEntry(searchRoot),
                 Filter = filter,
-                PageSize = 2,
-                ClientTimeout = LdapClientTimeout
+                ClientTimeout = LdapClientTimeout,
+                SearchScope = SearchScope.Subtree
             };
 
             foreach (var s in searchProperties)

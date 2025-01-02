@@ -38,8 +38,8 @@ public class Policy : ICertPolicy2
     private readonly DirectoryServiceValidator _dsValidator = new();
     private readonly FinalResultValidator _frValidator = new();
     private readonly RequestAttributeValidator _raValidator = new();
-    private readonly YubikeyValidator _ykValidator = new YubikeyValidator();
     private readonly CertificateTemplateCache _templateCache = new();
+    private readonly YubikeyValidator _ykValidator = new();
     private CertificateAuthorityConfiguration _caConfig;
     private Logger _logger;
     private CertificateRequestPolicyCache _policyCache;
@@ -168,7 +168,8 @@ public class Policy : ICertPolicy2
 
             result = _crValidator.VerifyRequest(result, policy, dbRow, template);
 
-            result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, _caConfig, out var dsObject);
+            result = _dsValidator.GetMappedActiveDirectoryObject(result, policy, dbRow, template, _caConfig,
+                out var dsObject);
             result = _ykValidator.ExtractAttestion(result, policy, dbRow, out var ykObject);
 
             result = _dsValidator.VerifyRequest(result, policy, dsObject);
@@ -185,7 +186,7 @@ public class Policy : ICertPolicy2
                 if (result.DeniedForIssuance)
                 {
                     ETWLogger.Log.TMC_5_Analytical_Audit_only_Deny(requestId, template.Name,
-                                               string.Join("\n", result.Description));
+                        string.Join("\n", result.Description));
                     _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, template.Name,
                         string.Join("\n", result.Description));
                 }
@@ -251,13 +252,12 @@ public class Policy : ICertPolicy2
         #region Deny request in any other case
 
         ETWLogger.Log.TMC_6_Deny_Issuing_Request(requestId, template.Name,
-                       string.Join("\n", result.Description.Distinct().ToList()));
+            string.Join("\n", result.Description.Distinct().ToList()));
         _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
             string.Join("\n", result.Description.Distinct().ToList()));
 
         // Seems that lower error codes must be thrown as exception
-        if (result.StatusCode > CertSrv.VR_INSTANT_BAD &&
-            result.StatusCode <= WinError.ERROR_INVALID_TIME)
+        if (result.StatusCode is > CertSrv.VR_INSTANT_BAD and <= WinError.ERROR_INVALID_TIME)
         {
             throw new COMException(string.Empty, result.StatusCode);
         }
@@ -311,6 +311,7 @@ public class Policy : ICertPolicy2
             _windowsDefaultPolicyModule.Initialize(strConfig);
 
             ETWLogger.Log.TMC_1_PolicyModule_Success_Initiated(_appName, _appVersion);
+            _logger.Log(Events.PDEF_SUCCESS_INIT, _appName, _appVersion);
         }
         catch (Exception ex)
         {
