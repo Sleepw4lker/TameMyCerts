@@ -32,7 +32,7 @@ jobs:
       run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
 
     - name: Build TameMyCerts.Tests
-      run: msbuild TameMyCerts.Tests\TameMyCerts.Tests.csproj -property:Configuration=release
+      run: msbuild TameMyCerts.Tests\TameMyCerts.Tests.csproj -property:Configuration=debug
 
     - name: Save Build TameMyCerts
       uses: actions/upload-artifact@v4
@@ -105,7 +105,7 @@ jobs:
 
     - name: Find mc.exe
       run: |
-        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget" -ErrorAction SilentlyContinue
+        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\packages" -ErrorAction SilentlyContinue
         $path
       shell: pwsh
 
