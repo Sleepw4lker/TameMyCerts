@@ -2,7 +2,7 @@
 using TameMyCerts;
 
     // Generate the manifest
-    string? manifest = EventSource.GenerateManifest(typeof(EWTLogger), "TameMyCerts.Events.dll");
+    string? manifest = EventSource.GenerateManifest(typeof(ETWLogger), "TameMyCerts.Events.dll");
     // Save the manifest to a file
     if (manifest is not null)
     {

@@ -184,7 +184,7 @@ public class Policy : ICertPolicy2
             {
                 if (result.DeniedForIssuance)
                 {
-                    EWTLogger.Log.TMC_5_Analytical_Audit_only_Deny(requestId, template.Name,
+                    ETWLogger.Log.TMC_5_Analytical_Audit_only_Deny(requestId, template.Name,
                                                string.Join("\n", result.Description));
                     _logger.Log(Events.REQUEST_DENIED_AUDIT, requestId, template.Name,
                         string.Join("\n", result.Description));
@@ -234,11 +234,11 @@ public class Policy : ICertPolicy2
             switch (disposition)
             {
                 case CertSrv.VR_PENDING:
-                    EWTLogger.Log.TMC_13_Success_Pending(requestId, template.Name);
+                    ETWLogger.Log.TMC_13_Success_Pending(requestId, template.Name);
                     _logger.Log(Events.SUCCESS_PENDING, requestId, template.Name);
                     break;
                 case CertSrv.VR_INSTANT_OK:
-                    EWTLogger.Log.TMC_12_Success_Issued(requestId, template.Name);
+                    ETWLogger.Log.TMC_12_Success_Issued(requestId, template.Name);
                     _logger.Log(Events.SUCCESS_ISSUED, requestId, template.Name);
                     break;
             }
@@ -250,7 +250,7 @@ public class Policy : ICertPolicy2
 
         #region Deny request in any other case
 
-        EWTLogger.Log.TMC_6_Deny_Issuing_Request(requestId, template.Name,
+        ETWLogger.Log.TMC_6_Deny_Issuing_Request(requestId, template.Name,
                        string.Join("\n", result.Description.Distinct().ToList()));
         _logger.Log(Events.REQUEST_DENIED, requestId, template.Name,
             string.Join("\n", result.Description.Distinct().ToList()));
@@ -275,7 +275,7 @@ public class Policy : ICertPolicy2
         }
         catch (Exception ex)
         {
-            EWTLogger.Log.TMC_4_PolicyModule_Default_Shutdown_Failed(ex.ToString());
+            ETWLogger.Log.TMC_4_PolicyModule_Default_Shutdown_Failed(ex.ToString());
             _logger.Log(Events.PDEF_FAIL_SHUTDOWN, ex);
             throw;
         }
@@ -310,11 +310,11 @@ public class Policy : ICertPolicy2
 
             _windowsDefaultPolicyModule.Initialize(strConfig);
 
-            EWTLogger.Log.TMC_1_PolicyModule_Success_Initiated(_appName, _appVersion);
+            ETWLogger.Log.TMC_1_PolicyModule_Success_Initiated(_appName, _appVersion);
         }
         catch (Exception ex)
         {
-            EWTLogger.Log.TMC_2_PolicyModule_Failed_Initiated(ex.ToString());
+            ETWLogger.Log.TMC_2_PolicyModule_Failed_Initiated(ex.ToString());
             _logger.Log(Events.PDEF_FAIL_INIT, ex);
             Marshal.ReleaseComObject(_windowsDefaultPolicyModule);
             throw;

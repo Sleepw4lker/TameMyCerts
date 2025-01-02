@@ -252,9 +252,9 @@ process {
             [System.Diagnostics.EventLog]::CreateEventSource($PolicyModuleName, "Application")
         }
 
-        # If EWT Logging manifest exist register that one.
+        # If ETW Logging manifest exist register that one.
         If ((Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.dll") -and (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.man")) {
-	    Write-Verbose "Found the required files for EWT logging, registering with wevtutil"
+	    Write-Verbose "Found the required files for ETW logging, registering with wevtutil"
             Start-Process `
                 -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
                 -ArgumentList "im", """$BaseDirectory\$($PolicyModuleName).events.man""","/resourceFilePath:""$BaseDirectory\$($PolicyModuleName).events.dll""", "/messageFilePath:""$BaseDirectory\$($PolicyModuleName).events.dll""" `

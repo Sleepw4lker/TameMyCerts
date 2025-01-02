@@ -30,7 +30,7 @@ namespace TameMyCerts.Tests
 
         private readonly ITestOutputHelper output;
 
-        private EWTLoggerListener _listener;
+        private ETWLoggerListener _listener;
 
         public YubikeyValidatorTests(ITestOutputHelper output)
         {
@@ -230,7 +230,7 @@ namespace TameMyCerts.Tests
             _yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_CSR, CertCli.CR_IN_PKCS10);
 
             this.output = output;
-            this._listener = new EWTLoggerListener();
+            this._listener = new ETWLoggerListener();
         }
 
         internal void PrintResult(CertificateRequestValidationResult result)

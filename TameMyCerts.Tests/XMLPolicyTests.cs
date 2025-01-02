@@ -17,13 +17,13 @@ namespace TameMyCerts.Tests;
 
 public class XMLPolicyTests
 {
-    private EWTLoggerListener _listener;
+    private ETWLoggerListener _listener;
     private readonly ITestOutputHelper output;
 
     public XMLPolicyTests(ITestOutputHelper output)
     {
         this.output = output;
-        this._listener = new EWTLoggerListener();
+        this._listener = new ETWLoggerListener();
     }
 
     internal void PrintResult(CertificateRequestValidationResult result)

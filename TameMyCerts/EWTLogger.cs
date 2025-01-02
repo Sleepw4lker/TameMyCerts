@@ -12,9 +12,9 @@ namespace TameMyCerts
 {
     [EventSource(Name = "TameMyCerts-TameMyCerts-Policy", LocalizationResources = "TameMyCerts.LocalizedStrings")]
     // This needs to be named Company-Product-Component, it is hardcoded into EventViewer.
-    public sealed class EWTLogger : EventSource
+    public sealed class ETWLogger : EventSource
     {
-        public static EWTLogger Log = new EWTLogger();
+        public static ETWLogger Log = new ETWLogger();
        
         public static class Tasks
         {
