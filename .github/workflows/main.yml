@@ -61,7 +61,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore --verbosity detailed
 
 
     - name: Download Build Output
