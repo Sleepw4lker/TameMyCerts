@@ -102,15 +102,5 @@ jobs:
     - name: List installed packages
       run: dotnet list package
 
-    - name: Find mc.exe C
-      run: |
-        Get-ChildItem -Path "C:\" -recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
-      shell: pwsh
-
-    - name: Find mc.exe D
-      run: |
-        Get-ChildItem -Path "D:\" -recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
-      shell: pwsh
-
     - name: Build ETW Manifest
       run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release
