@@ -38,13 +38,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-TameMyCerts
-        path: TameMyCerts\bin\release\net8.0-windows\
+        path: TameMyCerts\bin\debug\net8.0-windows\
 
     - name: Save Build TameMyCerts.Tests
       uses: actions/upload-artifact@v4
       with:
         name: build-TameMyCerts.Tests
-        path: TameMyCerts.Tests\bin\release\net8.0-windows\
+        path: TameMyCerts.Tests\bin\debug\net8.0-windows\
 
   xUnit:
     name: xUnit tests
@@ -61,20 +61,19 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install dependencies
-      run: dotnet restore --verbosity detailed
-
+      run: dotnet restore
 
     - name: Download Build Output
       uses: actions/download-artifact@v4
       with:
         name: build-TameMyCerts
-        path: TameMyCerts\bin\release\net8.0-windows\
+        path: TameMyCerts\bin\debug\net8.0-windows\
 
     - name: Download build-TameMyCerts.Tests
       uses: actions/download-artifact@v4
       with:
         name: build-TameMyCerts.Tests
-        path: TameMyCerts.Tests\bin\release\net8.0-windows\
+        path: TameMyCerts.Tests\bin\debug\net8.0-windows\
 
     - name: Run xunit tests
       run: dotnet test --no-build --verbosity minimal
@@ -93,7 +92,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore --verbosity detailed
 
     - name: Setup MSBuild Path
       uses: microsoft/setup-msbuild@v1.3
@@ -103,10 +102,14 @@ jobs:
     - name: List installed packages
       run: dotnet list package
 
-    - name: Find mc.exe
+    - name: Find mc.exe C
       run: |
-        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\packages" -ErrorAction SilentlyContinue
-        $path
+        Get-ChildItem -Path "C:\" -Filter "mc.exe" -ErrorAction SilentlyContinue
+      shell: pwsh
+
+    - name: Find mc.exe D
+      run: |
+        Get-ChildItem -Path "D:\" -Filter "mc.exe" -ErrorAction SilentlyContinue
       shell: pwsh
 
     - name: Build ETW Manifest
