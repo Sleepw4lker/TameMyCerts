@@ -61,7 +61,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore TameMyCerts.Tests\TameMyCerts.Tests.csproj
 
     - name: Download Build Output
       uses: actions/download-artifact@v4
@@ -104,12 +104,12 @@ jobs:
 
     - name: Find mc.exe C
       run: |
-        Get-ChildItem -Path "C:\" -Filter "mc.exe" -ErrorAction SilentlyContinue
+        Get-ChildItem -Path "C:\" -recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
       shell: pwsh
 
     - name: Find mc.exe D
       run: |
-        Get-ChildItem -Path "D:\" -Filter "mc.exe" -ErrorAction SilentlyContinue
+        Get-ChildItem -Path "D:\" -recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
       shell: pwsh
 
     - name: Build ETW Manifest
