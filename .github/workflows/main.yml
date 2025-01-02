@@ -31,6 +31,17 @@ jobs:
     - name: Build Debug
       run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
 
+    - name: Find mc.exe
+      run: |
+        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\" -Recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
+        if ($null -ne $path) {
+            Write-Output "mc.exe found at: $($path.FullName)"
+        } else {
+            Write-Output "mc.exe not found."
+            exit 1
+        }
+      shell: pwsh
+
     - name: Build ETW Manifest
       run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release
 

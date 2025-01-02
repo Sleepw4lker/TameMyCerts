@@ -28,7 +28,7 @@ internal class Program
         if (manifest is not null)
         {
             File.WriteAllText(Path.GetFullPath(outFilename), manifest);
-            Console.WriteLine("Manifest generated and saved to TameMyCerts.Events.man");
+            Console.WriteLine($"Manifest generated and saved to {Path.GetFullPath(outFilename)}");
         }
         else
         {
