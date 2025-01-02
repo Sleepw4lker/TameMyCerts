@@ -34,6 +34,9 @@ namespace TameMyCerts.Tests
 
         public YubikeyValidatorTests(ITestOutputHelper output)
         {
+            // Setup a fake CA configuration
+            _caConfig = new CertificateAuthorityConfiguration(3, 1, "ADCS Labor Issuing CA 1",
+                "ADCS Labor Issuing CA 1", "CA02", "pki.adcslabor.de", "CN=Configuration,DC=intra,DC=adcslabor,DC=de");
 
             // Sample CSR from a Yubikey with attestion included
             _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR =
