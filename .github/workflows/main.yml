@@ -23,6 +23,9 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
 
+    - name: List installed packages
+      run: dotnet list package
+
     - name: Setup MSBuild Path
       uses: microsoft/setup-msbuild@v1.3
       env:
@@ -30,6 +33,59 @@ jobs:
 
     - name: Build Debug
       run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
+
+    - name: Build TameMyCerts.Test
+      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=release
+
+    - name: Save Build Output
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: release/
+
+  xUnit:
+    name: xUnit tests
+    runs-on: windows-latest
+    needs: build
+  
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+  - name: Download Build Output
+      uses: actions/download-artifact@v4
+      with:
+        name: build-output
+        path: release
+
+    - name: Run xunit tests
+      run: dotnet test --no-build --verbosity minimal
+
+  EWTManifest:
+    name: Create ETW Manifest
+    runs-on: windows-latest
+  
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Setup MSBuild Path
+      uses: microsoft/setup-msbuild@v1.3
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     - name: Find mc.exe
       run: |
