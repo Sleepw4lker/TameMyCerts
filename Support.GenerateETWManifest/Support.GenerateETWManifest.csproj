@@ -20,15 +20,15 @@
   </Target>
 
   <Target Name="MessageCompiler" AfterTargets="Build" DependsOnTargets="GenerateManifest">
-    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\mc.exe&quot; &quot;TameMyCerts.Events.man&quot; -r ." WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
   </Target>
   
   <Target Name="ResourceCompiler" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\rc.exe&quot; &quot;TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="BuildDll" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:TameMyCerts.Events.dll /target:library /win32res:TameMyCerts.Events.res" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.Events.res" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="CopyOutputFiles" AfterTargets="Build">
