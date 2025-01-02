@@ -82,7 +82,8 @@ internal class DirectoryServiceValidator
         try
         {
             dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity,
-                objectCategory, dsMapping.SearchRoot, caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DEEP_LDAP_SEARCH));
+                objectCategory, dsMapping.SearchRoot,
+                caConfig.TmcFlags.HasFlag(TmcFlag.TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS));
         }
         catch (Exception ex)
         {

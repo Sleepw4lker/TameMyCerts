@@ -16,13 +16,13 @@ TameMyCerts is Open Source Software. Find it on GitHub (<https://github.com/Slee
 
 Enterprises in a modern, digitalized, highly connected world strongly rely on digital certificates. Certificates are used for a variety of use cases like...
 
--   Authentication to on-premises or cloud resources.
+- Authentication to on-premises or cloud resources.
 
--   Enabling remote access for users for them to be able to work remotely from anywhere, with any kind of device.
+- Enabling remote access for users for them to be able to work remotely from anywhere, with any kind of device.
 
--   Securing web-based transactions.
+- Securing web-based transactions.
 
--   Ensuring authenticity in electronic document workflows.
+- Ensuring authenticity in electronic document workflows.
 
 Organizations around the world rely on Microsoft Active Directory Certificate Services (AD CS) (<https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/active-directory-certificate-services-overview>) for issuing digital certificates within their Microsoft identity ecosystem. Microsoft AD CS is a suite of roles provided by the Microsoft Windows Server operating system. Its main role is the certification authority (CA), which is responsible for processing certificate requests and issuing digital certificates.
 
@@ -34,8 +34,8 @@ AD CS uses the concept of _certificate templates_ to define rules that shall be 
 
 AD CS knows of two kinds of certificate templates and requests:
 
--   **Online** certifica templates and requests: Identities in the issued certificate are determined by the certification authority, based on information on the enrollee which is pulled from Active Directory.
--   **Offline** certificate templates and requests: Identities in the issued certificate are provided by the enrollee during the enrollment process. The certification authority has no control over it, allowing enrollees to virtually request any identity from the CA and thus putting the environment at risk for identity spoofing.
+- **Online** certifica templates and requests: Identities in the issued certificate are determined by the certification authority, based on information on the enrollee which is pulled from Active Directory.
+- **Offline** certificate templates and requests: Identities in the issued certificate are provided by the enrollee during the enrollment process. The certification authority has no control over it, allowing enrollees to virtually request any identity from the CA and thus putting the environment at risk for identity spoofing.
 
 The fact whether a certificate template qualifies as online or offline derives from the settings within the "Subject" tab of the certificate template settings.
 
@@ -53,9 +53,9 @@ AD CS uses on the concept of policy modules (<https://learn.microsoft.com/en-us/
 
 A policy module for AD CS has two main purposes:
 
--   Modify content of issued certificates, such as determining the Subject Distringuished Name (DN) and adding extensions to an issued certificate.
+- Modify content of issued certificates, such as determining the Subject Distringuished Name (DN) and adding extensions to an issued certificate.
 
--   Decide whether a certificate request shall be issued, put into pending state, or get denied.
+- Decide whether a certificate request shall be issued, put into pending state, or get denied.
 
 ![How a policy module is integrated into AD CS' functionality (&#169; Microsoft)](resources/certapi.png)
 

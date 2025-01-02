@@ -13,13 +13,13 @@ As Microsoft only ensured that the extension will be present in certificates ori
 TameMyCerts is able to process the new certificate extension in a
 variety of ways:
 
--   Deny requests containg the extension.
+- Deny requests containg the extension.
 
--   Pass the extension as-is into the issued certificate.
+- Pass the extension as-is into the issued certificate.
 
--   Add the extension from the properties of a mapped Active Directory object.
+- Add the extension from the properties of a mapped Active Directory object.
 
--   Remove the extension if it is part of the originating certificate request.
+- Remove the extension if it is part of the originating certificate request.
 
 ![A certificate request containing a forbidden extension was denied by TameMyCerts](resources/deny-sid-extension.png)
 
