@@ -33,13 +33,8 @@ jobs:
 
     - name: Find mc.exe
       run: |
-        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\" -Recurse -Filter "mc.exe" -ErrorAction SilentlyContinue
-        if ($null -ne $path) {
-            Write-Output "mc.exe found at: $($path.FullName)"
-        } else {
-            Write-Output "mc.exe not found."
-            exit 1
-        }
+        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\microsoft.windows.sdk.buildtools" -Recurse -ErrorAction SilentlyContinue
+        $path
       shell: pwsh
 
     - name: Build ETW Manifest
