@@ -4,15 +4,15 @@
 
 Directory Services mapping allows you to map an identity in a certificate request back to an Active Directory object. This way, a variety of policies can be applied, containing:
 
--   Verify that there is a user or computer object to which the certificate request belongs.
+- Verify that there is a user or computer object to which the certificate request belongs.
 
--   Verify that the object is not disabled.
+- Verify that the object is not disabled.
 
--   Verify that the object is located in a specific Organizational Unit (OU).
+- Verify that the object is located in a specific Organizational Unit (OU).
 
--   Verify that the object is member of a specific security group, or that it is **not** member of a specific security group.
+- Verify that the object is member of a specific security group, or that it is **not** member of a specific security group.
 
--   Enable features that depend on DS mapping like supplementing the [Security Identifier (SID) certificate extension](#sid-extension) or [Modifying the Subject DN](#modify-subject-dn) or [Subject Alternative Name](#modify-san) with values from Active Directory.
+- Enable features that depend on DS mapping like supplementing the [Security Identifier (SID) certificate extension](#sid-extension) or [Modifying the Subject DN](#modify-subject-dn) or [Subject Alternative Name](#modify-san) with values from Active Directory.
 
 ![A certificate request for a user not being member of any allowed group was denied by TameMyCerts](resources/deny-not-member.png)
 
@@ -55,21 +55,31 @@ When using an **offline** certificate template, the certificate attribute that w
 
 Please be aware of the following limitations:
 
--   The **sAMAccountName** Active Directory attribute is only unique per Domain, but not on Forest level. TameMyCerts denies a certificate request if more than one account with the same identifier is found. Avoid this by either using unique directory attributes, or by specifying the **SearchRoot** parameter accordingly.
+- The **sAMAccountName** Active Directory attribute is only unique per Domain, but not on Forest level. TameMyCerts denies a certificate request if more than one account with the same identifier is found. Avoid this by either using unique directory attributes, or by specifying the **SearchRoot** parameter accordingly.
 
--   The **userPrincipalName** attribute may not be populated by default for user accounts.
+- The **userPrincipalName** attribute may not be populated by default for user accounts.
 
--   TameMyCerts uses the MemberOf (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/cc24555b-61c7-49a2-9748-167b8ce5a512>) Active Directory attribute (against the mapped accounts domain). Make sure you understand the following limitations when using:
+- You must escape LDAP-reserved characters (e.g. "=", ",", "\\") with a backward slash ("\\"), if present, for **SearchRoot**, **AllowedSecurityGroups** and **DisallowedSecurityGroups**.
 
-    -   It is currently **not** possible to use the **primary group** of a mapped Active Directory object (e.g. *"Domain Users"*, *"Domain Guests"*) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives.
+- The certification authority needs LDAP network access to all Domain Controllers that are involved in the DS mapping process. In addition, LDAP Global Catalog (GC) access is required as well when **SearchRoot** is not explicitly specified, or nested Group Memberships are going to be resolved. Consult the official Microsoft documentation (<https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/config-firewall-for-ad-domains-and-trusts>) for further information.
 
-    -   The mapped Active Directory object must be an **explicit** (no nested groups) member of the configured security groups. If you want to restrict certificate issuance for highly privileged accounts, you could use the "Protected Users" (<https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group>) built-in security group.
+### Resolving of Group Memberships
 
-    -   It is only possible to define groups that are **in the same domain** as the mapped account.
+By default, TameMyCerts uses the MemberOf (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/cc24555b-61c7-49a2-9748-167b8ce5a512>) Active Directory attribute (against the mapped accounts domain) to determine Group Memberships.
 
--   You must escape LDAP-reserved characters (e.g. "=", ",", "\\") with a backward slash ("\\"), if present, for **SearchRoot**, **AllowedSecurityGroups** and **DisallowedSecurityGroups**.
+Make sure you understand the following limitations:
 
--   The certification authority needs LDAP network access to all Domain Controllers that are involved in the DS mapping process. In addition, LDAP Global Catalog (GC) access is required as well when **SearchRoot** is not explicitly specified. Consult the official Microsoft documentation (<https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/config-firewall-for-ad-domains-and-trusts>) for further information.
+- It is **not** possible to use the **primary group** of a mapped Active Directory object (e.g. *"Domain Users"*, *"Domain Guests"*) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives.
+
+- The mapped Active Directory object must be an **explicit** (no nested groups) member of the configured security groups. If you want to restrict certificate issuance for highly privileged accounts, you could use the "Protected Users" (<https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group>) built-in security group.
+
+- It is only possible to define groups that are **in the same domain** as the mapped account.
+
+It is, however possible, to instruct TameMyCerts to resolve nested Group Memberships. This is achieved by enabling the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings).
+
+In this mode, it is also possible to use the **primary group** of a mapped Active Directory object (e.g. *"Domain Users"*, *"Domain Guests"*) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives, and group memberships from any domain can be resolved.
+
+However, as TameMyCerts will use the **msds-TokenGroupNames** (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1d810083-9741-4b0a-999b-30d9f2bc1f95>) Active Directory Attribute, which is only available on Windows Server 2016 and newer Domain Controllers, if the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings) is enabled and TameMyCerts cannot retrieve the msds-TokenGroupNames attribute, certificate requests will get denied due to security reasons.
 
 ### Examples
 

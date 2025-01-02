@@ -4,11 +4,11 @@
 
 The directives are:
 
--   CrlDistributionPoints
+- CrlDistributionPoints
 
--   AuthorityInformationAccess
+- AuthorityInformationAccess
 
--   OnlineCertificateStatusProtocol
+- OnlineCertificateStatusProtocol
 
 Each of those can contain one or more uniform resource identifiers (URIs). TameMyCerts supports the same token variables as the original Microsoft product (<https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc737264(v=ws.10)>), namely:
 
