@@ -33,7 +33,7 @@ jobs:
 
     - name: Find mc.exe
       run: |
-        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget\microsoft.windows.sdk.buildtools" -Recurse -ErrorAction SilentlyContinue
+        $path = Get-ChildItem -Path "C:\Users\runneradmin\.nuget" -Recurse -ErrorAction SilentlyContinue
         $path
       shell: pwsh
 
