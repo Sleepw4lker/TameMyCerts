@@ -45,7 +45,7 @@ namespace TameMyCerts.Validators
             // If the Yubikey is not validated, we will not allow it
             if (yubikey.Validated == false)
             {
-                EWTLogger.Log.YKVal_4202_Denied_by_Policy(requestID);
+                ETWLogger.Log.YKVal_4202_Denied_by_Policy(requestID);
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                 LocalizedStrings.YKVal_Invalid_Attestion_with_YubikeyPolicy));
                 return result;
@@ -61,12 +61,12 @@ namespace TameMyCerts.Validators
                 {
                     if (ykP.Action == YubikeyPolicyAction.Deny)
                     {
-                        EWTLogger.Log.YKVal_4201_Denied_by_Policy(ykP.SaveToString(), requestID);
+                        ETWLogger.Log.YKVal_4201_Denied_by_Policy(ykP.SaveToString(), requestID);
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.YKVal_Policy_Matches_with_Reject, ykP.SaveToString()));
                         return result ;
                     }
-                    EWTLogger.Log.YKVal_4204_Matching_policy(ykP.SaveToString(), requestID);
+                    ETWLogger.Log.YKVal_4204_Matching_policy(ykP.SaveToString(), requestID);
                     foundMatch = true;
 
                     // Store the AttestionData and Intermediate Certificate in the certificate, if requested
@@ -82,7 +82,7 @@ namespace TameMyCerts.Validators
                 }
                 else
                 {
-                    EWTLogger.Log.YKVal_4206_Debug_failed_to_match_policy(requestID, ykP.SaveToString());
+                    ETWLogger.Log.YKVal_4206_Debug_failed_to_match_policy(requestID, ykP.SaveToString());
                 }
             }
 
@@ -92,7 +92,7 @@ namespace TameMyCerts.Validators
                 // If all policies are deny policies, then if none match, we will allow the request
                 if (policy.YubikeyPolicy.Any(p => p.Action == YubikeyPolicyAction.Allow))
                 {
-                    EWTLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(requestID);
+                    ETWLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(requestID);
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                     LocalizedStrings.YKVal_No_Matching_Policy_Found));
                 }
@@ -111,7 +111,7 @@ namespace TameMyCerts.Validators
             // Yubikey Attestation is stored in these two extensions in the CSR. If present , extract them, otherwise buuild an empty YubikeyObject.
             if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE) && dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_INTERMEDIATE))
             {
-                EWTLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE);
+                ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE);
                 try
                 {
                     dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_DEVICE, out var AttestionCertificateByte);
@@ -123,13 +123,13 @@ namespace TameMyCerts.Validators
                 catch (Exception ex)
                 {
                     yubikey = new YubikeyObject();
-                    EWTLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
+                    ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
                 }
             }
             else if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL) && dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_INTERMEDIATE))
             {
-                EWTLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL);
+                ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL);
                 try
                 {
                     dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTION_DEVICE_PIVTOOL, out var AttestionCertificateByte);
@@ -141,7 +141,7 @@ namespace TameMyCerts.Validators
                 catch (Exception ex)
                 {
                     yubikey = new YubikeyObject();
-                    EWTLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
+                    ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestion(dbRow.RequestID);
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
                 }
             }

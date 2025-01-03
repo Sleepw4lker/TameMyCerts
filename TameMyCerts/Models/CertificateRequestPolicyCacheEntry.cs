@@ -23,7 +23,7 @@ internal class CertificateRequestPolicyCacheEntry
         try
         {
             CertificateRequestPolicy = CertificateRequestPolicy.LoadFromFile(fileName);
-            EWTLogger.Log.TMC_91_Policy_Read(fileName, CertificateRequestPolicy.SaveToString());
+            ETWLogger.Log.TMC_91_Policy_Read(fileName, CertificateRequestPolicy.SaveToString());
         }
         catch (Exception ex)
         {

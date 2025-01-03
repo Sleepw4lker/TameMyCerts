@@ -58,7 +58,7 @@ namespace TameMyCerts.Models
 
             if (! (chain.Build(AttestationCertificate)))
             {
-                EWTLogger.Log.YKVal_4208_Yubikey_Attestion_Failed_to_build(requestID);
+                ETWLogger.Log.YKVal_4208_Yubikey_Attestion_Failed_to_build(requestID);
                 throw new Exception("Failed to build certificate path");
             }
             /*
@@ -74,7 +74,7 @@ namespace TameMyCerts.Models
             */
             if (! (publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData)))
             {
-                EWTLogger.Log.YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(requestID);
+                ETWLogger.Log.YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(requestID);
                 throw new Exception("Certificate CSR does not match attestion certificate");
             }
 

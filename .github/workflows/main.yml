@@ -30,3 +30,53 @@ jobs:
 
     - name: Build Debug
       run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
+
+    - name: Build TameMyCerts.Tests
+      run: msbuild TameMyCerts.Tests\TameMyCerts.Tests.csproj -property:Configuration=debug
+
+    - name: Build ETW Manifest
+      run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=debug
+
+    - name: Save Build TameMyCerts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-TameMyCerts
+        path: TameMyCerts\bin\debug\net8.0-windows\
+
+    - name: Save Build TameMyCerts.Tests
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-TameMyCerts.Tests
+        path: TameMyCerts.Tests\bin\debug\net8.0-windows\
+
+  xUnit:
+    name: xUnit tests
+    runs-on: windows-latest
+    needs: build
+  
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore TameMyCerts.Tests\TameMyCerts.Tests.csproj
+
+    - name: Download Build Output
+      uses: actions/download-artifact@v4
+      with:
+        name: build-TameMyCerts
+        path: TameMyCerts\bin\debug\net8.0-windows\
+
+    - name: Download build-TameMyCerts.Tests
+      uses: actions/download-artifact@v4
+      with:
+        name: build-TameMyCerts.Tests
+        path: TameMyCerts.Tests\bin\debug\net8.0-windows\
+
+    - name: Run xunit tests
+      run: dotnet test --no-build --verbosity minimal

@@ -4,7 +4,7 @@ using TameMyCerts;
 
 namespace TameMyCerts.Tests
 {
-    public class EWTLoggerListener : EventListener
+    public class ETWLoggerListener : EventListener
     {
         private readonly List<EventWrittenEventArgs> events = new List<EventWrittenEventArgs>();
         protected override void OnEventWritten(EventWrittenEventArgs eventData) { events.Add(eventData); }

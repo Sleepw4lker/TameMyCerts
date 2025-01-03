@@ -160,7 +160,7 @@ internal class CertificateContentValidator
             {
                 // Log that the SAN is already present and force has not been set.
                 string currentValue = result.SubjectAlternativeNameExtension.AlternativeNames.Where(x => x.Key.Equals(rule.Field, Comparison)).Select(x => x.Value).First();
-                EWTLogger.Log.CCVal_4651_SAN_Already_Exists(dbRow.RequestID, subjectAltName: rule.Field, currentValue: currentValue, ignoredValue: rule.Value);
+                ETWLogger.Log.CCVal_4651_SAN_Already_Exists(dbRow.RequestID, subjectAltName: rule.Field, currentValue: currentValue, ignoredValue: rule.Value);
                 continue;
             }
 
@@ -180,11 +180,11 @@ internal class CertificateContentValidator
                 result.SubjectAlternativeNameExtension.AddAlternativeName(rule.Field, value, true);
 
                 // Log that we are adding a SAN, only on success
-                EWTLogger.Log.CCVal_4652_SAN_Added(dbRow.RequestID, subjectAltName: rule.Field, addedValue: value);
+                ETWLogger.Log.CCVal_4652_SAN_Added(dbRow.RequestID, subjectAltName: rule.Field, addedValue: value);
             }
             catch (Exception ex)
             {
-                EWTLogger.Log.CCVal_4653_SAN_Failed_to_add(dbRow.RequestID, subjectAltName: rule.Field, rule.Value);
+                ETWLogger.Log.CCVal_4653_SAN_Failed_to_add(dbRow.RequestID, subjectAltName: rule.Field, rule.Value);
 
                 if (rule.Mandatory)
                 {
