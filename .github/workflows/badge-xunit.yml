@@ -1,0 +1,39 @@
+name: XUnit tests
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: XUnit tests
+    runs-on: windows-latest
+  
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Setup MSBuild Path
+      uses: microsoft/setup-msbuild@v1.3
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+    - name: Build Debug
+      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug
+
+    - name: Build TameMyCerts.Tests
+      run: msbuild TameMyCerts.Tests\TameMyCerts.Tests.csproj -property:Configuration=debug
+
+    - name: Build ETW Manifest
+      run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=debug
+  
+    - name: Run xunit tests
+      run: dotnet test --no-build --verbosity minimal
