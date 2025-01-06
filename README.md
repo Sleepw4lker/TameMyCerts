@@ -1,6 +1,6 @@
 # The "Tame My Certs" policy module for Active Directory Certificate Services certification authorities
 
-![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/main.yml/badge.svg)
+![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/badge-build.yml/badge.svg)&nbsp;![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/badge-xunit.yml/badge.svg)
 
 TameMyCerts is a [policy module](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture) for Microsoft [Active Directory Certificate Services (AD CS)](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services) enterprise certification authorities that enables security automation for a lot of use cases in the PKI field.
 
