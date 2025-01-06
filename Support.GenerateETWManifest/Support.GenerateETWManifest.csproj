@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <buildtools Condition="Exists('C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0')">C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64</buildtools>
+    <buildtools Condition="Exists('C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\microsoft.windows.sdk.buildtools\10.0.22621.756')">C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\microsoft.windows.sdk.buildtools\10.0.22621.756\bin\10.0.22621.0\x64</buildtools>
+    <buildtools Condition="Exists('C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\microsoft.windows.sdk.buildtools\10.0.26100.1742')">C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64</buildtools>
+    <buildtools Condition="Exists('$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742')">$(NuGetPackageRoot)microsoft.windows.sdk.buildtools\10.0.26100.1742\bin\10.0.26100.0\x64</buildtools>
+  </PropertyGroup>
+
+  <Target Name="GenerateManifest" AfterTargets="Build">
+    <Exec Command="$(TargetDir)\$(TargetName).exe  --outfile &quot;$(TargetDir)TameMyCerts.Events.man&quot;" WorkingDirectory="$(TargetDir)" />
+  </Target>
+
+  <!-- There must not be quotes around $(TargetDir), as it adds a tempfile after and it breaks horribly if it has quotes-->
+  <Target Name="MessageCompiler" AfterTargets="Build" DependsOnTargets="GenerateManifest">
+    <Exec Command="&quot;$(buildtools)\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
+  </Target>
+  
+  <Target Name="ResourceCompiler" AfterTargets="Build" DependsOnTargets="MessageCompiler">
+    <Exec Command="&quot;$(buildtools)\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
+  </Target>
+
+  <Target Name="BuildDll" AfterTargets="Build" DependsOnTargets="MessageCompiler">
+    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.Events.res" WorkingDirectory="$(TargetDir)" />
+  </Target>
+
+  <Target Name="CopyOutputFiles" AfterTargets="Build">
+    <ItemGroup>
+      <!-- Include DLLs, XMLs, and JSON files from the output path -->
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.dll" />
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.man" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="..\TameMyCerts\bin\$(Configuration)\$(TargetFramework)\" SkipUnchangedFiles="true" />
+    
+  </Target>
+</Project>

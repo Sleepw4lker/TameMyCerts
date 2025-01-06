@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TameMyCerts", "TameMyCerts\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TameMyCerts.Tests", "TameMyCerts.Tests\TameMyCerts.Tests.csproj", "{98F86AA9-4B95-4300-9A23-512C620D075C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Support.GenerateEWTManifest", "Support.GenerateEWTManifest\Support.GenerateEWTManifest.csproj", "{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Support.GenerateETWManifest", "Support.GenerateETWManifest\Support.GenerateETWManifest.csproj", "{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
