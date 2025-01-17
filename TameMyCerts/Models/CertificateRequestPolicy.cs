@@ -165,13 +165,15 @@ public class CertificateRequestPolicy
     }
     private static void UnknownElementHandler(object sender, XmlElementEventArgs e)
     {
-         ETWLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
+        ETWLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
+        throw new XmlException($"Unknown XML element {e.Element.Name} at line {e.LineNumber}, position {e.LinePosition}");
     }
 
     // Event handler for unknown attributes
     private static void UnknownAttributeHandler(object sender, XmlAttributeEventArgs e)
     {
         ETWLogger.Log.TMC_93_Policy_Unknown_XML_Attribute(e.Attr.Name, e.Attr.Value, e.LineNumber, e.LinePosition);
+        throw new XmlException($"Unknown XML attribute {e.Attr.Name} with value {e.Attr.Value} at line {e.LineNumber}, position {e.LinePosition}");
     }
 
 }
