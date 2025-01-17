@@ -67,7 +67,7 @@ public class XMLPolicyTests
 
         CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
-        Assert.Empty(cacheEntry.ErrorMessage);
+        Assert.NotEmpty(cacheEntry.ErrorMessage);
         Assert.Equal(2, _listener.Events.Count);
         Assert.Equal(92, _listener.Events[0].EventId);
         output.WriteLine(_listener.Events[0].Message);
@@ -89,7 +89,7 @@ public class XMLPolicyTests
 
         CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
-        Assert.Empty(cacheEntry.ErrorMessage);
+        Assert.NotEmpty(cacheEntry.ErrorMessage);
         Assert.Equal(2, _listener.Events.Count);
         Assert.Equal(92, _listener.Events[0].EventId);
 
@@ -145,4 +145,26 @@ public class XMLPolicyTests
         File.Delete(filename);
     }
 
+    [Fact]
+    public void Test_Broken_XML()
+    {
+        var filename = Path.GetTempFileName();
+        File.Delete(filename);
+
+        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+  xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+    <directoryservicesmapping><AllowedOrganizationalUnits><Test>This should fault</Test></AllowedOrganizationalUnits></directoryservicesmapping>
+</CertificateRequestPolicy>
+";
+        File.WriteAllText($"{filename}.xml", sampleXML);
+        _listener.ClearEvents();
+
+        CertificateRequestPolicyCache cache = new CertificateRequestPolicyCache(Path.GetTempPath());
+        var cacheEntry = cache.GetCertificateRequestPolicy(Path.GetFileName(filename));
+
+        Assert.NotNull(cacheEntry);
+        Assert.Null(cacheEntry.CertificateRequestPolicy);
+
+        File.Delete($"{filename}.xml");
+    }
 }
