@@ -30,6 +30,7 @@ internal class CertificateRequestPolicyCacheEntry
             ErrorMessage = ex.InnerException != null
                 ? $"{ex.Message} {ex.InnerException.Message}"
                 : ex.Message;
+            ETWLogger.Log.TMC_94_XML_Parsing_error(fileName, ErrorMessage);
         }
 
         LastUpdate = DateTimeOffset.Now;

@@ -185,6 +185,15 @@ namespace TameMyCerts.Validators
             }
             #endregion
 
+            #region Slot
+            // Look if the slot is in the policy, if not, say that we arent matching
+            // Look for both 0xXX and XX
+            if (policy.Slot.Any() && !(policy.Slot.Any(s => s.Equals(yubikey.Slot, StringComparison.OrdinalIgnoreCase)) || policy.Slot.Any(s => s.Equals($"0x{yubikey.Slot}", StringComparison.OrdinalIgnoreCase))))
+            {
+                return false;
+            }
+            #endregion
+
             if (policy.KeyAlgorithmFamilies.Any() && ! policy.KeyAlgorithmFamilies.Contains(yubikey.keyAlgorithm))
             {
                 return false;

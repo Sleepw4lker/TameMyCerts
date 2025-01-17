@@ -26,7 +26,7 @@ using System.Runtime.CompilerServices;
 namespace TameMyCerts.Models
 {
     // Must be public due to XML serialization, otherwise 0x80131509 / System.InvalidOperationException
-    [XmlRoot(ElementName = "YubikeyPolicy")]
+    [XmlRoot(ElementName = "YubiKeyPolicy")]
     public class YubikeyPolicy
     {
         [XmlElement(ElementName = "Action")]
@@ -50,6 +50,9 @@ namespace TameMyCerts.Models
         [XmlArray(ElementName = "Edition")]
         [XmlArrayItem(ElementName = "string")]
         public List<YubikeyEdition> Edition { get; set; } = new List<YubikeyEdition>();
+        [XmlArray(ElementName = "Slot")]
+        [XmlArrayItem(ElementName = "string")]
+        public List<string> Slot { get; set; } = new List<string>();
         [XmlArray(ElementName = "KeyAlgorithm")]
         [XmlArrayItem(ElementName = "string")]
         public List<KeyAlgorithmFamily> KeyAlgorithmFamilies { get; set; } = new List<KeyAlgorithmFamily>();

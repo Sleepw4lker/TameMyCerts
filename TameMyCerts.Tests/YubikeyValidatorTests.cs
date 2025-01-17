@@ -576,7 +576,7 @@ namespace TameMyCerts.Tests
             }
             );
 
-            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, 10014);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
             result = _CCvalidator.VerifyRequest(result, policy, _yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_dbRow, null, _caConfig, yubikeyInfo);
 
             PrintResult(result);
@@ -637,7 +637,7 @@ namespace TameMyCerts.Tests
             result = _YKvalidator.ExtractAttestion(result, _policy, dbrow, out var yubikey);
             CertificateRequestPolicy policy = _policy;
 
-            result = _YKvalidator.VerifyRequest(result, policy, yubikey, 10015);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikey, dbrow.RequestID);
 
             PrintResult(result);
             Assert.Contains(4207, _listener.Events.Select(e => e.EventId));
@@ -655,12 +655,126 @@ namespace TameMyCerts.Tests
             CertificateRequestPolicy policy = _policy;
             policy.YubikeyPolicy[0].IncludeAttestationInCertificate = true;
 
-            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, 10016);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
 
             PrintResult(result);
 
             Assert.False(result.DeniedForIssuance);
             Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTION_DEVICE));
+
+        }
+
+        [Fact]
+        public void Validate_Slot_Allow_policy_10017()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10017);
+
+            // Allow if Slot is in an allow Policy
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "9a" };
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+
+            PrintResult(result);
+
+            Assert.False(result.DeniedForIssuance);
+
+        }
+
+        [Fact]
+        public void Validate_Slot_Deny_policy_10018()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10018);
+
+            // Deny if Slot is in a deny Policy
+            CertificateRequestPolicy policy = _policy;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "9a" };
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+
+            PrintResult(result);
+
+            Assert.True(result.DeniedForIssuance);
+
+        }
+
+        [Fact]
+        public void Validate_Slot_Missing_in_Allow_policy_10019()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10019);
+            CertificateRequestPolicy policy = _policy;
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            // Test if the slot is not in the only allow policy
+            policy = _policy;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "9e" };
+            result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+            Assert.True(result.DeniedForIssuance);
+
+            PrintResult(result);
+
+        }
+
+        [Fact]
+        public void Validate_Slot_Allow_if_Wrong_slot_is_denied_10020()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10020);
+            CertificateRequestPolicy policy = _policy;
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            // Allow if the Deny does not match this slot
+            policy = _policy;
+            policy.YubikeyPolicy.Add(new YubikeyPolicy());
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "9e" };
+            result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+            Assert.False(result.DeniedForIssuance);
+            PrintResult(result);
+
+            output.WriteLine(policy.SaveToString());
+        }
+        [Fact]
+        public void Validate_Slot_with_0x_10021()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10020);
+            CertificateRequestPolicy policy = _policy;
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            // Required slot 0x9a, which needs to match 9a
+            policy = _policy;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "0x9a" };
+            result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+            Assert.False(result.DeniedForIssuance);
+            PrintResult(result);
+
+            output.WriteLine(policy.SaveToString());
+        }
+        [Fact]
+        public void Validate_Slot_incorrect_with_0x_10022()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10020);
+            CertificateRequestPolicy policy = _policy;
+            var result = new CertificateRequestValidationResult(dbRow);
+
+            // Should not match the csr which is 9A
+            policy = _policy;
+            policy.YubikeyPolicy[0].Slot = new List<string> { "0x9e" };
+            result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+            result = _YKvalidator.VerifyRequest(result, policy, yubikeyInfo, dbRow.RequestID);
+            Assert.True(result.DeniedForIssuance);
+            PrintResult(result);
+
+            output.WriteLine(policy.SaveToString());
         }
     }
 }
