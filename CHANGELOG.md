@@ -15,7 +15,7 @@ _This version has not yet been released._
 - Introducing (verbose) Event IDs 12 and 13 that indicate certificate requests getting issued or put into pending state.
 - Introduding Event 14 which will contain warnings that occurred during the processing of a certificate request.
   - Currently, the detection of the "san" request attribute will get logged regardless if the dangerous **EDITF\_ATTRIBUTESUBJECTALTNAME2** flag is enabled or not.
-  - This new behavior allows to silently [https://github.com/srlabs/Certiception](detect attack attempts) on the certification authority without raising suspicion.
+  - This new behavior allows to silently [detect attack attempts](https://github.com/srlabs/Certiception) on the certification authority without raising suspicion.
 - Introducing a _SupplementUnqualifiedNames_ switch to use in combination with supplementing of DNS names (both _SupplementDnsNames_ and _SupplementServicePrincipalNames_). To keep compatibility with the previous behavior, this setting defaults to _true_. If set to false, supplementation logic will not include DNS names that are not fully qualified.
 - Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates (the default behavior stays as before):
   - Allow to set the default behavior to globally deny a certificate request when no policy configuration file is found for the requested certificate template.
