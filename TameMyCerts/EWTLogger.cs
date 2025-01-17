@@ -107,6 +107,14 @@ namespace TameMyCerts
                 WriteEvent(93, attributeName, attributeValue, lineNumber, linePosition);
             }
         }
+        [Event(94, Level = EventLevel.Critical, Channel = EventChannel.Admin, Task = Tasks.XMLParser, Keywords = EventKeywords.None)]
+        public void TMC_94_XML_Parsing_error(string filename, string error)
+        {
+            if (IsEnabled())
+            {
+                WriteEvent(94, filename, error);
+            }
+        }
 
         #endregion
 

@@ -84,8 +84,9 @@ public class CertificateRequestPolicy
     [XmlElement(ElementName = "DirectoryServicesMapping")]
     public DirectoryServicesMapping DirectoryServicesMapping { get; set; }
 
-    [XmlElement(ElementName = "YubikeyPolicy")]
-    public List<YubikeyPolicy> YubikeyPolicy { get; set; }
+    [XmlArray(ElementName = "YubiKeyPolicies")]
+    [XmlArrayItem(ElementName = "YubiKeyPolicy")]
+    public List<YubikeyPolicy> YubikeyPolicy { get; set; } = new();
 
     [XmlElement(ElementName = "SupplementDnsNames")]
     public bool SupplementDnsNames { get; set; }
@@ -164,7 +165,7 @@ public class CertificateRequestPolicy
     }
     private static void UnknownElementHandler(object sender, XmlElementEventArgs e)
     {
-        ETWLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
+         ETWLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
     }
 
     // Event handler for unknown attributes

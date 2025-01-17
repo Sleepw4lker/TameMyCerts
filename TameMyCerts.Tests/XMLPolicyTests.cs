@@ -70,7 +70,7 @@ public class XMLPolicyTests
         Assert.Empty(cacheEntry.ErrorMessage);
         Assert.Equal(2, _listener.Events.Count);
         Assert.Equal(92, _listener.Events[0].EventId);
-
+        output.WriteLine(_listener.Events[0].Message);
         File.Delete(filename);
     }
 
@@ -93,6 +93,55 @@ public class XMLPolicyTests
         Assert.Equal(2, _listener.Events.Count);
         Assert.Equal(92, _listener.Events[0].EventId);
 
+        File.Delete(filename);
+    }
+
+    [Fact]
+    public void Test_Yubikey_Policies()
+    {
+        var filename = Path.GetTempFileName();
+
+        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+  xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <YubiKeyPolicies>
+  <YubiKeyPolicy>
+    <Action>Allow</Action>
+      <Slot>
+        <string>9A</string>
+      </Slot>
+  </YubiKeyPolicy>
+  </YubiKeyPolicies>
+</CertificateRequestPolicy>
+
+";
+        File.WriteAllText(filename, sampleXML);
+        _listener.ClearEvents();
+
+        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+
+        //Assert.Empty(cacheEntry.ErrorMessage);
+        //Assert.Equal(2, _listener.Events.Count);
+        Assert.DoesNotContain(92, _listener.Events.Select(e => e.EventId));
+        File.Delete(filename);
+    }
+
+
+    [Fact]
+    public void Broken_XML_Policies()
+    {
+        var filename = Path.GetTempFileName();
+
+        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""""http://www.w3.org/2001/XMLSchema-instance""""
+  xmlns:xsd=""""http://www.w3.org/2001/XMLSchema"""">
+</CertificateRequestPolicy>
+";
+        File.WriteAllText(filename, sampleXML);
+        _listener.ClearEvents();
+
+        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+
+        output.WriteLine(cacheEntry.ErrorMessage);
+        Assert.Contains(94, _listener.Events.Select(e => e.EventId));
         File.Delete(filename);
     }
 

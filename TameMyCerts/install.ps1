@@ -257,11 +257,15 @@ if (-not $Uninstall.IsPresent) {
     New-Item -Path $AppInstallDirectory -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     New-Item -Path "$AppInstallDirectory\\runtimes\win\lib\net8.0" -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     
-    $FileList | ForEach-Object -Process {
+    # Only copy the files if .\install.ps1 is run from another folder than the AppInstallDirectory
+    if ($BaseDirectory -ne $AppInstallDirectory)
+    {
+        $FileList | ForEach-Object -Process {
 
-        Write-Verbose -Message "Copying $_ to $AppInstallDirectory."
+            Write-Verbose -Message "Copying $_ to $AppInstallDirectory."
 
-        Copy-Item -Path "$BaseDirectory\$_" -Destination "$AppInstallDirectory\$_" -Force
+            Copy-Item -Path "$BaseDirectory\$_" -Destination "$AppInstallDirectory\$_" -Force
+        }
     }
 
     Write-Verbose -Message "Registering $PolicyModuleName policy module COM Object"
