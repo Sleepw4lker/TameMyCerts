@@ -776,5 +776,21 @@ namespace TameMyCerts.Tests
 
             output.WriteLine(policy.SaveToString());
         }
+        [Fact]
+        public void Validate_YubiKeyObject_to_Human_readable_10023()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10023);
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+
+            PrintResult(result);
+
+            output.WriteLine(yubikeyInfo.SaveToString());
+
+            Assert.Contains("19661687", yubikeyInfo.SaveToString());
+
+
+        }
+
     }
 }

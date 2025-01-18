@@ -447,7 +447,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {1}  was rejected due to policy: \r\n{0}.
+        ///   Looks up a localized string similar to The request {0}  was rejected due to policy: \r\n{1}.
         /// </summary>
         internal static string event_YKVal_4201_Denied_by_Policy {
             get {
@@ -474,8 +474,10 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {1} is matching policy: 
-        ///{0}.
+        ///   Looks up a localized string similar to The request {0} is matching policy: 
+        ///{1}
+        ///YubiKey attestion data:
+        ///{2}.
         /// </summary>
         internal static string event_YKVal_4204_Matching_policy {
             get {
