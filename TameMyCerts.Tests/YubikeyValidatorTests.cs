@@ -792,5 +792,32 @@ namespace TameMyCerts.Tests
 
         }
 
+        [Fact]
+        public void Validate_all_configuration_options_10024()
+        {
+            CertificateDatabaseRow dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR, CertCli.CR_IN_PKCS10, null, 10024);
+            var policy = _policy;
+            policy.YubikeyPolicy[0].KeyAlgorithmFamilies = new List<KeyAlgorithmFamily> { KeyAlgorithmFamily.RSA, KeyAlgorithmFamily.ECC};
+            policy.YubikeyPolicy[0].MinimumFirmwareString = "0.0.0";
+            policy.YubikeyPolicy[0].MaximumFirmwareString = "9.9.9";
+            policy.YubikeyPolicy[0].Formfactor = new List<YubikeyFormFactor> { YubikeyFormFactor.UsbAKeychain, YubikeyFormFactor.UsbCKeychain, YubikeyFormFactor.UsbANano, YubikeyFormFactor.UsbCNano, YubikeyFormFactor.UsbCLightning, YubikeyFormFactor.UsbABiometricKeychain, YubikeyFormFactor.UsbCBiometricKeychain };
+            policy.YubikeyPolicy[0].Edition = new List<YubikeyEdition> { YubikeyEdition.FIPS, YubikeyEdition.Normal, YubikeyEdition.CSPN };
+            policy.YubikeyPolicy[0].Slot = new List<string> { "9a", "9c", "9d", "9e" };
+            policy.YubikeyPolicy[0].TouchPolicies = new List<YubikeyTouchPolicy> { YubikeyTouchPolicy.Always, YubikeyTouchPolicy.Never, YubikeyTouchPolicy.Cached };
+            policy.YubikeyPolicy[0].PinPolicies = new List<YubikeyPinPolicy> { YubikeyPinPolicy.Once, YubikeyPinPolicy.Never, YubikeyPinPolicy.Always, YubikeyPinPolicy.MatchOnce, YubikeyPinPolicy.MatchAlways };
+            policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
+
+            var result = new CertificateRequestValidationResult(dbRow);
+            result = _YKvalidator.ExtractAttestion(result, _policy, dbRow, out var yubikeyInfo);
+
+            PrintResult(result);
+
+            output.WriteLine(policy.SaveToString());
+
+            Assert.Contains("UsbANano", policy.SaveToString());
+
+
+        }
+
     }
 }
