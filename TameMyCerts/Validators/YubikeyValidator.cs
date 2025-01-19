@@ -61,12 +61,12 @@ namespace TameMyCerts.Validators
                 {
                     if (ykP.Action == YubikeyPolicyAction.Deny)
                     {
-                        ETWLogger.Log.YKVal_4201_Denied_by_Policy(ykP.SaveToString(), requestID);
+                        ETWLogger.Log.YKVal_4201_Denied_by_Policy(requestID, ykP.SaveToString());
                         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
                         LocalizedStrings.YKVal_Policy_Matches_with_Reject, ykP.SaveToString()));
                         return result ;
                     }
-                    ETWLogger.Log.YKVal_4204_Matching_policy(ykP.SaveToString(), requestID);
+                    ETWLogger.Log.YKVal_4204_Matching_policy(requestID, ykP.SaveToString(), yubikey.SaveToString());
                     foundMatch = true;
 
                     // Store the AttestionData and Intermediate Certificate in the certificate, if requested

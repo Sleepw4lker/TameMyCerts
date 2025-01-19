@@ -120,11 +120,11 @@ namespace TameMyCerts
 
         #region Yubico Validator events 4201-4399
         [Event(4201, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator, Keywords = EventKeywords.None)]
-        public void YKVal_4201_Denied_by_Policy(string denyingPolicy, int requestID)
+        public void YKVal_4201_Denied_by_Policy(int requestID, string denyingPolicy)
         {
             if (IsEnabled())
             {
-                WriteEvent(4201, denyingPolicy, requestID);
+                WriteEvent(4201, requestID, denyingPolicy);
             }
         }
         [Event(4202, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator, Keywords = EventKeywords.None)]
@@ -144,11 +144,11 @@ namespace TameMyCerts
             }
         }
         [Event(4204, Level = EventLevel.Verbose, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator, Keywords = EventKeywords.None)]
-        public void YKVal_4204_Matching_policy(string policy, int requestID)
+        public void YKVal_4204_Matching_policy(int requestID, string policy, string yubiKey)
         {
             if (IsEnabled())
             {
-                WriteEvent(4204, policy, requestID);
+                WriteEvent(4204, requestID, policy, yubiKey);
             }
         }
         [Event(4205, Level = EventLevel.Error, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator, Keywords = EventKeywords.None)]

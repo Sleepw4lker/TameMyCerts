@@ -378,7 +378,7 @@
     <value>The certificate request has been denied due to incorrect certificate request.</value>
   </data>
   <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
-    <value>The request {1}  was rejected due to policy: \r\n{0}</value>
+    <value>The request {0}  was rejected due to policy: \r\n{1}</value>
   </data>
   <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
     <value>The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion.</value>
@@ -387,8 +387,10 @@
     <value>The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator.</value>
   </data>
   <data name="event_YKVal_4204_Matching_policy" xml:space="preserve">
-    <value>The request {1} is matching policy: 
-{0}</value>
+    <value>The request {0} is matching policy: 
+{1}
+YubiKey attestion data:
+{2}</value>
   </data>
   <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestion" xml:space="preserve">
     <value>The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted.</value>
