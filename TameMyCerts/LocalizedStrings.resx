@@ -464,4 +464,7 @@ with the content:
   <data name="event_TMC_94_XML_Parsing_error" xml:space="preserve">
     <value>Unable to parse '{0}', {1}.</value>
   </data>
+  <data name="CCVal_Invalid_Custom_Certificate_Extensiion" xml:space="preserve">
+    <value>Unable to add custom certificate extension. Oid: {0}, Value: {1}.</value>
+  </data>
 </root>
