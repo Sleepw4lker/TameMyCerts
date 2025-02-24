@@ -30,6 +30,8 @@ namespace TameMyCerts.Validators;
 internal class CertificateContentValidator
 {
     private const StringComparison Comparison = StringComparison.InvariantCultureIgnoreCase;
+    private static readonly Regex IsValidOid = new("^([0-2])((\\.0)|(\\.[1-9][0-9]*))*$");
+    private static readonly Regex IsValidBase64 = new("^[-A-Za-z0-9+/]*={0,3}$");
 
     private static string ReplaceTokenValues(string input, string identifier,
         IReadOnlyCollection<KeyValuePair<string, string>> list)
@@ -59,6 +61,7 @@ internal class CertificateContentValidator
         {
             yubikeyObject = new YubikeyObject();
         }
+
         if (result.DeniedForIssuance)
         {
             return result;
@@ -129,7 +132,9 @@ internal class CertificateContentValidator
                 value = ReplaceTokenValues(value, "ad",
                     null != dsObject ? dsObject.Attributes.ToList() : new List<KeyValuePair<string, string>>());
                 value = ReplaceTokenValues(value, "yk",
-                    null != yubikeyObject ? yubikeyObject.Attributes.ToList() : new List<KeyValuePair<string, string>>());
+                    null != yubikeyObject
+                        ? yubikeyObject.Attributes.ToList()
+                        : new List<KeyValuePair<string, string>>());
                 value = ReplaceTokenValues(value, "sdn",
                     policy.ReadSubjectFromRequest
                         ? dbRow.InlineSubjectRelativeDistinguishedNames
@@ -159,8 +164,9 @@ internal class CertificateContentValidator
                     x.Key.Equals(rule.Field, Comparison)))
             {
                 // Log that the SAN is already present and force has not been set.
-                string currentValue = result.SubjectAlternativeNameExtension.AlternativeNames.Where(x => x.Key.Equals(rule.Field, Comparison)).Select(x => x.Value).First();
-                ETWLogger.Log.CCVal_4651_SAN_Already_Exists(dbRow.RequestID, subjectAltName: rule.Field, currentValue: currentValue, ignoredValue: rule.Value);
+                var currentValue = result.SubjectAlternativeNameExtension.AlternativeNames
+                    .Where(x => x.Key.Equals(rule.Field, Comparison)).Select(x => x.Value).First();
+                ETWLogger.Log.CCVal_4651_SAN_Already_Exists(dbRow.RequestID, rule.Field, currentValue, rule.Value);
                 continue;
             }
 
@@ -180,16 +186,37 @@ internal class CertificateContentValidator
                 result.SubjectAlternativeNameExtension.AddAlternativeName(rule.Field, value, true);
 
                 // Log that we are adding a SAN, only on success
-                ETWLogger.Log.CCVal_4652_SAN_Added(dbRow.RequestID, subjectAltName: rule.Field, addedValue: value);
+                ETWLogger.Log.CCVal_4652_SAN_Added(dbRow.RequestID, rule.Field, value);
             }
             catch (Exception ex)
             {
-                ETWLogger.Log.CCVal_4653_SAN_Failed_to_add(dbRow.RequestID, subjectAltName: rule.Field, rule.Value);
+                ETWLogger.Log.CCVal_4653_SAN_Failed_to_add(dbRow.RequestID, rule.Field, rule.Value);
 
                 if (rule.Mandatory)
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);
                 }
+            }
+        }
+
+        #endregion
+
+        #region Add custom certificate extensions
+
+        foreach (var customCertificateExtension in policy.CustomCertificateExtensions)
+        {
+            if (IsValidOid.IsMatch(customCertificateExtension.Oid) &&
+                IsValidBase64.IsMatch(customCertificateExtension.Value))
+            {
+                result.CertificateExtensions.Add(customCertificateExtension.Oid,
+                    Convert.FromBase64String(customCertificateExtension.Value));
+            }
+            else
+            {
+                result.SetFailureStatus(
+                    WinError.CERTSRV_E_TEMPLATE_DENIED,
+                    string.Format(LocalizedStrings.CCVal_Invalid_Custom_Certificate_Extensiion,
+                        customCertificateExtension.Oid, customCertificateExtension.Value));
             }
         }
 

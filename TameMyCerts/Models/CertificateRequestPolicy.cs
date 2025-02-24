@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -29,8 +28,7 @@ public class CertificateRequestPolicy
     [XmlElement(ElementName = "AuditOnly")]
     public bool AuditOnly { get; set; }
 
-    [XmlElement(ElementName = "NotAfter")] 
-    public string NotAfter { get; set; } = string.Empty;
+    [XmlElement(ElementName = "NotAfter")] public string NotAfter { get; set; } = string.Empty;
 
     [XmlArray(ElementName = "AllowedProcesses")]
     [XmlArrayItem(ElementName = "string")]
@@ -66,8 +64,7 @@ public class CertificateRequestPolicy
     [XmlElement(ElementName = "MaximumKeyLength")]
     public int MaximumKeyLength { get; set; }
 
-    [XmlArray(ElementName = "Subject")] 
-    public List<SubjectRule> Subject { get; set; } = new();
+    [XmlArray(ElementName = "Subject")] public List<SubjectRule> Subject { get; set; } = new();
 
     [XmlArray(ElementName = "SubjectAlternativeName")]
     public List<SubjectRule> SubjectAlternativeName { get; set; } = new();
@@ -99,6 +96,10 @@ public class CertificateRequestPolicy
 
     [XmlElement(ElementName = "PermitEmptyIdentities")]
     public bool PermitEmptyIdentities { get; set; }
+
+    [XmlArray(ElementName = "CustomCertificateExtensions")]
+    [XmlArrayItem(ElementName = "CustomCertificateExtension")]
+    public List<CustomCertificateExtension> CustomCertificateExtensions { get; set; } = new();
 
     private static string ConvertToHumanReadableXml(string inputString)
     {
@@ -140,14 +141,15 @@ public class CertificateRequestPolicy
     public static CertificateRequestPolicy LoadFromFile(string path)
     {
         var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-        xmlSerializer.UnknownElement += new XmlElementEventHandler(UnknownElementHandler);
-        xmlSerializer.UnknownAttribute += new XmlAttributeEventHandler(UnknownAttributeHandler);
+        xmlSerializer.UnknownElement += UnknownElementHandler;
+        xmlSerializer.UnknownAttribute += UnknownAttributeHandler;
 
         using (var reader = new StreamReader(path))
         {
             return (CertificateRequestPolicy)xmlSerializer.Deserialize(reader.BaseStream);
         }
     }
+
     public string SaveToString()
     {
         var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
@@ -163,17 +165,19 @@ public class CertificateRequestPolicy
             }
         }
     }
+
     private static void UnknownElementHandler(object sender, XmlElementEventArgs e)
     {
         ETWLogger.Log.TMC_92_Policy_Unknown_XML_Element(e.Element.Name, e.LineNumber, e.LinePosition);
-        throw new XmlException($"Unknown XML element {e.Element.Name} at line {e.LineNumber}, position {e.LinePosition}");
+        throw new XmlException(
+            $"Unknown XML element {e.Element.Name} at line {e.LineNumber}, position {e.LinePosition}");
     }
 
     // Event handler for unknown attributes
     private static void UnknownAttributeHandler(object sender, XmlAttributeEventArgs e)
     {
         ETWLogger.Log.TMC_93_Policy_Unknown_XML_Attribute(e.Attr.Name, e.Attr.Value, e.LineNumber, e.LinePosition);
-        throw new XmlException($"Unknown XML attribute {e.Attr.Name} with value {e.Attr.Value} at line {e.LineNumber}, position {e.LinePosition}");
+        throw new XmlException(
+            $"Unknown XML attribute {e.Attr.Name} with value {e.Attr.Value} at line {e.LineNumber}, position {e.LinePosition}");
     }
-
 }

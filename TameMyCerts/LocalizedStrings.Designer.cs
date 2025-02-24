@@ -97,6 +97,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to add custom certificate extension. Oid: {0}, Value: {1}..
+        /// </summary>
+        internal static string CCVal_Invalid_Custom_Certificate_Extensiion {
+            get {
+                return ResourceManager.GetString("CCVal_Invalid_Custom_Certificate_Extensiion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} account for {1} is disabled..
         /// </summary>
         internal static string DirVal_Account_Disabled {
