@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Linq;
+using System.Formats.Asn1;
 using System.Security.Principal;
 using System.Text;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.X509;
 
@@ -22,15 +23,21 @@ public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtensi
 {
     public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
     {
-        var result = Encoding.ASCII.GetBytes(sid.ToString());
+        var AsnWriter = new AsnWriter(AsnEncodingRules.DER);
 
-        result = Asn1BuildNode(0x04, result);
-        result = Asn1BuildNode(0xA0, result);
-        result = new byte[] { 0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x19, 0x02, 0x01 }
-            .Concat(result).ToArray();
-        result = Asn1BuildNode(0xA0, result);
-        result = Asn1BuildNode(0x30, result);
+        using (AsnWriter.PushSequence())
+        {
+            using (AsnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+            {
+                AsnWriter.WriteObjectIdentifier(WinCrypt.szOID_NTDS_OBJECTSID);
 
-        RawData = result;
+                using (AsnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+                {
+                    AsnWriter.WriteOctetString(Encoding.ASCII.GetBytes(sid.ToString()));
+                }
+            }
+        }
+
+        RawData = AsnWriter.Encode();
     }
 }

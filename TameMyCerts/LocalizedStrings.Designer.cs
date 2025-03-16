@@ -1036,9 +1036,9 @@ namespace TameMyCerts {
         /// <summary>
         ///   Looks up a localized string similar to The certificate request has been denied due to incorrect certificate request..
         /// </summary>
-        internal static string YKVal_Invalid_Attestion_with_YubikeyPolicy {
+        internal static string YKVal_Invalid_Attestation_with_YubikeyPolicy {
             get {
-                return ResourceManager.GetString("YKVal_Invalid_Attestion_with_YubikeyPolicy", resourceCulture);
+                return ResourceManager.GetString("YKVal_Invalid_Attestation_with_YubikeyPolicy", resourceCulture);
             }
         }
         

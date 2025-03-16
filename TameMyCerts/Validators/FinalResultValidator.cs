@@ -22,8 +22,7 @@ namespace TameMyCerts.Validators;
 internal class FinalResultValidator
 {
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-        CertificateRequestPolicy policy,
-        CertificateDatabaseRow dbRow)
+        CertificateRequestPolicy policy, CertificateDatabaseRow dbRow)
     {
         if (result.DeniedForIssuance)
         {

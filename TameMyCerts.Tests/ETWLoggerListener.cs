@@ -1,22 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.Tracing;
-using TameMyCerts;
 
-namespace TameMyCerts.Tests
+namespace TameMyCerts.Tests;
+
+public class ETWLoggerListener : EventListener
 {
-    public class ETWLoggerListener : EventListener
-    {
-        private readonly List<EventWrittenEventArgs> events = new List<EventWrittenEventArgs>();
-        protected override void OnEventWritten(EventWrittenEventArgs eventData) { events.Add(eventData); }
-        public List<EventWrittenEventArgs> Events => events;
-        public void ClearEvents() { events.Clear(); }
+    public List<EventWrittenEventArgs> Events { get; } = new();
 
-        protected override void OnEventSourceCreated(EventSource eventSource)
+    protected override void OnEventWritten(EventWrittenEventArgs eventData)
+    {
+        Events.Add(eventData);
+    }
+
+    public void ClearEvents()
+    {
+        Events.Clear();
+    }
+
+    protected override void OnEventSourceCreated(EventSource eventSource)
+    {
+        if (eventSource.Name == "TameMyCerts-TameMyCerts-Policy")
         {
-            if (eventSource.Name == "TameMyCerts-TameMyCerts-Policy")
-            {
-                EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)(-1));
-            }
+            EnableEvents(eventSource, EventLevel.LogAlways, (EventKeywords)(-1));
         }
     }
 }
