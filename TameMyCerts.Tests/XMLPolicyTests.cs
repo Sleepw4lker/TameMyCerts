@@ -1,36 +1,20 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using TameMyCerts.Enums;
 using TameMyCerts.Models;
-using TameMyCerts.Validators;
 using Xunit;
 using Xunit.Abstractions;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TameMyCerts.Tests;
 
 public class XMLPolicyTests
 {
-    private ETWLoggerListener _listener;
-    private readonly ITestOutputHelper output;
+    private readonly ETWLoggerListener _listener;
+    private readonly ITestOutputHelper _output;
 
     public XMLPolicyTests(ITestOutputHelper output)
     {
-        this.output = output;
-        this._listener = new ETWLoggerListener();
-    }
-
-    internal void PrintResult(CertificateRequestValidationResult result)
-    {
-        output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
-            new Win32Exception(result.StatusCode).Message);
-        output.WriteLine(string.Join("\n", result.Description));
+        _output = output;
+        _listener = new ETWLoggerListener();
     }
 
     [Fact]
@@ -38,13 +22,13 @@ public class XMLPolicyTests
     {
         var filename = Path.GetTempFileName();
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <AuditOnly>false</AuditOnly>
 </CertificateRequestPolicy>";
         File.WriteAllText(filename, sampleXML);
 
-        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+        var cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
         Assert.False(cacheEntry.CertificateRequestPolicy.AuditOnly);
         Assert.Empty(cacheEntry.ErrorMessage);
@@ -57,7 +41,7 @@ public class XMLPolicyTests
     {
         var filename = Path.GetTempFileName();
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <ThisDoewNotExist>false</ThisDoewNotExist>
 </CertificateRequestPolicy>
@@ -65,12 +49,12 @@ public class XMLPolicyTests
         File.WriteAllText(filename, sampleXML);
         _listener.ClearEvents();
 
-        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+        var cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
         Assert.NotEmpty(cacheEntry.ErrorMessage);
         Assert.Equal(2, _listener.Events.Count);
         Assert.Equal(92, _listener.Events[0].EventId);
-        output.WriteLine(_listener.Events[0].Message);
+        _output.WriteLine(_listener.Events[0].Message);
         File.Delete(filename);
     }
 
@@ -79,7 +63,7 @@ public class XMLPolicyTests
     {
         var filename = Path.GetTempFileName();
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <DirectoryServicesMapping><AllowedOrganizationalUnits><Test>This should fault</Test></AllowedOrganizationalUnits></DirectoryServicesMapping>
 </CertificateRequestPolicy>
@@ -87,7 +71,7 @@ public class XMLPolicyTests
         File.WriteAllText(filename, sampleXML);
         _listener.ClearEvents();
 
-        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+        var cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
         Assert.NotEmpty(cacheEntry.ErrorMessage);
         Assert.Equal(2, _listener.Events.Count);
@@ -101,7 +85,7 @@ public class XMLPolicyTests
     {
         var filename = Path.GetTempFileName();
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
   <YubiKeyPolicies>
   <YubiKeyPolicy>
@@ -117,7 +101,7 @@ public class XMLPolicyTests
         File.WriteAllText(filename, sampleXML);
         _listener.ClearEvents();
 
-        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+        var cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
         //Assert.Empty(cacheEntry.ErrorMessage);
         //Assert.Equal(2, _listener.Events.Count);
@@ -131,16 +115,16 @@ public class XMLPolicyTests
     {
         var filename = Path.GetTempFileName();
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""""http://www.w3.org/2001/XMLSchema-instance""""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""""http://www.w3.org/2001/XMLSchema-instance""""
   xmlns:xsd=""""http://www.w3.org/2001/XMLSchema"""">
 </CertificateRequestPolicy>
 ";
         File.WriteAllText(filename, sampleXML);
         _listener.ClearEvents();
 
-        CertificateRequestPolicyCacheEntry cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
+        var cacheEntry = new CertificateRequestPolicyCacheEntry(filename);
 
-        output.WriteLine(cacheEntry.ErrorMessage);
+        _output.WriteLine(cacheEntry.ErrorMessage);
         Assert.Contains(94, _listener.Events.Select(e => e.EventId));
         File.Delete(filename);
     }
@@ -151,7 +135,7 @@ public class XMLPolicyTests
         var filename = Path.GetTempFileName();
         File.Delete(filename);
 
-        string sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+        var sampleXML = @"<CertificateRequestPolicy xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <directoryservicesmapping><AllowedOrganizationalUnits><Test>This should fault</Test></AllowedOrganizationalUnits></directoryservicesmapping>
 </CertificateRequestPolicy>
@@ -159,7 +143,7 @@ public class XMLPolicyTests
         File.WriteAllText($"{filename}.xml", sampleXML);
         _listener.ClearEvents();
 
-        CertificateRequestPolicyCache cache = new CertificateRequestPolicyCache(Path.GetTempPath());
+        var cache = new CertificateRequestPolicyCache(Path.GetTempPath());
         var cacheEntry = cache.GetCertificateRequestPolicy(Path.GetFileName(filename));
 
         Assert.NotNull(cacheEntry);
