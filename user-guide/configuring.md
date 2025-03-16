@@ -4,7 +4,7 @@ The TameMyCerts policy module uses eXtended Markup Language (XML) files to descr
 
 ## Creating a policy configuration file
 
-Create a policy configuration file in XML format for each certificate template you want to apply a policy for in the folder you specified during [installation](#installing).
+Create a policy configuration file in XML format for each certificate template you want to apply a policy for in the folder you specified during [Installing the TameMyCerts policy module](#installing).
 
 ![Policy directory for TameMyCerts](resources/policydirectory.png)
 

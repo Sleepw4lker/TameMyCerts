@@ -12,7 +12,7 @@ Directory Services mapping allows you to map an identity in a certificate reques
 
 - Verify that the object is member of a specific security group, or that it is **not** member of a specific security group.
 
-- Enable features that depend on DS mapping like supplementing the [Security Identifier (SID) certificate extension](#sid-extension) or [Modifying the Subject DN](#modify-subject-dn) or [Subject Alternative Name](#modify-san) with values from Active Directory.
+- Enable features that depend on DS mapping like supplementing the [Security Identifier (SID) certificate extension](#sid-extension) or [Modifying the Subject Distinguished Name](#modify-subject-dn) or [Subject Alternative Name](#modify-san) with values from Active Directory.
 
 ![A certificate request for a user not being member of any allowed group was denied by TameMyCerts](resources/deny-not-member.png)
 
@@ -24,7 +24,7 @@ Directory Services mapping allows you to map an identity in a certificate reques
 
 ### Configuring
 
-> When using DS mapping with an **offline** certificate template, Directory Services mapping setting get processed after [Rules for the Subject Distinguished Name (Subject DN)](#subject-rules) and [Rules for the Subject Alternative Name (SAN)](#san-rules), so ensure you have these configured as well.
+> When using DS mapping with an **offline** certificate template, Directory Services mapping setting get processed after [Rules for the Subject Distinguished Name (Subject Distinguished Name)](#subject-rules) and [Rules for the Subject Alternative Name (SAN)](#san-rules), so ensure you have these configured as well.
 
 Rules for Directory Mapping get specified within the **DirectoryServicesMapping** node.
 
@@ -50,7 +50,6 @@ When using an **offline** certificate template, the certificate attribute that w
 |AddSidUniformResourceIdentifier|no|Adds the security identifier (SID) of the mapped AD object into the Subject Alternative Name (SAN) certificate extension of the issued certificate. The entry will be in form of a _uniformResourceIdentifier_ ("tag:microsoft.com,2022-09-14:sid:&lt;value&gt;"). This "strong" mapping method was introduced by Microsoft in April 2023 (<https://techcommunity.microsoft.com/t5/ask-the-directory-services-team/preview-of-san-uri-for-certificate-strong-mapping-for-kb5014754/bc-p/3794144#M965>).|
 
 > The _AllowedOrganizationalUnits_ and _DisallowedOrganizationalUnits_ directives match also for nested organizational units. E.g. if you whitelist _DC=intra,DC=tamemycerts,DC=com_ and the object resides in _OU=Users,DC=intra,DC=tamemycerts,DC=com_, this will match as well.
-
 > If you configure TameMyCerts to add the SID uniform resource identifier, you should ensure that the resulting certificate will contain a Subject Alternative Name of type _dNSName_ (for mapped computer objects) or _userPrincipalName_ (for mapped user objects) as this will be used to map the certificate to the AD object during authentication. You can either achieve this by having the field being put into the certificate request (and [governing requested certificate content](#san-rules)), or [add the Subject Alternative Name from Active Directory](#modify-san) via [Directory Services mapping](#ds-mapping).
 
 Please be aware of the following limitations:
@@ -69,7 +68,7 @@ By default, TameMyCerts uses the MemberOf (<https://learn.microsoft.com/en-us/op
 
 Make sure you understand the following limitations:
 
-- It is **not** possible to use the **primary group** of a mapped Active Directory object (e.g. *"Domain Users"*, *"Domain Guests"*) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives.
+- It is **not** possible to use the **primary group** of a mapped Active Directory object (e.g. _"Domain Users"_, _"Domain Guests"_) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives.
 
 - The mapped Active Directory object must be an **explicit** (no nested groups) member of the configured security groups. If you want to restrict certificate issuance for highly privileged accounts, you could use the "Protected Users" (<https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group>) built-in security group.
 
@@ -77,7 +76,7 @@ Make sure you understand the following limitations:
 
 It is, however possible, to instruct TameMyCerts to resolve nested Group Memberships. This is achieved by enabling the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings).
 
-In this mode, it is also possible to use the **primary group** of a mapped Active Directory object (e.g. *"Domain Users"*, *"Domain Guests"*) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives, and group memberships from any domain can be resolved.
+In this mode, it is also possible to use the **primary group** of a mapped Active Directory object (e.g. _"Domain Users"_, _"Domain Guests"_) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives, and group memberships from any domain can be resolved.
 
 However, as TameMyCerts will use the **msds-TokenGroupNames** (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1d810083-9741-4b0a-999b-30d9f2bc1f95>) Active Directory Attribute, which is only available on Windows Server 2016 and newer Domain Controllers, if the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings) is enabled and TameMyCerts cannot retrieve the msds-TokenGroupNames attribute, certificate requests will get denied due to security reasons.
 
@@ -146,6 +145,16 @@ Filtering on security group memberships of a mapped object:
 </DirectoryServicesMapping>
 ```
 
+Filtering on Organizational Unit placement of a mapped object:
+
+```xml
+<DirectoryServicesMapping>
+  <!-- other directives have been removed for this example -->
+  <AllowedOrganizationalUnits>OU=some-allowed-OU,DC=tamemycerts,DC=local</AllowedOrganizationalUnits>
+  <DisallowedOrganizationalUnits>OU=some-disallowed-OU,DC=tamemycerts,DC=local</DisallowedOrganizationalUnits>
+</DirectoryServicesMapping>
+```
+
 Adding the SID uniform resource identifier to the certificates SAN:
 
 ```xml
@@ -154,4 +163,5 @@ Adding the SID uniform resource identifier to the certificates SAN:
   <AddSidUniformResourceIdentifier>true</AddSidUniformResourceIdentifier>
 </DirectoryServicesMapping>
 ```
+
 > For an example on how to add the SID **certificate extension** to an issued certificate, see section "[Working with the SID certificate extension](#sid-extension)".

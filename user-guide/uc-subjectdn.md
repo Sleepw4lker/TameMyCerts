@@ -8,4 +8,4 @@ TameMyCerts allows to define advanced rules to build the Subject Distinguished n
 
 For example, you could populate a certificates Common Name with the _displayName_ Active Directory attribute and set a static value for the _organizationName_ field as well.
 
-![Populating the Subject DN with values from ActiveDirectory as well as static values with TameMyCerts](resources/subject-from-ad.png)
+![Populating the Subject Distinguished Name with values from ActiveDirectory as well as static values with TameMyCerts](resources/subject-from-ad.png)

@@ -2,9 +2,9 @@
 
 > Applies to **online** and **offline** certificate templates.
 
-TamyMyCerts allows modifying the Subject Distinguished Name (DN) of a certificate before it gets issued. It is capable of retrieving properties from a mapped Active Directory object and put these values into the Subject DN of a certificate. The resulting value can be either an attribute of a mapped Active Directory object, a field of the originating certificate request, a static value, or a combination of all.
+TamyMyCerts allows modifying the Subject Distinguished Name (Subject DN) of a certificate before it gets issued. It is capable of retrieving properties from a mapped Active Directory object and put these values into the Subject Distinguished Name of a certificate. The resulting value can be either an attribute of a mapped Active Directory object, a field of the originating certificate request, a static value, or a combination of all.
 
-![Populating the Subject DN based on advanced rules with TameMyCerts](resources/subject-from-ad.png)
+![Populating the Subject Distinguished Name based on advanced rules with TameMyCerts](resources/subject-from-ad.png)
 
 This is useful in the following scenarios:
 
