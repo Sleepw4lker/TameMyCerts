@@ -48,7 +48,7 @@ public class YubikeyObject
 
         // Note that according to Yubikey docs, chain depth is always 3 certificates
         chain.ChainPolicy.ExtraStore.Add(intermediateCertificate);
-        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.IgnoreNotTimeValid;
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
         if (!chain.Build(attestationCertificate))
