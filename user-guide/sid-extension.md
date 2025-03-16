@@ -63,4 +63,3 @@ All certificate requests get the SID extension built from a mapped Active direct
 ```xml
 <SecurityIdentifierExtension>Add</SecurityIdentifierExtension>
 ```
-

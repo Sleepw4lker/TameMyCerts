@@ -14,19 +14,19 @@ TameMyCerts supports the following flags to modify global (affecting request pro
 
 To **enable** a flag, enter the following commands into an elevated ("run as Administrator") command prompt (the example uses the TMC_DENY_IF_NO_POLICY flag, adjust to your needs):
 
-```
+```batch
 certutil -setreg Policy\TmcFlags +0x1
 ```
 
 To **disable** a flag, enter the following commands into an elevated ("run as Administrator") command prompt (the example uses the TMC_DENY_IF_NO_POLICY flag, adjust to your needs):
 
-```
+```batch
 certutil -setreg Policy\TmcFlags -0x1
 ```
 
 > As registry settings are applied on service startup, the certification authority service must be restarted for the settings to apply after a change.
 
-```
+```batch
 net stop certsvc
 net start certsvc
 ```

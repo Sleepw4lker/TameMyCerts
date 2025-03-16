@@ -10,7 +10,7 @@ The Windows Default policy module allows to specify the exact expiration date (<
 
 To enable the feature, you must enable the **EDITF\_ATTRIBUTEENDDATE** flag for the policy module of the certification authority and restart the certification authority service afterwards.
 
-```
+```batch
 certutil -setreg Policy\Editflags +EDITF_ATTRIBUTEENDDATE
 net stop certsvc
 net start certsvc
@@ -20,7 +20,7 @@ Now you can specify both **StartDate** and **ExpirationDate** request attribute 
 
 A syntax example for a compliant date form could be:
 
-```
+```batch
 Tue, 1 Mar 2022 08:00:00 GMT
 ```
 
@@ -32,6 +32,6 @@ When an invalid date is being requested, the certificate request will get denied
 
 Requesting a certificate that shall be valid from Mar 1, 2022 08:00 until Mar 1, 2022 16:00:
 
-```
+```batch
 certreq.exe -config "caserver.tamemycerts.local\TameMyCerts CA" -attrib "CertificateTemplate:TameMyCertsWebServer\nStartDate:Tue, 1 Mar 2022 08:00:00 GMT\nExpirationDate:Tue, 1 Mar 2022 16:00:00 GMT" -submit "MyCertificateRequest.req"
 ```

@@ -14,6 +14,7 @@
 |CRLDP|CRL Distribution Point|
 |DN|Distinguished Name|
 |DNS|Domain Name System|
+|ETW|Event Tracing for Windows|
 |GC|Global Catalog|
 |HTTP|HyperText Transfer Protocol|
 |HTTPS|HyperText Transfer Protocol, Secure|
@@ -28,6 +29,7 @@
 |NAC|Network Access Control|
 |NDES|Network Device Enrollment Service|
 |OCSP|Online Certificate Status Protocol|
+|PIV|Personal Identity Verification|
 |PKI|Public Key Infrastructure|
 |RA|Registration Authority|
 |RDN|Relative Distinguished Name|
