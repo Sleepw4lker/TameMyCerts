@@ -1,10 +1,14 @@
 ## Upgrade instructions
 
+### Upgrading TameMyCerts to version 1.7
+
+Beginning with Version 1.7, TameMyCerts uses .NET 8.0 instead of the previously used .NET Framewotk 4.7.2. Therefore, you must [install](#prerequisites) the .NET 8.0 Desktop runtime prior to installing the module.
+
 ### Upgrading TameMyCerts to version 1.6
 
 If you are upgrading from a TameMyCerts version older than 1.6, you must adjust some elements in your policy configuration files.
 
-- Modifications of the Subject Distinguished Name has been moved out of the _DirectoryServicesMapping_. The directives have been renamed and the syntax has changed to enable advanced modifications of both Subject DN and SAN.
+- Modifications of the Subject Distinguished Name has been moved out of the _DirectoryServicesMapping_. The directives have been renamed and the syntax has changed to enable advanced modifications of both Subject Distinguished Name (Subject DN) and Subject Alternative Name (SAN).
   
 TameMyCerts version 1.5 and lower used the following syntax:
 

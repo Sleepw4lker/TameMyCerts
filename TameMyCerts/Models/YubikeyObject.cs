@@ -31,7 +31,7 @@ namespace TameMyCerts.Models;
 [XmlRoot(ElementName = "YubiKeyObject")]
 public class YubikeyObject
 {
-    [XmlIgnore] public static string AttestationSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
+    private const string AttestationSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
 
     public YubikeyObject()
     {
@@ -46,21 +46,22 @@ public class YubikeyObject
         chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
         chain.ChainPolicy.CustomTrustStore.AddRange(rootCertificates);
 
-        // Note that according to Yubikey docs, chain depth is always 3 certificates
+        // Note that according to Yubikey docs, there is always exactly one intermediate certificate
         chain.ChainPolicy.ExtraStore.Add(intermediateCertificate);
-        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+
+        // Note that neither certificate in this chain has a CRLDP, so no need to worry about that
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
         if (!chain.Build(attestationCertificate))
         {
             ETWLogger.Log.YKVal_4208_Yubikey_Attestion_Failed_to_build(requestId);
-            throw new Exception("Failed to build certificate path");
+            throw new Exception("Failed to build certificate chain.");
         }
 
         if (!publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData))
         {
             ETWLogger.Log.YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(requestId);
-            throw new Exception("Certificate CSR does not match attestation certificate");
+            throw new Exception("Certificate Signing Request does not match attestation certificate.");
         }
 
         Validated = true;

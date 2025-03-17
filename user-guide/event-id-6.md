@@ -22,4 +22,4 @@ Request {0} for {1} was denied because:
 
 Occurs if a certificate request was denied because of a policy violation. The event description contains detailed information which kind of policy violation caused the request to get denied.
 
-Note that TameMyCerts can also detect abuse of (insecure flags)[#deny-insecure-flags] set on the certification authority, which can help prevent (compromise)[#uc-esc6] of the Active Directory environment. Occurrences are logged under this event ID.
+Note that TameMyCerts can also detect abuse of [insecure flags](#deny-insecure-flags) set on the certification authority, which can help prevent [compromise](#uc-esc6) of the Active Directory environment. Occurrences are logged under this event ID.

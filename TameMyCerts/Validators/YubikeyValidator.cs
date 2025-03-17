@@ -37,7 +37,7 @@ internal class YubikeyValidator
         }
         catch
         {
-            _rootCertificates = null;
+            _rootCertificates = new X509Certificate2Collection();
         }
     }
 
