@@ -20,7 +20,8 @@ _This version has not yet been released._
 - Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates (the default behavior stays as before):
   - Allow to set the default behavior to globally deny a certificate request when no policy configuration file is found for the requested certificate template.
   - Allow to certificate requests containing insecure request attribute and certification authority flag combinations to get issued (**Only for testing purposes. Use at your own risk!**).
-  - Resolve Group Membersips recursively. Requires all Domain Controllers targeted by TameMyCerts to run on Windows Server 2016 or newer.
+  - Resolve Group Membersips recursively, to allow the processing of indirect and primary group memberships. Requires all Domain Controllers targeted by TameMyCerts to run on Windows Server 2016 or newer.
+- Introducing support for adding custom certificate extensions with static values to issued certificates (e.g. OCSP Must-staple or Microsoft Hyper-V/SCVMM Virtual Machine Connection).
 - Improved documentation, especially description of event logs and use cases.
 
 ### Version 1.6.1045.1129
@@ -39,7 +40,7 @@ This is a major release containing lots of bug fixes for edge-cases as well as m
 - Directory Services mapping now supports the _SupplementServicePrincipalNames_ directive. This mode allows to automatically add all DNS names found in the Service Principal Names (SPNs) of mapped AD objects to the SAN extension of issued certificates.
 - Directory Services mapping now allows to specify _Pattern_ directives like in Subject or SAN rules that can get applied all of the attributes that can be used for building the Subject Distingushed Name.
 - Directory Services mapping now allows to filter based on organizational unit memberships of mapped AD objects with the _AllowedOrganizationalUnits_ and _DisallowedOrganizationalUnits_ parameters.
-- Directory Services mapping now allows adding the SID of a mapped AD object into the Subject Alternative Name (SAN) extension of an issued certificate [as introduced by Microsoft in April 2023](https://techcommunity.microsoft.com/t5/ask-the-directory-services-team/preview-of-san-uri-for-certificate-strong-mapping-for-kb5014754/bc-p/3794144#M965). The directive is called _AddSidIUniformResourceIdentifier_.
+- Directory Services mapping now allows adding the SID of a mapped AD object into the Subject Alternative Name (SAN) extension of an issued certificate [as introduced by Microsoft in April 2023](https://techcommunity.microsoft.com/blog/AskDS/preview-of-san-uri-for-certificate-strong-mapping-for-kb5014754/3789785). The directive is called _AddSidIUniformResourceIdentifier_.
 - _Pattern_ directives now support the new _RegExIgnoreCase_ kind for the _TreatAs_ attribute, which allows a regular expression to be treated case-insensitive.
 - _Pattern_ directives now support the new _ExactMatch_ and _ExactMatchIgnoreCase_ kinds for the _TreatAs_ attribute, which allow simple value comparisons, either case sensitive or case-insensitive.
 - _Pattern_ directives now support matching IPv6 addresses against CIDR masks when _TreatAs_ is set to _Cidr_. 

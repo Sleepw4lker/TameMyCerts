@@ -1,13 +1,93 @@
-## YubiKey PIV attestation
+## YubiKey PIV attestation {#yubikey-piv-attestation}
 
-The basic fuctionality of TameMyCerts in regards to YubiKeys are the same as regular TameMyCerts, with the addition that you can verify if a Certificate Request comes from a genuine YubiKey.
-The YubiKeyPolicies are read one by one. If there are any Allow YubiKeyPolicy, the default if no rule is hit is Deny. If all policies are deny, the default is allow.
-If a Allow YubiKeyPolicy is read the module will approve the request. Alternating Deny and Allow policies is allowed.
-TameMyCerts YubiKey part is the first utliziing ETW for logging. YubiKeyValidator will log which policy was matched in the Operations log, the entry will also include information about the YubiKey.
+> Applies to **online** and **offline** certificate templates.
 
-Configuration:
-It uses the same xml as the rest of TameMyCerts. The inital xml tag is 'YubiKeyPolicies' it includes the 'YubiKeyPolicy's.
-A full configuration:
+> TameMyCerts YubiKey PIV attestation is the first utliziing Event Tracing for Windows (ETW) for logging. Yubikey validation will log which policy was matched in the Operations log, the entry will also include information about the YubiKey.
+
+TameMyCerts can ensure that a key pair has been created and is secured with a Yubikey (<https://www.yubico.com/products/yubikey-5-overview/>).
+
+This feature is called Personal Identity Verification (PIV) attestation (<https://developers.yubico.com/PIV/Introduction/PIV_attestation.html>). It can be combined with any other TameMyCerts feature.
+
+It is possible to include the attestion certificates in the Certificate Signing Request by using any of the following means:
+
+- yubico-piv-tool (<https://developers.yubico.com/yubico-piv-tool/>), a vendor maintained software for managing yubico PIV application.
+- powershellYK (<https://github.com/virot/powershellYK>), a PowerShell 7 module that builds on the Yubico .NET SDK. Available on Windows and MacOS.
+- onboardYK (<https://github.com/virot/onboardYK>), a .NET 8 application for easy enrollment in a Windows environment. It allows for default for endusers and more advanced configurations.
+
+You define a **YubiKeyPolicies** directive containing one or more **YubiKeyPolicy** rules.
+
+|Parameter|Mandatory|Description|
+|---|---|---|
+|Action|**yes**|Specifies if this rule shall cause the certificate request to be allowed or denied, should it's conditions match. Can be `Allow` or `Deny`.|
+|PinPolicy|no|Specifies which PIN policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Once`, `Never`, `Always`, `MatchOnlye`, `MatchAlways`|
+|TouchPolicy|no|Specifies which Touch policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Always`, `Never`, `Cached`|
+|FormFactor|no|Specifies of which form factor the Yubikey must be for the rule to match. Can be one or more of the following: `UsbAKeychain`, `UsbCKeychain`, `UsbANano`, `UsbCNano`, `UsbCLightning`, `UsbABiometricKeychain`, `UsbCBiometricKeychain`|
+|MaximumFirmwareVersion|no|Specifies the maximum Firmware version the Yubikey must have for the rule to match.|
+|MinimumFirmwareVersion|no|Specifies the minimum Firmware version the Yubikey must have for the rule to match.|
+|Edition|no|Specifies of which edition the Yubikey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`|
+|Slot|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`|
+|KeyAlgorithm|no|Specifies the Key Algorithm of which the certificate request must be for the rule to match. Can be one or more of the following: `RSA`, `ECC`|
+
+### How Yubikey policies are processed
+
+The YubiKeyPolicies are read one by one.
+
+- If there is **any** policy with `Allow` action, the default behavior if no rule matched is to **deny** the certificate request.
+- If **all** policies are of `Deny` action, the default behavior if no rule matched is to **allow** the certificate request.
+- Alternating Deny and Allow policies is allowed. In this case, for a certificate request to get allowed, **at least one** of the policy with `Allow` action must match, whereas **none** of the policies with `Deny` action must match.
+
+### Transferring PIV attestation data into issued certificates
+
+Attestation Information can also be [written into the Subject Distinguished Name](#modify-subject-dn) of the issued certificates:
+
+- yk.FormFactor
+- yk.FirmwareVersion
+- yk.PinPolicy
+- yk.TouchPolicy
+- yk.Slot
+- yk.SerialVersion
+
+### Preparing the certification authority
+
+For the attestation certificate chain to be properly built, you must create a `YKROOT` certificate store under the `LocalMachine` certificate store on the certification authority server.
+
+```powershell
+cd Cert:\LocalMachine\My
+New-Item -Name YKROOT
+```
+
+The Yubikey attestation Root CA certificate (<https://developers.yubico.com/PIV/Introduction/piv-attestation-ca.pem>) must be installed into the newly created `YKROOT` certificate store.
+
+### Configuring
+
+Denying certificate requests for ECC keys with a Yubikey with firmware version prior to 5.7.0.
+
+```xml
+<YubiKeyPolicies>
+  <YubiKeyPolicy>
+      <MaximumFirmwareVersion>5.6.9</MaximumFirmwareVersion>
+      <KeyAlgorithm>
+        <string>ECC</string>
+      </KeyAlgorithm>
+      <Action>Deny</Action>
+  </YubiKeyPolicy>
+</YubiKeyPolicies>
+```
+
+Transferring the Slot and Serial Number of the Yubikey into the _commonName_ of the issued certificate (in combination with the `cn` attribute from a [mapped](#ds-mapping) Active Directory object).
+
+```xml
+<OutboundSubject>
+  <OutboundSubjectRule>
+    <Field>commonName</Field>
+    <Value>{ad:cn} [{yk:Slot} {yk:SerialNumber}]</Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+</OutboundSubject>
+```
+
+A policy containing all possible combinations.
 
 ```xml
 <YubiKeyPolicies>
@@ -54,82 +134,3 @@ A full configuration:
   </YubiKeyPolicy>
 </YubiKeyPolicies>
 ```
-
-Just pick what you need to verfy and stick in your policy.
-
-Before YubiKey 5.7.0 there is a but in the software for ECC keys, TMC allows for denying just those by having a first YubiKeyPolicy like this:
-
-```xml
-<YubiKeyPolicy>
-    <MaximumFirmwareVersion>5.6.9</MaximumFirmwareVersion>
-    <KeyAlgorithm>
-      <string>ECC</string>
-    </KeyAlgorithm>
-    <Action>Deny</Action>
-</YubiKeyPolicy>
-```
-
-Interacting with other parts of TMC
-It is possible to update the Subject and SubjectAltName parts with data from the YubiKey attestion data.
-
-```xml
-<OutboundSubject>
-  <OutboundSubjectRule>
-    <Field>commonName</Field>
-    <Value>{ad:cn} [{yk:Slot} {yk:SerialNumber}]</Value>
-    <Mandatory>true</Mandatory>
-    <Force>true</Force>
-  </OutboundSubjectRule>
-</OutboundSubject>
-```
-
-attributes allowed from YubiKey attestiondata:
-yk.FormFactor
-yk.FirmwareVersion
-yk.PinPolicy
-yk.TouchPolicy
-yk.Slot
-yk.SerialVersion
-
-### How to test
-
-TameMyCerts has been extended to allow validation of CSRs that include the YubiKey attestion certificates.
-It is a possible to include the attestion certificates in the CSR by using any of the following means:
-
-- yubico-piv-tool
-- powershellYK
-- onboardYK
-
-yubico-piv-tool
-Yubico-piv-tool is a vendor maintained software for managing yubico PIV application.
-url: https://developers.yubico.com/yubico-piv-tool/
-example:
-
-```
-yubico-piv-tool --slot=9a --action=generate --pin-policy=once --touch-policy=cached --algorithm=ECCP384 --output=pubkey
-yubico-piv-tool --slot=9a --subject="/CN=foo/OU=test/O=example.com/" --input=pubkey --attestation --output=request.csr --action=verify-pin --action=request
-```
-
-powershellYK
-PowershellYK is a pwsh module that builds on the Yubico .NET SDK to allow managed YubiKeys with Powershell 7+. Available on Windows and MacOS.
-url: https://github.com/virot/powershellYK
-installation:
-
-```pwsh
-Install-Module -Name powershellYK
-```
-
-example:
-This assumes that you have a new YubiKey, the default PIN for the PIV part of a YubiKey is 123456.
-
-```pwsh
-Connect-YubiKey
-Connect-YubiKeyPIV
-New-YubiKeyPIVKey -slot "PIV Authentication" -PinPolicy Always -TouchPolicy Cached -Algorithm EccP384
-Build-YubiKeyPIVCertificateSigningRequest -Slot "PIV Authentication" -Subjectname "CN=CSR for TameMyCerts" -Attestation -OutFile attested.csr
-Import-YubikeyPIV -Slot "PIV Authentication" -Certificate signed.cer
-```
-
-onboardYK
-OnboardYK is .NET 8 application for easy enrollment in a Windows environment. The application is configured with a xml file, just as TameMyCerts. It allows for default for endusers and more advanced configurations.
-url: https://github.com/virot/onboardYK

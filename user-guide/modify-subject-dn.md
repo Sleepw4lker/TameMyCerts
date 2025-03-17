@@ -15,7 +15,7 @@ This is useful in the following scenarios:
 
 ### Configuring
 
-You define a **OutboundSubject** directive containing **OutboundSubjectRule** rules.
+You define a **OutboundSubject** directive containing one or more **OutboundSubjectRule** rules.
 
 The _OutboundSubjectRule_ directive can be configured as follows:
 
@@ -52,11 +52,7 @@ The _Value_ may contain a static string, or can be combined with attributes of m
 
 > It is also possible to remove a requested relative distinguished name from an issued certificate by setting the _Value_ to an empty string.
 
-You configure variables with the following syntax:
-
-```
-{Modifier:PropertyNameGoesHere}
-```
+You configure variables with the following syntax: `{Modifier:PropertyNameGoesHere}`
 
 The following modifiers are currently supported:
 
@@ -65,15 +61,14 @@ The following modifiers are currently supported:
 |ad|Attributes of mapped Active Directory objects. For a list of supported Active Directory attributes, consult the [DirectoryServicesAttribute](#ds-attribute) section within the [Technical Reference](#tech-reference) chapter of this document.|
 |sdn|Fields from the Subject Distinguished Name of the certificate request.|
 |san|Fields from the Subject Alternative Name of the certificate request.|
+|yk|Fields from [Yubikey PIV Attestation](#yubikey-piv-attestation) of the certificate request.|
 
 > Note that if you plan to insert attributes from mapped Active Directory objects, you need to configure [DirectoryServicesMapping](#ds-mapping).
 
 ### Remarks
 
 - Configuring an invalid **Field** will lead to certificate requests getting denied.
-
 - Configuring a **Value** that violates length constraints for the selected **Field** will lead to certificate requests getting denied.
-
 - It is possible to remove a relative distinguished name by setting the **Value** to an empty string. A more advanced variant of this is to transfer a value from one requested RDN to another one and then remove the original one.
 
 ### Examples

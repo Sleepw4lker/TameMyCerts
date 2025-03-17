@@ -7,15 +7,10 @@ TameMyCerts allows to take control about which certificate content can be reques
 You can apply the following rules:
 
 - Ensure that a specific field is present in the Subject DN.
-
 - Ensure that a specific field is present only a specified number of times (usually once).
-
 - Ensure that a specific field contains a value, or that the value does not exceed a specific length.
-
 - Allow optional fields in the Subject DN (but not enforce them).
-
 - Ensure that a specific field conforms to one or more regular expression.
-
 - Ensure that a specific field conforms to one or more Classless Inter-Domain Routing (CIDR) mask ,if the field content is an Internet Protocol (IP) address.
 
 ![A certificate request not containing required fields and containing forbidden fields was denied by TameMyCerts](resources/deny-fields-missing.png)
@@ -48,37 +43,23 @@ To define a policy for one or more subject Relative Distinguished Name (RDN) typ
 The following RDN types are enabled/allowed by default on AD CS and are therefore useable with TameMyCerts:
 
 - countryName
-
 - commonName
-
 - domainComponent
-
 - emailAddress
-
 - organizationName
-
 - organizationalUnitName
-
 - localityName
-
 - stateOrProvinceName
 
 The following RDNs can additionally be defined in a policy configuration but must explicitly be enabled in the certification authority configuration by modifying its _SubjectTemplate_ registry value (<https://learn.microsoft.com/en-us/windows/win32/seccrypto/name-properties>):
 
 - givenName
-
 - initials
-
 - surname
-
 - streetAddress
-
 - title
-
 - unstructuredName
-
 - unstructuredAddress
-
 - serialNumber
 
 > Please be aware that the _SubjectTemplate_ registry value of the CA uses a different syntax for field type names than AD CS does.

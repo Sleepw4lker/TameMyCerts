@@ -19,15 +19,11 @@ The _OutboundSubjectRule_ directive can be configured as follows:
 
 You may specify the following Subject Alternative Name types for the "Field" directive:
 
--  dnsName
-
--  rfc822Name
-
--  uniformResourceIdentifier
-
--  userPrincipalName
-
--  ipAddress
+- dnsName
+- rfc822Name
+- uniformResourceIdentifier
+- userPrincipalName
+- ipAddress
 
 > The field names are processed _case-sensitive_.
 

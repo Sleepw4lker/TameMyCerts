@@ -5,13 +5,9 @@
 Directory Services mapping allows you to map an identity in a certificate request back to an Active Directory object. This way, a variety of policies can be applied, containing:
 
 - Verify that there is a user or computer object to which the certificate request belongs.
-
 - Verify that the object is not disabled.
-
 - Verify that the object is located in a specific Organizational Unit (OU).
-
 - Verify that the object is member of a specific security group, or that it is **not** member of a specific security group.
-
 - Enable features that depend on DS mapping like supplementing the [Security Identifier (SID) certificate extension](#sid-extension) or [Modifying the Subject Distinguished Name](#modify-subject-dn) or [Subject Alternative Name](#modify-san) with values from Active Directory.
 
 ![A certificate request for a user not being member of any allowed group was denied by TameMyCerts](resources/deny-not-member.png)

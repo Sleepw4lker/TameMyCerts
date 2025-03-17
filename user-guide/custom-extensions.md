@@ -27,4 +27,3 @@ Adding the Hyper-V / SCVMM Virtual Machine Connection extension to an issued cer
         <Value>AgEE</Value>
     </CustomCertificateExtension>
 </CustomCertificateExtensions>
-```

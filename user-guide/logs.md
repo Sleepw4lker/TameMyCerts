@@ -4,4 +4,19 @@ In addition to the certification authorities regular log entries, the policy mod
 
 ![Event viewer filtering on the TameMyCerts source](resources/event-viewer.png)
 
-> Logging for the policy module follows the _LogLevel_ (<https://www.gradenegger.eu/en/configure-log-level-log-level-for-the-certification-authority-event-log/>) concept of the certification authority. Increasing the value for the certification authority also affects the logging amount of TameMyCerts.
+Logging for the policy module follows the _LogLevel_ (<https://www.gradenegger.eu/en/configure-log-level-log-level-for-the-certification-authority-event-log/>) concept of the certification authority. Increasing the value for the certification authority also affects the logging amount of TameMyCerts.
+
+```batch
+certutil -setreg CA\Loglevel {LogLevel}
+net stop certsvc
+net start certsvc
+```
+
+|Log Level|Description|
+|---|---|
+|0|CERTLOG_MINIMAL|
+|1|CERTLOG_TERSE|
+|2|CERTLOG_ERROR|
+|3|CERTLOG_WARNING (Default Setting)|
+|4|CERTLOG_VERBOSE|
+|5|CERTLOG_EXHAUSTIVE|
