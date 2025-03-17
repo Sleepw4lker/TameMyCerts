@@ -31,7 +31,7 @@ namespace TameMyCerts.Models;
 [XmlRoot(ElementName = "YubiKeyObject")]
 public class YubikeyObject
 {
-    [XmlIgnore] public static string AttestationSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
+    private const string AttestationSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
 
     public YubikeyObject()
     {
@@ -46,8 +46,10 @@ public class YubikeyObject
         chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
         chain.ChainPolicy.CustomTrustStore.AddRange(rootCertificates);
 
-        // Note that according to Yubikey docs, chain depth is always 3 certificates
+        // Note that according to Yubikey docs, there is always exactly one intermediate certificate
         chain.ChainPolicy.ExtraStore.Add(intermediateCertificate);
+
+        // Note that neither certificate in this chain has a CRLDP, so no need to worry about that
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
         if (!chain.Build(attestationCertificate))
