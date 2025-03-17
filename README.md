@@ -1,6 +1,10 @@
 # The "Tame My Certs" policy module for Active Directory Certificate Services certification authorities
 
-![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/main.yml/badge.svg?branch=main&event=push)&nbsp;![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/xunit.yml/badge.svg?branch=main&event=push)
+![](https://img.shields.io/github/last-commit/Sleepw4lker/TameMyCerts/main.svg)
+![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/main.yml/badge.svg?branch=main&event=push)
+![](https://github.com/Sleepw4lker/TameMyCerts/actions/workflows/xunit.yml/badge.svg?branch=main&event=push)
+![](https://img.shields.io/github/issues/Sleepw4lker/TameMyCerts.svg)
+![](https://img.shields.io/github/downloads/Sleepw4lker/TameMyCerts/total.svg?label=Downloads&maxAge=999)
 
 TameMyCerts is a [policy module](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services-architecture) for Microsoft [Active Directory Certificate Services (AD CS)](https://docs.microsoft.com/en-us/windows/win32/seccrypto/certificate-services) enterprise certification authorities that enables security automation for a lot of use cases in the PKI field.
 
@@ -26,7 +30,9 @@ TameMyCerts is fully compatible with all AD CS' functions and protocols like NDE
 
 As a PKI operator, it is your responsibility to verify and confirm the enrollee's identity, and ensure he is permitted to request a certificate for the specified identity. As the certificate volume in a typical enterprise is quite high, it is common to automate the task of certificate issuance where possible. Active Directory Certificate Services offers the possibility to identify an enrollee by it's Active Directory identity (meaning the PKI delegates the identification job to AD) and build the certificate content based on this information.
 
-Sadly, there are many cases where this is not possible. In these cases, a certificate request is usually put into pending state so that a certificate manager can review and approve/deny the certificate request. However, this contradicts the goal of automatization. Also, putting such a certificate request into pending state is often not possible due to technical reasons. In these cases, the identification job is delegated entirely to the enrollee, which can lead to serious security issues: Any subject information (e.g. logon identities of administrative accounts in user certificates, or fraudulent web addresses in web server certificates) can be specified which opens a large security gap, waiting to be [abused by attackers](https://www.gradenegger.eu/en/from-zero-to-enterprise-administrator-through-the-network-device-registration-service-ndes/).
+Sadly, there are many cases where this is not possible. In these cases, a certificate request is usually put into pending state so that a certificate manager can review and approve or deny the certificate request. However, this contradicts the goal of automatization.
+
+Also, putting such a certificate request into pending state is often not possible due to technical reasons. In these cases, the identification job is delegated entirely to the enrollee, which can lead to serious security issues: Any subject information (e.g. logon identities of administrative accounts in user certificates, or fraudulent web addresses in web server certificates) can be specified by malicious enrollees, which opens a large security gap, waiting to be [abused by attackers](https://www.gradenegger.eu/en/from-zero-to-enterprise-administrator-through-the-network-device-registration-service-ndes/).
 
 The TameMyCerts policy module addresses, amongst others, the following use cases:
 
