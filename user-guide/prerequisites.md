@@ -18,11 +18,8 @@ The following modes for the certification authority role are supported by TameMy
 The module was successfully tested and is supported with the following operating systems:
 
 - Microsoft Windows Server 2025
-
 - Microsoft Windows Server 2022
-
 - Microsoft Windows Server 2019
-
 - Microsoft Windows Server 2016
 
 Other Microsoft Windows Server operating systems may work but are not supported.

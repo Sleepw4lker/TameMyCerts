@@ -30,7 +30,7 @@ Certificate template configuration is read by TameMyCerts from the CA servers re
 Note that updates made to a certificate template in Active Directory are not instantly replicated to the CA servers registry, as this part of the registry is only updated every 8 hours.
 
 ### Certificate Request Policy Cache {#policy-cache}
-   
+
 Certificate Request policy files are loaded on first use and are then served from memory as long as they do not change. This reduces CPU and storage load. When the file gets modified and therefore the modification date of the file gets updated, it will get re-loaded on next use.
 
 Should you, for example, copy a previous version of a policy configuration file back to the configured directory, it will not get read because it would have an older modification date. You would have to save it again so that it has a newer timestamp. Alternatively, you could re-start ehe certification authority service, as this will invalidate the cache.

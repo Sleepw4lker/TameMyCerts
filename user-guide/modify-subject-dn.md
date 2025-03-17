@@ -68,9 +68,7 @@ The following modifiers are currently supported:
 ### Remarks
 
 - Configuring an invalid **Field** will lead to certificate requests getting denied.
-
 - Configuring a **Value** that violates length constraints for the selected **Field** will lead to certificate requests getting denied.
-
 - It is possible to remove a relative distinguished name by setting the **Value** to an empty string. A more advanced variant of this is to transfer a value from one requested RDN to another one and then remove the original one.
 
 ### Examples

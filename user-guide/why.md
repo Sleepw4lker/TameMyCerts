@@ -17,11 +17,8 @@ TameMyCerts is Open Source Software. Find it on GitHub (<https://github.com/Slee
 Enterprises in a modern, digitalized, highly connected world strongly rely on digital certificates. Certificates are used for a variety of use cases like...
 
 - Authentication to on-premises or cloud resources.
-
 - Enabling remote access for users for them to be able to work remotely from anywhere, with any kind of device.
-
 - Securing web-based transactions.
-
 - Ensuring authenticity in electronic document workflows.
 
 Organizations around the world rely on Microsoft Active Directory Certificate Services (AD CS) (<https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/active-directory-certificate-services-overview>) for issuing digital certificates within their Microsoft identity ecosystem. Microsoft AD CS is a suite of roles provided by the Microsoft Windows Server operating system. Its main role is the certification authority (CA), which is responsible for processing certificate requests and issuing digital certificates.
