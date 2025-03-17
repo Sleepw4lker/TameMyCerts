@@ -34,7 +34,7 @@ The YubiKeyPolicies are read one by one.
 
 - If there is **any** policy with `Allow` action, the default behavior if no rule matched is to **deny** the certificate request.
 - If **all** policies are of `Deny` action, the default behavior if no rule matched is to **allow** the certificate request.
-- Alternating Deny and Allow policies is allowed.
+- Alternating Deny and Allow policies is allowed. In this case, for a certificate request to get allowed, **at least one** of the policy with `Allow` action must match, whereas **none** of the policies with `Deny` action must match.
 
 ### Transferring PIV attestation data into issued certificates
 
