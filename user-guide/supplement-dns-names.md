@@ -18,7 +18,7 @@ You enable the feature by configuring **SupplementDnsNames** directive.
 <SupplementDnsNames>true</SupplementDnsNames>
 ```
 
-By default, TameMyCerts will supplement both qualified (e.g. "host.domain.tld") and unqualified DNS names (e.g. "host"). You can suppress supplementation of unqialified names by setting the _SupplementUnqualifiedNames_ to _false_.
+By default, TameMyCerts will supplement both qualified (e.g. `host.domain.tld`) and unqualified DNS names (e.g. `host`). You can suppress supplementation of unqialified names by setting the _SupplementUnqualifiedNames_ to _false_.
 
 ```xml
 <SupplementDnsNames>true</SupplementDnsNames>

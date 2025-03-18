@@ -2,6 +2,8 @@
 
 > Applies to **online** and **offline** certificate templates.
 
+TameMyCerts allows to create custom certificate extensions for Certificate Revocation List Distribution Points (CDP), Authority Information Access (AIA) and Online Certificate Status Protocol (OCSP) on a per-template basis.
+
 The directives are:
 
 - CrlDistributionPoints

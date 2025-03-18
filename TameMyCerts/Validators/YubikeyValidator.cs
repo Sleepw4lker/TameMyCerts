@@ -30,15 +30,10 @@ internal class YubikeyValidator
 
     public YubikeyValidator()
     {
-        try
-        {
-            var rootCertificates = new X509Store("YKROOT", StoreLocation.LocalMachine);
-            _rootCertificates = rootCertificates.Certificates;
-        }
-        catch
-        {
-            _rootCertificates = new X509Certificate2Collection();
-        }
+        // If the store does not exist, this still returns an empty collection
+        var rootCertificates = new X509Store("YKROOT", StoreLocation.LocalMachine);
+        rootCertificates.Open(OpenFlags.ReadOnly);
+        _rootCertificates = rootCertificates.Certificates;
     }
 
     public YubikeyValidator(X509Certificate2Collection rootCertificates)
@@ -68,7 +63,6 @@ internal class YubikeyValidator
 
         foreach (var ykP in policy.YubikeyPolicy)
         {
-            //Console.WriteLine(ykP.SaveToString());
             if (ObjectMatchesPolicy(ykP, yubikey))
             {
                 if (ykP.Action == YubikeyPolicyAction.Deny)
@@ -112,6 +106,8 @@ internal class YubikeyValidator
         {
             return result;
         }
+
+        // Deny in all other cases
 
         ETWLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(requestId);
         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
@@ -233,7 +229,7 @@ internal class YubikeyValidator
 
         #region Slot
 
-        // Look if the slot is in the policy, if not, say that we arent matching
+        // Look if the slot is in the policy, if not, say that we aren't matching
         // Look for both 0xXX and XX
         if (policy.Slot.Any() && !(policy.Slot.Any(s => s.Equals(yubikey.Slot, StringComparison.OrdinalIgnoreCase)) ||
                                    policy.Slot.Any(s =>
