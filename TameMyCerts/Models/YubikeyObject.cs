@@ -55,16 +55,14 @@ public class YubikeyObject
         if (!chain.Build(attestationCertificate))
         {
             ETWLogger.Log.YKVal_4208_Yubikey_Attestation_Failed_to_build(requestId);
-            throw new Exception("Failed to build certificate chain.");
+            throw new Exception(LocalizedStrings.YKObject_Failed_to_build);
         }
 
         if (!publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData))
         {
             ETWLogger.Log.YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(requestId);
-            throw new Exception("Certificate Signing Request does not match attestation certificate.");
+            throw new Exception(LocalizedStrings.YKObject_Attestation_Cert_Mismatch);
         }
-
-        Validated = true;
 
         #region Slot
 
@@ -187,11 +185,7 @@ public class YubikeyObject
     [XmlElement(ElementName = "Serial")] public string SerialNumber { get; set; } = "";
 
     [XmlElement(ElementName = "FirmwareVersion")]
-    public string FirmwareVersionString
-    {
-        get => FirmwareVersion.ToString();
-        set => throw new Exception("String cannot be set.");
-    }
+    public string FirmwareVersionString => FirmwareVersion.ToString();
 
     [XmlIgnore] public Version FirmwareVersion { get; set; } = new(0, 0, 0);
 
@@ -206,9 +200,6 @@ public class YubikeyObject
     [XmlIgnore] public X509Certificate2 AttestationCertificate { get; }
 
     [XmlIgnore] public X509Certificate2 IntermediateCertificate { get; }
-
-    [XmlElement(ElementName = "Validated")]
-    public bool? Validated { get; } = false;
 
     public static string ConvertToHumanReadableXml(string inputString)
     {

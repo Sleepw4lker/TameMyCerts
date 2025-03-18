@@ -14,6 +14,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using TameMyCerts.Enums;
@@ -26,23 +27,29 @@ namespace TameMyCerts.Validators;
 /// </summary>
 internal class YubikeyValidator
 {
-    private readonly X509Certificate2Collection _rootCertificates;
+    private const string YubikeyCaCertificateStoreName = "YKROOT";
+
+    private readonly X509Certificate2Collection _yubikeyCaCertificates;
+
+    private readonly List<string> _attestationLocations =
+        [YubikeyX509Extensions.ATTESTATION_DEVICE, YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL];
 
     public YubikeyValidator()
     {
-        // If the store does not exist, this still returns an empty collection
-        var rootCertificates = new X509Store("YKROOT", StoreLocation.LocalMachine);
-        rootCertificates.Open(OpenFlags.ReadOnly);
-        _rootCertificates = rootCertificates.Certificates;
+        var yubikeyCaCertificateStore = new X509Store(YubikeyCaCertificateStoreName, StoreLocation.LocalMachine);
+        yubikeyCaCertificateStore.Open(OpenFlags.ReadOnly);
+
+        // If the store does not exist on the machine, this still returns an empty collection that we can use
+        _yubikeyCaCertificates = yubikeyCaCertificateStore.Certificates;
     }
 
-    public YubikeyValidator(X509Certificate2Collection rootCertificates)
+    public YubikeyValidator(X509Certificate2Collection yubikeyCaCertificates)
     {
-        _rootCertificates = rootCertificates;
+        _yubikeyCaCertificates = yubikeyCaCertificates;
     }
 
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
-        CertificateRequestPolicy policy, YubikeyObject yubikey, int requestId)
+        CertificateRequestPolicy policy, YubikeyObject yubikey, CertificateDatabaseRow dbRow)
     {
         // If we are already denied for issuance or the policy does not contain any YubikeyPolicy, just continue
         if (result.DeniedForIssuance || !policy.YubikeyPolicy.Any())
@@ -50,41 +57,36 @@ internal class YubikeyValidator
             return result;
         }
 
-        // If the Yubikey is not validated, we will not allow it
-        if (yubikey.Validated == false)
-        {
-            ETWLogger.Log.YKVal_4202_Denied_by_Policy(requestId);
-            result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                LocalizedStrings.YKVal_Invalid_Attestation_with_YubikeyPolicy));
-            return result;
-        }
-
         var foundMatch = false;
 
-        foreach (var ykP in policy.YubikeyPolicy)
+        foreach (var yubikeyPolicy in policy.YubikeyPolicy)
         {
-            if (ObjectMatchesPolicy(ykP, yubikey))
+            if (ObjectMatchesPolicy(yubikeyPolicy, yubikey))
             {
-                if (ykP.Action == YubikeyPolicyAction.Deny)
+                if (yubikeyPolicy.Action == YubikeyPolicyAction.Deny)
                 {
-                    ETWLogger.Log.YKVal_4201_Denied_by_Policy(requestId, ykP.SaveToString());
+                    ETWLogger.Log.YKVal_4201_Denied_by_Policy(dbRow.RequestID, yubikeyPolicy.SaveToString());
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, ykP.SaveToString()));
+                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, dbRow.RequestID, yubikeyPolicy.SaveToString()));
                     return result;
                 }
 
-                ETWLogger.Log.YKVal_4204_Matching_policy(requestId, ykP.SaveToString(), yubikey.SaveToString());
+                ETWLogger.Log.YKVal_4204_Matching_policy(dbRow.RequestID, yubikeyPolicy.SaveToString(),
+                    yubikey.SaveToString());
                 foundMatch = true;
 
                 // Store the AttestationData and Intermediate Certificate in the certificate, if requested
-                if (ykP.IncludeAttestationInCertificate)
+                if (yubikeyPolicy.IncludeAttestationInCertificate)
                 {
                     var x509ExtAttestation = new X509Extension(YubikeyX509Extensions.ATTESTATION_DEVICE,
                         yubikey.AttestationCertificate.RawData, false);
+
                     result.CertificateExtensions.Add(YubikeyX509Extensions.ATTESTATION_DEVICE,
                         x509ExtAttestation.RawData);
+
                     var x509ExtIntermediate = new X509Extension(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE,
                         yubikey.IntermediateCertificate.RawData, false);
+
                     result.CertificateExtensions.Add(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE,
                         x509ExtIntermediate.RawData);
                 }
@@ -92,7 +94,7 @@ internal class YubikeyValidator
                 break;
             }
 
-            ETWLogger.Log.YKVal_4206_Debug_failed_to_match_policy(requestId, ykP.SaveToString());
+            ETWLogger.Log.YKVal_4206_Debug_failed_to_match_policy(dbRow.RequestID, yubikeyPolicy.SaveToString());
         }
 
         // If none of the pin policies match, we will deny the request, not matching allowed = deny
@@ -109,9 +111,9 @@ internal class YubikeyValidator
 
         // Deny in all other cases
 
-        ETWLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(requestId);
+        ETWLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(dbRow.RequestID);
         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-            LocalizedStrings.YKVal_No_Matching_Policy_Found));
+            LocalizedStrings.YKVal_No_Matching_Policy_Found, dbRow.RequestID));
 
         return result;
     }
@@ -125,21 +127,25 @@ internal class YubikeyValidator
             return result;
         }
 
-        // Yubikey Attestation is stored in these two extensions in the CSR. If present , extract them, otherwise build an empty YubikeyObject.
-        if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_DEVICE) &&
-            dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE))
+        // Default value to return if not attestation is found
+        yubikey = new YubikeyObject();
+
+        // Yubikey Attestation is stored in these two extensions in the CSR.
+        foreach (var attestationLocation in _attestationLocations.Where(attestationLocation =>
+                     dbRow.CertificateExtensions.ContainsKey(attestationLocation) &&
+                     dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE)))
         {
-            ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID,
-                YubikeyX509Extensions.ATTESTATION_DEVICE);
+            ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, attestationLocation);
+
             try
             {
-                dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTATION_DEVICE,
+                dbRow.CertificateExtensions.TryGetValue(attestationLocation,
                     out var attestationCertificateByte);
                 dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE,
                     out var intermediateCertificateByte);
 
                 yubikey = new YubikeyObject(dbRow.PublicKey, new X509Certificate2(attestationCertificateByte),
-                    new X509Certificate2(intermediateCertificateByte), _rootCertificates,
+                    new X509Certificate2(intermediateCertificateByte), _yubikeyCaCertificates,
                     dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
             }
             catch (Exception ex)
@@ -147,36 +153,8 @@ internal class YubikeyValidator
                 yubikey = new YubikeyObject();
                 ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
+                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, dbRow.RequestID, ex.Message));
             }
-        }
-        else if (dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL) &&
-                 dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE))
-        {
-            ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID,
-                YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL);
-            try
-            {
-                dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL,
-                    out var attestationCertificateByte);
-                dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE,
-                    out var intermediateCertificateByte);
-
-                yubikey = new YubikeyObject(dbRow.PublicKey, new X509Certificate2(attestationCertificateByte),
-                    new X509Certificate2(intermediateCertificateByte), _rootCertificates,
-                    dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
-            }
-            catch (Exception ex)
-            {
-                yubikey = new YubikeyObject();
-                ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
-                result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
-            }
-        }
-        else
-        {
-            yubikey = new YubikeyObject();
         }
 
         return result;

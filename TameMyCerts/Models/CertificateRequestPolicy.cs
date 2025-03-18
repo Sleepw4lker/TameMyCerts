@@ -122,22 +122,6 @@ public class CertificateRequestPolicy
         return stringBuilder.ToString();
     }
 
-    public void SaveToFile(string path)
-    {
-        var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));
-
-        using (var stringWriter = new StringWriter())
-        {
-            using (var xmlWriter = XmlWriter.Create(stringWriter))
-            {
-                xmlSerializer.Serialize(xmlWriter, this);
-                var xmlData = stringWriter.ToString();
-
-                File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
-            }
-        }
-    }
-
     public static CertificateRequestPolicy LoadFromFile(string path)
     {
         var xmlSerializer = new XmlSerializer(typeof(CertificateRequestPolicy));

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -54,6 +55,34 @@ public class RequestAttributeValidatorTests
         _output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
             new Win32Exception(result.StatusCode).Message);
         _output.WriteLine(string.Join("\n", result.Description));
+    }
+
+    [Fact]
+    public void Does_return_if_already_denied()
+    {
+        var startDate = DateTimeOffset.Now.AddDays(1);
+
+        var caConfig = new CertificateAuthorityConfiguration(EditFlag.EDITF_ATTRIBUTEENDDATE);
+
+        var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10,
+            new Dictionary<string, string>
+            {
+                {
+                    "StartDate",
+                    startDate.ToString(DATETIME_RFC2616, CultureInfo.InvariantCulture.DateTimeFormat)
+                }
+            });
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        result.SetFailureStatus();
+
+        result = _validator.VerifyRequest(result, dbRow, caConfig);
+        
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
     }
 
     [Fact]

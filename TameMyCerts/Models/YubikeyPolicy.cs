@@ -84,18 +84,6 @@ public class YubikeyPolicy
         return stringBuilder.ToString();
     }
 
-    public void SaveToFile(string path)
-    {
-        var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
-
-        using var stringWriter = new StringWriter();
-        using var xmlWriter = XmlWriter.Create(stringWriter);
-        xmlSerializer.Serialize(xmlWriter, this);
-        var xmlData = stringWriter.ToString();
-
-        File.WriteAllText(path, ConvertToHumanReadableXml(xmlData));
-    }
-
     public string SaveToString()
     {
         var xmlSerializer = new XmlSerializer(typeof(YubikeyPolicy));
