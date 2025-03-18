@@ -465,7 +465,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion..
+        ///   Looks up a localized string similar to The request {0} was rejected as the Yubikey Attestation failed for the embedded attestation..
         /// </summary>
         internal static string event_YKVal_4202_Denied_by_Policy {
             get {
@@ -485,7 +485,7 @@ namespace TameMyCerts {
         /// <summary>
         ///   Looks up a localized string similar to The request {0} is matching policy: 
         ///{1}
-        ///YubiKey attestion data:
+        ///YubiKey attestation data:
         ///{2}.
         /// </summary>
         internal static string event_YKVal_4204_Matching_policy {
@@ -495,11 +495,11 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted..
+        ///   Looks up a localized string similar to The request {0} contained an embedded Yubikey Attestation, but it failed to be extracted..
         /// </summary>
-        internal static string event_YKVal_4205_Failed_to_extract_Yubikey_Attestion {
+        internal static string event_YKVal_4205_Failed_to_extract_Yubikey_Attestation {
             get {
-                return ResourceManager.GetString("event_YKVal_4205_Failed_to_extract_Yubikey_Attestion", resourceCulture);
+                return ResourceManager.GetString("event_YKVal_4205_Failed_to_extract_Yubikey_Attestation", resourceCulture);
             }
         }
         
@@ -514,20 +514,20 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0}, attestion certificates public key missmatch with the certificate request..
+        ///   Looks up a localized string similar to The request {0}, attestation certificates public key mismatch with the certificate request..
         /// </summary>
-        internal static string event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR {
+        internal static string event_YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR {
             get {
-                return ResourceManager.GetString("event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR", resourceCulture);
+                return ResourceManager.GetString("event_YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0}, yubikey attestion failed to build trust chain to Yubikey CA..
+        ///   Looks up a localized string similar to The request {0}, Yubikey attestation failed to build trust chain to Yubikey CA..
         /// </summary>
-        internal static string event_YKVal_4208_Yubikey_Attestion_Failed_to_build {
+        internal static string event_YKVal_4208_Yubikey_Attestation_Failed_to_build {
             get {
-                return ResourceManager.GetString("event_YKVal_4208_Yubikey_Attestion_Failed_to_build", resourceCulture);
+                return ResourceManager.GetString("event_YKVal_4208_Yubikey_Attestation_Failed_to_build", resourceCulture);
             }
         }
         
@@ -1043,7 +1043,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request failed to find a matching yubikey policy, defaulting to deny..
+        ///   Looks up a localized string similar to The request failed to find a matching Yubikey policy, defaulting to deny..
         /// </summary>
         internal static string YKVal_No_Matching_Policy_Found {
             get {
@@ -1052,7 +1052,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request matched a deny yubikey policy: {0}.
+        ///   Looks up a localized string similar to The request matched a deny Yubikey policy: {0}.
         /// </summary>
         internal static string YKVal_Policy_Matches_with_Reject {
             get {

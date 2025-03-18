@@ -8,7 +8,7 @@ TameMyCerts can ensure that a key pair has been created and is secured with a Yu
 
 This feature is called Personal Identity Verification (PIV) attestation (<https://developers.yubico.com/PIV/Introduction/PIV_attestation.html>). It can be combined with any other TameMyCerts feature.
 
-It is possible to include the attestion certificates in the Certificate Signing Request by using any of the following means:
+It is possible to include the attestation certificates in the Certificate Signing Request by using any of the following means:
 
 - yubico-piv-tool (<https://developers.yubico.com/yubico-piv-tool/>), a vendor maintained software for managing yubico PIV application.
 - powershellYK (<https://github.com/virot/powershellYK>), a PowerShell 7 module that builds on the Yubico .NET SDK. Available on Windows and MacOS.
@@ -56,11 +56,33 @@ cd Cert:\LocalMachine\My
 New-Item -Name YKROOT
 ```
 
-The Yubikey attestation Root CA certificate (<https://developers.yubico.com/PIV/Introduction/piv-attestation-ca.pem>) must be installed into the newly created `YKROOT` certificate store.
+The Yubikey attestation Root CA certificates (<https://developers.yubico.com/PKI/yubico-ca-certs.txt>) must be imported into the newly created `YKROOT` certificate store.
+
+> Note that these might need to get updated during the lifetime of the certification authority, as the vendor might introduce devices signed with newer CA certificates.
+
+![YKROOT Windows Certificate Store](resources/ykroot-store.png)
+
+### Creating certificate requests
+
+> This is only an example. Refer to the vendor's documentation (<https://developers.yubico.com/yubico-piv-tool/>) for more information on how to use the tool.
+
+Certificate requests can be created in various ways. Here is an example using the Yubikey PIV Tool.
+
+First, a key pair has to be created. This will save the public key into a file named `pubkey.key`.
+
+```batch
+yubico-piv-tool --slot=9a --action=generate --pin-policy=once --touch-policy=cached --algorithm=ECCP384 --output=pubkey.key
+```
+
+Afterwards, a Certificate Signing Request can be created using the public key. It will be saved into a file called `request.csr`.
+
+```batch
+yubico-piv-tool --slot=9a --subject="/CN=this-is-a-test/" --input=pubkey.key --attestation --output=request.csr --action=verify-pin --action=request
+```
 
 ### Configuring
 
-Denying certificate requests for ECC keys with a Yubikey with firmware version prior to 5.7.0.
+Denying certificate requests for ECC keys with a Yubikey with firmware version prior to 5.7.0 (these have a vulnerability, see <https://www.yubico.com/support/security-advisories/ysa-2024-03/> for more details).
 
 ```xml
 <YubiKeyPolicies>

@@ -1,6 +1,6 @@
 <!--
   This is an example configuration file for online certificate templates.
-  This template will verify the following from the Yubikey enclosed attestion:
+  This template will verify the following from the Yubikey enclosed attestation:
     * Does not run ECC if below version 5.7
     * PINPolicy to be Always or Once.
     * Will update the commonName of the format "<AD CN> [<Slot> <Serial>]"

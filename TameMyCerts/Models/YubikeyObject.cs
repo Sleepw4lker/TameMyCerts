@@ -54,13 +54,13 @@ public class YubikeyObject
 
         if (!chain.Build(attestationCertificate))
         {
-            ETWLogger.Log.YKVal_4208_Yubikey_Attestion_Failed_to_build(requestId);
+            ETWLogger.Log.YKVal_4208_Yubikey_Attestation_Failed_to_build(requestId);
             throw new Exception("Failed to build certificate chain.");
         }
 
         if (!publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData))
         {
-            ETWLogger.Log.YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(requestId);
+            ETWLogger.Log.YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(requestId);
             throw new Exception("Certificate Signing Request does not match attestation certificate.");
         }
 

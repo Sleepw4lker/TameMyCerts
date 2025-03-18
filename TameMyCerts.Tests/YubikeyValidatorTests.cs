@@ -961,7 +961,7 @@ public class YubikeyValidatorTests
     }
 
     [Fact]
-    public void Validate_YubiKeyObject_to_Human_readable_10023()
+    public void Validate_YubikeyObject_to_human_readable_10023()
     {
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10023);

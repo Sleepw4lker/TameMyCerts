@@ -369,10 +369,10 @@
     <value>The module was unable to read the embedded certificates. Actual error: {0}</value>
   </data>
   <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
-    <value>The request failed to find a matching yubikey policy, defaulting to deny.</value>
+    <value>The request failed to find a matching Yubikey policy, defaulting to deny.</value>
   </data>
   <data name="YKVal_Policy_Matches_with_Reject" xml:space="preserve">
-    <value>The request matched a deny yubikey policy: {0}</value>
+    <value>The request matched a deny Yubikey policy: {0}</value>
   </data>
   <data name="YKVal_Invalid_Attestation_with_YubikeyPolicy" xml:space="preserve">
     <value>The certificate request has been denied due to incorrect certificate request.</value>
@@ -381,7 +381,7 @@
     <value>The request {0}  was rejected due to policy: \r\n{1}</value>
   </data>
   <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
-    <value>The request {0} was rejected as the Yubikey Attestion failed for the embedded attestion.</value>
+    <value>The request {0} was rejected as the Yubikey Attestation failed for the embedded attestation.</value>
   </data>
   <data name="event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny" xml:space="preserve">
     <value>The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator.</value>
@@ -389,21 +389,21 @@
   <data name="event_YKVal_4204_Matching_policy" xml:space="preserve">
     <value>The request {0} is matching policy: 
 {1}
-YubiKey attestion data:
+YubiKey attestation data:
 {2}</value>
   </data>
-  <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestion" xml:space="preserve">
-    <value>The request {0} contained an embedded Yubikey Attestion, but it failed to be extracted.</value>
+  <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestation" xml:space="preserve">
+    <value>The request {0} contained an embedded Yubikey Attestation, but it failed to be extracted.</value>
   </data>
   <data name="event_YKVal_4206_Debug_failed_to_match_policy" xml:space="preserve">
     <value>The request {0} failed to match the Yubikey Policy: 
 {1}</value>
   </data>
-  <data name="event_YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR" xml:space="preserve">
-    <value>The request {0}, attestion certificates public key missmatch with the certificate request.</value>
+  <data name="event_YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR" xml:space="preserve">
+    <value>The request {0}, attestation certificates public key mismatch with the certificate request.</value>
   </data>
-  <data name="event_YKVal_4208_Yubikey_Attestion_Failed_to_build" xml:space="preserve">
-    <value>The request {0}, yubikey attestion failed to build trust chain to Yubikey CA.</value>
+  <data name="event_YKVal_4208_Yubikey_Attestation_Failed_to_build" xml:space="preserve">
+    <value>The request {0}, Yubikey attestation failed to build trust chain to Yubikey CA.</value>
   </data>
   <data name="event_TMC_1_PolicyModule_Success_Initiated" xml:space="preserve">
     <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>

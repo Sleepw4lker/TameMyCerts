@@ -2,11 +2,11 @@
 
 TameMyCerts is a policy module for Microsoft Active Directory Certificate Services (AD CS) enterprise certification authorities that enables security automation for a lot of use cases in the PKI field.
 
-It is developed in germany by PKI expert Uwe Gradenegger (<https://www.gradenegger.eu/>).
+It is developed in germany by PKI expert Uwe Gradenegger (<https://www.gradenegger.eu/>), with contributions from all over the world.
 
 The module supports, amongst other functions, inspecting certificate requests for certificate templates that allow the subject information to be specified by the enrollee against a defined policy. If any of the requested identities violates the defined rules, the certificate request automatically gets denied by the certification authority. Requested identities can also be mapped against Active Directory to apply restrictions based on group memberships, or even to pull certificate content from AD.
 
-Therefore, the module helps you to tame your certs! It has already proven itself in countless productive deployments of enterprise-grade scale.
+Therefore, the TameMyCerts policy module for Microsoft Active Directory Certificate Services helps you to tame your certs! It has already proven itself in countless productive deployments of enterprise-grade scale.
 
 TameMyCerts is Open Source Software. Find it on GitHub (<https://github.com/Sleepw4lker/TameMyCerts>).
 
@@ -31,7 +31,7 @@ AD CS uses the concept of _certificate templates_ to define rules that shall be 
 
 AD CS knows of two kinds of certificate templates and requests:
 
-- **Online** certifica templates and requests: Identities in the issued certificate are determined by the certification authority, based on information on the enrollee which is pulled from Active Directory.
+- **Online** certificate templates and requests: Identities in the issued certificate are determined by the certification authority, based on information on the enrollee which is pulled from Active Directory.
 - **Offline** certificate templates and requests: Identities in the issued certificate are provided by the enrollee during the enrollment process. The certification authority has no control over it, allowing enrollees to virtually request any identity from the CA and thus putting the environment at risk for identity spoofing.
 
 The fact whether a certificate template qualifies as online or offline derives from the settings within the "Subject" tab of the certificate template settings.

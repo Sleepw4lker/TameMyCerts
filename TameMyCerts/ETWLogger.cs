@@ -67,41 +67,41 @@ public sealed class ETWLogger : EventSource
 
     [Event(5, Level = EventLevel.Informational, Channel = EventChannel.Analytic, Task = Tasks.TameMyCerts,
         Keywords = EventKeywords.None)]
-    public void TMC_5_Analytical_Audit_only_Deny(int requestID, string template, string reason)
+    public void TMC_5_Analytical_Audit_only_Deny(int requestId, string template, string reason)
     {
         if (IsEnabled())
         {
-            WriteEvent(5, requestID, template, reason);
+            WriteEvent(5, requestId, template, reason);
         }
     }
 
     [Event(6, Level = EventLevel.Informational, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts,
         Keywords = EventKeywords.None)]
-    public void TMC_6_Deny_Issuing_Request(int requestID, string template, string reason)
+    public void TMC_6_Deny_Issuing_Request(int requestId, string template, string reason)
     {
         if (IsEnabled())
         {
-            WriteEvent(6, requestID, template, reason);
+            WriteEvent(6, requestId, template, reason);
         }
     }
 
     [Event(12, Level = EventLevel.Informational, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts,
         Keywords = EventKeywords.None)]
-    public void TMC_12_Success_Issued(int requestID, string template)
+    public void TMC_12_Success_Issued(int requestId, string template)
     {
         if (IsEnabled())
         {
-            WriteEvent(12, requestID, template);
+            WriteEvent(12, requestId, template);
         }
     }
 
     [Event(13, Level = EventLevel.Informational, Channel = EventChannel.Admin, Task = Tasks.TameMyCerts,
         Keywords = EventKeywords.None)]
-    public void TMC_13_Success_Pending(int requestID, string template)
+    public void TMC_13_Success_Pending(int requestId, string template)
     {
         if (IsEnabled())
         {
-            WriteEvent(13, requestID, template);
+            WriteEvent(13, requestId, template);
         }
     }
 
@@ -152,91 +152,91 @@ public sealed class ETWLogger : EventSource
 
     [Event(4201, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4201_Denied_by_Policy(int requestID, string denyingPolicy)
+    public void YKVal_4201_Denied_by_Policy(int requestId, string denyingPolicy)
     {
         if (IsEnabled())
         {
-            WriteEvent(4201, requestID, denyingPolicy);
+            WriteEvent(4201, requestId, denyingPolicy);
         }
     }
 
     [Event(4202, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4202_Denied_by_Policy(int requestID)
+    public void YKVal_4202_Denied_by_Policy(int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4202, requestID);
+            WriteEvent(4202, requestId);
         }
     }
 
     [Event(4203, Level = EventLevel.Warning, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4203_Denied_due_to_no_matching_policy_default_deny(int requestID)
+    public void YKVal_4203_Denied_due_to_no_matching_policy_default_deny(int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4203, requestID);
+            WriteEvent(4203, requestId);
         }
     }
 
     [Event(4204, Level = EventLevel.Verbose, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4204_Matching_policy(int requestID, string policy, string yubiKey)
+    public void YKVal_4204_Matching_policy(int requestId, string policy, string yubiKey)
     {
         if (IsEnabled())
         {
-            WriteEvent(4204, requestID, policy, yubiKey);
+            WriteEvent(4204, requestId, policy, yubiKey);
         }
     }
 
     [Event(4205, Level = EventLevel.Error, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4205_Failed_to_extract_Yubikey_Attestation(int requestID)
+    public void YKVal_4205_Failed_to_extract_Yubikey_Attestation(int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4205, requestID);
+            WriteEvent(4205, requestId);
         }
     }
 
     [Event(4206, Level = EventLevel.Warning, Channel = EventChannel.Debug, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4206_Debug_failed_to_match_policy(int requestID, string policy)
+    public void YKVal_4206_Debug_failed_to_match_policy(int requestId, string policy)
     {
         if (IsEnabled())
         {
-            WriteEvent(4206, requestID, policy);
+            WriteEvent(4206, requestId, policy);
         }
     }
 
     [Event(4207, Level = EventLevel.Error, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4207_Yubikey_Attestion_Missmatch_with_CSR(int requestID)
+    public void YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4207, requestID);
+            WriteEvent(4207, requestId);
         }
     }
 
     [Event(4208, Level = EventLevel.Error, Channel = EventChannel.Operational, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4208_Yubikey_Attestion_Failed_to_build(int requestID)
+    public void YKVal_4208_Yubikey_Attestation_Failed_to_build(int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4208, requestID);
+            WriteEvent(4208, requestId);
         }
     }
 
     [Event(4209, Level = EventLevel.Informational, Channel = EventChannel.Debug, Task = Tasks.YubikeyValidator,
         Keywords = EventKeywords.None)]
-    public void YKVal_4209_Found_Attestation_Location(int requestID, string attestationLocation)
+    public void YKVal_4209_Found_Attestation_Location(int requestId, string attestationLocation)
     {
         if (IsEnabled())
         {
-            WriteEvent(4209, requestID, attestationLocation);
+            WriteEvent(4209, requestId, attestationLocation);
         }
     }
 
@@ -246,53 +246,53 @@ public sealed class ETWLogger : EventSource
 
     [Event(4601, Level = EventLevel.Informational, Channel = EventChannel.Operational,
         Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
-    public void CCVal_4601_(string denyingPolicy, int requestID)
+    public void CCVal_4601_(string denyingPolicy, int requestId)
     {
         if (IsEnabled())
         {
-            WriteEvent(4601, denyingPolicy, requestID);
+            WriteEvent(4601, denyingPolicy, requestId);
         }
     }
 
     [Event(4651, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator,
         Keywords = EventKeywords.None)]
-    public void CCVal_4651_SAN_Already_Exists(int requestID, string subjectAltName, string currentValue,
+    public void CCVal_4651_SAN_Already_Exists(int requestId, string subjectAltName, string currentValue,
         string ignoredValue)
     {
         if (IsEnabled())
         {
-            WriteEvent(4651, requestID, subjectAltName, currentValue, ignoredValue);
+            WriteEvent(4651, requestId, subjectAltName, currentValue, ignoredValue);
         }
     }
 
     [Event(4652, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator,
         Keywords = EventKeywords.None)]
-    public void CCVal_4652_SAN_Added(int requestID, string subjectAltName, string addedValue)
+    public void CCVal_4652_SAN_Added(int requestId, string subjectAltName, string addedValue)
     {
         if (IsEnabled())
         {
-            WriteEvent(4652, requestID, subjectAltName, addedValue);
+            WriteEvent(4652, requestId, subjectAltName, addedValue);
         }
     }
 
     [Event(4653, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator,
         Keywords = EventKeywords.None)]
-    public void CCVal_4653_SAN_Failed_to_add(int requestID, string subjectAltName, string ignoredValue)
+    public void CCVal_4653_SAN_Failed_to_add(int requestId, string subjectAltName, string ignoredValue)
     {
         if (IsEnabled())
         {
-            WriteEvent(4653, requestID, subjectAltName, ignoredValue);
+            WriteEvent(4653, requestId, subjectAltName, ignoredValue);
         }
     }
 
     // Planned for future, not is use yet. 
     [Event(4654, Level = EventLevel.Warning, Channel = EventChannel.Operational,
         Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
-    public void CCVal_4654_SAN_Failed_Mandatory(int requestID, string subjectAltName)
+    public void CCVal_4654_SAN_Failed_Mandatory(int requestId, string subjectAltName)
     {
         if (IsEnabled())
         {
-            WriteEvent(4654, requestID, subjectAltName);
+            WriteEvent(4654, requestId, subjectAltName);
         }
     }
 
