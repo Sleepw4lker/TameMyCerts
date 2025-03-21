@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2024 Uwe Gradenegger <uwe@gradenegger.eu>
+﻿// Copyright 2021-2025 Uwe Gradenegger <info@gradenegger.eu>
 // Copyright 2024 Oscar Virot <virot@virot.com>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,9 +29,6 @@ public class YubikeyPolicy
 {
     [XmlElement(ElementName = "Action")]
     public YubikeyPolicyAction Action { get; set; } = YubikeyPolicyAction.Allow;
-
-    [XmlElement(ElementName = "IncludeAttestationInCertificate")]
-    public bool IncludeAttestationInCertificate { get; set; }
 
     [XmlArray(ElementName = "PinPolicy")]
     [XmlArrayItem(ElementName = "string")]

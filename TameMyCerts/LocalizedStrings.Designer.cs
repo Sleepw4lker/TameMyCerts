@@ -898,7 +898,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to find a matching Yubikey policy. Request {0} will get denied..
+        ///   Looks up a localized string similar to Failed to find a matching Yubikey policy. Request {0} will get denied for Yubikey with Serial Number {1}..
         /// </summary>
         internal static string YKVal_No_Matching_Policy_Found {
             get {
@@ -907,8 +907,8 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Request {0} matched a deny Yubikey policy:
-        ///{1}.
+        ///   Looks up a localized string similar to Request {0} for Yubikey with Serial Number {1} matched a deny Yubikey policy:
+        ///{2}.
         /// </summary>
         internal static string YKVal_Policy_Matches_with_Reject {
             get {
