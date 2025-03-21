@@ -1023,56 +1023,58 @@ public class YubikeyValidatorTests
 
         Assert.Contains("UsbANano", policy.SaveToString());
     }
+
     [Fact]
     public void Validate_Deny_Firmware_UpTo_5_2_7_10025()
     {
         _listener.ClearEvents();
 
-        var dbRow = new CertificateDatabaseRow(Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
-        CertCli.CR_IN_PKCS10, null, 10025);
+        var dbRow = new CertificateDatabaseRow(
+            Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
+            CertCli.CR_IN_PKCS10, null, 10025);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _yKvalidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MaximumFirmwareString = "5.2.7";
         policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
 
-        result = _yKvalidator.VerifyRequest(result, policy, yubikey, dbRow.RequestID);
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
-        PrintResult(result);
+        PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
     }
+
     [Fact]
     public void Validate_Verify_Location_1_10026()
     {
         _listener.ClearEvents();
 
-        var dbRow = new CertificateDatabaseRow(Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
-        CertCli.CR_IN_PKCS10, null, 10026);
+        var dbRow = new CertificateDatabaseRow(
+            Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
+            CertCli.CR_IN_PKCS10, null, 10026);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _yKvalidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.0.0";
         policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
 
-        result = _yKvalidator.VerifyRequest(result, policy, yubikey, dbRow.RequestID);
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
-        PrintResult(result);
+        PrintResult(result, yubikey);
 
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(YubikeyX509Extensions.ATTESTATION_DEVICE,
-           _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
+            _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
     }
 
     private string Retrive_CSR_from_Resource(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
-        using (var stream = assembly.GetManifestResourceStream(resourceName))
-        using (var reader = new StreamReader(stream))
-        {
-            return reader.ReadToEnd();
-        }
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }
