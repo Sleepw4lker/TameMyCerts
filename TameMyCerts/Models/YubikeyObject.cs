@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2024 Uwe Gradenegger <uwe@gradenegger.eu>
+﻿// Copyright 2021-2025 Uwe Gradenegger <info@gradenegger.eu>
 // Copyright 2024 Oscar Virot <virot@virot.com>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,16 +55,14 @@ public class YubikeyObject
         if (!chain.Build(attestationCertificate))
         {
             ETWLogger.Log.YKVal_4208_Yubikey_Attestation_Failed_to_build(requestId);
-            throw new Exception("Failed to build certificate chain.");
+            throw new Exception(LocalizedStrings.YKObject_Failed_to_build);
         }
 
         if (!publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData))
         {
             ETWLogger.Log.YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(requestId);
-            throw new Exception("Certificate Signing Request does not match attestation certificate.");
+            throw new Exception(LocalizedStrings.YKObject_Attestation_Cert_Mismatch);
         }
-
-        Validated = true;
 
         #region Slot
 
@@ -126,7 +124,7 @@ public class YubikeyObject
                 Array.Reverse(serialNumber);
             }
 
-            SerialNumber = BitConverter.ToUInt32(serialNumber, 0).ToString();
+            SerialNumber = BitConverter.ToUInt32(serialNumber, 0);
         }
 
         #endregion
@@ -166,7 +164,7 @@ public class YubikeyObject
         Attributes.Add("PinPolicy", PinPolicy.ToString());
         Attributes.Add("TouchPolicy", TouchPolicy.ToString());
         Attributes.Add("Slot", Slot);
-        Attributes.Add("SerialNumber", SerialNumber);
+        Attributes.Add("SerialNumber", SerialNumber.ToString());
     }
 
     [XmlIgnore]
@@ -182,18 +180,38 @@ public class YubikeyObject
     [XmlElement(ElementName = "FormFactor")]
     public YubikeyFormFactor FormFactor { get; set; }
 
-    [XmlElement(ElementName = "Slot")] public string Slot { get; set; } = "";
+    [XmlElement(ElementName = "Slot")]
+    public string Slot { get; set; } = string.Empty;
 
-    [XmlElement(ElementName = "Serial")] public string SerialNumber { get; set; } = "";
+    [XmlElement(ElementName = "SerialNumber")]
+    public uint SerialNumber { get; set; }
 
+    // This is a workaround as Version type cannot be serialized
     [XmlElement(ElementName = "FirmwareVersion")]
     public string FirmwareVersionString
     {
         get => FirmwareVersion.ToString();
-        set => throw new Exception("String cannot be set.");
+        set => throw new NotSupportedException();
     }
 
-    [XmlIgnore] public Version FirmwareVersion { get; set; } = new(0, 0, 0);
+    // This is a workaround as X509Certificate2 type cannot be serialized
+    [XmlElement(ElementName = "AttestationCertificate")]
+    public string AttestationCertificateString
+    {
+        get => AttestationCertificate != null ? Convert.ToBase64String(AttestationCertificate.RawData) : string.Empty;
+        set => throw new NotSupportedException();
+    }
+
+    // This is a workaround as X509Certificate2 type cannot be serialized
+    [XmlElement(ElementName = "IntermediateCertificate")]
+    public string IntermediateCertificateString
+    {
+        get => IntermediateCertificate != null ? Convert.ToBase64String(IntermediateCertificate.RawData) : string.Empty;
+        set => throw new NotSupportedException();
+    }
+
+    [XmlIgnore]
+    public Version FirmwareVersion { get; set; } = new(0, 0, 0);
 
     [XmlElement(ElementName = "KeyAlgorithm")]
     public KeyAlgorithmFamily KeyAlgorithm { get; set; }
@@ -201,14 +219,14 @@ public class YubikeyObject
     [XmlElement(ElementName = "KeyLength")]
     public int KeyLength { get; set; }
 
-    [XmlElement(ElementName = "Edition")] public YubikeyEdition Edition { get; set; } = YubikeyEdition.Normal;
+    [XmlElement(ElementName = "Edition")]
+    public YubikeyEdition Edition { get; set; } = YubikeyEdition.Normal;
 
-    [XmlIgnore] public X509Certificate2 AttestationCertificate { get; }
+    [XmlIgnore]
+    public X509Certificate2 AttestationCertificate { get; }
 
-    [XmlIgnore] public X509Certificate2 IntermediateCertificate { get; }
-
-    [XmlElement(ElementName = "Validated")]
-    public bool? Validated { get; } = false;
+    [XmlIgnore]
+    public X509Certificate2 IntermediateCertificate { get; }
 
     public static string ConvertToHumanReadableXml(string inputString)
     {

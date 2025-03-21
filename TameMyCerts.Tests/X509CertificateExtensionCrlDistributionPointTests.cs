@@ -1,10 +1,11 @@
 ﻿using System;
 using TameMyCerts.X509;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
-public class X509CertificateExtensionCrlDistributionPointTests
+public class X509CertificateExtensionCrlDistributionPointTests(ITestOutputHelper output)
 {
     [Fact]
     public void Building_long()
@@ -28,6 +29,8 @@ public class X509CertificateExtensionCrlDistributionPointTests
 
         cdpExt.InitializeEncode();
 
+        output.WriteLine(Convert.ToBase64String(cdpExt.RawData));
+
         Assert.Equal(expectedResult, Convert.ToBase64String(cdpExt.RawData));
     }
 
@@ -42,6 +45,8 @@ public class X509CertificateExtensionCrlDistributionPointTests
 
         cdpExt.AddUniformResourceIdentifier("http://pki.tamemycerts-tests.local/CertData/TEST-CA.crl");
         cdpExt.InitializeEncode();
+
+        output.WriteLine(Convert.ToBase64String(cdpExt.RawData));
 
         Assert.Equal(expectedResult, Convert.ToBase64String(cdpExt.RawData));
     }

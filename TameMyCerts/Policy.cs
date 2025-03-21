@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2023 Uwe Gradenegger <uwe@gradenegger.eu>
+﻿// Copyright 2021-2025 Uwe Gradenegger <info@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,7 +106,7 @@ public class Policy : ICertPolicy2
             throw;
         }
 
-        if (!(disposition == CertSrv.VR_PENDING || disposition == CertSrv.VR_INSTANT_OK))
+        if (disposition is not (CertSrv.VR_PENDING or CertSrv.VR_INSTANT_OK))
         {
             _logger.Log(Events.PDEF_REQUEST_DENIED, requestId);
             return disposition;
@@ -173,7 +173,7 @@ public class Policy : ICertPolicy2
             result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var ykObject);
 
             result = _dsValidator.VerifyRequest(result, policy, dsObject);
-            result = _ykValidator.VerifyRequest(result, policy, ykObject, dbRow.RequestID);
+            result = _ykValidator.VerifyRequest(result, policy, ykObject, dbRow);
             result = _ccValidator.VerifyRequest(result, policy, dbRow, dsObject, _caConfig, ykObject);
             result = _frValidator.VerifyRequest(result, policy, dbRow);
 

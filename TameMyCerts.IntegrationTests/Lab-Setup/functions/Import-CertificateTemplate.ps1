@@ -52,12 +52,13 @@ function Import-CertificateTemplate {
 
         $ForestRootDomain = $(Get-ADForest | Select-Object -ExpandProperty RootDomain | Get-ADDomain).DistinguishedName
         $ConfigNC = "CN=Configuration,$ForestRootDomain"
+        $System = (New-Object -TypeName System.Security.Principal.SecurityIdentifier("S-1-5-18")).Translate([System.Security.Principal.NTAccount]).Value
 
     }
 
     process {
 
-        if ($TemplateName -eq [String]::Empty) { $TemplateName = $File.Name.Split(".")[0]}
+        if ($TemplateName -eq [String]::Empty) { $TemplateName = $File.Name.Split(".")[0] }
 
         $TemplatePath = "CN=$TemplateName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
 
@@ -83,5 +84,11 @@ function Import-CertificateTemplate {
         [void](& "$($env:SystemRoot)\System32\certutil.exe" -f -oid $TemplateOid $TemplateName)
 
         Get-OidObject -ConfigNC $ConfigNC -Oid $TemplateOid | Set-AdObject -Replace @{DisplayName = $TemplateName}
+
+        # NT-AUTHORITY\SYSTEM gets added with Full Control permissions on import, we eliminate this entry
+        $Acl = Get-ACL -Path "AD:\$TemplatePath" -ErrorAction Stop
+        if ($Acl.RemoveAccessRule(($Acl.Access | Where-Object { $_.IdentityReference -eq $System }))) {
+            Set-Acl -Path "AD:\$TemplatePath" -AclObject $Acl
+        }
     }
 }

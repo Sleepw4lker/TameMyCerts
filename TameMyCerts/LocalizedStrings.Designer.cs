@@ -250,60 +250,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value &quot;{0}&quot; for directory attribute &quot;{1}&quot; that was specified for construction of the mandatory &quot;{2}&quot; subject relative distinguished name for {3} is too long. The maximum length is {4} characters for this RDN but the attribute is {5} characters long..
-        /// </summary>
-        internal static string DirVal_Rdn_Directory_Attribute_too_long {
-            get {
-                return ResourceManager.GetString("DirVal_Rdn_Directory_Attribute_too_long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory &quot;{1}&quot; subject relative distinguished name is either not supported or not populated for {2}..
-        /// </summary>
-        internal static string DirVal_Rdn_Invalid_Directory_Attribute {
-            get {
-                return ResourceManager.GetString("DirVal_Rdn_Invalid_Directory_Attribute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The field name &quot;{0}&quot; that was specified for construction of the mandatory subject relative distinguished name for {1} is unsupported..
-        /// </summary>
-        internal static string DirVal_Rdn_Invalid_Field {
-            get {
-                return ResourceManager.GetString("DirVal_Rdn_Invalid_Field", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The attempt to add the mandatory directory attribute &quot;{0}&quot; to the mandatory &quot;{1}&quot; subject alternative name type failed for {2}. This may be because of an incompatibility of data types..
-        /// </summary>
-        internal static string DirVal_San_Failed_to_add {
-            get {
-                return ResourceManager.GetString("DirVal_San_Failed_to_add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The directory attribute &quot;{0}&quot; that was specified for construction of the mandatory &quot;{1}&quot; subject alternative name is either not supported or not populated for {2}..
-        /// </summary>
-        internal static string DirVal_San_Invalid_Directory_Attribute {
-            get {
-                return ResourceManager.GetString("DirVal_San_Invalid_Directory_Attribute", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The field name &quot;{0}&quot; that was specified for construction of the mandatory subject alternative name for {1} is unsupported..
-        /// </summary>
-        internal static string DirVal_San_Invalid_Field {
-            get {
-                return ResourceManager.GetString("DirVal_San_Invalid_Field", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to determine the msds-TokenGroupNames attribute for {0}. Note that this attribute is only available on Windows Server 2016 and newer Domain Controllers..
         /// </summary>
         internal static string DirVal_TokenGroupNames_Failed {
@@ -331,7 +277,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to add the subjectAltName &quot;{1}&quot; to &quot;{2}&quot; for requestID {0}..
+        ///   Looks up a localized string similar to Failed to add the subjectAltName &quot;{1}&quot; to &quot;{2}&quot; for Request {0}..
         /// </summary>
         internal static string event_CCVal_4653_SAN_Failed_to_add {
             get {
@@ -340,7 +286,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Denying requestid {0} as subjectAltName &quot;{1}&quot; is mandatory and failed..
+        ///   Looks up a localized string similar to Denying Request {0} as subjectAltName &quot;{1}&quot; is mandatory and failed..
         /// </summary>
         internal static string event_CCVal_4654_SAN_Failed_Mandatory {
             get {
@@ -570,16 +516,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Windows Default policy module was unable to verify request {0}:
-        ///{1}.
-        /// </summary>
-        internal static string Events_PDEF_FAIL_VERIFY {
-            get {
-                return ResourceManager.GetString("Events_PDEF_FAIL_VERIFY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Request {0} was denied by the Windows Default policy module..
         /// </summary>
         internal static string Events_PDEF_REQUEST_DENIED {
@@ -656,15 +592,6 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No certificate template information for request {0} could be retrieved from the certification authority service. The request will get denied..
-        /// </summary>
-        internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO {
-            get {
-                return ResourceManager.GetString("Events_REQUEST_DENIED_NO_TEMPLATE_INFO", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied..
         /// </summary>
         internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL {
@@ -697,15 +624,6 @@ namespace TameMyCerts {
         internal static string Events_SUCCESS_PENDING {
             get {
                 return ResourceManager.GetString("Events_SUCCESS_PENDING", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate expiration date of request {0} for {1} was reduced to {2} (UTC) due to policy configuration..
-        /// </summary>
-        internal static string Events_VALIDITY_REDUCED {
-            get {
-                return ResourceManager.GetString("Events_VALIDITY_REDUCED", resourceCulture);
             }
         }
         
@@ -805,24 +723,6 @@ namespace TameMyCerts {
         internal static string ReqVal_Err_Parse_San {
             get {
                 return ResourceManager.GetString("ReqVal_Err_Parse_San", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to parse the given subject distinguished name..
-        /// </summary>
-        internal static string ReqVal_Err_Parse_SubjectDn {
-            get {
-                return ResourceManager.GetString("ReqVal_Err_Parse_SubjectDn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to match pattern &quot;{0}&quot; with value &quot;{1}&quot; for the {2} field..
-        /// </summary>
-        internal static string ReqVal_Err_Regex {
-            get {
-                return ResourceManager.GetString("ReqVal_Err_Regex", resourceCulture);
             }
         }
         
@@ -980,70 +880,25 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This Yubikey&apos;s firmware &quot;{0}&quot;, is not on the list of allowed firmwares..
+        ///   Looks up a localized string similar to The Certificate Signing Request for does not match its attestation certificate..
         /// </summary>
-        internal static string YKVal_Allowed_Firmware_Version {
+        internal static string YKObject_Attestation_Cert_Mismatch {
             get {
-                return ResourceManager.GetString("YKVal_Allowed_Firmware_Version", resourceCulture);
+                return ResourceManager.GetString("YKObject_Attestation_Cert_Mismatch", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This Yubikey&apos;s PIN policy &quot;{0}&quot;, is not on the list of allowed PIN policies..
+        ///   Looks up a localized string similar to Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the &quot;YKROOT&quot; certificate store is properly populated..
         /// </summary>
-        internal static string YKVal_Allowed_PIN_Policy {
+        internal static string YKObject_Failed_to_build {
             get {
-                return ResourceManager.GetString("YKVal_Allowed_PIN_Policy", resourceCulture);
+                return ResourceManager.GetString("YKObject_Failed_to_build", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This Yubikey&apos;s touch policy &quot;{0}&quot;, is not on the list of allowed touch policies..
-        /// </summary>
-        internal static string YKVal_Allowed_Touch_Policy {
-            get {
-                return ResourceManager.GetString("YKVal_Allowed_Touch_Policy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The Yubikey&apos;s firmware &quot;{0}&quot; is actively being denied..
-        /// </summary>
-        internal static string YKVal_Disallowed_Firmware_Version {
-            get {
-                return ResourceManager.GetString("YKVal_Disallowed_Firmware_Version", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The Yubikey&apos;s PIN Policy &quot;{0}&quot; is actively being denied..
-        /// </summary>
-        internal static string YKVal_Disallowed_PIN_Policy {
-            get {
-                return ResourceManager.GetString("YKVal_Disallowed_PIN_Policy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The Yubikey&apos;s Touch Policy &quot;{0}&quot; is actively being denied..
-        /// </summary>
-        internal static string YKVal_Disallowed_Touch_Policy {
-            get {
-                return ResourceManager.GetString("YKVal_Disallowed_Touch_Policy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The certificate request has been denied due to incorrect certificate request..
-        /// </summary>
-        internal static string YKVal_Invalid_Attestation_with_YubikeyPolicy {
-            get {
-                return ResourceManager.GetString("YKVal_Invalid_Attestation_with_YubikeyPolicy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The request failed to find a matching Yubikey policy, defaulting to deny..
+        ///   Looks up a localized string similar to Failed to find a matching Yubikey policy. Request {0} will get denied for Yubikey with Serial Number {1}..
         /// </summary>
         internal static string YKVal_No_Matching_Policy_Found {
             get {
@@ -1052,7 +907,8 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request matched a deny Yubikey policy: {0}.
+        ///   Looks up a localized string similar to Request {0} for Yubikey with Serial Number {1} matched a deny Yubikey policy:
+        ///{2}.
         /// </summary>
         internal static string YKVal_Policy_Matches_with_Reject {
             get {
@@ -1061,7 +917,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The module was unable to read the embedded certificates. Actual error: {0}.
+        ///   Looks up a localized string similar to The module was unable to read the embedded certificates: {1}. Request {0} will get denied..
         /// </summary>
         internal static string YKVal_Unable_to_read_embedded_certificates {
             get {

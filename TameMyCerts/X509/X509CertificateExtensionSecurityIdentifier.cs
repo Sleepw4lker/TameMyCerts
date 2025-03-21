@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2023 Uwe Gradenegger <uwe@gradenegger.eu>
+﻿// Copyright 2021-2025 Uwe Gradenegger <info@gradenegger.eu>
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,21 +23,21 @@ public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtensi
 {
     public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
     {
-        var AsnWriter = new AsnWriter(AsnEncodingRules.DER);
+        var asnWriter = new AsnWriter(AsnEncodingRules.DER);
 
-        using (AsnWriter.PushSequence())
+        using (asnWriter.PushSequence())
         {
-            using (AsnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+            using (asnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
             {
-                AsnWriter.WriteObjectIdentifier(WinCrypt.szOID_NTDS_OBJECTSID);
+                asnWriter.WriteObjectIdentifier(WinCrypt.szOID_NTDS_OBJECTSID);
 
-                using (AsnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+                using (asnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
                 {
-                    AsnWriter.WriteOctetString(Encoding.ASCII.GetBytes(sid.ToString()));
+                    asnWriter.WriteOctetString(Encoding.ASCII.GetBytes(sid.ToString()));
                 }
             }
         }
 
-        RawData = AsnWriter.Encode();
+        RawData = asnWriter.Encode();
     }
 }

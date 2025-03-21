@@ -1,10 +1,11 @@
 ﻿using System;
 using TameMyCerts.X509;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
-public class X509CertificateExtensionAuthorityInformationAccessTests
+public class X509CertificateExtensionAuthorityInformationAccessTests(ITestOutputHelper output)
 {
     [Fact]
     public void Building_long()
@@ -29,6 +30,8 @@ public class X509CertificateExtensionAuthorityInformationAccessTests
 
         aiaExt.InitializeEncode();
 
+        output.WriteLine(Convert.ToBase64String(aiaExt.RawData));
+
         Assert.Equal(expectedResult, Convert.ToBase64String(aiaExt.RawData));
     }
 
@@ -43,6 +46,8 @@ public class X509CertificateExtensionAuthorityInformationAccessTests
 
         aiaExt.AddUniformResourceIdentifier("http://pki.tamemycerts-tests.local/CertData/TEST-CA.crt");
         aiaExt.InitializeEncode();
+
+        output.WriteLine(Convert.ToBase64String(aiaExt.RawData));
 
         Assert.Equal(expectedResult, Convert.ToBase64String(aiaExt.RawData));
     }
