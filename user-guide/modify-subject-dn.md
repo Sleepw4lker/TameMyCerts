@@ -30,18 +30,18 @@ You may specify the following Relative Distinguished Names (RDN) for the "Field"
 
 |RDN|Maximum length|Typical AD attributes|Remarks|
 |---|---|---|---|
-|emailAddress|128|mail||
-|commonName|64|name, sAMAccountName, displayName, userPrincipalName||
-|organizationName|64|company||
-|organizationalUnitName|64|department||
-|localityName|128|l||
-|stateOrProvinceName|128|st||
-|countryName|2|c||
-|title|64|title|not enabled by default|
-|givenName|16|givenName|not enabled by default|
-|initials|5|initials|not enabled by default|
-|surname|40|sn|not enabled by default|
-|streetAddress|30|streetAddress|not enabled by default|
+|emailAddress|128|[mail](https://learn.microsoft.com/en-us/windows/win32/adschema/a-mail)||
+|commonName|64|[name](https://learn.microsoft.com/en-us/windows/win32/adschema/a-name), [sAMAccountName](https://learn.microsoft.com/en-us/windows/win32/adschema/a-sAMAccountName), [displayName](https://learn.microsoft.com/en-us/windows/win32/adschema/a-displayName), [userPrincipalName](https://learn.microsoft.com/en-us/windows/win32/adschema/a-userPrincipalName)||
+|organizationName|64|[company](https://learn.microsoft.com/en-us/windows/win32/adschema/a-company)||
+|organizationalUnitName|64|[department](https://learn.microsoft.com/en-us/windows/win32/adschema/a-department)||
+|localityName|128|[l](https://learn.microsoft.com/en-us/windows/win32/adschema/a-l)||
+|stateOrProvinceName|128|[st](https://learn.microsoft.com/en-us/windows/win32/adschema/a-st)||
+|countryName|2|[c](https://learn.microsoft.com/en-us/windows/win32/adschema/a-c)||
+|title|64|[title](https://learn.microsoft.com/en-us/windows/win32/adschema/a-title)|not enabled by default|
+|givenName|16|[givenName](https://learn.microsoft.com/en-us/windows/win32/adschema/a-givenName)|not enabled by default|
+|initials|5|[initials](https://learn.microsoft.com/en-us/windows/win32/adschema/a-initials)|not enabled by default|
+|surname|40|[sn](https://learn.microsoft.com/en-us/windows/win32/adschema/a-sn)|not enabled by default|
+|streetAddress|30|[streetAddress](https://learn.microsoft.com/en-us/windows/win32/adschema/a-streetAddress)|not enabled by default|
 |unstructuredName|1024|n/a||
 |unstructuredAddress|1024|n/a||
 |serialNumber|1024|n/a||
