@@ -29,15 +29,15 @@ function Grant-CertificateTemplatePermission  {
 
     process {
 
-        $Path = "CN=$Name,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
+        $TemplatePath = "CN=$Name,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
 
-        $Acl = Get-ACL -Path "AD:\$Path" -ErrorAction Stop
+        $Acl = Get-ACL -Path "AD:\$TemplatePath" -ErrorAction Stop
 
         $Sid = (New-Object -TypeName System.Security.Principal.NTAccount($Identity)).Translate([System.Security.Principal.SecurityIdentifier])
 
         $Permission | ForEach-Object -Process {
 
-            Write-Verbose -Message "Granting $_ permission to $Identity ($Sid) on $Path."
+            Write-Verbose -Message "Granting $_ permission to $Identity ($Sid) on $TemplatePath."
 
             switch ($_) {
 
@@ -63,6 +63,6 @@ function Grant-CertificateTemplatePermission  {
             $Acl.AddAccessRule($Ace)
         }
 
-        Set-Acl -Path "AD:\$Path" -AclObject $Acl
+        Set-Acl -Path "AD:\$TemplatePath" -AclObject $Acl
     }
 }
