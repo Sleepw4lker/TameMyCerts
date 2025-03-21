@@ -106,7 +106,7 @@ public class Policy : ICertPolicy2
             throw;
         }
 
-        if (!(disposition == CertSrv.VR_PENDING || disposition == CertSrv.VR_INSTANT_OK))
+        if (disposition is not (CertSrv.VR_PENDING or CertSrv.VR_INSTANT_OK))
         {
             _logger.Log(Events.PDEF_REQUEST_DENIED, requestId);
             return disposition;
