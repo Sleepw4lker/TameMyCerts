@@ -14,14 +14,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Formats.Asn1;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.X509;
 
 public class X509CertificateExtensionAuthorityInformationAccess : X509CertificateExtension
 {
-    private readonly List<KeyValuePair<Uri, bool>> _uris = new();
+    private readonly List<KeyValuePair<Uri, bool>> _uris = [];
 
     public void AddUniformResourceIdentifier(string uri, bool isOcsp = false)
     {
@@ -38,17 +38,25 @@ public class X509CertificateExtensionAuthorityInformationAccess : X509Certificat
 
     public void InitializeEncode(bool encodeUris = false)
     {
-        var result = Array.Empty<byte>();
+        var asnWriter = new AsnWriter(AsnEncodingRules.DER);
 
-        result = (from keyValuePair in _uris
-            let node = keyValuePair.Value
-                ? new byte[] { 0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x01 } // 1.3.6.1.5.5.7.48.1
-                : new byte[] { 0x06, 0x08, 0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x02 } // 1.3.6.1.5.5.7.48.2
-            let uri = keyValuePair.Key.ToString()
-            select node.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(uri) : uri)))
-                .ToArray()).Aggregate(result,
-            (current, node) => current.Concat(Asn1BuildNode(0x30, node)).ToArray());
+        using (asnWriter.PushSequence())
+        {
+            foreach (var keyValuePair in _uris)
+            {
+                using (asnWriter.PushSequence())
+                {
+                    asnWriter.WriteObjectIdentifier(keyValuePair.Value
+                        ? WinCrypt.szOID_PKIX_OCSP
+                        : WinCrypt.szOID_PKIX_CA_ISSUERS);
 
-        RawData = Asn1BuildNode(0x30, result);
+                    asnWriter.WriteCharacterString(UniversalTagNumber.IA5String,
+                        encodeUris ? EncodeUri(keyValuePair.Key.ToString()) : keyValuePair.Key.ToString(),
+                        new Asn1Tag(TagClass.ContextSpecific, 6));
+                }
+            }
+        }
+
+        RawData = asnWriter.Encode();
     }
 }

@@ -28,4 +28,6 @@ internal static class WinCrypt
     public const string szOID_SUBJECT_ALT_NAME2 = "2.5.29.17";
     public const string szOID_CRL_DIST_POINTS = "2.5.29.31";
     public const string szOID_AUTHORITY_INFO_ACCESS = "1.3.6.1.5.5.7.1.1";
+    public const string szOID_PKIX_OCSP = "1.3.6.1.5.5.7.48.1";
+    public const string szOID_PKIX_CA_ISSUERS = "1.3.6.1.5.5.7.48.2";
 }

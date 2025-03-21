@@ -14,14 +14,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Formats.Asn1;
 
 namespace TameMyCerts.X509;
 
 public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExtension
 {
-    private readonly List<Uri> _uris = new();
+    private readonly List<Uri> _uris = [];
 
     public void AddUniformResourceIdentifier(string uri)
     {
@@ -38,18 +37,27 @@ public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExten
 
     public void InitializeEncode(bool encodeUris = false)
     {
-        var result = Array.Empty<byte>();
+        var asnWriter = new AsnWriter(AsnEncodingRules.DER);
 
-        result = _uris.Select(uri => uri.ToString()).Aggregate(result,
-            (current, input) =>
-                current.Concat(Asn1BuildNode(0x86, Encoding.ASCII.GetBytes(encodeUris ? EncodeUri(input) : input)))
-                    .ToArray());
+        using (asnWriter.PushSequence())
+        {
+            using (asnWriter.PushSequence())
+            {
+                using (asnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+                {
+                    using (asnWriter.PushSequence(new Asn1Tag(TagClass.ContextSpecific, 0)))
+                    {
+                        foreach (var uri in _uris)
+                        {
+                            asnWriter.WriteCharacterString(UniversalTagNumber.IA5String,
+                                encodeUris ? EncodeUri(uri.ToString()) : uri.ToString(),
+                                new Asn1Tag(TagClass.ContextSpecific, 6));
+                        }
+                    }
+                }
+            }
+        }
 
-        result = Asn1BuildNode(0xA0, result);
-        result = Asn1BuildNode(0xA0, result);
-        result = Asn1BuildNode(0x30, result);
-        result = Asn1BuildNode(0x30, result);
-
-        RawData = result;
+        RawData = asnWriter.Encode();
     }
 }
