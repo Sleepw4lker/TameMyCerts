@@ -898,6 +898,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request {0} does not contain any valid Yubikey attestation data..
+        /// </summary>
+        internal static string YKVal_No_Attestation_Found {
+            get {
+                return ResourceManager.GetString("YKVal_No_Attestation_Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to find a matching Yubikey policy. Request {0} will get denied for Yubikey with Serial Number {1}..
         /// </summary>
         internal static string YKVal_No_Matching_Policy_Found {
@@ -917,7 +926,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The module was unable to read the embedded certificates: {1}. Request {0} will get denied..
+        ///   Looks up a localized string similar to Unable to read the embedded Yubikey attestation certificates for Request {0}: {1}.
         /// </summary>
         internal static string YKVal_Unable_to_read_embedded_certificates {
             get {

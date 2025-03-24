@@ -32,7 +32,7 @@ public class YubikeyValidatorTests
     private readonly string _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR;
     private readonly CertificateDatabaseRow _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow;
 
-    private readonly X509Certificate2 _yubikeyValidationCa = new(Convert.FromBase64String(
+    private readonly X509Certificate2 _yubikeyPivRootCaSerial263751 = new(Convert.FromBase64String(
         "MIIDFzCCAf+gAwIBAgIDBAZHMA0GCSqGSIb3DQEBCwUAMCsxKTAnBgNVBAMMIFl1" +
         "YmljbyBQSVYgUm9vdCBDQSBTZXJpYWwgMjYzNzUxMCAXDTE2MDMxNDAwMDAwMFoY" +
         "DzIwNTIwNDE3MDAwMDAwWjArMSkwJwYDVQQDDCBZdWJpY28gUElWIFJvb3QgQ0Eg" +
@@ -261,15 +261,26 @@ public class YubikeyValidatorTests
         _output = output;
         _listener = new ETWLoggerListener();
 
-        _ykValidator = new YubikeyValidator(new X509Certificate2Collection { _yubikeyValidationCa });
+        _ykValidator = new YubikeyValidator([_yubikeyPivRootCaSerial263751]);
     }
 
-    internal void PrintResult(CertificateRequestValidationResult result, YubikeyObject yubikey)
+    internal void PrintResult(CertificateRequestValidationResult result, YubikeyObject yubikey = null)
     {
         _output.WriteLine("0x{0:X} ({0}) {1}.", result.StatusCode,
             new Win32Exception(result.StatusCode).Message);
         _output.WriteLine(string.Join("\n", result.Description));
-        _output.WriteLine(yubikey.SaveToString());
+        if (yubikey != null)
+        {
+            _output.WriteLine(yubikey.SaveToString());
+        }
+    }
+
+    private string Retrieve_CSR_from_Resource(string resourceName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 
     [Fact]
@@ -279,7 +290,7 @@ public class YubikeyValidatorTests
             CertCli.CR_IN_PKCS10, null, 10002);
         var result = new CertificateRequestValidationResult(dbRow);
 
-        result.SetFailureStatus();
+        result.SetFailureStatus(WinError.ERROR_INVALID_TIME);
 
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, _policy, yubikey, dbRow);
@@ -287,8 +298,120 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.ERROR_INVALID_TIME));
+    }
+
+    [Fact]
+    public void Does_return_if_no_Yubikey_policy()
+    {
+        var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
+            CertCli.CR_IN_PKCS10, null, 10002);
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = new CertificateRequestPolicy();
+
+        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.False(result.DeniedForIssuance);
+    }
+
+    [Fact]
+    public void Denies_when_CSR_does_not_contain_attestation()
+    {
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de
+        var csr =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIDbTCCAlUCAQAwIDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMIIB\n" +
+            "IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApucZpFuF0+fvdL5C3jggO6vO\n" +
+            "9PA39MnPG0VQBy1n2pdhD/WwIt3St6UuMTXyNzEqSqm396Dw6+1iLCcP4DioLywd\n" +
+            "9rVHOAFmYNeahM24rYk9z+8rgx5a4GhtK6uSXD87aNDwz7l+QCnjapZu1bqfe/s+\n" +
+            "Wzo3e/jiSNIUUiY6/DQnHcZpPn/nBruLih0muZFWCevIRwu/w05DMrX9KTKax06l\n" +
+            "TJw+bQshKasiVDDW+0K5eDzvLu7cS6/Z9vVYHD7gGJNmX+YaJY+JS9tGaGyvDUiV\n" +
+            "ww+Do5S8p13dXqY/xwMngkq3kkvTB8hstxE1pd07OQojZ1SaLFEyh3pX7abXMQID\n" +
+            "AQABoIIBBjAcBgorBgEEAYI3DQIDMQ4WDDEwLjAuMTkwNDQuMjA+BgkqhkiG9w0B\n" +
+            "CQ4xMTAvMA4GA1UdDwEB/wQEAwIHgDAdBgNVHQ4EFgQUsp05C4spRvndIOKWrM7O\n" +
+            "aXVZLCUwPgYJKwYBBAGCNxUUMTEwLwIBBQwKb3R0aS1vdHRlbAwOT1RUSS1PVFRF\n" +
+            "TFx1d2UMDnBvd2Vyc2hlbGwuZXhlMGYGCisGAQQBgjcNAgIxWDBWAgEAHk4ATQBp\n" +
+            "AGMAcgBvAHMAbwBmAHQAIABTAG8AZgB0AHcAYQByAGUAIABLAGUAeQAgAFMAdABv\n" +
+            "AHIAYQBnAGUAIABQAHIAbwB2AGkAZABlAHIDAQAwDQYJKoZIhvcNAQELBQADggEB\n" +
+            "ABCVBVb7DJjiDP5SbSpw08nvrwnx5kiQ21xR7AJmtSYPLmsmC7uIPxk8Jsq1hDUO\n" +
+            "e2adcbMup6QY7GJGuc4OWhiaisKAeZB7Tcy5SEZIWe85DlkxEgLVFB9opmf+V3fA\n" +
+            "d/ZtYS0J7MPg6F9UEra30T3CcHlH5Y8NlMtaZmqjfXyw2C5YkahEfSmk2WVaZiSf\n" +
+            "8edZDjIw5eRZY/9QMi2JEcmSbq0DImiP4ou46aQ0U5iRGSNX+armMIhGJ1ycDXTM\n" +
+            "SBDUN6qWGioX8NHTlUmebLijw3zSFMnIuYWhXF7FZ1IKMPySzVmquvBAjzT4kWSw\n" +
+            "0bAr5OaOzHm7POogsgE8J1Y=\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var dbRow = new CertificateDatabaseRow(csr, CertCli.CR_IN_PKCS10, null, 10002);
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = _policy;
+        policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
+
+        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.Null(yubikey);
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+    }
+
+    [Fact]
+    public void Denies_when_CSR_does_contain_invalid_attestation()
+    {
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de
+        // contains attestation extension with invalid content
+        var csr =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIErzCCAxcCAQAwGTEXMBUGA1UEAxMOdGhpcy1pcy1hLXRlc3QwggGiMA0GCSqG\n" +
+            "SIb3DQEBAQUAA4IBjwAwggGKAoIBgQDegFRHhe0PQ3aRjNtXrFelJkkiuQpjSLbp\n" +
+            "D6ghZMQpc2NpHlpidWIZfSKHSk5s6l9o3p/nn4hTzI80QVOWNDSY/vqQI5mb9uYc\n" +
+            "3YhDADU1atD4DW/EUsTTM3z9YuRcJOVOtPpqQtWh1y+flw6VhG/Z/Ho9WcwPx+nE\n" +
+            "9moEQWP2v+2rOiTEplxhnF4GvDjKMMPzqakWtvAN+OzY8pQB7D0P37eATierIQiB\n" +
+            "eO8wpcE7pMeV/CHZ9qVAxN++Z5Afb+icyAaXlrZHzFglfF97Pi3ro1zCaTsMRItX\n" +
+            "OQ4xUbfdlmrDENhjwNrpOadHlSo6nfE/B7H/0yy5we2K2NozIYRE9aHvuhDt8kkU\n" +
+            "irMWUMMYMDwo+zXDaGUSKjyiQZ6+9MmLGRF0C6LSbHXLpoJLVrEg9y9T5QyAySBc\n" +
+            "i3AMeTT7nmx5s4vgvos0jRGuOA81lbCpcE265aF13VoqcA4xy0sWrxHMAPkCKkPi\n" +
+            "QVQXzphL/w3JEWOC5XkP8Qcvg+n9skkCAwEAAaCCAU8wHAYKKwYBBAGCNw0CAzEO\n" +
+            "FgwxMC4wLjI2MTAwLjIwMAYJKwYBBAGCNxUUMSMwIQIBBQwGREVWLVBDDApERVYt\n" +
+            "UENcdXdlDAhwd3NoLmV4ZTBmBgorBgEEAYI3DQICMVgwVgIBAB5OAE0AaQBjAHIA\n" +
+            "bwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAASwBlAHkAIABTAHQAbwByAGEA\n" +
+            "ZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMIGUBgkqhkiG9w0BCQ4xgYYwgYMwDgYD\n" +
+            "VR0PAQH/BAQDAgeAMCgGCisGAQQBgsQKAwsEGjAYMBagFKAShhBzb21lLXJhbmRv\n" +
+            "bS1kYXRhMCgGCisGAQQBgsQKAwIEGjAYMBagFKAShhBzb21lLXJhbmRvbS1kYXRh\n" +
+            "MB0GA1UdDgQWBBQH3S8W+wgSqrm2seOW3XXDPzEmMzANBgkqhkiG9w0BAQsFAAOC\n" +
+            "AYEAw1Sc7zQkWXNyTIpo8+VXJKOViGcguGt2A4V1R6TNgP3H8zZAijz13BZpcA6x\n" +
+            "1/LBTXjMxRRkYQJl6GztM54NjJBl3k8ybK9mXeUNEjHtUyxQFnh1dWNVZCdm0gkS\n" +
+            "qRvfoD3yEJt0jGetp6aKen1AybIV+m/eh+WpZUPZEgbsSHXRmIMIu88JD9msn8Ar\n" +
+            "VG2N26ud7omDmLHG5BMYglJ65mrwyoIEMF0rsXTG1oNiO3UA0f2i69/7vo7NO0On\n" +
+            "KUDimMhK2vobbhxq38ZtRmNDCoNHUEsorDtWIJj+GNljI7RtClfoEe0FANQYZNNs\n" +
+            "39554J3jM80o7BnadMmissR2QL8DZcrxwQN6Od6kuEojI2/eRAPZrWkUnL1q6HkZ\n" +
+            "B43vWGxasGY9uX7GYNh9IxViuz/xZJUg7j/LLkuVrP9kFZM8rjHiztdNIZUvrIoj\n" +
+            "83FJD4P3StpkWuSnwh/FQcJHwAFn/l3fVYfDe56FJvsZgV/L5BYKE9uqf7Ax/aFn\n" +
+            "rNsE\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var dbRow = new CertificateDatabaseRow(csr, CertCli.CR_IN_PKCS10, null, 10002);
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = _policy;
+        policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
+
+        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.Null(yubikey);
+        Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
-        Assert.Equivalent(yubikey, new YubikeyObject());
     }
 
     [Fact]
@@ -299,6 +422,8 @@ public class YubikeyValidatorTests
             CertCli.CR_IN_PKCS10, null, 10001);
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+
+        PrintResult(result, yubikey);
 
         Assert.True(yubikey.TouchPolicy == YubikeyTouchPolicy.Never);
         Assert.True(yubikey.PinPolicy == YubikeyPinPolicy.Once);
@@ -311,8 +436,6 @@ public class YubikeyValidatorTests
         // Validate that the 4209 says that the attestation comes from the faulty PIVTOOL OID
         Assert.Equal(YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL,
             _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
-
-        PrintResult(result, yubikey);
     }
 
     [Fact]
@@ -331,6 +454,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -408,6 +532,7 @@ public class YubikeyValidatorTests
         Assert.Single(_listener.Events); // Ensure one event was logged
         Assert.Equal(4201, _listener.Events[0].EventId);
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -424,6 +549,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -502,6 +628,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -520,6 +647,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -561,6 +689,7 @@ public class YubikeyValidatorTests
 
         Assert.Contains(4203, _listener.Events.Select(e => e.EventId));
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -584,6 +713,7 @@ public class YubikeyValidatorTests
 
         Assert.Contains(4201, _listener.Events.Select(e => e.EventId));
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -607,6 +737,29 @@ public class YubikeyValidatorTests
 
         Assert.False(result.DeniedForIssuance);
     }
+
+    [Fact]
+    public void Validate_Deny_wrong_KeyAlgorithmFamily_should_deny()
+    {
+        _listener.ClearEvents();
+
+        var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
+            CertCli.CR_IN_PKCS10, null, 10018);
+        var result = new CertificateRequestValidationResult(dbRow);
+        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+
+        var policy = _policy;
+        policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.RSA);
+        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
+
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+    }
+
 
     [Fact]
     public void Set_Subject_RDN_to_Yubikey_Slot_10019()
@@ -723,8 +876,12 @@ public class YubikeyValidatorTests
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
+
         Assert.Contains(4207, _listener.Events.Select(e => e.EventId));
+
+        Assert.Null(yubikey);
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
     }
 
     [Fact]
@@ -748,7 +905,10 @@ public class YubikeyValidatorTests
         result = validator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
+
+        Assert.Null(yubikey);
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
     }
 
     [Fact]
@@ -795,7 +955,10 @@ public class YubikeyValidatorTests
         result = validator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
+
+        Assert.Null(yubikey);
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
     }
 
     [Fact]
@@ -827,7 +990,7 @@ public class YubikeyValidatorTests
         #region CSR
 
         var validator = new YubikeyValidator([
-            new X509Certificate2(Convert.FromBase64String(testCa)), _yubikeyValidationCa
+            new X509Certificate2(Convert.FromBase64String(testCa)), _yubikeyPivRootCaSerial263751
         ]);
 
         _listener.ClearEvents();
@@ -882,6 +1045,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -897,9 +1061,10 @@ public class YubikeyValidatorTests
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
-        Assert.True(result.DeniedForIssuance);
 
         PrintResult(result, yubikey);
+
+        Assert.True(result.DeniedForIssuance);
     }
 
     [Fact]
@@ -916,10 +1081,12 @@ public class YubikeyValidatorTests
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
-        Assert.False(result.DeniedForIssuance);
+
         PrintResult(result, yubikey);
 
         _output.WriteLine(policy.SaveToString());
+
+        Assert.False(result.DeniedForIssuance);
     }
 
     [Fact]
@@ -934,10 +1101,12 @@ public class YubikeyValidatorTests
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
-        Assert.False(result.DeniedForIssuance);
+
         PrintResult(result, yubikey);
 
         _output.WriteLine(policy.SaveToString());
+
+        Assert.False(result.DeniedForIssuance);
     }
 
     [Fact]
@@ -952,10 +1121,13 @@ public class YubikeyValidatorTests
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
-        Assert.True(result.DeniedForIssuance);
+
         PrintResult(result, yubikey);
 
         _output.WriteLine(policy.SaveToString());
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -1030,7 +1202,7 @@ public class YubikeyValidatorTests
         _listener.ClearEvents();
 
         var dbRow = new CertificateDatabaseRow(
-            Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
+            Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
             CertCli.CR_IN_PKCS10, null, 10025);
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
@@ -1044,6 +1216,7 @@ public class YubikeyValidatorTests
         PrintResult(result, yubikey);
 
         Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
     }
 
     [Fact]
@@ -1052,7 +1225,7 @@ public class YubikeyValidatorTests
         _listener.ClearEvents();
 
         var dbRow = new CertificateDatabaseRow(
-            Retrive_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
+            Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
             CertCli.CR_IN_PKCS10, null, 10026);
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
@@ -1068,13 +1241,5 @@ public class YubikeyValidatorTests
         Assert.False(result.DeniedForIssuance);
         Assert.Equal(YubikeyX509Extensions.ATTESTATION_DEVICE,
             _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
-    }
-
-    private string Retrive_CSR_from_Resource(string resourceName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
     }
 }

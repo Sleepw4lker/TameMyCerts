@@ -91,7 +91,7 @@ $FileList | ForEach-Object -Process {
 
 # Ensuring that software prerequisites are met
 try {
-    $DotNetCore = $((Get-ChildItem -Path (Get-Command -Name "dotnet").Path.Replace('dotnet.exe', 'shared\Microsoft.NETCore.App')).Name)
+    $DotNetCore = $((Get-ChildItem -Path (Get-Command -Name "dotnet" -ErrorAction Stop).Path.Replace('dotnet.exe', 'shared\Microsoft.NETCore.App')).Name)
 }
 catch {
     Write-Error -Message ".NET Core Runtime is not installed! Aborting." -ErrorAction Stop
