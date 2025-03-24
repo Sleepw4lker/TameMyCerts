@@ -313,7 +313,7 @@
     <value>Request {0} for {1} will be put into pending state.</value>
   </data>
   <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
-    <value>The module was unable to read the embedded certificates: {1}. Request {0} will get denied.</value>
+    <value>Unable to read the embedded Yubikey attestation certificates for Request {0}: {1}</value>
   </data>
   <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
     <value>Failed to find a matching Yubikey policy. Request {0} will get denied for Yubikey with Serial Number {1}.</value>
@@ -417,5 +417,8 @@ with the content:
   </data>
   <data name="YKObject_Attestation_Cert_Mismatch" xml:space="preserve">
     <value>The Certificate Signing Request for does not match its attestation certificate.</value>
+  </data>
+  <data name="YKVal_No_Attestation_Found" xml:space="preserve">
+    <value>Request {0} does not contain any valid Yubikey attestation data.</value>
   </data>
 </root>

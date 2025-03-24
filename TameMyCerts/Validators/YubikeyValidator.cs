@@ -51,9 +51,20 @@ internal class YubikeyValidator
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, YubikeyObject yubikey, CertificateDatabaseRow dbRow)
     {
-        // If we are already denied for issuance or the policy does not contain any YubikeyPolicy, just continue
-        if (result.DeniedForIssuance || !policy.YubikeyPolicy.Any())
+        if (result.DeniedForIssuance)
         {
+            return result;
+        }
+
+        if (!policy.YubikeyPolicy.Any())
+        {
+            return result;
+        }
+
+        if (yubikey is null)
+        {
+            result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
+                string.Format(LocalizedStrings.YKVal_No_Attestation_Found, dbRow.RequestID));
             return result;
         }
 
@@ -67,7 +78,8 @@ internal class YubikeyValidator
                 {
                     ETWLogger.Log.YKVal_4201_Denied_by_Policy(dbRow.RequestID, yubikeyPolicy.SaveToString());
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, dbRow.RequestID, yubikey.SerialNumber.ToString(),
+                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, dbRow.RequestID,
+                        yubikey.SerialNumber.ToString(),
                         yubikeyPolicy.SaveToString()));
                     return result;
                 }
@@ -106,14 +118,14 @@ internal class YubikeyValidator
     public CertificateRequestValidationResult ExtractAttestation(CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, out YubikeyObject yubikey)
     {
+        // Default value to return if not attestation is found.
+        // This will cause the request to get denied when a Yubikey policy is configured.
+        yubikey = null;
+
         if (result.DeniedForIssuance)
         {
-            yubikey = new YubikeyObject();
             return result;
         }
-
-        // Default value to return if not attestation is found
-        yubikey = new YubikeyObject();
 
         // Yubikey Attestation is stored in these two extensions in the CSR.
         foreach (var attestationLocationOid in _attestationLocationOids.Where(oid =>
@@ -124,20 +136,15 @@ internal class YubikeyValidator
 
             try
             {
-                dbRow.CertificateExtensions.TryGetValue(attestationLocationOid,
-                    out var attestationCertificateByte);
-                dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE,
-                    out var intermediateCertificateByte);
-
-                yubikey = new YubikeyObject(dbRow.PublicKey, new X509Certificate2(attestationCertificateByte),
-                    new X509Certificate2(intermediateCertificateByte), _yubikeyCaCertificates,
-                    dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
+                yubikey = new YubikeyObject(dbRow.PublicKey,
+                    new X509Certificate2(dbRow.CertificateExtensions[attestationLocationOid]),
+                    new X509Certificate2(dbRow.CertificateExtensions[YubikeyX509Extensions.ATTESTATION_INTERMEDIATE]),
+                    _yubikeyCaCertificates, dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
             }
             catch (Exception ex)
             {
-                yubikey = new YubikeyObject();
                 ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
-                result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
+                result.SetFailureStatus(WinError.NTE_FAIL,
                     string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, dbRow.RequestID,
                         ex.Message));
             }
