@@ -310,6 +310,7 @@ public class YubikeyValidatorTests
 
         var policy = new CertificateRequestPolicy();
 
+
         result = _ykValidator.GetYubikeyObject(result, policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -790,6 +791,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10018);
         var result = new CertificateRequestValidationResult(dbRow);
+
         result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
