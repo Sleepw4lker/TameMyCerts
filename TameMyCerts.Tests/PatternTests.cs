@@ -1,4 +1,5 @@
-﻿using TameMyCerts.Models;
+﻿using TameMyCerts.Enums;
+using TameMyCerts.Models;
 using Xunit;
 
 namespace TameMyCerts.Tests;
@@ -11,7 +12,7 @@ public class PatternTests
         var pattern = new Pattern
         {
             Expression = "ThisIsATest",
-            TreatAs = "ExactMatch"
+            TreatAs = PatternType.EXACT_MATCH
         };
 
         Assert.True(pattern.IsMatch("ThisIsATest"));
@@ -23,7 +24,7 @@ public class PatternTests
         var pattern = new Pattern
         {
             Expression = "ThisIsATest",
-            TreatAs = "ExactMatch"
+            TreatAs = PatternType.EXACT_MATCH
         };
 
         Assert.False(pattern.IsMatch("thisisatest"));
@@ -35,7 +36,7 @@ public class PatternTests
         var pattern = new Pattern
         {
             Expression = "ThisIsATest",
-            TreatAs = "ExactMatchIgnoreCase"
+            TreatAs = PatternType.EXACT_MATCH_IGNORE_CASE
         };
 
         Assert.True(pattern.IsMatch("thisisatest"));
@@ -58,7 +59,7 @@ public class PatternTests
         var pattern = new Pattern
         {
             Expression = "^[a-z0-9]*$",
-            TreatAs = "RegExIgnoreCase"
+            TreatAs = PatternType.REGEX_IGNORE_CASE
         };
 
         Assert.True(pattern.IsMatch("ThisIsATest"));
@@ -87,36 +88,12 @@ public class PatternTests
     }
 
     [Fact]
-    public void Does_not_match_invalid_TreatAs()
-    {
-        var pattern = new Pattern
-        {
-            Expression = "^[a-z0-9]*$",
-            TreatAs = "thisisnotvalid"
-        };
-
-        Assert.False(pattern.IsMatch("ThisIsATest"));
-    }
-
-    [Fact]
-    public void Does_match_invalid_TreatAs_MatchOnError()
-    {
-        var pattern = new Pattern
-        {
-            Expression = "^[a-z0-9]*$",
-            TreatAs = "thisisnotvalid"
-        };
-
-        Assert.True(pattern.IsMatch("ThisIsATest", true));
-    }
-
-    [Fact]
     public void Does_match_valid_Cidr_valid_term()
     {
         var pattern = new Pattern
         {
             Expression = "192.168.0.0/24",
-            TreatAs = "Cidr"
+            TreatAs = PatternType.CIDR
         };
 
         Assert.True(pattern.IsMatch("192.168.0.1"));
@@ -128,7 +105,7 @@ public class PatternTests
         var pattern = new Pattern
         {
             Expression = "thisisnotvalid",
-            TreatAs = "Cidr"
+            TreatAs = PatternType.CIDR
         };
 
         Assert.False(pattern.IsMatch("192.168.0.1"));

@@ -101,8 +101,8 @@ internal static class RdnTypes
 
     public static List<string> ToList()
     {
-        return new List<string>
-        {
+        return
+        [
             Email,
             CommonName,
             Organization,
@@ -119,6 +119,6 @@ internal static class RdnTypes
             UnstructuredAddress,
             DeviceSerialNumber,
             DomainComponent
-        };
+        ];
     }
 }

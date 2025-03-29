@@ -19,15 +19,28 @@ It is possible to include the attestation certificates in the Certificate Signin
 For the attestation certificate chain to be properly built, you must create a `YKROOT` certificate store under the `LocalMachine` certificate store on the certification authority server.
 
 ```powershell
-cd Cert:\LocalMachine\My
+cd Cert:\LocalMachine
 New-Item -Name YKROOT
+New-Item -Name YKCA
 ```
 
-The Yubikey attestation Root CA certificates (<https://developers.yubico.com/PKI/yubico-ca-certs.txt>) must be imported into the newly created `YKROOT` certificate store.
+Any Yubikey attestation Root CA certificates must be imported into the `YKROOT` certificate store.
 
-> Note that these might need to get updated during the lifetime of the certification authority, as the vendor might introduce devices signed with newer CA certificates.
+```powershell
+Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
+```
 
 ![YKROOT Windows Certificate Store](resources/ykroot-store.png)
+
+Any Yubikey intermediate CA certificates must be imported into the `YKCA` certificate store (only applies to Yubikeys with Firmware 5.7.4 or newer).
+
+```powershell
+Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
+```
+
+![YKCA Windows Certificate Store](resources/ykca-store.png)
+
+> Note that these might need to get updated during the lifetime of the certification authority, as the vendor might introduce devices signed with newer CA certificates.
 
 ### Configuring
 
@@ -82,7 +95,18 @@ Attestation Information can be [written into the Subject Distinguished Name](#mo
 
 ### Attesting the PIV attestation in issued certificates
 
-The original plan was to provide an option to include the original attestation data in issued certificates, but as Yubikeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
+TameMyCerts will transfer the following certificate extensions from the Yubikey attestation certificate into the issued certificate (if present in the attestation certificate):
+
+|Extension OID|Description|
+|---|---|
+|1.3.6.1.4.1.41482.3.3|Firmware version, encoded as 3 bytes, like: 040300 for 4.3.0|
+|1.3.6.1.4.1.41482.3.7|Serial number of the YubiKey, encoded as an integer.|
+|1.3.6.1.4.1.41482.3.8|Two bytes, the first encoding pin policy (01 - never, 02 - once per session, 03 - always) and the second touch policy (01 - never, 02 - always, 03 - cached for 15s)|
+|1.3.6.1.4.1.41482.3.9|Formfactor, encoded as one byte: USB-A Keychain: 01 and 81 for FIPS Devices, USB-A Nano: 02 and 82 for FIPS Devices, USB-C Keychain: 03 and 83 for FIPS Devices, USB-C Nano: 04 and 84 for FIPS Devices, Lightning and USB-C: 05 and 85 for FIPS Devices|
+|1.3.6.1.4.1.41482.3.10|FIPS Certified YubiKey
+|1.3.6.1.4.1.41482.3.11|CSPN Certified YubiKey|
+
+It was originally intended to provide an option to include the original attestation data in issued certificates, but as Yubikeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
 
 If you intend to add a proof of attestation into issued certificates, do this by adding an Issuance Policy to issued certificates.
 
@@ -91,6 +115,14 @@ If you intend to add a proof of attestation into issued certificates, do this by
 Not all tools that may be used to create certificate requests with PIV attestation support adding a Subject Alternative Name or, for example, do not support the Microsoft-proprietary _userPrincipalName_ SAN type. TameMyCerts can add this information by [Modifying the Subject Alternative Name of issued certificates](#modify-san). See the below section for examples.
 
 ### Examples
+
+A simple policy that just ensures the key pair is protected with a Yubikey, without any additional requirements.
+
+```xml
+<YubiKeyPolicies>
+  <YubiKeyPolicy />
+</YubiKeyPolicies>
+```
 
 Denying certificate requests for ECC keys with a Yubikey with firmware version prior to 5.7.0 (these have a vulnerability, see <https://www.yubico.com/support/security-advisories/ysa-2024-03/> for more details).
 
@@ -108,6 +140,8 @@ Denying certificate requests for ECC keys with a Yubikey with firmware version p
 
 Transferring the Slot and Serial Number of the Yubikey into the _commonName_ of the issued certificate (in combination with the `cn` attribute from a [mapped](#ds-mapping) Active Directory object).
 
+> Note that the _commonName_ [is subject to a length constraint](#modify-subject-dn) determined by Microsoft AD CS.
+
 ```xml
 <YubiKeyPolicies>
   <!-- other directives have been left out for simplicity -->
@@ -116,6 +150,22 @@ Transferring the Slot and Serial Number of the Yubikey into the _commonName_ of 
   <OutboundSubjectRule>
     <Field>commonName</Field>
     <Value>{ad:cn} [{yk:Slot} {yk:SerialNumber}]</Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+</OutboundSubject>
+```
+
+Transferring the Serial Number of the Yubikey into the _serialNumber_ of the issued certificate.
+
+```xml
+<YubiKeyPolicies>
+  <!-- other directives have been left out for simplicity -->
+</YubiKeyPolicies>
+<OutboundSubject>
+  <OutboundSubjectRule>
+    <Field>serialNumber</Field>
+    <Value>{yk:SerialNumber}]</Value>
     <Mandatory>true</Mandatory>
     <Force>true</Force>
   </OutboundSubjectRule>

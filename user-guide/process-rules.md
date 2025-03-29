@@ -14,6 +14,16 @@ Certificate requests can contain information about which process was used to cre
 
 ![A certificate request using an unapproved process was denied by TameMyCerts](resources/process-rules2.png)
 
+### Inspecting a certificate request for the process name
+
+A certificate request can be inspected for the required process information by dumping it with the `certutil` command.
+
+```batch
+certutil -dump <request-file-name>
+```
+
+![This certificate request contains process information](resources/process-rules3.png)
+
 ### Configuring
 
 The **AllowedProcesses** directive contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
@@ -35,20 +45,20 @@ Commonly used process names could be:
 
 ### Examples
 
-Some processes are whitelisted and all others are forbidden:
+This configuration ensures that a certificate can **only** be requested via Windows AutoEnrollment (which is triggered by the Task Scheduler process, `taskhostw.exe`).
 
 ```xml
 <AllowedProcesses>
   <string>taskhostw.exe</string>
-  <string>powershell.exe</string>
 </AllowedProcesses>
 ```
 
-Some processes are blacklisted and all others are allowed:
+This configuration blacklists some common processes, but allows all others:
 
 ```xml
 <DisallowedProcesses>
   <string>mmc.exe</string>
   <string>powershell.exe</string>
+  <string>certutil.exe</string>
 </DisallowedProcesses>
 ```

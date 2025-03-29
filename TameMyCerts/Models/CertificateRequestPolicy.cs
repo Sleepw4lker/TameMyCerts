@@ -18,6 +18,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
 
@@ -76,7 +77,7 @@ public class CertificateRequestPolicy
     public List<OutboundSubjectRule> OutboundSubjectAlternativeName { get; set; } = new();
 
     [XmlElement(ElementName = "SecurityIdentifierExtension")]
-    public string SecurityIdentifierExtension { get; set; } = "Deny";
+    public PolicyAction SecurityIdentifierExtension { get; set; } = PolicyAction.DENY;
 
     [XmlElement(ElementName = "DirectoryServicesMapping")]
     public DirectoryServicesMapping DirectoryServicesMapping { get; set; }

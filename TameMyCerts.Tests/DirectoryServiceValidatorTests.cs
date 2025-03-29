@@ -111,7 +111,7 @@ public class DirectoryServiceValidatorTests
                 AllowedSecurityGroups = new List<string>
                     { "CN=PKI_UserCert,OU=ADCSLabor Gruppen,DC=intra,DC=adcslabor,DC=de" }
             },
-            SecurityIdentifierExtension = "Add"
+            SecurityIdentifierExtension = PolicyAction.ADD_TO_ISSUED_CERTIFICATE
         };
 
         _dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
@@ -258,7 +258,7 @@ public class DirectoryServiceValidatorTests
         var policy = _policy;
         var result = new CertificateRequestValidationResult(_dbRow);
 
-        policy.SecurityIdentifierExtension = "Allow";
+        policy.SecurityIdentifierExtension = PolicyAction.ALLOW;
 
         result = _validator.VerifyRequest(result, policy, _dsObject);
 
@@ -274,7 +274,7 @@ public class DirectoryServiceValidatorTests
         var policy = _policy;
         var result = new CertificateRequestValidationResult(_dbRow);
 
-        policy.SecurityIdentifierExtension = "Deny";
+        policy.SecurityIdentifierExtension = PolicyAction.ALLOW;
 
         result = _validator.VerifyRequest(result, policy, _dsObject);
 
@@ -592,7 +592,7 @@ public class DirectoryServiceValidatorTests
                 new()
                 {
                     Expression = "^rudi$",
-                    Action = "Deny"
+                    Action = PolicyAction.DENY
                 }
             }
         });
@@ -622,7 +622,7 @@ public class DirectoryServiceValidatorTests
                 new()
                 {
                     Expression = "^rudi$",
-                    Action = "Deny"
+                    Action = PolicyAction.DENY
                 }
             }
         });

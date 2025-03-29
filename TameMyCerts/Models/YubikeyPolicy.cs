@@ -28,19 +28,19 @@ namespace TameMyCerts.Models;
 public class YubikeyPolicy
 {
     [XmlElement(ElementName = "Action")]
-    public YubikeyPolicyAction Action { get; set; } = YubikeyPolicyAction.Allow;
+    public PolicyAction Action { get; set; } = PolicyAction.ALLOW;
 
     [XmlArray(ElementName = "PinPolicy")]
     [XmlArrayItem(ElementName = "string")]
-    public List<YubikeyPinPolicy> PinPolicies { get; set; } = new();
+    public List<YubikeyPinPolicy> PinPolicies { get; set; } = [];
 
     [XmlArray(ElementName = "TouchPolicy")]
     [XmlArrayItem(ElementName = "string")]
-    public List<YubikeyTouchPolicy> TouchPolicies { get; set; } = new();
+    public List<YubikeyTouchPolicy> TouchPolicies { get; set; } = [];
 
     [XmlArray(ElementName = "FormFactor")]
     [XmlArrayItem(ElementName = "string")]
-    public List<YubikeyFormFactor> Formfactor { get; set; } = new();
+    public List<YubikeyFormFactor> FormFactor { get; set; } = [];
 
     [XmlElement(ElementName = "MaximumFirmwareVersion")]
     public string MaximumFirmwareString { get; set; }
@@ -50,15 +50,15 @@ public class YubikeyPolicy
 
     [XmlArray(ElementName = "Edition")]
     [XmlArrayItem(ElementName = "string")]
-    public List<YubikeyEdition> Edition { get; set; } = new();
+    public List<YubikeyEdition> Edition { get; set; } = [];
 
     [XmlArray(ElementName = "Slot")]
     [XmlArrayItem(ElementName = "string")]
-    public List<string> Slot { get; set; } = new();
+    public List<string> Slot { get; set; } = [];
 
     [XmlArray(ElementName = "KeyAlgorithm")]
     [XmlArrayItem(ElementName = "string")]
-    public List<KeyAlgorithmFamily> KeyAlgorithmFamilies { get; set; } = new();
+    public List<KeyAlgorithmFamily> KeyAlgorithmFamilies { get; set; } = [];
 
     private static string ConvertToHumanReadableXml(string inputString)
     {

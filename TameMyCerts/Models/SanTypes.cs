@@ -26,13 +26,13 @@ internal static class SanTypes
 
     public static List<string> ToList()
     {
-        return new List<string>
-        {
+        return
+        [
             DnsName,
             IpAddress,
             Rfc822Name,
             UniformResourceIdentifier,
             UserPrincipalName
-        };
+        ];
     }
 }

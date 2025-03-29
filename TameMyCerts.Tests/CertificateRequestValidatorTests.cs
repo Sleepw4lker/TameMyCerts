@@ -72,7 +72,7 @@ public class CertificateRequestValidatorTests
                     Patterns = new List<Pattern>
                     {
                         new() { Expression = @"^[-_a-zA-Z0-9]*\.adcslabor\.de$" },
-                        new() { Expression = @"^.*(porn|gambling).*$", Action = "Deny" }
+                        new() { Expression = @"^.*(porn|gambling).*$", Action = PolicyAction.DENY }
                     }
                 },
                 new()
@@ -107,8 +107,8 @@ public class CertificateRequestValidatorTests
                     MaxLength = 64,
                     Patterns = new List<Pattern>
                     {
-                        new() { Expression = @"192.168.0.0/16", TreatAs = "Cidr" },
-                        new() { Expression = @"192.168.123.0/24", TreatAs = "Cidr", Action = "Deny" }
+                        new() { Expression = @"192.168.0.0/16", TreatAs = PatternType.CIDR },
+                        new() { Expression = @"192.168.123.0/24", TreatAs = PatternType.CIDR, Action = PolicyAction.DENY }
                     }
                 }
             }
@@ -1838,7 +1838,7 @@ public class CertificateRequestValidatorTests
                 MaxLength = 64,
                 Patterns = new List<Pattern>
                 {
-                    new() { Expression = @"thisIsNotACidrMask", TreatAs = "Cidr" }
+                    new() { Expression = @"thisIsNotACidrMask", TreatAs = PatternType.CIDR }
                 }
             }
         );
@@ -2054,7 +2054,7 @@ public class CertificateRequestValidatorTests
             "-----END NEW CERTIFICATE REQUEST-----";
 
         var policy = _policy;
-        policy.SecurityIdentifierExtension = "Remove";
+        policy.SecurityIdentifierExtension = PolicyAction.REMOVE_FROM_ISSUED_CERTIFICATE;
 
         var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
 
@@ -2305,7 +2305,7 @@ public class CertificateRequestValidatorTests
                 Mandatory = true,
                 Patterns = new List<Pattern>
                 {
-                    new() { Expression = @"192.168.0.0/16", TreatAs = "Cidr" }
+                    new() { Expression = @"192.168.0.0/16", TreatAs = PatternType.CIDR }
                 }
             }
         );
@@ -2336,9 +2336,9 @@ public class CertificateRequestValidatorTests
                 Mandatory = true,
                 Patterns = new List<Pattern>
                 {
-                    new() { Expression = @"test", TreatAs = "Cidr" },
-                    new() { Expression = @"test/0", TreatAs = "Cidr" },
-                    new() { Expression = @"0.0.0.0/test", TreatAs = "Cidr" }
+                    new() { Expression = @"test", TreatAs = PatternType.CIDR },
+                    new() { Expression = @"test/0", TreatAs = PatternType.CIDR },
+                    new() { Expression = @"0.0.0.0/test", TreatAs = PatternType.CIDR }
                 }
             }
         );

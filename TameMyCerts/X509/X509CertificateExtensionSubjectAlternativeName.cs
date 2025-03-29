@@ -43,7 +43,7 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
         InitializeDecode(rawData);
     }
 
-    public List<KeyValuePair<string, string>> AlternativeNames { get; } = new();
+    public List<KeyValuePair<string, string>> AlternativeNames { get; } = [];
 
     private void InitializeDecode(string rawData)
     {
@@ -95,8 +95,7 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
                     case AlternativeNameType.XCN_CERT_ALT_NAME_IP_ADDRESS:
 
                         AlternativeNames.Add(new KeyValuePair<string, string>(SanTypes.IpAddress,
-                            new IPAddress(
-                                    Convert.FromBase64String(san.get_RawData(EncodingType.XCN_CRYPT_STRING_BASE64)))
+                            new IPAddress(Convert.FromBase64String(san.RawData[EncodingType.XCN_CRYPT_STRING_BASE64]))
                                 .ToString()));
                         break;
 
@@ -106,13 +105,10 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
                 Marshal.ReleaseComObject(san);
             }
         }
-        catch
+        finally
         {
             Marshal.ReleaseComObject(extensionAlternativeNames);
-            throw;
         }
-
-        Marshal.ReleaseComObject(extensionAlternativeNames);
     }
 
     public void InitializeEncode()
@@ -125,7 +121,7 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
 
         if (AlternativeNames.Count == 0)
         {
-            RawData = Array.Empty<byte>();
+            RawData = [];
             return;
         }
 
@@ -259,6 +255,7 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
     /// </summary>
     /// <param name="type"></param>
     /// <param name="value"></param>
+    /// <param name="throwOnError"></param>
     public void AddAlternativeName(string type, string value, bool throwOnError = false)
     {
         if (!TryAddAlternativeName(type, value) && throwOnError)
