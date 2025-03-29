@@ -17,6 +17,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using TameMyCerts.ClassExtensions;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
 
@@ -27,25 +28,27 @@ public class Pattern
     [XmlElement(ElementName = "Expression")]
     public string Expression { get; set; }
 
-    [XmlElement(ElementName = "TreatAs")] public string TreatAs { get; set; } = "RegEx";
+    [XmlElement(ElementName = "TreatAs")]
+    public PatternType TreatAs { get; set; } = PatternType.REGEX;
 
-    [XmlElement(ElementName = "Action")] public string Action { get; set; } = "Allow";
+    [XmlElement(ElementName = "Action")]
+    public PolicyAction Action { get; set; } = PolicyAction.ALLOW;
 
     public bool IsMatch(string term, bool matchOnError = false)
     {
         try
         {
-            switch (TreatAs.ToLowerInvariant())
+            switch (TreatAs)
             {
-                case "regexignorecase":
+                case PatternType.REGEX_IGNORE_CASE:
                     return Regex.IsMatch(term, @"" + Expression + "", RegexOptions.IgnoreCase);
-                case "regex":
+                case PatternType.REGEX:
                     return Regex.IsMatch(term, @"" + Expression + "");
-                case "cidr":
+                case PatternType.CIDR:
                     return IPAddress.Parse(term).IsInRange(Expression);
-                case "exactmatchignorecase":
+                case PatternType.EXACT_MATCH_IGNORE_CASE:
                     return Expression.Equals(term, StringComparison.InvariantCultureIgnoreCase);
-                case "exactmatch":
+                case PatternType.EXACT_MATCH:
                     return Expression.Equals(term);
                 default:
                     return matchOnError;

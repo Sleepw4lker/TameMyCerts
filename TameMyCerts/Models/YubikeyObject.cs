@@ -31,25 +31,31 @@ namespace TameMyCerts.Models;
 [XmlRoot(ElementName = "YubiKeyObject")]
 public class YubikeyObject
 {
-    private const string AttestationSlotPattern = @"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})";
+    private readonly Regex _slotRegex = new(@"CN=YubiKey PIV Attestation (?<slot>[0-9A-Fa-f]{2})");
 
     public YubikeyObject()
     {
     }
 
-    public YubikeyObject(byte[] publicKey, X509Certificate2 attestationCertificate,
-        X509Certificate2 intermediateCertificate, X509Certificate2Collection rootCertificates,
-        KeyAlgorithmFamily keyAlgorithm, int keyLength, int requestId)
+    public YubikeyObject(X509Certificate2Collection rootCertificates,
+        X509Certificate2Collection intermediateCertificates,
+        X509Certificate2 attestationCertificate, X509Certificate2 intermediateCertificate,
+        KeyAlgorithmFamily keyAlgorithm, byte[] publicKey, int keyLength, int requestId)
     {
+        if (!publicKey.SequenceEqual(attestationCertificate.PublicKey.EncodedKeyValue.RawData))
+        {
+            ETWLogger.Log.YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(requestId);
+            throw new Exception(LocalizedStrings.YKObject_Attestation_Cert_Mismatch);
+        }
+
+        #region Certificate Chain
+
         var chain = new X509Chain();
 
         chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
         chain.ChainPolicy.CustomTrustStore.AddRange(rootCertificates);
-
-        // Note that according to Yubikey docs, there is always exactly one intermediate certificate
+        chain.ChainPolicy.ExtraStore.AddRange(intermediateCertificates);
         chain.ChainPolicy.ExtraStore.Add(intermediateCertificate);
-
-        // Note that neither certificate in this chain has a CRLDP, so no need to worry about that
         chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
         if (!chain.Build(attestationCertificate))
@@ -58,18 +64,12 @@ public class YubikeyObject
             throw new Exception(LocalizedStrings.YKObject_Failed_to_build);
         }
 
-        if (!publicKey.SequenceEqual(chain.ChainElements[0].Certificate.PublicKey.EncodedKeyValue.RawData))
-        {
-            ETWLogger.Log.YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR(requestId);
-            throw new Exception(LocalizedStrings.YKObject_Attestation_Cert_Mismatch);
-        }
+        #endregion
 
         #region Slot
 
-        // the Slot number is located in the Subject for the Attestation certificate.
-
-        var slotRegex = new Regex(AttestationSlotPattern);
-        var slotMatch = slotRegex.Match(attestationCertificate.Subject);
+        // the Slot number is located in the Subject of the Attestation certificate.
+        var slotMatch = _slotRegex.Match(attestationCertificate.Subject);
         if (slotMatch.Success)
         {
             Slot = slotMatch.Groups["slot"].Value;
@@ -94,7 +94,7 @@ public class YubikeyObject
         #region FormFactor
 
         var formFactor = attestationCertificate.Extensions
-            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.FORMFACTOR)?.RawData[0] ?? 0;
+            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extension.FORMFACTOR)?.RawData[0] ?? 0;
         FormFactor =
             (YubikeyFormFactor)(formFactor & 0x0F); // Mask out the upper 4 bits, Those are used for CSPN and FIPS
 
@@ -104,7 +104,7 @@ public class YubikeyObject
 
         // Update the Firmware Version
         var firmwareVersion = attestationCertificate.Extensions
-            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.FIRMWARE)?.RawData;
+            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extension.FIRMWARE)?.RawData;
         if (firmwareVersion.Length == 3)
         {
             FirmwareVersion = new Version(firmwareVersion[0], firmwareVersion[1], firmwareVersion[2]);
@@ -116,7 +116,7 @@ public class YubikeyObject
 
         // Update the Serial Number
         var serialNumber = attestationCertificate.Extensions
-            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extensions.SERIALNUMBER)?.RawData;
+            .FirstOrDefault(x => x.Oid.Value == YubikeyX509Extension.SERIALNUMBER)?.RawData;
         if (serialNumber is not null)
         {
             if (BitConverter.IsLittleEndian)
@@ -132,12 +132,12 @@ public class YubikeyObject
         #region FIPS / CSPN
 
         // Check for the FIPS extension
-        if (intermediateCertificate.Extensions.Any(x => x.Oid.Value == YubikeyX509Extensions.FIPS_CERTIFIED))
+        if (intermediateCertificate.Extensions.Any(x => x.Oid.Value == YubikeyX509Extension.FIPS_CERTIFIED))
         {
             Edition = YubikeyEdition.FIPS;
         }
         else if (intermediateCertificate.Extensions
-                 .Any(x => x.Oid.Value == YubikeyX509Extensions.CPSN_CERTIFIED))
+                 .Any(x => x.Oid.Value == YubikeyX509Extension.CPSN_CERTIFIED))
         {
             Edition = YubikeyEdition.CSPN;
         }
@@ -220,7 +220,7 @@ public class YubikeyObject
     public int KeyLength { get; set; }
 
     [XmlElement(ElementName = "Edition")]
-    public YubikeyEdition Edition { get; set; } = YubikeyEdition.Normal;
+    public YubikeyEdition Edition { get; set; } = YubikeyEdition.NORMAL;
 
     [XmlIgnore]
     public X509Certificate2 AttestationCertificate { get; }

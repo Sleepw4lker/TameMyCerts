@@ -292,7 +292,7 @@ public class YubikeyValidatorTests
 
         result.SetFailureStatus(WinError.ERROR_INVALID_TIME);
 
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, _policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -310,7 +310,7 @@ public class YubikeyValidatorTests
 
         var policy = new CertificateRequestPolicy();
 
-        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -352,7 +352,7 @@ public class YubikeyValidatorTests
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
 
-        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -404,7 +404,7 @@ public class YubikeyValidatorTests
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
 
-        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -421,20 +421,20 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10001);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         PrintResult(result, yubikey);
 
-        Assert.True(yubikey.TouchPolicy == YubikeyTouchPolicy.Never);
-        Assert.True(yubikey.PinPolicy == YubikeyPinPolicy.Once);
+        Assert.True(yubikey.TouchPolicy == YubikeyTouchPolicy.NEVER);
+        Assert.True(yubikey.PinPolicy == YubikeyPinPolicy.ONCE);
         Assert.True(yubikey.FirmwareVersion == new Version(5, 4, 3));
-        Assert.True(yubikey.FormFactor == YubikeyFormFactor.UsbAKeychain);
+        Assert.True(yubikey.FormFactor == YubikeyFormFactor.USB_A_KEYCHAIN);
         Assert.True(yubikey.Slot == "9a");
 
         // Validate that we get a debug message with the attestation OID information
         Assert.Contains(4209, _listener.Events.Select(e => e.EventId));
         // Validate that the 4209 says that the attestation comes from the faulty PIVTOOL OID
-        Assert.Equal(YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL,
+        Assert.Equal(YubikeyX509Extension.ATTESTATION_DEVICE_PIVTOOL,
             _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
     }
 
@@ -444,7 +444,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10002);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
@@ -463,7 +463,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10003);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.7.1";
@@ -476,15 +476,59 @@ public class YubikeyValidatorTests
     }
 
     [Fact]
+    public void Does_add_attestation_extensions_to_issued_certificate()
+    {
+        var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
+            CertCli.CR_IN_PKCS10, null, 10003);
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.VerifyRequest(result, _policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.False(result.DeniedForIssuance);
+
+        Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extension.FIRMWARE));
+        Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extension.FORMFACTOR));
+        Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extension.PIN_TOUCH_POLICY));
+        Assert.True(result.CertificateExtensions.ContainsKey(YubikeyX509Extension.SERIALNUMBER));
+
+        Assert.Equivalent(
+            yubikey.AttestationCertificate.Extensions
+                .FirstOrDefault(x => x.Oid.Value.Equals(YubikeyX509Extension.FIRMWARE)).RawData,
+            result.CertificateExtensions.FirstOrDefault(x => x.Key.Equals(YubikeyX509Extension.FIRMWARE)).Value
+        );
+
+        Assert.Equivalent(
+            yubikey.AttestationCertificate.Extensions
+                .FirstOrDefault(x => x.Oid.Value.Equals(YubikeyX509Extension.FORMFACTOR)).RawData,
+            result.CertificateExtensions.FirstOrDefault(x => x.Key.Equals(YubikeyX509Extension.FORMFACTOR)).Value
+        );
+
+        Assert.Equivalent(
+            yubikey.AttestationCertificate.Extensions
+                .FirstOrDefault(x => x.Oid.Value.Equals(YubikeyX509Extension.PIN_TOUCH_POLICY)).RawData,
+            result.CertificateExtensions.FirstOrDefault(x => x.Key.Equals(YubikeyX509Extension.PIN_TOUCH_POLICY)).Value
+        );
+
+        Assert.Equivalent(
+            yubikey.AttestationCertificate.Extensions
+                .FirstOrDefault(x => x.Oid.Value.Equals(YubikeyX509Extension.SERIALNUMBER)).RawData,
+            result.CertificateExtensions.FirstOrDefault(x => x.Key.Equals(YubikeyX509Extension.SERIALNUMBER)).Value
+        );
+    }
+
+    [Fact]
     public void Validate_PIN_Policy_Once_should_Allow_10004()
     {
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10004);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
+        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.ONCE);
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -499,11 +543,11 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10005);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Never);
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.NEVER);
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
         PrintResult(result, yubikey);
@@ -517,11 +561,11 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10006);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.ONCE);
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         _listener.ClearEvents();
 
@@ -541,7 +585,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10007);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         var policy = _policy;
         policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.FIPS);
 
@@ -558,7 +602,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Cached_UsbAKeychain_9a_FIPS_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10008);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.FIPS);
@@ -575,15 +619,15 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10009);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.Once);
-        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
+        policy.YubikeyPolicy[0].PinPolicies.Add(YubikeyPinPolicy.ONCE);
+        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.NEVER);
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.4.0";
         policy.YubikeyPolicy[0].MaximumFirmwareString = "5.7.0";
-        policy.YubikeyPolicy[0].Formfactor.Add(YubikeyFormFactor.UsbAKeychain);
-        policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.Normal);
+        policy.YubikeyPolicy[0].FormFactor.Add(YubikeyFormFactor.USB_A_KEYCHAIN);
+        policy.YubikeyPolicy[0].Edition.Add(YubikeyEdition.NORMAL);
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.RSA);
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
@@ -599,10 +643,10 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10010);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
+        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.NEVER);
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -617,11 +661,11 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10011);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Never);
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.NEVER);
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -637,10 +681,10 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10012);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
-        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.Always);
+        policy.YubikeyPolicy[0].TouchPolicies.Add(YubikeyTouchPolicy.ALWAYS);
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -656,7 +700,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10013);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.ECC);
@@ -677,7 +721,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Always_Never_UsbAKeychain_9a_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10016);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.ECC);
@@ -700,12 +744,12 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Always_Never_UsbAKeychain_9a_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10017);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.ECC);
         policy.YubikeyPolicy[0].MaximumFirmwareString = "5.6.9";
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -724,12 +768,12 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10018);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.ECC);
         policy.YubikeyPolicy[0].MaximumFirmwareString = "5.6.9";
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -746,11 +790,11 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR,
             CertCli.CR_IN_PKCS10, null, 10018);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies.Add(KeyAlgorithmFamily.RSA);
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
+        policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -778,7 +822,7 @@ public class YubikeyValidatorTests
         });
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, policy, dbRow, out var yubikey);
         result = _ccValidator.VerifyRequest(result, policy, dbRow, null, _caConfig, yubikey);
 
         PrintResult(result, yubikey);
@@ -795,7 +839,7 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10014);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.OutboundSubject.Add(new OutboundSubjectRule
@@ -870,7 +914,7 @@ public class YubikeyValidatorTests
         #endregion
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         var policy = _policy;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
@@ -899,7 +943,7 @@ public class YubikeyValidatorTests
         #endregion
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = validator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = validator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         var policy = _policy;
 
         result = validator.VerifyRequest(result, policy, yubikey, dbRow);
@@ -949,7 +993,7 @@ public class YubikeyValidatorTests
         #endregion
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = validator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = validator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         var policy = _policy;
 
         result = validator.VerifyRequest(result, policy, yubikey, dbRow);
@@ -1001,7 +1045,7 @@ public class YubikeyValidatorTests
         #endregion
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = validator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = validator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         var policy = _policy;
 
         result = validator.VerifyRequest(result, policy, yubikey, dbRow);
@@ -1020,7 +1064,7 @@ public class YubikeyValidatorTests
         var policy = _policy;
         policy.YubikeyPolicy[0].Slot = ["9a"];
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1037,9 +1081,9 @@ public class YubikeyValidatorTests
         // Deny if Slot is in a deny Policy
         var policy = _policy;
         policy.YubikeyPolicy[0].Slot = ["9a"];
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1059,7 +1103,7 @@ public class YubikeyValidatorTests
 
         policy.YubikeyPolicy[0].Slot = ["9e"];
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1076,10 +1120,10 @@ public class YubikeyValidatorTests
         // Allow if the Deny does not match this slot
         var policy = _policy;
         policy.YubikeyPolicy.Add(new YubikeyPolicy());
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
         policy.YubikeyPolicy[0].Slot = ["9e"];
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1099,7 +1143,7 @@ public class YubikeyValidatorTests
         var policy = _policy;
         policy.YubikeyPolicy[0].Slot = ["0x9a"];
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1119,7 +1163,7 @@ public class YubikeyValidatorTests
         var policy = _policy;
         policy.YubikeyPolicy[0].Slot = ["0x9e"];
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
@@ -1136,21 +1180,21 @@ public class YubikeyValidatorTests
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10023);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         PrintResult(result, yubikey);
 
         var serializedObject = yubikey.SaveToString();
 
-        Assert.Contains($"<TouchPolicy>{yubikey.TouchPolicy}</TouchPolicy>", serializedObject);
-        Assert.Contains($"<PinPolicy>{yubikey.PinPolicy}</PinPolicy>", serializedObject);
-        Assert.Contains($"<FormFactor>{yubikey.FormFactor}</FormFactor>", serializedObject);
+        Assert.Contains($"<TouchPolicy>Never</TouchPolicy>", serializedObject);
+        Assert.Contains($"<PinPolicy>Once</PinPolicy>", serializedObject);
+        Assert.Contains($"<FormFactor>UsbAKeychain</FormFactor>", serializedObject);
         Assert.Contains($"<Slot>{yubikey.Slot}</Slot>", serializedObject);
         Assert.Contains($"<SerialNumber>{yubikey.SerialNumber}</SerialNumber>", serializedObject);
         Assert.Contains($"<FirmwareVersion>{yubikey.FirmwareVersionString}</FirmwareVersion>", serializedObject);
         Assert.Contains($"<KeyAlgorithm>{yubikey.KeyAlgorithm}</KeyAlgorithm>", serializedObject);
         Assert.Contains($"<KeyLength>{yubikey.KeyLength}</KeyLength>", serializedObject);
-        Assert.Contains($"<Edition>{yubikey.Edition}</Edition>", serializedObject);
+        Assert.Contains($"<Edition>Normal</Edition>", serializedObject);
         Assert.Contains(
             $"<AttestationCertificate>{Convert.ToBase64String(yubikey.AttestationCertificate.RawData)}</AttestationCertificate>",
             serializedObject);
@@ -1169,25 +1213,25 @@ public class YubikeyValidatorTests
         policy.YubikeyPolicy[0].KeyAlgorithmFamilies = [KeyAlgorithmFamily.RSA, KeyAlgorithmFamily.ECC];
         policy.YubikeyPolicy[0].MinimumFirmwareString = "0.0.0";
         policy.YubikeyPolicy[0].MaximumFirmwareString = "9.9.9";
-        policy.YubikeyPolicy[0].Formfactor =
+        policy.YubikeyPolicy[0].FormFactor =
         [
-            YubikeyFormFactor.UsbAKeychain, YubikeyFormFactor.UsbCKeychain, YubikeyFormFactor.UsbANano,
-            YubikeyFormFactor.UsbCNano, YubikeyFormFactor.UsbCLightning, YubikeyFormFactor.UsbABiometricKeychain,
-            YubikeyFormFactor.UsbCBiometricKeychain
+            YubikeyFormFactor.USB_A_KEYCHAIN, YubikeyFormFactor.USB_C_KEYCHAIN, YubikeyFormFactor.USB_A_NANO,
+            YubikeyFormFactor.USB_C_NANO, YubikeyFormFactor.USB_C_LIGHTNING, YubikeyFormFactor.USB_A_BIOMETRIC_KEYCHAIN,
+            YubikeyFormFactor.USB_C_BIOMETRIC_KEYCHAIN
         ];
-        policy.YubikeyPolicy[0].Edition = [YubikeyEdition.FIPS, YubikeyEdition.Normal, YubikeyEdition.CSPN];
+        policy.YubikeyPolicy[0].Edition = [YubikeyEdition.FIPS, YubikeyEdition.NORMAL, YubikeyEdition.CSPN];
         policy.YubikeyPolicy[0].Slot = ["9a", "9c", "9d", "9e"];
         policy.YubikeyPolicy[0].TouchPolicies =
-            [YubikeyTouchPolicy.Always, YubikeyTouchPolicy.Never, YubikeyTouchPolicy.Cached];
+            [YubikeyTouchPolicy.ALWAYS, YubikeyTouchPolicy.NEVER, YubikeyTouchPolicy.CACHED];
         policy.YubikeyPolicy[0].PinPolicies =
         [
-            YubikeyPinPolicy.Once, YubikeyPinPolicy.Never, YubikeyPinPolicy.Always, YubikeyPinPolicy.MatchOnce,
-            YubikeyPinPolicy.MatchAlways
+            YubikeyPinPolicy.ONCE, YubikeyPinPolicy.NEVER, YubikeyPinPolicy.ALWAYS, YubikeyPinPolicy.MATCH_ONCE,
+            YubikeyPinPolicy.MATCH_ALWAYS
         ];
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
+        policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
 
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         PrintResult(result, yubikey);
 
@@ -1205,11 +1249,11 @@ public class YubikeyValidatorTests
             Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
             CertCli.CR_IN_PKCS10, null, 10025);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MaximumFirmwareString = "5.2.7";
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Deny;
+        policy.YubikeyPolicy[0].Action = PolicyAction.DENY;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
@@ -1228,18 +1272,18 @@ public class YubikeyValidatorTests
             Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
             CertCli.CR_IN_PKCS10, null, 10026);
         var result = new CertificateRequestValidationResult(dbRow);
-        result = _ykValidator.ExtractAttestation(result, _policy, dbRow, out var yubikey);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.0.0";
-        policy.YubikeyPolicy[0].Action = YubikeyPolicyAction.Allow;
+        policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
 
         PrintResult(result, yubikey);
 
         Assert.False(result.DeniedForIssuance);
-        Assert.Equal(YubikeyX509Extensions.ATTESTATION_DEVICE,
+        Assert.Equal(YubikeyX509Extension.ATTESTATION_DEVICE,
             _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
     }
 }

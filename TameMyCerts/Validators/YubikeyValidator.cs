@@ -27,25 +27,40 @@ namespace TameMyCerts.Validators;
 /// </summary>
 internal class YubikeyValidator
 {
-    private const string YubikeyCaCertificateStoreName = "YKROOT";
+    private const string RootCaStoreName = "YKROOT";
+    private const string IntermediateCaStoreName = "YKCA";
+
+    private readonly List<string> _attestationInformationOids =
+    [
+        YubikeyX509Extension.FIRMWARE, YubikeyX509Extension.SERIALNUMBER, YubikeyX509Extension.PIN_TOUCH_POLICY,
+        YubikeyX509Extension.FORMFACTOR, YubikeyX509Extension.FIPS_CERTIFIED, YubikeyX509Extension.CPSN_CERTIFIED
+    ];
 
     private readonly List<string> _attestationLocationOids =
-        [YubikeyX509Extensions.ATTESTATION_DEVICE, YubikeyX509Extensions.ATTESTATION_DEVICE_PIVTOOL];
+        [YubikeyX509Extension.ATTESTATION_DEVICE, YubikeyX509Extension.ATTESTATION_DEVICE_PIVTOOL];
 
-    private readonly X509Certificate2Collection _yubikeyCaCertificates;
+    private readonly X509Certificate2Collection _intermediateCaCertificates;
+    private readonly X509Certificate2Collection _rootCaCertificates;
 
+    /// <summary>
+    ///     Constructor for production usage.
+    /// </summary>
     public YubikeyValidator()
     {
-        var yubikeyCaCertificateStore = new X509Store(YubikeyCaCertificateStoreName, StoreLocation.LocalMachine);
-        yubikeyCaCertificateStore.Open(OpenFlags.ReadOnly);
-
-        // If the store does not exist on the machine, this still returns an empty collection that we can use
-        _yubikeyCaCertificates = yubikeyCaCertificateStore.Certificates;
+        _rootCaCertificates = GetCertificatesFromMachineStore(RootCaStoreName);
+        _intermediateCaCertificates = GetCertificatesFromMachineStore(IntermediateCaStoreName);
     }
 
-    public YubikeyValidator(X509Certificate2Collection yubikeyCaCertificates)
+    /// <summary>
+    ///     Constructor for Unit testing purposes.
+    /// </summary>
+    /// <param name="rootCaCertificates">Collection of Root CA certificates.</param>
+    /// <param name="intermediateCaCertificates">Optional collection of intermediate CA certificates.</param>
+    public YubikeyValidator(X509Certificate2Collection rootCaCertificates,
+        X509Certificate2Collection intermediateCaCertificates = null)
     {
-        _yubikeyCaCertificates = yubikeyCaCertificates;
+        _rootCaCertificates = rootCaCertificates;
+        _intermediateCaCertificates = intermediateCaCertificates ?? [];
     }
 
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
@@ -64,8 +79,14 @@ internal class YubikeyValidator
         if (yubikey is null)
         {
             result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
-                string.Format(LocalizedStrings.YKVal_No_Attestation_Found, dbRow.RequestID));
+                string.Format(LocalizedStrings.YKVal_No_Attestation_Found));
             return result;
+        }
+
+        foreach (var extension in yubikey.AttestationCertificate.Extensions.Where(extension =>
+                     _attestationInformationOids.Contains(extension.Oid.Value)))
+        {
+            result.CertificateExtensions.Add(extension.Oid.Value, extension.RawData);
         }
 
         var foundMatch = false;
@@ -74,12 +95,11 @@ internal class YubikeyValidator
         {
             if (ObjectMatchesPolicy(yubikeyPolicy, yubikey))
             {
-                if (yubikeyPolicy.Action == YubikeyPolicyAction.Deny)
+                if (yubikeyPolicy.Action == PolicyAction.DENY)
                 {
                     ETWLogger.Log.YKVal_4201_Denied_by_Policy(dbRow.RequestID, yubikeyPolicy.SaveToString());
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, dbRow.RequestID,
-                        yubikey.SerialNumber.ToString(),
+                        LocalizedStrings.YKVal_Policy_Matches_with_Reject, yubikey.SerialNumber.ToString(),
                         yubikeyPolicy.SaveToString()));
                     return result;
                 }
@@ -101,7 +121,7 @@ internal class YubikeyValidator
         }
 
         // If all policies are deny policies, then if none match, we will allow the request
-        if (policy.YubikeyPolicy.All(p => p.Action != YubikeyPolicyAction.Allow))
+        if (policy.YubikeyPolicy.All(p => p.Action != PolicyAction.ALLOW))
         {
             return result;
         }
@@ -110,12 +130,20 @@ internal class YubikeyValidator
 
         ETWLogger.Log.YKVal_4203_Denied_due_to_no_matching_policy_default_deny(dbRow.RequestID);
         result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, string.Format(
-            LocalizedStrings.YKVal_No_Matching_Policy_Found, dbRow.RequestID, yubikey.SerialNumber.ToString()));
+            LocalizedStrings.YKVal_No_Matching_Policy_Found, yubikey.SerialNumber.ToString()));
 
         return result;
     }
 
-    public CertificateRequestValidationResult ExtractAttestation(CertificateRequestValidationResult result,
+    /// <summary>
+    ///     Returns a YubikeyObject if the certificate request contains a valid Yubikey attestation.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <param name="policy"></param>
+    /// <param name="dbRow"></param>
+    /// <param name="yubikey"></param>
+    /// <returns></returns>
+    public CertificateRequestValidationResult GetYubikeyObject(CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, out YubikeyObject yubikey)
     {
         // Default value to return if not attestation is found.
@@ -130,23 +158,22 @@ internal class YubikeyValidator
         // Yubikey Attestation is stored in these two extensions in the CSR.
         foreach (var attestationLocationOid in _attestationLocationOids.Where(oid =>
                      dbRow.CertificateExtensions.ContainsKey(oid) &&
-                     dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extensions.ATTESTATION_INTERMEDIATE)))
+                     dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extension.ATTESTATION_INTERMEDIATE)))
         {
             ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, attestationLocationOid);
 
             try
             {
-                yubikey = new YubikeyObject(dbRow.PublicKey,
+                yubikey = new YubikeyObject(_rootCaCertificates, _intermediateCaCertificates,
                     new X509Certificate2(dbRow.CertificateExtensions[attestationLocationOid]),
-                    new X509Certificate2(dbRow.CertificateExtensions[YubikeyX509Extensions.ATTESTATION_INTERMEDIATE]),
-                    _yubikeyCaCertificates, dbRow.KeyAlgorithm, dbRow.KeyLength, dbRow.RequestID);
+                    new X509Certificate2(dbRow.CertificateExtensions[YubikeyX509Extension.ATTESTATION_INTERMEDIATE]),
+                    dbRow.KeyAlgorithm, dbRow.PublicKey, dbRow.KeyLength, dbRow.RequestID);
             }
             catch (Exception ex)
             {
                 ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
                 result.SetFailureStatus(WinError.NTE_FAIL,
-                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, dbRow.RequestID,
-                        ex.Message));
+                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
             }
         }
 
@@ -191,7 +218,7 @@ internal class YubikeyValidator
 
         #region Form Factor
 
-        if (policy.Formfactor.Any() && !policy.Formfactor.Contains(yubikey.FormFactor))
+        if (policy.FormFactor.Any() && !policy.FormFactor.Contains(yubikey.FormFactor))
         {
             return false;
         }
@@ -222,5 +249,20 @@ internal class YubikeyValidator
         }
 
         return true;
+    }
+
+    /// <summary>
+    ///     Retrieves certificates from the named store if it exists. Otherwise, returns an empty collection.
+    /// </summary>
+    /// <param name="storeName"></param>
+    /// <returns></returns>
+    private static X509Certificate2Collection GetCertificatesFromMachineStore(string storeName)
+    {
+        var rootCaStore = new X509Store(storeName, StoreLocation.LocalMachine);
+        rootCaStore.Open(OpenFlags.ReadOnly);
+        var certificates = rootCaStore.Certificates;
+        rootCaStore.Close();
+
+        return certificates;
     }
 }

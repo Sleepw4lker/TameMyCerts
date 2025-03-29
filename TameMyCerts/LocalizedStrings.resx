@@ -313,14 +313,14 @@
     <value>Request {0} for {1} will be put into pending state.</value>
   </data>
   <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
-    <value>Unable to read the embedded Yubikey attestation certificates for Request {0}: {1}</value>
+    <value>Unable to read the embedded Yubikey PIV attestation certificates: {0}</value>
   </data>
   <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
-    <value>Failed to find a matching Yubikey policy. Request {0} will get denied for Yubikey with Serial Number {1}.</value>
+    <value>Failed to find a matching Yubikey policy. The certificate request will get denied for Yubikey with Serial Number {0}.</value>
   </data>
   <data name="YKVal_Policy_Matches_with_Reject" xml:space="preserve">
-    <value>Request {0} for Yubikey with Serial Number {1} matched a deny Yubikey policy:
-{2}</value>
+    <value>The certificate request for Yubikey with Serial Number {0} matched a deny Yubikey policy:
+{1}</value>
   </data>
   <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
     <value>The request {0}  was rejected due to policy: \r\n{1}</value>
@@ -419,6 +419,6 @@ with the content:
     <value>The Certificate Signing Request for does not match its attestation certificate.</value>
   </data>
   <data name="YKVal_No_Attestation_Found" xml:space="preserve">
-    <value>Request {0} does not contain any valid Yubikey attestation data.</value>
+    <value>The certificate request does not contain any valid Yubikey PIV attestation data.</value>
   </data>
 </root>

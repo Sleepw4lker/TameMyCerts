@@ -169,14 +169,14 @@ internal class CertificateRequestValidator
 
             if (dbRow.CertificateExtensions.ContainsKey(WinCrypt.szOID_NTDS_CA_SECURITY_EXT))
             {
-                if (policy.SecurityIdentifierExtension.Equals("Deny", Comparison))
+                if (policy.SecurityIdentifierExtension == PolicyAction.DENY)
                 {
                     result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                         string.Format(LocalizedStrings.ReqVal_Forbidden_Extensions,
                             WinCrypt.szOID_NTDS_CA_SECURITY_EXT, nameof(WinCrypt.szOID_NTDS_CA_SECURITY_EXT)));
                 }
 
-                if (policy.SecurityIdentifierExtension.Equals("Remove", Comparison))
+                if (policy.SecurityIdentifierExtension == PolicyAction.REMOVE_FROM_ISSUED_CERTIFICATE)
                 {
                     result.DisabledCertificateExtensions.Add(WinCrypt.szOID_NTDS_CA_SECURITY_EXT);
                 }
@@ -236,7 +236,7 @@ internal class CertificateRequestValidator
         List<KeyValuePair<string, string>> subjectList, List<SubjectRule> subjectRuleList,
         out List<string> description)
     {
-        description = new List<string>();
+        description = [];
 
         #region Search for missing mandatory fields or for fields that appear too often
 
@@ -292,7 +292,7 @@ internal class CertificateRequestValidator
             }
 
             if (!policyItem.Patterns
-                    .Where(pattern => pattern.Action.Equals("Allow", Comparison))
+                    .Where(pattern => pattern.Action == PolicyAction.ALLOW)
                     .Any(pattern => pattern.IsMatch(subject.Value)))
             {
                 description.Add(string.Format(LocalizedStrings.ReqVal_No_Match, subject.Value,
@@ -300,7 +300,7 @@ internal class CertificateRequestValidator
             }
 
             description.AddRange(policyItem.Patterns
-                .Where(pattern => pattern.Action.Equals("Deny", Comparison))
+                .Where(pattern => pattern.Action == PolicyAction.DENY)
                 .Where(pattern => pattern.IsMatch(subject.Value, true))
                 .Select(pattern => string.Format(LocalizedStrings.ReqVal_Disallow_Match, subject.Value,
                     pattern.Expression, subject.Key)));

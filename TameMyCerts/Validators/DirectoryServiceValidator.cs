@@ -134,8 +134,8 @@ internal class DirectoryServiceValidator
                 continue;
             }
 
-            if (rule.Patterns.Any(pattern => pattern.Action.Equals("Allow", Comparison)) && !rule.Patterns
-                    .Where(pattern => pattern.Action.Equals("Allow", Comparison))
+            if (rule.Patterns.Any(pattern => pattern.Action == PolicyAction.ALLOW) && !rule.Patterns
+                    .Where(pattern => pattern.Action == PolicyAction.ALLOW)
                     .Any(pattern => pattern.IsMatch(dsObject.Attributes[rule.DirectoryServicesAttribute])))
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
@@ -143,10 +143,10 @@ internal class DirectoryServiceValidator
                         dsObject.Attributes[rule.DirectoryServicesAttribute], dsObject.DistinguishedName));
             }
 
-            if (rule.Patterns.Any(pattern => pattern.Action.Equals("Deny", Comparison)))
+            if (rule.Patterns.Any(pattern => pattern.Action == PolicyAction.DENY))
             {
                 foreach (var pattern in rule.Patterns
-                             .Where(pattern => pattern.Action.Equals("Deny", Comparison))
+                             .Where(pattern => pattern.Action == PolicyAction.DENY)
                              .Where(pattern =>
                                  pattern.IsMatch(dsObject.Attributes[rule.DirectoryServicesAttribute], true)))
                 {
@@ -236,7 +236,7 @@ internal class DirectoryServiceValidator
 
         #region Process SID certificate extension construction
 
-        if (policy.SecurityIdentifierExtension.Equals("Add", Comparison))
+        if (policy.SecurityIdentifierExtension == PolicyAction.ADD_TO_ISSUED_CERTIFICATE)
         {
             var sidExt = new X509CertificateExtensionSecurityIdentifier(dsObject.SecurityIdentifier);
 
