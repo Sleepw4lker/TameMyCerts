@@ -19,6 +19,7 @@
     <None Remove="Resources\YubiKeyValidator\5_7_2.pem" />
     <None Remove="Resources\YubiKeyValidator\attestation_1.pem" />
     <None Remove="Resources\YubiKeyValidator\attestation_11.pem" />
+    <None Remove="Resources\YubiKeyValidator\csr_5_7_4_standard.pem" />
   </ItemGroup>
   <ItemGroup>
    <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
@@ -49,5 +50,6 @@
     <EmbeddedResource Include="Resources\YubiKeyValidator\5_7_2.pem" />
     <EmbeddedResource Include="Resources\YubiKeyValidator\attestation_1.pem" />
     <EmbeddedResource Include="Resources\YubiKeyValidator\attestation_11.pem" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\csr_5_7_4_standard.pem" />
   </ItemGroup>
 </Project>

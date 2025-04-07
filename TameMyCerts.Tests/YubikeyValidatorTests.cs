@@ -1288,4 +1288,27 @@ public class YubikeyValidatorTests
         Assert.Equal(YubikeyX509Extension.ATTESTATION_DEVICE,
             _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
     }
+
+    [Fact]
+    public void Validate_Verify_5_7_4_Attestion_10027()
+    {
+        _listener.ClearEvents();
+
+        var dbRow = new CertificateDatabaseRow(
+            Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.csr_5_7_4_standard.pem"),
+            CertCli.CR_IN_PKCS10, null, 10027);
+        var result = new CertificateRequestValidationResult(dbRow);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
+
+        var policy = _policy;0
+        policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
+
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.False(result.DeniedForIssuance);
+        Assert.Equal(YubikeyX509Extension.ATTESTATION_DEVICE,
+            _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
+    }
 }
