@@ -413,7 +413,7 @@ with the content:
     <value>Unable to add custom certificate extension. Oid: {0}, Value: {1}.</value>
   </data>
   <data name="YKObject_Failed_to_build" xml:space="preserve">
-    <value>Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the "YKROOT" certificate store is properly populated.</value>
+    <value>Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the "YKROOT" and "YKCA" certificate stores are properly populated.</value>
   </data>
   <data name="YKObject_Attestation_Cert_Mismatch" xml:space="preserve">
     <value>The Certificate Signing Request for does not match its attestation certificate.</value>

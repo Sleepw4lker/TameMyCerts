@@ -15,12 +15,6 @@
     <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Resources\YubiKeyValidator\5_2_7.pem" />
-    <None Remove="Resources\YubiKeyValidator\5_7_2.pem" />
-    <None Remove="Resources\YubiKeyValidator\attestation_1.pem" />
-    <None Remove="Resources\YubiKeyValidator\attestation_11.pem" />
-  </ItemGroup>
-  <ItemGroup>
    <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -47,5 +41,10 @@
     <EmbeddedResource Include="Resources\YubiKeyValidator\5_7_2.pem" />
     <EmbeddedResource Include="Resources\YubiKeyValidator\attestation_1.pem" />
     <EmbeddedResource Include="Resources\YubiKeyValidator\attestation_11.pem" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\csr_5_7_4_standard.pem" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\Yubico_Attestation_Intermediate_B_1.cer" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\Yubico_Attestation_Root_1.cer" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\Yubico_PIV_Attestation_B_1.cer" />
+    <EmbeddedResource Include="Resources\YubiKeyValidator\Yubico_PIV_Root_CA_Serial_263751.cer" />
   </ItemGroup>
 </Project>
