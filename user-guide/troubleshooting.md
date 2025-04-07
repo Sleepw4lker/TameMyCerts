@@ -14,7 +14,7 @@ requestor when a request was denied:
 |Message|Symbol|Description|
 |---|---|---|
 |The permissions on the certificate template do not allow the current user to enroll for this type of certificate. |**CERTSRV\_E\_TEMPLATE\_DENIED**|Occurs if the [process used to create the certificate request](#process-rules) is unknown, not allowed or explicitly disallowed. Also occurs when [Directory Services mapping](#ds-mapping) encounters an error.|
-|The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.|**CERT\_E\_INVALID\_NAME**|Occurs if the requests [Subject Distinghuished Name](#subject-rules) or [Subject Slternative Name](#san-rules) violates the defined rules.|
+|The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.|**CERT\_E\_INVALID\_NAME**|Occurs if the requests [Subject Distinguished Name](#subject-rules) or [Subject Alternative Name](#san-rules) violates the defined rules.|
 |The public key does not meet the minimum size required by the specified certificate template.|**CERTSRV\_E\_KEY\_LENGTH**|Occurs if the requests public key violates the defined rules for key algorithm or [maximum key length](#key-rules).|
 |An internal error occurred.|**ERROR\_INVALID\_DATA**|Occurs if the policy module is unable to interpret the given [policy file](#configuring).|
 |The specified time is invalid.|**ERROR\_INVALID\_TIME**|Occurs if an invalid date was requested for the ["StartDate"](#startdate) certificate request attribute.|

@@ -32,25 +32,6 @@ public class YubikeyValidatorTests
     private readonly string _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_CSR;
     private readonly CertificateDatabaseRow _yubikey_valid_5_7_1_Always_Always_UsbCKeychain_9c_Normal_ECC_384_dbRow;
 
-    private readonly X509Certificate2 _yubikeyPivRootCaSerial263751 = new(Convert.FromBase64String(
-        "MIIDFzCCAf+gAwIBAgIDBAZHMA0GCSqGSIb3DQEBCwUAMCsxKTAnBgNVBAMMIFl1" +
-        "YmljbyBQSVYgUm9vdCBDQSBTZXJpYWwgMjYzNzUxMCAXDTE2MDMxNDAwMDAwMFoY" +
-        "DzIwNTIwNDE3MDAwMDAwWjArMSkwJwYDVQQDDCBZdWJpY28gUElWIFJvb3QgQ0Eg" +
-        "U2VyaWFsIDI2Mzc1MTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMN2" +
-        "cMTNR6YCdcTFRxuPy31PabRn5m6pJ+nSE0HRWpoaM8fc8wHC+Tmb98jmNvhWNE2E" +
-        "ilU85uYKfEFP9d6Q2GmytqBnxZsAa3KqZiCCx2LwQ4iYEOb1llgotVr/whEpdVOq" +
-        "joU0P5e1j1y7OfwOvky/+AXIN/9Xp0VFlYRk2tQ9GcdYKDmqU+db9iKwpAzid4oH" +
-        "BVLIhmD3pvkWaRA2H3DA9t7H/HNq5v3OiO1jyLZeKqZoMbPObrxqDg+9fOdShzgf" +
-        "wCqgT3XVmTeiwvBSTctyi9mHQfYd2DwkaqxRnLbNVyK9zl+DzjSGp9IhVPiVtGet" +
-        "X02dxhQnGS7K6BO0Qe8CAwEAAaNCMEAwHQYDVR0OBBYEFMpfyvLEojGc6SJf8ez0" +
-        "1d8Cv4O/MA8GA1UdEwQIMAYBAf8CAQEwDgYDVR0PAQH/BAQDAgEGMA0GCSqGSIb3" +
-        "DQEBCwUAA4IBAQBc7Ih8Bc1fkC+FyN1fhjWioBCMr3vjneh7MLbA6kSoyWF70N3s" +
-        "XhbXvT4eRh0hvxqvMZNjPU/VlRn6gLVtoEikDLrYFXN6Hh6Wmyy1GTnspnOvMvz2" +
-        "lLKuym9KYdYLDgnj3BeAvzIhVzzYSeU77/Cupofj093OuAswW0jYvXsGTyix6B3d" +
-        "bW5yWvyS9zNXaqGaUmP3U9/b6DlHdDogMLu3VLpBB9bm5bjaKWWJYgWltCVgUbFq" +
-        "Fqyi4+JE014cSgR57Jcu3dZiehB6UtAPgad9L5cNvua/IWRmm+ANy3O2LH++Pyl8" +
-        "SREzU8onbBsjMg9QDiSf5oJLKvd/Ren+zGY7"));
-
 
     public YubikeyValidatorTests(ITestOutputHelper output)
     {
@@ -261,7 +242,23 @@ public class YubikeyValidatorTests
         _output = output;
         _listener = new ETWLoggerListener();
 
-        _ykValidator = new YubikeyValidator([_yubikeyPivRootCaSerial263751]);
+        _ykValidator = new YubikeyValidator([
+                new X509Certificate2(Convert.FromBase64String(GetStringFromResource(
+                    "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_PIV_Root_CA_Serial_263751.cer"))),
+                new X509Certificate2(Convert.FromBase64String(
+                    GetStringFromResource(
+                        "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_Attestation_Root_1.cer")))
+            ],
+            new X509Certificate2Collection(
+                new X509Certificate2[2]
+                {
+                    new(Convert.FromBase64String(GetStringFromResource(
+                        "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_Attestation_Intermediate_B_1.cer"))),
+                    new(Convert.FromBase64String(
+                        GetStringFromResource(
+                            "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_PIV_Attestation_B_1.cer")))
+                }
+            ));
     }
 
     internal void PrintResult(CertificateRequestValidationResult result, YubikeyObject yubikey = null)
@@ -275,10 +272,16 @@ public class YubikeyValidatorTests
         }
     }
 
-    private string Retrieve_CSR_from_Resource(string resourceName)
+    private static string GetStringFromResource(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
         using var stream = assembly.GetManifestResourceStream(resourceName);
+
+        if (stream == null)
+        {
+            throw new FileNotFoundException($"Resource '{resourceName}' not found.");
+        }
+
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
@@ -983,16 +986,12 @@ public class YubikeyValidatorTests
             "Lll4MgW1VoV1rvRDpfoX5Jykn5Ao3l6Mer5cuJq7Yk2DTkYS15w87jAnB3zBih+i" +
             "/aY3jWWr21/DWk19wAU3RxwGXJ9WIQErkeX/iOzH2nxIc/odCw==";
 
-        #region CSR
-
         var validator = new YubikeyValidator([new X509Certificate2(Convert.FromBase64String(testCa))]);
 
         _listener.ClearEvents();
 
         var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
             CertCli.CR_IN_PKCS10, null, 10015);
-
-        #endregion
 
         var result = new CertificateRequestValidationResult(dbRow);
         result = validator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
@@ -1005,55 +1004,6 @@ public class YubikeyValidatorTests
         Assert.Null(yubikey);
         Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
-    }
-
-    [Fact]
-    public void Allows_when_more_than_one_attestation_Root()
-    {
-        var testCa =
-            "MIID4TCCAkmgAwIBAgIQHgSMPLxvPotB6kiqNq2UkTANBgkqhkiG9w0BAQsFADAS" +
-            "MRAwDgYDVQQDEwdURVNUIENBMCAXDTI1MDMxNjE1MTYzOFoYDzIxMjUwMzE2MTUz" +
-            "NjM4WjASMRAwDgYDVQQDEwdURVNUIENBMIIBojANBgkqhkiG9w0BAQEFAAOCAY8A" +
-            "MIIBigKCAYEAwbgnqrr5klqk3UokMwuGZikXMinUS6yngsrGEN/5TEhpHGcJgVOo" +
-            "uJmLZJBmnip4r4lV+qUJCJkv6hgcyheP3yZPS2SlzxCdgGZJYr0gIneYRkwLss2f" +
-            "8ibngZskQ93QEXfhdQ8BQ8ivY8vhbFoTiUZP4JVfqiDlPsXTvGQSYL7cSbF+EW/N" +
-            "LfEIeTtoBovl2hbyLq52W5a/SRfVU6S2BvpwO+OlPOWyiJxcereqIXLDzSihUItW" +
-            "9vMB1ESmmtsh8+QlR5eZ/gVIJaW/uPb5u3fSejjNtuFy0xjb36e5wjfGJP1YrdEe" +
-            "vsNF9cQ4jinlGiY/Gb8cPWTUQwGx2fLo4ehPF7pkB8iZZ+h9pxZGORYYTSFcL+o1" +
-            "xFc1NGFAmCxHJG/8Osh+EKTiNbw/qztf3rIaXxJdtVMtCZi5yJ8y2rl52/6km+xy" +
-            "sVnYxp4GNKm5fOcFMCsT7M/2c+/JkRWgRWhYXH85Lwn8b/wsNK1306g3TcJfX8lD" +
-            "wmGwgwPTre6pAgMBAAGjMTAvMA4GA1UdDwEB/wQEAwIHgDAdBgNVHQ4EFgQUtfwW" +
-            "OKLU32tltoOfzSgvq7UBJuMwDQYJKoZIhvcNAQELBQADggGBALq4j7hLBmbvHMAV" +
-            "p0zEcdwUokiDzWYkLZ+TsQCsSIi5nyUSIm2C2zQFrWw3u3krKwwkNPGabAxw8V6p" +
-            "GXfjUYWJ0Y7MJHrqM5qeATAFl/0TG0yhc53mdo9FdG7s7LStlZEUBd5ZxhSXm1mt" +
-            "/UyGooz8emJKGbE0zXQdKlZM+5Bwdy5xiabsfBgAZm8/Hu0C47GEF3cKWxrU7KWc" +
-            "Kp6mIT1ATnhSDPOSliWrinyw7Vvs8IxEbUo6BszGFe1CD7De2I72RT+/5acl31+3" +
-            "xDSOz5C2i/0MIMxotLDxpgX51QmbMEP4FLvkwPpEebDIY9kqsPhFoOSY6gW7CuOt" +
-            "Z5fUgVgAX2rZ6fhG+CzoZktdrrbFH8Q8Reb1zgRXglBBcecXJ1xOB8XmpmUXYVpz" +
-            "Lll4MgW1VoV1rvRDpfoX5Jykn5Ao3l6Mer5cuJq7Yk2DTkYS15w87jAnB3zBih+i" +
-            "/aY3jWWr21/DWk19wAU3RxwGXJ9WIQErkeX/iOzH2nxIc/odCw==";
-
-        #region CSR
-
-        var validator = new YubikeyValidator([
-            new X509Certificate2(Convert.FromBase64String(testCa)), _yubikeyPivRootCaSerial263751
-        ]);
-
-        _listener.ClearEvents();
-
-        var dbRow = new CertificateDatabaseRow(_yubikey_valid_5_4_3_Once_Never_UsbAKeychain_9a_Normal_RSA_2048_CSR,
-            CertCli.CR_IN_PKCS10, null, 10015);
-
-        #endregion
-
-        var result = new CertificateRequestValidationResult(dbRow);
-        result = validator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
-        var policy = _policy;
-
-        result = validator.VerifyRequest(result, policy, yubikey, dbRow);
-
-        PrintResult(result, yubikey);
-        Assert.False(result.DeniedForIssuance);
     }
 
     [Fact]
@@ -1188,15 +1138,15 @@ public class YubikeyValidatorTests
 
         var serializedObject = yubikey.SaveToString();
 
-        Assert.Contains($"<TouchPolicy>Never</TouchPolicy>", serializedObject);
-        Assert.Contains($"<PinPolicy>Once</PinPolicy>", serializedObject);
-        Assert.Contains($"<FormFactor>UsbAKeychain</FormFactor>", serializedObject);
+        Assert.Contains("<TouchPolicy>Never</TouchPolicy>", serializedObject);
+        Assert.Contains("<PinPolicy>Once</PinPolicy>", serializedObject);
+        Assert.Contains("<FormFactor>UsbAKeychain</FormFactor>", serializedObject);
         Assert.Contains($"<Slot>{yubikey.Slot}</Slot>", serializedObject);
         Assert.Contains($"<SerialNumber>{yubikey.SerialNumber}</SerialNumber>", serializedObject);
         Assert.Contains($"<FirmwareVersion>{yubikey.FirmwareVersionString}</FirmwareVersion>", serializedObject);
         Assert.Contains($"<KeyAlgorithm>{yubikey.KeyAlgorithm}</KeyAlgorithm>", serializedObject);
         Assert.Contains($"<KeyLength>{yubikey.KeyLength}</KeyLength>", serializedObject);
-        Assert.Contains($"<Edition>Normal</Edition>", serializedObject);
+        Assert.Contains("<Edition>Normal</Edition>", serializedObject);
         Assert.Contains(
             $"<AttestationCertificate>{Convert.ToBase64String(yubikey.AttestationCertificate.RawData)}</AttestationCertificate>",
             serializedObject);
@@ -1248,7 +1198,7 @@ public class YubikeyValidatorTests
         _listener.ClearEvents();
 
         var dbRow = new CertificateDatabaseRow(
-            Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
+            GetStringFromResource("TameMyCerts.Tests.Resources.YubiKeyValidator.5_2_7.pem"),
             CertCli.CR_IN_PKCS10, null, 10025);
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
@@ -1271,13 +1221,36 @@ public class YubikeyValidatorTests
         _listener.ClearEvents();
 
         var dbRow = new CertificateDatabaseRow(
-            Retrieve_CSR_from_Resource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
+            GetStringFromResource("TameMyCerts.Tests.Resources.YubiKeyValidator.attestation_1.pem"),
             CertCli.CR_IN_PKCS10, null, 10026);
         var result = new CertificateRequestValidationResult(dbRow);
         result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
 
         var policy = _policy;
         policy.YubikeyPolicy[0].MinimumFirmwareString = "5.0.0";
+        policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
+
+        result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);
+
+        PrintResult(result, yubikey);
+
+        Assert.False(result.DeniedForIssuance);
+        Assert.Equal(YubikeyX509Extension.ATTESTATION_DEVICE,
+            _listener.Events.First(x => x.EventId == 4209).Payload[1].ToString());
+    }
+
+    [Fact]
+    public void Validate_Verify_5_7_4_Attestation_10027()
+    {
+        _listener.ClearEvents();
+
+        var dbRow = new CertificateDatabaseRow(
+            GetStringFromResource("TameMyCerts.Tests.Resources.YubiKeyValidator.csr_5_7_4_standard.pem"),
+            CertCli.CR_IN_PKCS10, null, 10027);
+        var result = new CertificateRequestValidationResult(dbRow);
+        result = _ykValidator.GetYubikeyObject(result, _policy, dbRow, out var yubikey);
+
+        var policy = _policy;
         policy.YubikeyPolicy[0].Action = PolicyAction.ALLOW;
 
         result = _ykValidator.VerifyRequest(result, policy, yubikey, dbRow);

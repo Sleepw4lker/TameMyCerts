@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
@@ -13,18 +12,16 @@ namespace TameMyCerts.Tests;
 
 public class CertificateRequestValidatorTests
 {
+    private readonly ITestOutputHelper _output;
     private readonly CertificateRequestPolicy _policy;
     private readonly string _request;
     private readonly CertificateTemplate _template;
     private readonly CertificateRequestValidator _validator = new();
 
-    private readonly ITestOutputHelper _output;
-
 
     public CertificateRequestValidatorTests(ITestOutputHelper output)
     {
-
-        this._output = output;
+        _output = output;
 
         // 2048 Bit RSA Key
         // CN=intranet.adcslabor.de
@@ -108,7 +105,10 @@ public class CertificateRequestValidatorTests
                     Patterns = new List<Pattern>
                     {
                         new() { Expression = @"192.168.0.0/16", TreatAs = PatternType.CIDR },
-                        new() { Expression = @"192.168.123.0/24", TreatAs = PatternType.CIDR, Action = PolicyAction.DENY }
+                        new()
+                        {
+                            Expression = @"192.168.123.0/24", TreatAs = PatternType.CIDR, Action = PolicyAction.DENY
+                        }
                     }
                 }
             }

@@ -889,7 +889,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the &quot;YKROOT&quot; certificate store is properly populated..
+        ///   Looks up a localized string similar to Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the &quot;YKROOT&quot; and &quot;YKCA&quot; certificate stores are properly populated..
         /// </summary>
         internal static string YKObject_Failed_to_build {
             get {
