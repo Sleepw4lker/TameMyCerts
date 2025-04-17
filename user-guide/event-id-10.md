@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Error
-- Required certification authority LogLevel: 2 (CERTLOG_ERROR)
+- Required certification authority LogLevel: 2 (`CERTLOG_ERROR`)
 
 ### Event Sample
 
@@ -20,9 +20,9 @@ No certificate template information for request {0} could be retrieved from the 
 No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied.
 ```
 
-- Placeholder {0} will contain the Request ID number.
-- Placeholder {1} will contain the certificate template name.
-- Placeholder {2} will contain any additional error messages.
+- Placeholder `{0}` will contain the Request ID number.
+- Placeholder `{1}` will contain the certificate template name.
+- Placeholder `{2}` will contain any additional error messages.
 
 ### Event Description
 

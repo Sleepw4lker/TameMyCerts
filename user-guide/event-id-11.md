@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Information
-- Required certification authority LogLevel: 4 (CERTLOG_VERBOSE)
+- Required certification authority LogLevel: 4 (`CERTLOG_VERBOSE`)
 
 ### Event Sample
 
@@ -11,7 +11,7 @@
 Request {0} was denied by the Windows Default policy module.
 ```
 
-- Placeholder {0} will contain the Request ID number.
+- Placeholder `{0}` will contain the Request ID number.
 
 ### Event Description
 

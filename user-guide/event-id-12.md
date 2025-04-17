@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Information
-- Required certification authority LogLevel: 4 (CERTLOG_VERBOSE)
+- Required certification authority LogLevel: 4 (`CERTLOG_VERBOSE`)
 
 ### Event Sample
 
@@ -11,8 +11,8 @@
 Request {0} for {1} will get issued.
 ```
 
-- Placeholder {0} will contain the Request ID number.
-- Placeholder {1} will contain the certificate template name.
+- Placeholder `{0}` will contain the Request ID number.
+- Placeholder `{1}` will contain the certificate template name.
 
 ### Event Description
 

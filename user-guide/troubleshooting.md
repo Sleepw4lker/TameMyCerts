@@ -13,11 +13,11 @@ requestor when a request was denied:
 
 |Message|Symbol|Description|
 |---|---|---|
-|The permissions on the certificate template do not allow the current user to enroll for this type of certificate. |**CERTSRV\_E\_TEMPLATE\_DENIED**|Occurs if the [process used to create the certificate request](#process-rules) is unknown, not allowed or explicitly disallowed. Also occurs when [Directory Services mapping](#ds-mapping) encounters an error.|
-|The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.|**CERT\_E\_INVALID\_NAME**|Occurs if the requests [Subject Distinguished Name](#subject-rules) or [Subject Alternative Name](#san-rules) violates the defined rules.|
-|The public key does not meet the minimum size required by the specified certificate template.|**CERTSRV\_E\_KEY\_LENGTH**|Occurs if the requests public key violates the defined rules for key algorithm or [maximum key length](#key-rules).|
-|An internal error occurred.|**ERROR\_INVALID\_DATA**|Occurs if the policy module is unable to interpret the given [policy file](#configuring).|
-|The specified time is invalid.|**ERROR\_INVALID\_TIME**|Occurs if an invalid date was requested for the ["StartDate"](#startdate) certificate request attribute.|
+|The permissions on the certificate template do not allow the current user to enroll for this type of certificate. |`CERTSRV_E_TEMPLATE_DENIED`|Occurs if the [process used to create the certificate request](#process-rules) is unknown, not allowed or explicitly disallowed. Also occurs when [Directory Services mapping](#ds-mapping) encounters an error.|
+|The certificate has an invalid name. The name is not included in the permitted list or is explicitly excluded.|`CERT_E_INVALID_NAME`|Occurs if the requests [Subject Distinguished Name](#subject-rules) or [Subject Alternative Name](#san-rules) violates the defined rules.|
+|The public key does not meet the minimum size required by the specified certificate template.|`CERTSRV_E_KEY_LENGTH`|Occurs if the requests public key violates the defined rules for key algorithm or [maximum key length](#key-rules).|
+|An internal error occurred.|`ERROR_INVALID_DATA`|Occurs if the policy module is unable to interpret the given [policy file](#configuring).|
+|The specified time is invalid.|`ERROR_INVALID_TIME`|Occurs if an invalid date was requested for the ["StartDate"](#startdate) certificate request attribute.|
 
 ## Caches involved {#caches}
 
@@ -33,7 +33,7 @@ Note that updates made to a certificate template in Active Directory are not ins
 
 Certificate Request policy files are loaded on first use and are then served from memory as long as they do not change. This reduces CPU and storage load. When the file gets modified and therefore the modification date of the file gets updated, it will get re-loaded on next use.
 
-Should you, for example, copy a previous version of a policy configuration file back to the configured directory, it will not get read because it would have an older modification date. You would have to save it again so that it has a newer timestamp. Alternatively, you could re-start ehe certification authority service, as this will invalidate the cache.
+Should you, for example, copy a previous version of a policy configuration file back to the configured directory, it will not get read because it would have an older modification date. You would have to save it again so that it has a newer timestamp. Alternatively, you could re-start the certification authority service, as this will invalidate the cache.
 
 ## Known limitations, common issues and frequently asked questions {#limitations}
 
@@ -41,11 +41,11 @@ Should you, for example, copy a previous version of a policy configuration file 
 
 TameMyCerts currently does only support the following Subject Alternative Name types:
 
-- dnsName
-- rfc822Name
-- uniformResourceIdentifier
-- userPrincipalName
-- ipAddress
+- `dnsName`
+- `rfc822Name`
+- `uniformResourceIdentifier`
+- `userPrincipalName`
+- `ipAddress`
 
 If a certificate request contains an unsupported SAN type, the behavior is as follows:
 

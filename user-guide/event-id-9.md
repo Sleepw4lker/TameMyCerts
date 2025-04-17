@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Error
-- Required certification authority LogLevel: 2 (CERTLOG_ERROR)
+- Required certification authority LogLevel: 2 (`CERTLOG_ERROR`)
 
 ### Event Sample
 
@@ -11,7 +11,7 @@
 The {0} policy module currently does not support standalone certification authorities.
 ```
 
-- Placeholder {0} will contain the policy module name.
+- Placeholder `{0}` will contain the policy module name.
 
 ### Event Description
 

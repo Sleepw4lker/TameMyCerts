@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Warning
-- Required certification authority LogLevel: 3 (CERTLOG_WARNING)
+- Required certification authority LogLevel: 3 (`CERTLOG_WARNING`)
 
 ### Event Sample
 
@@ -12,9 +12,9 @@ Request {0} for {1} was denied because:
 {2}
 ```
 
-- Placeholder {0} will contain the Request ID number.
-- Placeholder {1} will contain the certificate template name.
-- Placeholder {2} will contain one or more reasons why the certificate request was denied.
+- Placeholder `{0}` will contain the Request ID number.
+- Placeholder `{1}` will contain the certificate template name.
+- Placeholder `{2}` will contain one or more reasons why the certificate request was denied.
 
 ![Preventing the ESC6 attack with TameMyCerts](resources/prevent-esc6.png)
 

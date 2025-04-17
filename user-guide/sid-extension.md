@@ -22,16 +22,16 @@ variety of ways:
 
 ### Configuring
 
-If TameMyCerts shall process the SID certificate extension, you configure it with the **SecurityIdentifierExtension** directive within a policy configuration file.
+If TameMyCerts shall process the SID certificate extension, you configure it with the `SecurityIdentifierExtension` directive within a policy configuration file.
 
 You can configure four modes:
 
 |Action|Description|
 |---|---|
-|Deny (default)|All certificate requests that contain a security identifier certificate extension will get denied if this is set.|
-|Allow |If a certificate request contains a security identifier extension, it will get passed as-is into the issued certificate.|
-|Add |Adds the value of the objectSid (<https://learn.microsoft.com/en-us/windows/win32/adschema/a-objectsid>) attribute of the Active Directory object belonging to the certificate request to the issued certificate. Can therefore only be used in combination with [Directory Services mapping](#ds-mapping).|
-|Remove |If a certificate request contains a security identifier extension, it will not get passed into the issued certificate.|
+|`Deny`|Default Action. All certificate requests that contain a security identifier certificate extension will get denied if this is set.|
+|`Allow`|If a certificate request contains a security identifier extension, it will get passed as-is into the issued certificate.|
+|`Add`|Adds the value of the objectSid (<https://learn.microsoft.com/en-us/windows/win32/adschema/a-objectsid>) attribute of the Active Directory object belonging to the certificate request to the issued certificate. Can therefore only be used in combination with [Directory Services mapping](#ds-mapping).|
+|`Remove`|If a certificate request contains a security identifier extension, it will not get passed into the issued certificate.|
 
 > If you configure TameMyCerts to add the SID certificate extension, you should ensure that the resulting certificate will contain a Subject Alternative Name of type _dNSName_ (for mapped computer objects) or _userPrincipalName_ (for mapped user objects) as this will be used to map the certificate to the AD object during authentication. You can either achieve this by having the field being put into the certificate request (and [governing requested certificate content](#san-rules)), or [add the Subject Alternative Name from Active Directory](#modify-san) via [Directory Services mapping](#ds-mapping).
 

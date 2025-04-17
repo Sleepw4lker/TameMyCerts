@@ -26,9 +26,9 @@ certutil -dump <request-file-name>
 
 ### Configuring
 
-The **AllowedProcesses** directive contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
+The `AllowedProcesses` directive contains a list of one or more process names that are permitted to get a certificate issued. For example, if you would like to restrict certificate enrollment for a certificate template to Autoenrollment only, you would permit "taskhostw.exe".
 
-The **DisallowedProcesses** directive contains a list of one or more process names that are disallowed to get a certificate issued. For example, if you would like to deny certificate enrollment via certreq.exe, you could enter it here.
+The `DisallowedProcesses` directive contains a list of one or more process names that are disallowed to get a certificate issued. For example, if you would like to deny certificate enrollment via certreq.exe, you could enter it here.
 
 > Though both directives can be used at the same time, it is recommended to only use either _AllowedProcesses_ or _DisallowedProcesses_ in a policy.
 

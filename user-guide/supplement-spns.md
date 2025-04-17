@@ -15,7 +15,7 @@ This allows to automatically add aliases and custom names required for Kerberos 
 
 ### Configuring
 
-You enable the feature by configuring **SupplementServicePrincipalNames** directive.
+You enable the feature by configuring `SupplementServicePrincipalNames` directive.
 
 ```xml
 <DirectoryServicesMapping>
@@ -24,7 +24,7 @@ You enable the feature by configuring **SupplementServicePrincipalNames** direct
 </DirectoryServicesMapping>
 ```
 
-By default, TameMyCerts will supplement both qualified (e.g. `host.domain.tld`) and unqualified DNS names (e.g. `host`). You can suppress supplementation of unqialified names by setting the _SupplementUnqualifiedNames_ to _false_.
+By default, TameMyCerts will supplement both qualified (e.g. `host.domain.tld`) and unqualified DNS names (e.g. `host`). You can suppress supplementation of unqialified names by setting the `SupplementUnqualifiedNames` to `false`.
 
 ```xml
 <DirectoryServicesMapping>
