@@ -1784,4 +1784,32 @@ public class CertificateContentValidatorTests
         Assert.False(
             result.CertificateExtensions.ContainsKey("1.3.6.1.4.1.311.62.1.1.1"));
     }
+
+    [Fact]
+    public void Adds_Custom_Certificate_Extension_with_null_value()
+    {
+        var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = new CertificateRequestPolicy
+        {
+            CustomCertificateExtensions = new List<CustomCertificateExtension>
+            {
+                new()
+                {
+                    Oid = "1.3.6.1.5.5.7.48.1.5"
+                }
+            }
+        };
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _dsObject, _caConfig);
+
+        PrintResult(result);
+
+        Assert.False(result.DeniedForIssuance);
+        Assert.True(
+            result.CertificateExtensions.ContainsKey("1.3.6.1.5.5.7.48.1.5") &&
+            result.CertificateExtensions["1.3.6.1.5.5.7.48.1.5"] == Array.Empty<byte>());
+    }
 }

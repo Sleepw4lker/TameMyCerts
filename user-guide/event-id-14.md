@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Warning
-- Required certification authority LogLevel: 3 (CERTLOG_WARNING)
+- Required certification authority LogLevel: 3 (`CERTLOG_WARNING`)
 
 ### Event Sample
 
@@ -12,9 +12,9 @@ The following warnings have been logged during the processing of request {0} for
 {2}
 ```
 
-- Placeholder {0} will contain the Request ID number.
-- Placeholder {1} will contain the certificate template name.
-- Placeholder {2} will contain one or more warnings that have been logged during the processing of the certificate request.
+- Placeholder `{0}` will contain the Request ID number.
+- Placeholder `{1}` will contain the certificate template name.
+- Placeholder `{2}` will contain one or more warnings that have been logged during the processing of the certificate request.
 
 ### Event Description
 

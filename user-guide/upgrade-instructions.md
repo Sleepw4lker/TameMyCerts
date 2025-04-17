@@ -4,11 +4,16 @@
 
 Beginning with Version 1.7, TameMyCerts uses .NET 8.0 instead of the previously used .NET Framewotk 4.7.2. Therefore, you must [install](#prerequisites) the .NET 8.0 Desktop runtime prior to installing the module.
 
+Policy configuration files are now strictly processed, means that there will be errors raised when they contain invalid nodes. This may especially affect the following:
+
+- If policy configuration files still contain `KeyAlgorithm` nodes (which were removed with version 1.6), these must be removed from the configuration files.
+- The `Action` directives as well as the `TreatAs` directives for `Pattern` directives as processed case-sensitive, means that they must be specified exactly as documentated.
+
 ### Upgrading TameMyCerts to version 1.6
 
 If you are upgrading from a TameMyCerts version older than 1.6, you must adjust some elements in your policy configuration files.
 
-- Modifications of the Subject Distinguished Name has been moved out of the _DirectoryServicesMapping_. The directives have been renamed and the syntax has changed to enable advanced modifications of both Subject Distinguished Name (Subject DN) and Subject Alternative Name (SAN).
+- Modifications of the Subject Distinguished Name has been moved out of the `DirectoryServicesMapping`. The directives have been renamed and the syntax has changed to enable advanced modifications of both Subject Distinguished Name (Subject DN) and Subject Alternative Name (SAN).
   
 TameMyCerts version 1.5 and lower used the following syntax:
 
@@ -45,7 +50,7 @@ TameMyCerts version 1.6 and newer now uses the following syntax:
 
 If you are upgrading from a TameMyCerts version older than 1.2, you must adjust some elements in your policy configuration files.
 
-- **organizationalUnit** under _SubjectRule_ must be changed to **organizationalUnitName**.
+- `organizationalUnit` under `SubjectRule` must be changed to `organizationalUnitName`.
 
 TameMyCerts version 1.1 and lower used the following syntax:
 
@@ -69,8 +74,8 @@ TameMyCerts version 1.2 now uses the following syntax:
 
 If you are upgrading from a TameMyCerts version older than 1.1, you must adjust some elements in your policy configuration files.
 
-- **AllowedPattern** under _SubjectRule_ must be changed to **Pattern** with differing syntax.
-- **DisallowedPattern** under _SubjectRule_ must be changed to **Pattern** with differing syntax.
+- `AllowedPattern` under `SubjectRule` must be changed to `Pattern` with differing syntax.
+- `DisallowedPattern` under `SubjectRule` must be changed to `Pattern` with differing syntax.
 
 TameMyCerts version 1.0 used the following syntax:
 

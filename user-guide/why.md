@@ -51,7 +51,6 @@ AD CS uses on the concept of policy modules (<https://learn.microsoft.com/en-us/
 A policy module for AD CS has two main purposes:
 
 - Modify content of issued certificates, such as determining the Subject Distringuished Name (DN) and adding extensions to an issued certificate.
-
 - Decide whether a certificate request shall be issued, put into pending state, or get denied.
 
 ![How a policy module is integrated into AD CS' functionality (&#169; Microsoft)](resources/certapi.png)

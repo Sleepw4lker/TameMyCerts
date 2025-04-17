@@ -22,7 +22,7 @@ Directory Services mapping allows you to map an identity in a certificate reques
 
 > When using DS mapping with an **offline** certificate template, Directory Services mapping setting get processed after [Rules for the Subject Distinguished Name (Subject Distinguished Name)](#subject-rules) and [Rules for the Subject Alternative Name (SAN)](#san-rules), so ensure you have these configured as well.
 
-Rules for Directory Mapping get specified within the **DirectoryServicesMapping** node.
+Rules for Directory Mapping get specified within the `DirectoryServicesMapping` node.
 
 When using an **online** certificate template, the object category as well as certificate and directory services attributes are determined automatically.
 
@@ -32,65 +32,63 @@ When using an **offline** certificate template, the certificate attribute that w
 
 |Parameter|Mandatory|Description|
 |---|---|---|
-|CertificateAttribute|no|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to "userPrincipalName". Automatically determined for _online_ certificate templates.|
-|DirectoryServicesAttribute|no|The attribute of the Active Directory object that must match the certificate attribute. May be _"cn"_, _"name"_, _"sAMAccountName"_, _"userPrincipalName"_ or _"dNSHostName"_. Defaults to _"userPrincipalName"_. Automatically determined for _online_ certificate templates.|
-|ObjectCategory|no|The category of the Active Directory object to be searched for. May be "computer" or "user". Defaults to "user" for _offline_ certificate templates. Automatically determined for _online_ certificate templates.|
-|SearchRoot|no|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.|
-|AllowedSecurityGroups|no|A list of distinguished names of security groups the account must be member of (request gets denied if it _is not_ member of at least one of them).|
-|DisallowedSecurityGroups|no|A list of distinguished names of security groups the account must **not** be member of (request gets denied if it _is_ member of at least one of them).|
-|AllowedOrganizationalUnits|no|A list of distinguished names of organizational units the account must be member of (request gets denied if it _is not_ member of at least one of them).|
-|DisallowedOrganizationalUnits|no|A list of distinguished names of organizational units the account must **not** be member of (request gets denied if it _is_ member of at least one of them).|
-|PermitDisabledAccounts|no|Permits certificates to get issued even if the Active Directory object is disabled.|
-|SupplementServicePrincipalNames|no|Set to _true_ to supplement DNS names found in the ServicePrincipalName attribute of the mapped AD object. See [Supplementing Service Principal Names](#supplement-spns) for more details.|
-|DirectoryObjectRules|no|You can define one or more _DirectoryObjectRule_ directives. See [Configuring directory object rules](#ds-object-rules) for further reference.|
-|AddSidUniformResourceIdentifier|no|Adds the security identifier (SID) of the mapped AD object into the Subject Alternative Name (SAN) certificate extension of the issued certificate. The entry will be in form of a _uniformResourceIdentifier_ ("tag:microsoft.com,2022-09-14:sid:&lt;value&gt;"). This "strong" mapping method was introduced by Microsoft in April 2023 (<https://techcommunity.microsoft.com/t5/ask-the-directory-services-team/preview-of-san-uri-for-certificate-strong-mapping-for-kb5014754/bc-p/3794144#M965>).|
+|`CertificateAttribute`|no|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
+|`DirectoryServicesAttribute`|no|The attribute of the Active Directory object that must match the certificate attribute. May be `cn`, `name`, `sAMAccountName`, `userPrincipalName` or `dNSHostName`. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
+|`ObjectCategory`|no|The category of the Active Directory object to be searched for. May be `computer` or `user`. Defaults to `user` for _offline_ certificate templates. Automatically determined for _online_ certificate templates.|
+|`SearchRoot`|no|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.|
+|`AllowedSecurityGroups`|no|A list of distinguished names of security groups the account must be member of (request gets denied if it **is not** member of at least one of them).|
+|`DisallowedSecurityGroups`|no|A list of distinguished names of security groups the account must **not** be member of (request gets denied if it **is** member of at least one of them).|
+|`AllowedOrganizationalUnits`|no|A list of distinguished names of organizational units the account must be member of (request gets denied if it **is not** member of at least one of them).|
+|`DisallowedOrganizationalUnits`|no|A list of distinguished names of organizational units the account must **not** be member of (request gets denied if it **is** member of at least one of them).|
+|`PermitDisabledAccounts`|no|Permits certificates to get issued even if the Active Directory object is disabled.|
+|`SupplementServicePrincipalNames`|no|Set to `true` to supplement DNS names found in the ServicePrincipalName attribute of the mapped AD object. See [Supplementing Service Principal Names](#supplement-spns) for more details.|
+|`DirectoryObjectRules`|no|You can define one or more `DirectoryObjectRule` directives. See [Configuring directory object rules](#ds-object-rules) for further reference.|
+|`AddSidUniformResourceIdentifier`|no|Adds the security identifier (SID) of the mapped AD object into the Subject Alternative Name (SAN) certificate extension of the issued certificate. The entry will be in form of a `uniformResourceIdentifier` (`tag:microsoft.com,2022-09-14:sid:<value>`). This "strong" mapping method was introduced by Microsoft in April 2023 (<https://techcommunity.microsoft.com/t5/ask-the-directory-services-team/preview-of-san-uri-for-certificate-strong-mapping-for-kb5014754/bc-p/3794144#M965>).|
 
-> The _AllowedOrganizationalUnits_ and _DisallowedOrganizationalUnits_ directives match also for nested organizational units. E.g. if you whitelist _DC=intra,DC=tamemycerts,DC=com_ and the object resides in _OU=Users,DC=intra,DC=tamemycerts,DC=com_, this will match as well.
-> If you configure TameMyCerts to add the SID uniform resource identifier, you should ensure that the resulting certificate will contain a Subject Alternative Name of type _dNSName_ (for mapped computer objects) or _userPrincipalName_ (for mapped user objects) as this will be used to map the certificate to the AD object during authentication. You can either achieve this by having the field being put into the certificate request (and [governing requested certificate content](#san-rules)), or [add the Subject Alternative Name from Active Directory](#modify-san) via [Directory Services mapping](#ds-mapping).
+> The `AllowedOrganizationalUnits` and `DisallowedOrganizationalUnits` directives match also for nested organizational units. E.g. if you whitelist `DC=intra,DC=tamemycerts,DC=com` and the object resides in `OU=Users,DC=intra,DC=tamemycerts,DC=com`, this will match as well.
+> If you configure TameMyCerts to add the SID uniform resource identifier, you should ensure that the resulting certificate will contain a Subject Alternative Name of type `dNSName` (for mapped computer objects) or _userPrincipalName_ (for mapped user objects) as this will be used to map the certificate to the AD object during authentication. You can either achieve this by having the field being put into the certificate request (and [governing requested certificate content](#san-rules)), or [add the Subject Alternative Name from Active Directory](#modify-san) via [Directory Services mapping](#ds-mapping).
 
 Please be aware of the following limitations:
 
-- The **sAMAccountName** Active Directory attribute is only unique per Domain, but not on Forest level. TameMyCerts denies a certificate request if more than one account with the same identifier is found. Avoid this by either using unique directory attributes, or by specifying the **SearchRoot** parameter accordingly.
-
-- The **userPrincipalName** attribute may not be populated by default for user accounts.
-
-- You must escape LDAP-reserved characters (e.g. "=", ",", "\\") with a backward slash ("\\"), if present, for **SearchRoot**, **AllowedSecurityGroups** and **DisallowedSecurityGroups**.
-
-- The certification authority needs LDAP network access to all Domain Controllers that are involved in the DS mapping process. In addition, LDAP Global Catalog (GC) access is required as well when **SearchRoot** is not explicitly specified, or nested Group Memberships are going to be resolved. Consult the official Microsoft documentation (<https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/config-firewall-for-ad-domains-and-trusts>) for further information.
+- The `sAMAccountName` Active Directory attribute is only unique per Domain, but not on Forest level. TameMyCerts denies a certificate request if more than one account with the same identifier is found. Avoid this by either using unique directory attributes, or by specifying the `SearchRoot` parameter accordingly.
+- The `userPrincipalName` attribute may not be populated by default for user accounts.
+- You must escape LDAP-reserved characters (e.g. `=`, `,`, `\`) with a backward slash (`\`), if present, for `SearchRoot`, `AllowedSecurityGroups` and `DisallowedSecurityGroups`.
+- The certification authority needs LDAP network access to all Domain Controllers that are involved in the DS mapping process. In addition, LDAP Global Catalog (GC) access is required as well when `SearchRoot` is not explicitly specified, or nested Group Memberships are going to be resolved. Consult the official Microsoft documentation (<https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/config-firewall-for-ad-domains-and-trusts>) for further information.
 
 ### Resolving of Group Memberships
 
-By default, TameMyCerts uses the MemberOf (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/cc24555b-61c7-49a2-9748-167b8ce5a512>) Active Directory attribute (against the mapped accounts domain) to determine Group Memberships.
+By default, TameMyCerts resolves nested Group Memberships for mapped objects.
 
-Make sure you understand the following limitations:
+This allows  to use the **primary group** of a mapped Active Directory object (e.g. `Domain Users`, `Domain Guests`) for use with the `AllowedSecurityGroups` and `DisallowedSecurityGroups` directives, and group memberships from any domain can be resolved.
 
-- It is **not** possible to use the **primary group** of a mapped Active Directory object (e.g. _"Domain Users"_, _"Domain Guests"_) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives.
+However, as TameMyCerts will use the `msds-TokenGroupNames` (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1d810083-9741-4b0a-999b-30d9f2bc1f95>) Active Directory Attribute, which is only available on Windows Server 2016 and newer Domain Controllers, if TameMyCerts cannot retrieve the `msds-TokenGroupNames` attribute for a mapped object, certificate requests will get denied due to security reasons.
 
-- The mapped Active Directory object must be an **explicit** (no nested groups) member of the configured security groups. If you want to restrict certificate issuance for highly privileged accounts, you could use the "Protected Users" (<https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group>) built-in security group.
+### Disabling resolving of nested Group Memberships
 
+It is possible to disable resolving nested Group Memberships by enabling the `TMC_DONT_RESOLVE_NESTED_GROUP_MEMBERSHIPS` [global flag](#global-settings). TameMyCerts will then use the `MemberOf` (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/cc24555b-61c7-49a2-9748-167b8ce5a512>) attribute (against the mapped accounts domain) to determine Group Memberships of mapped objects.
+
+Make sure you understand the following limitations when enabling this setting:
+
+- It **will** allow to use Domain Controllers older than Windows Server 2016.
+- It is **not** possible to use the **primary group** of a mapped Active Directory object (e.g. `Domain Users`, `Domain Guests`) for use with the `AllowedSecurityGroups` and `DisallowedSecurityGroups` directives.
+- The mapped Active Directory object must be an **explicit** (no nested groups) member of the configured security groups.
 - It is only possible to define groups that are **in the same domain** as the mapped account.
-
-It is, however possible, to instruct TameMyCerts to resolve nested Group Memberships. This is achieved by enabling the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings).
-
-In this mode, it is also possible to use the **primary group** of a mapped Active Directory object (e.g. _"Domain Users"_, _"Domain Guests"_) for use with the **AllowedSecurityGroups** and **DisallowedSecurityGroups** directives, and group memberships from any domain can be resolved.
-
-However, as TameMyCerts will use the **msds-TokenGroupNames** (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1d810083-9741-4b0a-999b-30d9f2bc1f95>) Active Directory Attribute, which is only available on Windows Server 2016 and newer Domain Controllers, if the [TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS global flag](#global-settings) is enabled and TameMyCerts cannot retrieve the msds-TokenGroupNames attribute, certificate requests will get denied due to security reasons.
 
 ### Examples
 
-Enabling the mapping with default values for _user_ objects in an _offline_ template:
+Enabling the mapping with default values for `user` objects in an _offline_ template:
 
 ```xml
 <DirectoryServicesMapping />
 ```
 
-Enabling the mapping with default values for _user_ **and** _computer_ objects in an _online_ template:
+Enabling the mapping with default values for `user` **and** `computer` objects in an _online_ template:
 
 ```xml
 <DirectoryServicesMapping />
 ```
 
-Enabling the mapping with default values for _computer_ objects in an _offline_ template:
+Enabling the mapping with default values for `computer` objects in an _offline_ template:
 
 ```xml
 <DirectoryServicesMapping>

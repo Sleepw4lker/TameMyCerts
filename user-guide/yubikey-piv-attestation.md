@@ -6,7 +6,7 @@
 
 TameMyCerts can ensure that a key pair has been created and is secured with a Yubikey (<https://www.yubico.com/products/yubikey-5-overview/>).
 
-This feature is called Personal Identity Verification (PIV) attestation (<https://developers.yubico.com/PIV/Introduction/PIV_attestation.html>). It can be combined with any other TameMyCerts feature.
+This feature is called _Personal Identity Verification (PIV)_ attestation (<https://developers.yubico.com/PIV/Introduction/PIV_attestation.html>). It can be combined with any other TameMyCerts feature.
 
 It is possible to include the attestation certificates in the Certificate Signing Request by using any of the following means:
 
@@ -26,6 +26,8 @@ New-Item -Name YKCA
 
 Any Yubikey attestation Root CA certificates must be imported into the `YKROOT` certificate store.
 
+The import could be scripted like the following:
+
 ```powershell
 Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
 ```
@@ -33,6 +35,8 @@ Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKROOT 
 ![YKROOT Windows Certificate Store](resources/ykroot-store.png)
 
 Any Yubikey intermediate CA certificates must be imported into the `YKCA` certificate store (only applies to Yubikeys with Firmware 5.7.4 or newer).
+
+The import could be scripted like the following:
 
 ```powershell
 Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
@@ -44,19 +48,19 @@ Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKCA $_
 
 ### Configuring
 
-You define a **YubiKeyPolicies** directive containing one or more **YubiKeyPolicy** rules.
+You define a `YubiKeyPolicies` directive containing one or more `YubiKeyPolicy` rules.
 
 |Parameter|Mandatory|Description|
 |---|---|---|
-|Action|**yes**|Specifies if this rule shall cause the certificate request to be allowed or denied, should it's conditions match. Can be `Allow` or `Deny`.|
-|PinPolicy|no|Specifies which PIN policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Once`, `Never`, `Always`, `MatchOnlye`, `MatchAlways`.|
-|TouchPolicy|no|Specifies which Touch policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Always`, `Never`, `Cached`.|
-|FormFactor|no|Specifies of which form factor the Yubikey must be for the rule to match. Can be one or more of the following: `UsbAKeychain`, `UsbCKeychain`, `UsbANano`, `UsbCNano`, `UsbCLightning`, `UsbABiometricKeychain`, `UsbCBiometricKeychain`.|
-|MaximumFirmwareVersion|no|Specifies the maximum Firmware version the Yubikey must have for the rule to match.|
-|MinimumFirmwareVersion|no|Specifies the minimum Firmware version the Yubikey must have for the rule to match.|
-|Edition|no|Specifies of which edition the Yubikey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`.|
-|Slot|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`.|
-|KeyAlgorithm|no|Specifies the Key Algorithm of which the certificate request must be for the rule to match. Can be one or more of the following: `RSA`, `ECC`.|
+|`Action`|**yes**|Specifies if this rule shall cause the certificate request to be allowed or denied, should it's conditions match. Can be `Allow` or `Deny`.|
+|`PinPolicy`|no|Specifies which PIN policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Once`, `Never`, `Always`, `MatchOnlye`, `MatchAlways`.|
+|`TouchPolicy`|no|Specifies which Touch policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Always`, `Never`, `Cached`.|
+|`FormFactor`|no|Specifies of which form factor the Yubikey must be for the rule to match. Can be one or more of the following: `UsbAKeychain`, `UsbCKeychain`, `UsbANano`, `UsbCNano`, `UsbCLightning`, `UsbABiometricKeychain`, `UsbCBiometricKeychain`.|
+|`MaximumFirmwareVersion`|no|Specifies the maximum Firmware version the Yubikey must have for the rule to match.|
+|`MinimumFirmwareVersion`|no|Specifies the minimum Firmware version the Yubikey must have for the rule to match.|
+|`Edition`|no|Specifies of which edition the Yubikey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`.|
+|`Slot`|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`.|
+|`KeyAlgorithm`|no|Specifies the Key Algorithm of which the certificate request must be for the rule to match. Can be one or more of the following: `RSA`, `ECC`.|
 
 The YubiKeyPolicies are read one by one.
 
@@ -99,12 +103,12 @@ TameMyCerts will transfer the following certificate extensions from the Yubikey 
 
 |Extension OID|Description|
 |---|---|
-|1.3.6.1.4.1.41482.3.3|Firmware version, encoded as 3 bytes, like: 040300 for 4.3.0|
-|1.3.6.1.4.1.41482.3.7|Serial number of the YubiKey, encoded as an integer.|
-|1.3.6.1.4.1.41482.3.8|Two bytes, the first encoding pin policy (01 - never, 02 - once per session, 03 - always) and the second touch policy (01 - never, 02 - always, 03 - cached for 15s)|
-|1.3.6.1.4.1.41482.3.9|Formfactor, encoded as one byte: USB-A Keychain: 01 and 81 for FIPS Devices, USB-A Nano: 02 and 82 for FIPS Devices, USB-C Keychain: 03 and 83 for FIPS Devices, USB-C Nano: 04 and 84 for FIPS Devices, Lightning and USB-C: 05 and 85 for FIPS Devices|
-|1.3.6.1.4.1.41482.3.10|FIPS Certified YubiKey
-|1.3.6.1.4.1.41482.3.11|CSPN Certified YubiKey|
+|`1.3.6.1.4.1.41482.3.3`|Firmware version, encoded as 3 bytes, like: `040300` for version 4.3.0.|
+|`1.3.6.1.4.1.41482.3.7`|Serial number of the YubiKey, encoded as an integer.|
+|`1.3.6.1.4.1.41482.3.8`|Two bytes, the first encoding pin policy (`01` - never, `02` - once per session, `03` - always) and the second touch policy (`01` - never, `02` - always, `03` - cached for 15 seconds)|
+|`1.3.6.1.4.1.41482.3.9`|Formfactor, encoded as one byte: USB-A Keychain: `01` and `81` for FIPS Devices, USB-A Nano: `02` and `82` for FIPS Devices, USB-C Keychain: `03` and `83` for FIPS Devices, USB-C Nano: `04` and `84` for FIPS Devices, Lightning and USB-C: `05` and `85` for FIPS Devices|
+|`1.3.6.1.4.1.41482.3.10`|FIPS Certified YubiKey|
+|`1.3.6.1.4.1.41482.3.11`|CSPN Certified YubiKey|
 
 It was originally intended to provide an option to include the original attestation data in issued certificates, but as Yubikeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
 

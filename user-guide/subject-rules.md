@@ -21,20 +21,20 @@ You can apply the following rules:
 
 ### Configuring
 
-Rules for Subject RDNs get specified within a "SubjectRule" node under "Subject" section.
+Rules for Subject RDNs get specified within a `SubjectRule` node under `Subject` section.
 
 Any Subject RDN that is not defined is considered forbidden and will result in any certificate request containing it getting denied.
 
-A "SubjectRule" can/must contain the following nodes:
+A `SubjectRule` can/must contain the following nodes:
 
 |Parameter|Mandatory|Description|
 |---|---|---|
-|Field|**yes**|Specifies the type of the certificate field. See the below list for possible values. **Please be aware that this parameter is interpreted case-sensitive.**|
-|Mandatory|no|Specifies if this field **must** (true) or **may** (false) appear in the certificate request presented. Defaults to "false".|
-|MaxOccurrences|no|Specifies how often this field may appear within a certificate request. Should always be 1 for must Subject RDN types. Defaults to 1. Note that more than one field of same type can only be used when the [ReadSubjectFromRequest](#subject-from-request) directive is set to _true_.|
-|MinLength|no|Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to 1. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the Patterns directive.|
-|MaxLength|no|Specifies the maximum amount of characters the field may contain. Defaults to 128. Note that there is also an upper limit set by the certification authority (<https://learn.microsoft.com/en-us/windows/win32/seccrypto/name-properties>). Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the Patterns directive.|
-|Patterns|**yes**|For any field type you can define one or more "Pattern" directives describing expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you would want to allow any content, simply configure a Pattern directive with "^.*$" as expression. For instructions on how to configure the _Patterns_ directive, consult the [Pattern](#pattern) section within the [Technical Reference](#tech-reference) chapter of this document.|
+|`Field`|**yes**|Specifies the type of the certificate field. See the below list for possible values. **Please be aware that this parameter is interpreted case-sensitive.**|
+|`Mandatory`|no|Specifies if this field **must** (true) or **may** (false) appear in the certificate request presented. Defaults to `false`.|
+|`MaxOccurrences`|no|Specifies how often this field may appear within a certificate request. Should be `1` for most Subject RDN types. Defaults to `1`. Note that more than one field of same type can only be used when the [ReadSubjectFromRequest](#subject-from-request) directive is set to `true`.|
+|`MinLength`|no|Specifies the minimum amount of characters the field must contain, to avoid empty RDNs being requested. Defaults to `1`. Note that you also can define minimum lengths for parts or the entire field content via regular expressions in the Patterns directive.|
+|`MaxLength`|no|Specifies the maximum amount of characters the field may contain. Defaults to `128`. Note that there is also an upper limit set by the certification authority (<https://learn.microsoft.com/en-us/windows/win32/seccrypto/name-properties>). Also note that you also can define maximum lengths for parts or the entire field content via regular expressions in the Patterns directive.|
+|`Patterns`|**yes**|For any field type you can define one or more `Pattern` directives describing expressions of which the requested field content must match at least one of to get either permitted or denied. The node is required, so if you would want to allow any content, simply configure a Pattern directive with `^.*$` as expression. For instructions on how to configure the _Patterns_ directive, consult the [Pattern](#pattern) section within the [Technical Reference](#tech-reference) chapter of this document.|
 
 To define a policy for one or more subject Relative Distinguished Name (RDN) types, adjust the "field" to one of the following (as defined in ITU-T X.520 (<https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520>) and IETF RFC 4519 (<https://datatracker.ietf.org/doc/html/rfc4519#section-2>)).
 
@@ -42,25 +42,25 @@ To define a policy for one or more subject Relative Distinguished Name (RDN) typ
 
 The following RDN types are enabled/allowed by default on AD CS and are therefore useable with TameMyCerts:
 
-- countryName
-- commonName
-- domainComponent
-- emailAddress
-- organizationName
-- organizationalUnitName
-- localityName
-- stateOrProvinceName
+- `countryName`
+- `commonName`
+- `domainComponent`
+- `emailAddress`
+- `organizationName`
+- `organizationalUnitName`
+- `localityName`
+- `stateOrProvinceName`
 
 The following RDNs can additionally be defined in a policy configuration but must explicitly be enabled in the certification authority configuration by modifying its _SubjectTemplate_ registry value (<https://learn.microsoft.com/en-us/windows/win32/seccrypto/name-properties>):
 
-- givenName
-- initials
-- surname
-- streetAddress
-- title
-- unstructuredName
-- unstructuredAddress
-- serialNumber
+- `givenName`
+- `initials`
+- `surname`
+- `streetAddress`
+- `title`
+- `unstructuredName`
+- `unstructuredAddress`
+- `serialNumber`
 
 > Please be aware that the _SubjectTemplate_ registry value of the CA uses a different syntax for field type names than AD CS does.
 
@@ -68,7 +68,7 @@ The following RDNs can additionally be defined in a policy configuration but mus
 
 ### Examples
 
-Incoming requests **must** contain exactly one _commonName_ which must be a DNS-Name beneath the _tamemycerts.com_ Domain. The whole content may not be longer than 64 characters in total.
+Incoming requests **must** contain exactly one `commonName` which must be a DNS-Name beneath the `tamemycerts.com` Domain. The whole content may not be longer than 64 characters in total.
 
 ```xml
 <Subject>
@@ -85,7 +85,7 @@ Incoming requests **must** contain exactly one _commonName_ which must be a DNS-
 </Subject>
 ```
 
-Incoming requests **must** contain exactly one _commonName_ which must be a DNS-Name beneath the _tamemycerts.com_ Domain. The whole content may not be longer than 64 characters in total. It may not contain the blacklisted words "porn" or "gambling".
+Incoming requests **must** contain exactly one `commonName` which must be a DNS-Name beneath the `tamemycerts.com` Domain. The whole content may not be longer than 64 characters in total. It may not contain the blacklisted words "porn" or "gambling".
 
 ```xml
 <Subject>
@@ -106,7 +106,7 @@ Incoming requests **must** contain exactly one _commonName_ which must be a DNS-
 </Subject>
 ```
 
-Incoming requests **must** contain exactly one _commonName_ which must be a DNS-Name beneath the _tamemycerts.com_ Domain. It also **may** contain exactly one _countryName_ but if so, it must be "DE" or "US".
+Incoming requests **must** contain exactly one `commonName` which must be a DNS-Name beneath the `tamemycerts.com` Domain. It also **may** contain exactly one _countryName_ but if so, it must be "DE" or "US".
 
 ```xml
 <Subject>
@@ -134,17 +134,17 @@ Incoming requests **must** contain exactly one _commonName_ which must be a DNS-
 
 ### Optional: Working with non-Standard Relative Distinguished Names {#subject-from-request}
 
-> You should use this only if there is a definitve requirement to do so. Avoid using it in any other case.
+> You should use this only if there is a definitve requirement to do so. **Avoid using it in any other case**.
 
-Processing certificate requests with RDNs that are not part of the default set requires enabling the **CRLF\_REBUILD\_MODIFIED\_SUBJECT\_ONLY** flag (<https://www.gradenegger.eu/en/use-of-undefined-relative-distinguished-names-rdn-in-issued-certificates/>) on the certification authority, which should be used with extreme caution.
+Processing certificate requests with RDNs that are not part of the default set requires enabling the `CRLF_REBUILD_MODIFIED_SUBJECT_ONLY` flag (<https://www.gradenegger.eu/en/use-of-undefined-relative-distinguished-names-rdn-in-issued-certificates/>) on the certification authority, which should be used with extreme caution.
 
-A common use case for this feature is supporting the requirements of eIDAS in form of adding an organization identifier (OI) to a certificate request and thus to an issued certificate.
+A common use case for this feature is supporting the requirements of the eIDAS regulation (<https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014R0910>) in form of adding an organization identifier (OI) to a certificate request and thus to an issued certificate.
 
 > This mode may have trouble with malformed certificate requests. 
 
 By default, TameMyCerts will use the data from the record provided by the certification authority ("how the certificate would get issued") to analyze the Subject Distinguished Name. This allows for best compatibility and security, but has its drawbacks. The certification authority design assumes that there is only a specific set of field types and that there is only one per type.
 
-If you have the need to inspect Subject Relative Distinguished Names that are not part of the default set, you can instruct TameMyCerts to parse the Subject Distinguished Name from the original certificate request ("how the certificate was originally requested") by setting the **ReadSubjectFromRequest** directive.
+If you have the need to inspect Subject Relative Distinguished Names that are not part of the default set, you can instruct TameMyCerts to parse the Subject Distinguished Name from the original certificate request ("how the certificate was originally requested") by setting the `ReadSubjectFromRequest` directive.
 
 ```xml
 <ReadSubjectFromRequest>true<ReadSubjectFromRequest>
@@ -152,14 +152,10 @@ If you have the need to inspect Subject Relative Distinguished Names that are no
 
 Now, the following additional RDNs can be used in a subject rule:
 
-- postalCode
-
-- description
-
-- postOfficeBox
-
-- telephoneNumber
-
-- any other "unknown" (not part of the standard set or described above) RDN can be specified in a subject rule by using its object identifier (OID). The OID must be specified with an "OID." prefix, e.g. "OID.1.2.3.4".
+- `postalCode`
+- `description`
+- `postOfficeBox`
+- `telephoneNumber`
+- any other "unknown" (not part of the standard set or described above) RDN can be specified in a subject rule by using its object identifier (OID). The OID must be specified with an "OID." prefix, e.g. `OID.1.2.3.4`.
 
 ![Using undefined RDNs with TameMyCerts](resources/undefined-rdn.png)

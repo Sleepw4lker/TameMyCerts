@@ -13,12 +13,34 @@ Examples for this might be:
 
 |Extension|Object Identifier|Value|
 |---|---|---|
-|OCSP Must Staple|1.3.6.1.5.5.7.1.24|`MAMCAQU=`|
+|OCSP must-staple|1.3.6.1.5.5.7.1.24|`MAMCAQU=`|
+|OCSP NoCheck|1.3.6.1.5.5.7.48.1.5|no value|
 |Microsoft Hyper-V / SCVMM Virtual Machine Connection|1.3.6.1.4.1.311.62.1.1.1|`AgEE`|
 
 ### Examples
 
-Adding the Hyper-V / SCVMM Virtual Machine Connection extension to an issued certificate.
+Adding the OCSP must-staple certificate extension to an issued certificate.
+
+```xml
+<CustomCertificateExtensions>
+    <CustomCertificateExtension>
+        <Oid>1.3.6.1.5.5.7.1.24</Oid>
+        <Value>MAMCAQU=</Value>
+    </CustomCertificateExtension>
+</CustomCertificateExtensions>
+```
+
+Adding the OCSP NoCheck certificate extension to an issued certificate.
+
+```xml
+<CustomCertificateExtensions>
+    <CustomCertificateExtension>
+        <Oid>1.3.6.1.5.5.7.48.1.5</Oid>
+    </CustomCertificateExtension>
+</CustomCertificateExtensions>
+```
+
+Adding the Hyper-V / SCVMM Virtual Machine Connection certificate extension to an issued certificate.
 
 ```xml
 <CustomCertificateExtensions>

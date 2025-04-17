@@ -38,7 +38,7 @@ You can now configure the file as desired. Some of the settings described in sub
 
 ### Examples
 
-A basic policy configuration file that restricts all certificate request for a given offline certificate template to having a _commonName_ of "Hello World", and nothing else. All certificate requests that do not comply with these settings will get denied.
+A basic policy configuration file that restricts all certificate request for a given offline certificate template to having a `commonName` of "Hello World", and nothing else. All certificate requests that do not comply with these settings will get denied.
 
 ```xml
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

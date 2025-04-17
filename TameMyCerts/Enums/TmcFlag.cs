@@ -19,8 +19,8 @@ public enum TmcFlag : uint
     TMC_WARN_ONLY_ON_INSECURE_FLAGS = 0x2,
 
     /// <summary>
-    ///     Causes Directory Service Validator to perform nested group searching, which may come at the cost of additional load
-    ///     on Domain Controllers. Also, all Domain Controllers must be Windows Server 2016 or newer.
+    ///     Causes Directory Service Validator to not perform nested group searching, which may come at the cost of additional load
+    ///     on Domain Controllers. Also, all Domain Controllers must be Windows Server 2016 or newer for revolving of nested group memberships to work.
     /// </summary>
-    TMC_RESOLVE_NESTED_GROUP_MEMBERSHIPS = 0x4
+    TMC_DONT_RESOLVE_NESTED_GROUP_MEMBERSHIPS = 0x4
 }

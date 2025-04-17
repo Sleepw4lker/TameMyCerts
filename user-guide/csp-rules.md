@@ -14,9 +14,9 @@ Certificate requests can contain information about which cryptographic provider 
 
 ### Configuring
 
-The **AllowedCryptoProviders** directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate requests private key. For example, you could configure a certificate template to use the machines Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy for TameMyCerts would only permit requests for the Microsoft Platform Crypto Provider to be issued. This way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests.
+The `AllowedCryptoProviders` directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are permitted for the creation of the certificate requests private key. For example, you could configure a certificate template to use the machines Trusted Platform Module (TPM) by specifying the Microsoft Platform Crypto Provider and a fallback to the Microsoft Software Key Storage Provider, whereas the policy for TameMyCerts would only permit requests for the Microsoft Platform Crypto Provider to be issued. This way, you could identify machines where the TPM is in a nonfunctional state by evaluating denied certificate requests.
 
-The **DisallowedCryptoProviders** directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate requests private key.
+The `DisallowedCryptoProviders` directive contains a list of one or more Cryptographic Service Provider (CSP) or Key Storage Provider (KSP) names that are disallowed for the creation of the certificate requests private key.
 
 > Configured values are processed case-insensitive.
 

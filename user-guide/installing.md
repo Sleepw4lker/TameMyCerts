@@ -8,16 +8,16 @@ To install the module, first create a directory on the certification authority w
 
 ![Policy directory for TameMyCerts](resources/policydirectory.png)
 
-Then run **install.ps1** as local Administrator. The script will register the module, create the required registry values and configure the policy module as the active one for the certification authority.
+Then run `install.ps1` as local Administrator. The script will register the module, create the required registry values and configure the policy module as the active one for the certification authority.
 
 > The installation script restarts the certification authority service during installation and uninstallation.
 
-You must specify the **-PolicyDirectory** Parameter which specifies the local path for the XML configuration files you define for each certificate template.
+You must specify the `-PolicyDirectory` Parameter which specifies the local path for the XML configuration files you define for each certificate template.
 
 Example:
 
 ```powershell
-.\Install.ps1 -PolicyDirectory C:\PolicyFiles
+.\install.ps1 -PolicyDirectory C:\PolicyFiles
 ```
 
 ![Installing TameMyCerts](resources/install.png)

@@ -7,16 +7,14 @@ TameMyCerts allows to configure certificates issued for a specific certificate t
 The behavior is as follows:
 
 - If the configured expiration date exceeds the regular certificate expiration date as configured in the certificate template (or certificate authority), no change is made to the issued certificate.
-
 - If the configured expiration date has not yet passed but is less than the regular expiration date as configured in the certificate template (or certifificate authority), the expiration date is set to the configured point in time.
-
 - If the configured expiration date has passed, certificate requests for the given certificate template get denied.
 
 ![The expiration date has passed and all certificate requests get denied](resources/expiration-passed.png)
 
 ### Configuration
 
-You configure the expiration date with the **NotAfter** directive in your policy configuration file.
+You configure the expiration date with the `NotAfter` directive in your policy configuration file.
 
 The time gets specified as an ISO 8601 compliant string in the following syntax:
 

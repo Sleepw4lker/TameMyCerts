@@ -206,10 +206,12 @@ internal class CertificateContentValidator
         foreach (var customCertificateExtension in policy.CustomCertificateExtensions)
         {
             if (IsValidOid.IsMatch(customCertificateExtension.Oid) &&
-                IsValidBase64.IsMatch(customCertificateExtension.Value))
+                (customCertificateExtension.Value == null || IsValidBase64.IsMatch(customCertificateExtension.Value)))
             {
                 result.CertificateExtensions.Add(customCertificateExtension.Oid,
-                    Convert.FromBase64String(customCertificateExtension.Value));
+                    customCertificateExtension.Value == null
+                        ? []
+                        : Convert.FromBase64String(customCertificateExtension.Value));
             }
             else
             {

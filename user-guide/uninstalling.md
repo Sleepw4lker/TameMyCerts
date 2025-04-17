@@ -1,13 +1,13 @@
 ## Uninstalling the TameMyCerts policy module {#uninstalling}
 
-To uninstall the module, run **install.ps1** as Administrator. You must specify the **-Uninstall** parameter.
+To uninstall the module, run `install.ps1` as Administrator. You must specify the `-Uninstall` parameter.
 
 > The installation script restarts the certification authority service during installation and uninstallation.
 
 Example:
 
 ```powershell
-.\Install.ps1 -Uninstall
+.\install.ps1 -Uninstall
 ```
 
 ![Uninstalling TameMyCerts](resources/uninstall.png)

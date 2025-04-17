@@ -3,7 +3,7 @@
 - Event Log: Application
 - Event Source: TameMyCerts
 - Event Type: Error
-- Required certification authority LogLevel: 2 (CERTLOG_ERROR)
+- Required certification authority LogLevel: 2 (`CERTLOG_ERROR`)
 
 ### Event Sample
 
@@ -12,7 +12,7 @@ Error initializing Windows Default policy module:
 {0}
 ```
 
-- Placeholder {0} will contain the error message.
+- Placeholder `{0}` will contain the error message.
 
 ### Event Description
 
