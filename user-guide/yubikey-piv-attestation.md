@@ -2,9 +2,9 @@
 
 > Applies to **online** and **offline** certificate templates.
 
-> TameMyCerts YubiKey PIV attestation is the first utlizing Event Tracing for Windows (ETW) for logging. Yubikey validation will log which policy was matched in the Operations log, the entry will also include information about the YubiKey.
+> TameMyCerts YubiKey PIV attestation is the first utlizing Event Tracing for Windows (ETW) for logging. YubiKey validation will log which policy was matched in the Operations log, the entry will also include information about the YubiKey.
 
-TameMyCerts can ensure that a key pair has been created and is secured with a Yubikey (<https://www.yubico.com/products/yubikey-5-overview/>).
+TameMyCerts can ensure that a key pair has been created and is secured with a YubiKey (<https://www.yubico.com/products/yubikey-5-overview/>).
 
 This feature is called _Personal Identity Verification (PIV)_ attestation (<https://developers.yubico.com/PIV/Introduction/PIV_attestation.html>). It can be combined with any other TameMyCerts feature.
 
@@ -14,7 +14,7 @@ It is possible to include the attestation certificates in the Certificate Signin
 - powershellYK (<https://github.com/virot/powershellYK>), a PowerShell 7 module that builds on the Yubico .NET SDK. Available on Windows and MacOS.
 - onboardYK (<https://github.com/virot/onboardYK>), a .NET 8 application for easy enrollment in a Windows environment. It allows for default for endusers and more advanced configurations.
 
-### Preparing the certification authority for Yubikey PIV attestation
+### Preparing the certification authority for YubiKey PIV attestation
 
 For the attestation certificate chain to be properly built, you must create a `YKROOT` certificate store under the `LocalMachine` certificate store on the certification authority server.
 
@@ -24,7 +24,7 @@ New-Item -Name YKROOT
 New-Item -Name YKCA
 ```
 
-Any Yubikey attestation Root CA certificates must be imported into the `YKROOT` certificate store.
+Any YubiKey attestation Root CA certificates must be imported into the `YKROOT` certificate store.
 
 The import could be scripted like the following:
 
@@ -34,7 +34,7 @@ Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKROOT 
 
 ![YKROOT Windows Certificate Store](resources/ykroot-store.png)
 
-Any Yubikey intermediate CA certificates must be imported into the `YKCA` certificate store (only applies to Yubikeys with Firmware 5.7.4 or newer).
+Any YubiKey intermediate CA certificates must be imported into the `YKCA` certificate store (only applies to YubiKeys with Firmware 5.7.4 or newer).
 
 The import could be scripted like the following:
 
@@ -53,12 +53,12 @@ You define a `YubiKeyPolicies` directive containing one or more `YubiKeyPolicy` 
 |Parameter|Mandatory|Description|
 |---|---|---|
 |`Action`|**yes**|Specifies if this rule shall cause the certificate request to be allowed or denied, should it's conditions match. Can be `Allow` or `Deny`.|
-|`PinPolicy`|no|Specifies which PIN policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Once`, `Never`, `Always`, `MatchOnlye`, `MatchAlways`.|
-|`TouchPolicy`|no|Specifies which Touch policy must be configured on the Yubikey for the rule to match. Can be one or more of the following: `Always`, `Never`, `Cached`.|
-|`FormFactor`|no|Specifies of which form factor the Yubikey must be for the rule to match. Can be one or more of the following: `UsbAKeychain`, `UsbCKeychain`, `UsbANano`, `UsbCNano`, `UsbCLightning`, `UsbABiometricKeychain`, `UsbCBiometricKeychain`.|
-|`MaximumFirmwareVersion`|no|Specifies the maximum Firmware version the Yubikey must have for the rule to match.|
-|`MinimumFirmwareVersion`|no|Specifies the minimum Firmware version the Yubikey must have for the rule to match.|
-|`Edition`|no|Specifies of which edition the Yubikey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`.|
+|`PinPolicy`|no|Specifies which PIN policy must be configured on the YubiKey for the rule to match. Can be one or more of the following: `Once`, `Never`, `Always`, `MatchOnlye`, `MatchAlways`.|
+|`TouchPolicy`|no|Specifies which Touch policy must be configured on the YubiKey for the rule to match. Can be one or more of the following: `Always`, `Never`, `Cached`.|
+|`FormFactor`|no|Specifies of which form factor the YubiKey must be for the rule to match. Can be one or more of the following: `UsbAKeychain`, `UsbCKeychain`, `UsbANano`, `UsbCNano`, `UsbCLightning`, `UsbABiometricKeychain`, `UsbCBiometricKeychain`.|
+|`MaximumFirmwareVersion`|no|Specifies the maximum Firmware version the YubiKey must have for the rule to match.|
+|`MinimumFirmwareVersion`|no|Specifies the minimum Firmware version the YubiKey must have for the rule to match.|
+|`Edition`|no|Specifies of which edition the YubiKey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`.|
 |`Slot`|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`.|
 |`KeyAlgorithm`|no|Specifies the Key Algorithm of which the certificate request must be for the rule to match. Can be one or more of the following: `RSA`, `ECC`.|
 
@@ -72,7 +72,7 @@ The YubiKeyPolicies are read one by one.
 
 > This is only an example. Refer to the vendor's documentation (<https://developers.yubico.com/yubico-piv-tool/>) for more information on how to use the tool.
 
-Certificate requests can be created in various ways. Here is an example using the Yubikey PIV Tool.
+Certificate requests can be created in various ways. Here is an example using the YubiKey PIV Tool.
 
 First, a key pair has to be created. This will save the public key into a file named `pubkey.key`.
 
@@ -99,7 +99,7 @@ Attestation Information can be [written into the Subject Distinguished Name](#mo
 
 ### Attesting the PIV attestation in issued certificates
 
-TameMyCerts will transfer the following certificate extensions from the Yubikey attestation certificate into the issued certificate (if present in the attestation certificate):
+TameMyCerts will transfer the following certificate extensions from the YubiKey attestation certificate into the issued certificate (if present in the attestation certificate):
 
 |Extension OID|Description|
 |---|---|
@@ -120,7 +120,7 @@ Not all tools that may be used to create certificate requests with PIV attestati
 
 ### Examples
 
-A simple policy that just ensures the key pair is protected with a Yubikey, without any additional requirements.
+A simple policy that just ensures the key pair is protected with a YubiKey, without any additional requirements.
 
 ```xml
 <YubiKeyPolicies>
@@ -128,7 +128,7 @@ A simple policy that just ensures the key pair is protected with a Yubikey, with
 </YubiKeyPolicies>
 ```
 
-Denying certificate requests for ECC keys with a Yubikey with firmware version prior to 5.7.0 (these have a vulnerability, see <https://www.yubico.com/support/security-advisories/ysa-2024-03/> for more details).
+Denying certificate requests for ECC keys with a YubiKey with firmware version prior to 5.7.0 (these have a vulnerability, see <https://www.yubico.com/support/security-advisories/ysa-2024-03/> for more details).
 
 ```xml
 <YubiKeyPolicies>
@@ -142,7 +142,7 @@ Denying certificate requests for ECC keys with a Yubikey with firmware version p
 </YubiKeyPolicies>
 ```
 
-Transferring the Slot and Serial Number of the Yubikey into the _commonName_ of the issued certificate (in combination with the `cn` attribute from a [mapped](#ds-mapping) Active Directory object).
+Transferring the Slot and Serial Number of the YubiKey into the _commonName_ of the issued certificate (in combination with the `cn` attribute from a [mapped](#ds-mapping) Active Directory object).
 
 > Note that the _commonName_ [is subject to a length constraint](#modify-subject-dn) determined by Microsoft AD CS.
 
@@ -160,7 +160,7 @@ Transferring the Slot and Serial Number of the Yubikey into the _commonName_ of 
 </OutboundSubject>
 ```
 
-Transferring the Serial Number of the Yubikey into the _serialNumber_ of the issued certificate.
+Transferring the Serial Number of the YubiKey into the _serialNumber_ of the issued certificate.
 
 ```xml
 <YubiKeyPolicies>
