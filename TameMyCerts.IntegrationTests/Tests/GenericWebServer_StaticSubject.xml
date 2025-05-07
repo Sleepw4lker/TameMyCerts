@@ -6,7 +6,7 @@
       <Mandatory>true</Mandatory>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tmctests\.internal)$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -25,7 +25,7 @@
       <Mandatory>false</Mandatory>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tmctests\.internal)$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="8" errors="0" failures="0" not-run="57" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2025-05-07" time="21:21:07">
+  <environment clr-version="9.0.4" nunit-version="2.5.8.0" platform="Microsoft Windows 11 Pro|C:\WINDOWS|\Device\Harddisk0\Partition3" machine-name="DEV-PC" user="UweGradenegger" os-version="10.0.26100" cwd="C:\Users\UweGradenegger\Documents\Entwicklung_VS\TameMyCerts\TameMyCerts\TameMyCerts.IntegrationTests" user-domain="AzureAD" />
+  <culture-info current-culture="de-DE" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="6.1248" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\00General.tests.ps1" executed="True" result="Success" success="True" time="0.1429" asserts="0" description="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\00General.tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="[2019TmcTests] General" executed="True" result="Success" success="True" time="0.0931" asserts="0" description="[2019TmcTests] General">
+            <results>
+              <test-suite type="TestFixture" name="[2019TmcTests] General.Lab deployment successful" executed="True" result="Success" success="True" time="0.0874" asserts="0" description="[2019TmcTests] General.Lab deployment successful">
+                <results>
+                  <test-suite type="ParameterizedTest" name="[2019TmcTests] General.Lab deployment successful.[&lt;LabName&gt;] Should return the correct amount of machines" executed="True" result="Success" success="True" time="0.0769" asserts="0" description="[&lt;LabName&gt;] Should return the correct amount of machines">
+                    <results>
+                      <test-case description="[2019TmcTests] Should return the correct amount of machines" name="[2019TmcTests] General.Lab deployment successful.[2019TmcTests] Should return the correct amount of machines" time="0.0769" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\CaRoot.tests.ps1" executed="True" result="Success" success="True" time="1.5396" asserts="0" description="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\CaRoot.tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="[2019TmcTests] CaRoot" executed="True" result="Success" success="True" time="1.4905" asserts="0" description="[2019TmcTests] CaRoot">
+            <results>
+              <test-suite type="TestFixture" name="[2019TmcTests] CaRoot.Role deployment successful" executed="True" result="Success" success="True" time="1.4855" asserts="0" description="[2019TmcTests] CaRoot.Role deployment successful">
+                <results>
+                  <test-case description="[CaRoot] Should return the correct amount of machines" name="[2019TmcTests] CaRoot.Role deployment successful.[CaRoot] Should return the correct amount of machines" time="0.0121" asserts="0" success="True" result="Success" executed="True" />
+                  <test-suite type="ParameterizedTest" name="[2019TmcTests] CaRoot.Role deployment successful.[2019-DC01] Should be discoverable" executed="True" result="Success" success="True" time="1.0874" asserts="0" description="[2019-DC01] Should be discoverable">
+                    <results>
+                      <test-case description="[2019-DC01] Should be discoverable" name="[2019TmcTests] CaRoot.Role deployment successful.[2019-DC01] Should be discoverable(2019-DC01)" time="1.0874" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                  <test-suite type="ParameterizedTest" name="[2019TmcTests] CaRoot.Role deployment successful.[2019-DC01] should have CertSvc running" executed="True" result="Success" success="True" time="0.38" asserts="0" description="[2019-DC01] should have CertSvc running">
+                    <results>
+                      <test-case description="[2019-DC01] should have CertSvc running" name="[2019TmcTests] CaRoot.Role deployment successful.[2019-DC01] should have CertSvc running(2019-DC01)" time="0.38" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="TestFixture" name="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\RootDC.tests.ps1" executed="True" result="Success" success="True" time="3.9235" asserts="0" description="C:\Program Files\WindowsPowerShell\Modules\AutomatedLabTest\5.56.0\tests\RootDC.tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="[2019TmcTests] DC Generic" executed="True" result="Success" success="True" time="2.9961" asserts="0" description="[2019TmcTests] DC Generic">
+            <results>
+              <test-suite type="TestFixture" name="[2019TmcTests] DC Generic.Role deployment successful" executed="True" result="Success" success="True" time="2.9901" asserts="0" description="[2019TmcTests] DC Generic.Role deployment successful">
+                <results>
+                  <test-case description="[RootDC] Should return the correct amount of machines" name="[2019TmcTests] DC Generic.Role deployment successful.[RootDC] Should return the correct amount of machines" time="0.0155" asserts="0" success="True" result="Success" executed="True" />
+                  <test-suite type="ParameterizedTest" name="[2019TmcTests] DC Generic.Role deployment successful.2019-DC01 should have ADWS running" executed="True" result="Success" success="True" time="0.3166" asserts="0" description="2019-DC01 should have ADWS running">
+                    <results>
+                      <test-case description="2019-DC01 should have ADWS running" name="[2019TmcTests] DC Generic.Role deployment successful.2019-DC01 should have ADWS running(2019-DC01)" time="0.3166" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                  <test-suite type="ParameterizedTest" name="[2019TmcTests] DC Generic.Role deployment successful.2019-DC01 should respond to ADWS calls" executed="True" result="Success" success="True" time="2.652" asserts="0" description="2019-DC01 should respond to ADWS calls">
+                    <results>
+                      <test-case description="2019-DC01 should respond to ADWS calls" name="[2019TmcTests] DC Generic.Role deployment successful.2019-DC01 should respond to ADWS calls(2019-DC01)" time="2.652" asserts="0" success="True" result="Success" executed="True" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="[2019TmcTests] RootDC specific" executed="True" result="Success" success="True" time="3.866" asserts="0" description="[2019TmcTests] RootDC specific">
+            <results>
+              <test-suite type="ParameterizedTest" name="[2019TmcTests] RootDC specific.2019-DC01 should hold PDC emulator FSMO role" executed="True" result="Success" success="True" time="0.8645" asserts="0" description="2019-DC01 should hold PDC emulator FSMO role">
+                <results>
+                  <test-case description="2019-DC01 should hold PDC emulator FSMO role" name="[2019TmcTests] RootDC specific.2019-DC01 should hold PDC emulator FSMO role(2019-DC01)" time="0.8645" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

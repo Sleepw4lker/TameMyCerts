@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "GenericWebServer_noPolicy"
 
@@ -10,12 +10,12 @@ Describe 'GenericWebServer_noPolicy.Tests' {
 
     It 'Given no policy is defined, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
+        $Result.Certificate.Subject | Should -Be "CN=www.intra.tmctests.internal"
     }
 
     It 'Given no policy is defined, flag is enabled, and SAN attribute is present, no certificate is issued' {
@@ -23,9 +23,9 @@ Describe 'GenericWebServer_noPolicy.Tests' {
         $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
         $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
-            -RequestAttributes "CertificateTemplate:$CertificateTemplate","saN:upn=Administrator@tamemycerts-tests.local"
+            -RequestAttributes "CertificateTemplate:$CertificateTemplate","saN:upn=Administrator@tmctests.internal"
             # This also tests if request attributes are handled case-insensitive
 
         $EditFlags -band $EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2 | Should -Be $EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2
@@ -42,7 +42,7 @@ Describe 'GenericWebServer_noPolicy.Tests' {
         $NextYear = (Get-Date).year +1
         $DayOfWeek = (Get-Date -Year $NextYear -Month 1 -Day 1).ToString("ddd", $CultureInfo)
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
             -RequestAttributes "CertificateTemplate:$CertificateTemplate","StartDate:$DayOfWeek, 1 Jan $NextYear 00:00:00 GMT"
 
@@ -58,7 +58,7 @@ Describe 'GenericWebServer_noPolicy.Tests' {
         $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
         $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
             -RequestAttributes "CertificateTemplate:$CertificateTemplate","StartDate:Mon, 1 Dec 2022 00:00:00 GMT"
 
@@ -72,7 +72,7 @@ Describe 'GenericWebServer_noPolicy.Tests' {
         $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
         $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
             -RequestAttributes "CertificateTemplate:$CertificateTemplate","StartDate:Mon, 1 Dec 2022 00:00:00 GMT"
 

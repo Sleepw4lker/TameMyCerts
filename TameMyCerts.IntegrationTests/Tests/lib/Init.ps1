@@ -201,9 +201,10 @@ $TestStartTime = Get-Date
 
 Import-Module -Name PSCertificateEnrollment -MinimumVersion "1.0.9" -ErrorAction Stop
 
-$CaName = "TEST-CA"
-$DomainName = "tamemycerts-tests.local"
-$ConfigString = "$($env:ComputerName).$DomainName\$CaName"
+$CaName = "LabRootCA1"
+$DomainName = "tmctests.local"
+$Fqdn = [System.Net.Dns]::GetHostByName($env:computerName).HostName
+$ConfigString = "$Fqdn\$CaName"
 
 New-Variable -Option Constant -Name WinError -Value @{
     ERROR_SUCCESS = 0x0

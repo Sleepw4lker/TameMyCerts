@@ -6,12 +6,12 @@
       <MaxLength>128</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[\-\.a-zA-Z0-9]*\@tamemycerts-tests\.local$</Expression>
+          <Expression>^[\-\.a-zA-Z0-9]*\@tmctests\.internal$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
   </SubjectAlternativeName>
   <DirectoryServicesMapping>
-    <SearchRoot>OU=TameMyCerts Users,DC=tamemycerts-tests,DC=local</SearchRoot>
+    <SearchRoot>OU=TameMyCerts Users,DC=tmctests,DC=internal</SearchRoot>
   </DirectoryServicesMapping>
 </CertificateRequestPolicy>

@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "Computer_Online_NotAfter"
 }
@@ -15,7 +15,7 @@ Describe 'Computer_Online_NotAfter.Tests' {
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=$([System.Net.Dns]::GetHostByName($env:COMPUTERNAME).HostName)"
-        $Result.Certificate.NotAfter | Should -Be (Get-Date -Date "2060-12-31 23:59:59Z")
+        $Result.Certificate.NotAfter | Should -Be (Get-Date -Date "2034-12-31 23:59:59Z")
     }
 
 }

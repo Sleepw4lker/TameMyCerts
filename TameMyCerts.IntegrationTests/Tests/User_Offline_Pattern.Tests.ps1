@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "User_Offline_Pattern"
 }
@@ -9,7 +9,7 @@ Describe 'User_Offline_Pattern.Tests' {
 
     It 'Given a DS attribute does not hit the blacklisted pattern, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser1@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser1@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -18,7 +18,7 @@ Describe 'User_Offline_Pattern.Tests' {
 
     It 'Given a DS attribute does hit the blacklisted pattern, no certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser2@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser2@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED

@@ -6,7 +6,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[a-zA-Z0-9]*(\@tamemycerts-tests\.local)$</Expression>
+          <Expression>^[a-zA-Z0-9]*(\@tmctests\.internal)$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
@@ -18,7 +18,7 @@
         <Mandatory>true</Mandatory>
         <Patterns>
           <Pattern>
-            <Expression>^[a-zA-Z]*1(\@tamemycerts-tests\.local)$</Expression>
+            <Expression>^[a-zA-Z]*1(\@tmctests\.internal)$</Expression>
           </Pattern>
         </Patterns>
       </DirectoryObjectRule>
