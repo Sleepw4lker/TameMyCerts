@@ -115,6 +115,15 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A {0} account with {1} of {2} was found in the directory, but policy is configured to deny certificate requests in this case..
+        /// </summary>
+        internal static string DirVal_Account_Exists {
+            get {
+                return ResourceManager.GetString("DirVal_Account_Exists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The {0} account for {1} is member of the forbidden group {2}..
         /// </summary>
         internal static string DirVal_Account_Groups_Disallowed {

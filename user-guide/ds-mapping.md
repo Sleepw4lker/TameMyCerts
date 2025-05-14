@@ -32,6 +32,7 @@ When using an **offline** certificate template, the certificate attribute that w
 
 |Parameter|Mandatory|Description|
 |---|---|---|
+|`Action`|no|Specifies what should happen with the certificate request in case a matching object was found in the directory. Can be `Allow` or `Deny`.|
 |`CertificateAttribute`|no|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
 |`DirectoryServicesAttribute`|no|The attribute of the Active Directory object that must match the certificate attribute. May be `cn`, `name`, `sAMAccountName`, `userPrincipalName` or `dNSHostName`. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
 |`ObjectCategory`|no|The category of the Active Directory object to be searched for. May be `computer` or `user`. Defaults to `user` for _offline_ certificate templates. Automatically determined for _online_ certificate templates.|

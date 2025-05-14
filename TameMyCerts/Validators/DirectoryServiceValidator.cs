@@ -90,6 +90,12 @@ internal class DirectoryServiceValidator
             result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);
         }
 
+        if (dsObject != null && dsMapping.Action == PolicyAction.DENY)
+        {
+            result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
+                string.Format(LocalizedStrings.DirVal_Account_Exists, objectCategory, dsAttribute, identity));
+        }
+
         return result;
     }
 

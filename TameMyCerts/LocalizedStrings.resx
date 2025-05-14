@@ -421,4 +421,7 @@ with the content:
   <data name="YKVal_No_Attestation_Found" xml:space="preserve">
     <value>The certificate request does not contain any valid Yubikey PIV attestation data.</value>
   </data>
+  <data name="DirVal_Account_Exists" xml:space="preserve">
+    <value>A {0} account with {1} of {2} was found in the directory, but policy is configured to deny certificate requests in this case.</value>
+  </data>
 </root>
