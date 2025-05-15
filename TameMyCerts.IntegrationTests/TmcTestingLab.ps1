@@ -102,39 +102,6 @@ Invoke-LabCommand -ActivityName 'Configuring networking' -ComputerName $DomainCo
 
 #endregion
 
-#region Apply Windows Updates (for support of SID extension)
-
-if ($ServerOperatingSystem.StartsWith("Windows Server 2016")) {
-
-    "windows10.0-kb5014026-x64_df6de35fd472512e628c2acc6e8d58f3e6139ac9.msu",
-    "windows10.0-kb5021235-x64_5d51c0893c43763fff710d3c6bc46feb6446d9f1.msu" | ForEach-Object -Process {
-        Install-LabSoftwarePackage -ComputerName $DomainController -Path "$labsources\OSUpdates\2016\$_"
-    }
-
-    Restart-LabVM -ComputerName $DomainController
-}
-
-if ($ServerOperatingSystem.StartsWith("Windows Server 2019")) {
-
-    "windows10.0-kb5005112-x64_81d09dc6978520e1a6d44b3b15567667f83eba2c.msu",
-    "windows10.0-kb5021237-x64_207fe3b1229757c0a628f2c5c54c8d3068f62d8d.msu" | ForEach-Object -Process {
-        Install-LabSoftwarePackage -ComputerName $DomainController -Path "$labsources\OSUpdates\2019\$_"
-    }
-
-    Restart-LabVM -ComputerName $DomainController
-}
-
-if ($ServerOperatingSystem.StartsWith("Windows Server 2022")) {
-
-    "windows10.0-kb5021249-x64_b9e3f9ac73fd2a45f932ed787b8323e162102799.msu" | ForEach-Object -Process {
-        Install-LabSoftwarePackage -ComputerName $DomainController -Path "$labsources\OSUpdates\2022\$_"
-    }
-
-    Restart-LabVM -ComputerName $DomainController
-}
-
-#endregion
-
 #region Set up Lab Environment
 
 Install-LabSoftwarePackage -ComputerName $DomainController -Path $DotNet8Desktop -CommandLine "/install /passive /norestart"
