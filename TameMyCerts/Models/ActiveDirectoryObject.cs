@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -47,7 +48,7 @@ internal class ActiveDirectoryObject
         if (string.IsNullOrEmpty(searchRoot))
         {
             var searchResult = GetDirectoryEntry($"GC://{forestRootDomain}", dsAttribute, identity, objectCategory,
-                new List<string> { "distinguishedName" });
+                ["distinguishedName"]);
             searchRoot = (string)searchResult.Properties["distinguishedName"][0];
         }
 
@@ -191,19 +192,14 @@ internal class ActiveDirectoryObject
                 ex is COMException ? $"0x{ex.HResult:X} ({ex.HResult}): {ex.Message}" : ex.Message));
         }
 
-        if (searchResults.Count < 1)
+        return searchResults.Count switch
         {
-            throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                objectCategory, dsAttribute, identity, searchRoot));
-        }
-
-        if (searchResults.Count > 1)
-        {
-            throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
-                objectCategory, dsAttribute, identity));
-        }
-
-        return searchResults[0];
+            < 1 => throw new ActiveDirectoryObjectNotFoundException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
+                objectCategory, dsAttribute, identity, searchRoot)),
+            > 1 => throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
+                objectCategory, dsAttribute, identity)),
+            _ => searchResults[0]
+        };
     }
 
     /// <summary>
