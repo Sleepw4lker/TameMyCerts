@@ -110,7 +110,7 @@ TameMyCerts will transfer the following certificate extensions from the YubiKey 
 |`1.3.6.1.4.1.41482.3.10`|FIPS Certified YubiKey|
 |`1.3.6.1.4.1.41482.3.11`|CSPN Certified YubiKey|
 
-It was originally intended to provide an option to include the original attestation data in issued certificates, but as Yubikeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
+It was originally intended to provide an option to include the original attestation data in issued certificates, but as YubiKeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
 
 If you intend to add a proof of attestation into issued certificates, do this by adding an Issuance Policy to issued certificates.
 
