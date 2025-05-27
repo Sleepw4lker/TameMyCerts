@@ -168,21 +168,21 @@ internal class ActiveDirectoryObject
         var filter = $"(&({dsAttribute}={EscapeForLdapSearchFilter(identity)})(objectCategory={objectCategory}))";
         SearchResultCollection searchResults;
 
+        var directorySearcher = new DirectorySearcher
+        {
+            SearchRoot = new DirectoryEntry(searchRoot),
+            Filter = filter,
+            ClientTimeout = LdapClientTimeout,
+            SearchScope = SearchScope.Subtree
+        };
+
+        foreach (var s in searchProperties)
+        {
+            directorySearcher.PropertiesToLoad.Add(s);
+        }
+
         try
         {
-            var directorySearcher = new DirectorySearcher
-            {
-                SearchRoot = new DirectoryEntry(searchRoot),
-                Filter = filter,
-                ClientTimeout = LdapClientTimeout,
-                SearchScope = SearchScope.Subtree
-            };
-
-            foreach (var s in searchProperties)
-            {
-                directorySearcher.PropertiesToLoad.Add(s);
-            }
-
             searchResults = directorySearcher.FindAll();
         }
         catch (Exception ex)
@@ -192,14 +192,22 @@ internal class ActiveDirectoryObject
                 ex is COMException ? $"0x{ex.HResult:X} ({ex.HResult}): {ex.Message}" : ex.Message));
         }
 
-        return searchResults.Count switch
+        // Calling Dispose is required to prevent SearchResultCollection leaking memory
+        switch (searchResults.Count)
         {
-            < 1 => throw new ActiveDirectoryObjectNotFoundException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                objectCategory, dsAttribute, identity, searchRoot)),
-            > 1 => throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
-                objectCategory, dsAttribute, identity)),
-            _ => searchResults[0]
-        };
+            case < 1:
+                searchResults.Dispose();
+                throw new ActiveDirectoryObjectNotFoundException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
+                    objectCategory, dsAttribute, identity, searchRoot));
+            case > 1:
+                searchResults.Dispose();
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count, objectCategory,
+                    dsAttribute, identity));
+            default:
+                var result = searchResults[0];
+                searchResults.Dispose();
+                return result;
+        }
     }
 
     /// <summary>

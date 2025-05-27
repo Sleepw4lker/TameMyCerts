@@ -48,10 +48,10 @@ internal class CertificateDatabaseRow
         SubjectRelativeDistinguishedNames = serverPolicy.GetSubjectRelativeDistinguishedNames();
         SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
     }
-  
+
     // To inject unit tests
     public CertificateDatabaseRow(string request, int requestType,
-        Dictionary<string, string> requestAttributes = null, int requestID = 0)
+        Dictionary<string, string> requestAttributes = null, int requestId = 0)
     {
         NotBefore = DateTimeOffset.Now;
         NotAfter = DateTimeOffset.Now.AddYears(1);
@@ -64,9 +64,8 @@ internal class CertificateDatabaseRow
             KeyAlgorithm = certificateRequestPkcs10.GetKeyAlgorithm();
             KeyLength = certificateRequestPkcs10.PublicKey.Length;
             DistinguishedName = certificateRequestPkcs10.GetSubjectDistinguishedName();
-            SubjectRelativeDistinguishedNames = DistinguishedName.Equals(string.Empty)
-                ? new List<KeyValuePair<string, string>>()
-                : GetDnComponents(DistinguishedName);
+            SubjectRelativeDistinguishedNames =
+                DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
             SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
             PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
             RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
@@ -86,7 +85,8 @@ internal class CertificateDatabaseRow
                 RequestAttributes.Add(keyValuePair.Key, keyValuePair.Value);
             }
         }
-        RequestID = requestID;
+
+        RequestID = requestId;
     }
 
     public DateTimeOffset NotBefore { get; }
@@ -156,7 +156,7 @@ internal class CertificateDatabaseRow
     ///     templates are identified by their OID.
     /// </summary>
     public string CertificateTemplate { get; }
-  
+
     /// <summary>
     ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There
     ///     are rare cases in which it is not possible to parse the inline request. The property returns an empty collection in
