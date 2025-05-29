@@ -51,7 +51,7 @@ $DomainController = "$($LabPrefix)-DC01"
 $DomainName = "TMCTESTS"
 $DomainFqdn = "$($DomainName.ToLower()).internal"
 
-New-LabDefinition -Name $LabName -DefaultVirtualizationEngine HyperV
+New-LabDefinition -Name $LabName -DefaultVirtualizationEngine HyperV -ReferenceDiskSizeInGB 127
 
 $PSDefaultParameterValues = @{
     'Add-LabMachineDefinition:DomainName' = $DomainFqdn
@@ -122,6 +122,16 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     . C:\INSTALL\TameMyCerts\Functions\Invoke-AutoEnrollmentTask.ps1
     . C:\INSTALL\TameMyCerts\Functions\Test-AdcsAvailability.ps1
     . C:\INSTALL\TameMyCerts\Functions\Get-OnlineCertificate.ps1
+
+    #region Configure for Offline Environment
+
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
+
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings" -Force -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings" -Name "CertificateRevocation" -Type DWord -Value 0
+
+    #endregion
 
     #region Configure Domain Environment
 
@@ -208,6 +218,15 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     & certutil -setreg CA\SubjectTemplate +UnstructuredName
     & certutil -setreg CA\SubjectTemplate +UnstructuredAddress
     & certutil -setreg CA\SubjectTemplate +DeviceSerialNumber
+
+    Set-Location -Path Cert:\LocalMachine
+    New-Item -Name YKROOT
+    New-Item -Name YKCA
+
+    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Root_1.cer"
+    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Root_CA_Serial_263751.cer"
+    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Attestation_B_1.cer"
+    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Intermediate_B_1.cer"
 
     #endregion
     

@@ -19,7 +19,7 @@ It is possible to include the attestation certificates in the Certificate Signin
 For the attestation certificate chain to be properly built, you must create a `YKROOT` certificate store under the `LocalMachine` certificate store on the certification authority server.
 
 ```powershell
-cd Cert:\LocalMachine
+Set-Location -Path Cert:\LocalMachine
 New-Item -Name YKROOT
 New-Item -Name YKCA
 ```
@@ -43,6 +43,8 @@ Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKCA $_
 ```
 
 ![YKCA Windows Certificate Store](resources/ykca-store.png)
+
+> Note that it is required to restart the certification authority service to reflect any changes that are made to the `YKROOT` and `YKCA` certificate stores.
 
 > Note that these might need to get updated during the lifetime of the certification authority, as the vendor might introduce devices signed with newer CA certificates.
 
