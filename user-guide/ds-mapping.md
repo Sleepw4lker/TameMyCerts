@@ -22,6 +22,8 @@ Directory Services mapping allows you to map an identity in a certificate reques
 
 > When using DS mapping with an **offline** certificate template, Directory Services mapping setting get processed after [Rules for the Subject Distinguished Name (Subject Distinguished Name)](#subject-rules) and [Rules for the Subject Alternative Name (SAN)](#san-rules), so ensure you have these configured as well.
 
+> Note that for Directory Services mapping to work properly, the certification authority server must be member of the Built-in `Pre-Windows 2000 Compatible Access` security group. By default, certification authorities are implicitly members of this group via their membership in the `Cert Publishers` security group.
+
 Rules for Directory Mapping get specified within the `DirectoryServicesMapping` node.
 
 When using an **online** certificate template, the object category as well as certificate and directory services attributes are determined automatically.
