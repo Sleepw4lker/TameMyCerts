@@ -2,9 +2,9 @@
 
 > TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
-### Version 1.7.x.y
+### Version 1.7.1609.1089
 
-_This version has not yet been released._
+_This version was released on May 29, 2025._
 
 - The code base has been upgraded from .NET Framework 4.7.2 to .NET 8.0. Files are no longer installed into the System32 folder but under the Program Files directory. Also, the [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed.
 - Policy configuration files are now strictly processed, means that there will be errors raised when they contain invalid nodes. This may especially affect the following:
