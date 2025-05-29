@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     Restart-Service -Name CertSvc
 

@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "GenericWebServer_emptyPolicy"
 }
@@ -9,7 +9,7 @@ Describe 'GenericWebServer_emptyPolicy.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (RDN type not defined)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -KeyLength 2048
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal" -KeyLength 2048
         $Now = Get-Date
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 

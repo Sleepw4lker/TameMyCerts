@@ -14,6 +14,7 @@
 
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
 
@@ -21,6 +22,9 @@ namespace TameMyCerts.Models;
 [XmlRoot(ElementName = "DirectoryServicesMapping")]
 public class DirectoryServicesMapping
 {
+    [XmlElement(ElementName = "Action")]
+    public PolicyAction Action { get; set; } = PolicyAction.ALLOW;
+
     [XmlElement(ElementName = "SearchRoot")]
     public string SearchRoot { get; set; }
 

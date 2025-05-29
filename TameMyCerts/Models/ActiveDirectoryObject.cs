@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -47,7 +48,7 @@ internal class ActiveDirectoryObject
         if (string.IsNullOrEmpty(searchRoot))
         {
             var searchResult = GetDirectoryEntry($"GC://{forestRootDomain}", dsAttribute, identity, objectCategory,
-                new List<string> { "distinguishedName" });
+                ["distinguishedName"]);
             searchRoot = (string)searchResult.Properties["distinguishedName"][0];
         }
 
@@ -167,21 +168,21 @@ internal class ActiveDirectoryObject
         var filter = $"(&({dsAttribute}={EscapeForLdapSearchFilter(identity)})(objectCategory={objectCategory}))";
         SearchResultCollection searchResults;
 
+        var directorySearcher = new DirectorySearcher
+        {
+            SearchRoot = new DirectoryEntry(searchRoot),
+            Filter = filter,
+            ClientTimeout = LdapClientTimeout,
+            SearchScope = SearchScope.Subtree
+        };
+
+        foreach (var s in searchProperties)
+        {
+            directorySearcher.PropertiesToLoad.Add(s);
+        }
+
         try
         {
-            var directorySearcher = new DirectorySearcher
-            {
-                SearchRoot = new DirectoryEntry(searchRoot),
-                Filter = filter,
-                ClientTimeout = LdapClientTimeout,
-                SearchScope = SearchScope.Subtree
-            };
-
-            foreach (var s in searchProperties)
-            {
-                directorySearcher.PropertiesToLoad.Add(s);
-            }
-
             searchResults = directorySearcher.FindAll();
         }
         catch (Exception ex)
@@ -191,19 +192,22 @@ internal class ActiveDirectoryObject
                 ex is COMException ? $"0x{ex.HResult:X} ({ex.HResult}): {ex.Message}" : ex.Message));
         }
 
-        if (searchResults.Count < 1)
+        // Calling Dispose is required to prevent SearchResultCollection leaking memory
+        switch (searchResults.Count)
         {
-            throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                objectCategory, dsAttribute, identity, searchRoot));
+            case < 1:
+                searchResults.Dispose();
+                throw new ActiveDirectoryObjectNotFoundException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
+                    objectCategory, dsAttribute, identity, searchRoot));
+            case > 1:
+                searchResults.Dispose();
+                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count, objectCategory,
+                    dsAttribute, identity));
+            default:
+                var result = searchResults[0];
+                searchResults.Dispose();
+                return result;
         }
-
-        if (searchResults.Count > 1)
-        {
-            throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
-                objectCategory, dsAttribute, identity));
-        }
-
-        return searchResults[0];
     }
 
     /// <summary>

@@ -66,12 +66,7 @@ internal class YubikeyValidator
     public CertificateRequestValidationResult VerifyRequest(CertificateRequestValidationResult result,
         CertificateRequestPolicy policy, YubikeyObject yubikey, CertificateDatabaseRow dbRow)
     {
-        if (result.DeniedForIssuance)
-        {
-            return result;
-        }
-
-        if (!policy.YubikeyPolicy.Any())
+        if (result.DeniedForIssuance || !policy.YubikeyPolicy.Any())
         {
             return result;
         }

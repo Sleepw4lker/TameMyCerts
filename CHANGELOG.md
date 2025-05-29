@@ -2,11 +2,11 @@
 
 > TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
-### Version 1.7.x.y
+### Version 1.7.1609.1089
 
-_This version has not yet been released._
+_This version was released on May 29, 2025._
 
-- The code base has been upgraded from .NET Framework 4.7.2 to .NET Core 8.0. Files are no longer installed into the System32 folder but under the Program Files directory. Also, the [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed.
+- The code base has been upgraded from .NET Framework 4.7.2 to .NET 8.0. Files are no longer installed into the System32 folder but under the Program Files directory. Also, the [.NET 8.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed.
 - Policy configuration files are now strictly processed, means that there will be errors raised when they contain invalid nodes. This may especially affect the following:
   - If policy configuration files still contain `KeyAlgorithm` nodes (which were removed with version 1.6), these must be removed from the configuration files.
   - The `Action` directives as well as the `TreatAs` directives for `Pattern` directives as processed case-sensitive, means that they must be specified exactly as documentated.
@@ -19,6 +19,7 @@ _This version has not yet been released._
   - Currently, the detection of the `san` request attribute will get logged regardless if the dangerous `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is enabled or not.
   - This new behavior allows to silently [detect attack attempts](https://github.com/srlabs/Certiception) on the certification authority without raising suspicion.
 - Introducing a `SupplementUnqualifiedNames` switch to use in combination with supplementing of DNS names (both `SupplementDnsNames` and `SupplementServicePrincipalNames`). To keep compatibility with the previous behavior, this setting defaults to `true`. If set to `false`, supplementation logic will not include DNS names that are not fully qualified.
+- Directory Services mapping can now be configured to deny a certificate request in the case a matching object was found in the directory.
 - Introducing global settings for TameMyCerts which allows to define behavior that applies globally, regardless of the defined certificate templates (the default behavior stays as before):
   - Allow to set the default behavior to globally deny a certificate request when no policy configuration file is found for the requested certificate template.
   - Allow to certificate requests containing insecure request attribute and certification authority flag combinations to get issued (**Only for testing purposes. Use at your own risk!**).
@@ -26,6 +27,7 @@ _This version has not yet been released._
 - Introducing support for adding custom certificate extensions with static values to issued certificates (e.g. OCSP Must-staple or Microsoft Hyper-V/SCVMM Virtual Machine Connection).
 - Fix the module denying certificate requests with error 0x80131500 when the certificate request contains a Subject Alternative Name extension with empty content (#20).
 - Fix the installer script not removing the event source on uninstall (#22).
+- Since Windows Server 2012 R2 is now out of support by Microsoft, support by TameMyCerts has been dropped as well.
 - Improved documentation, especially description of event logs and use cases.
 
 ### Version 1.6.1045.1129

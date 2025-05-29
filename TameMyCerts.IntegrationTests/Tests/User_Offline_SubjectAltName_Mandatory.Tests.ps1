@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "User_Offline_SubjectAltName_Mandatory"
 }
@@ -14,7 +14,7 @@ Describe 'User_Offline_SubjectAltName_Mandatory.Tests' {
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "userPrincipalName=TestUser1@tamemycerts-tests.local"
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "userPrincipalName=TestUser1@tmctests.internal"
     }
 
         It 'Given a SAN from DS mapping is enabled and not all mandatory attributes are populated, no certificate is issued' {
@@ -41,7 +41,7 @@ Describe 'User_Offline_SubjectAltName_Mandatory.Tests' {
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result2.Certificate.Subject | Should -Be "CN=TestUser7"
-        $Result2.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Not -Contain "userPrincipalName=TestUser7@tamemycerts-tests.local"
+        $Result2.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Not -Contain "userPrincipalName=TestUser7@tmctests.internal"
     }
 
 }

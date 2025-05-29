@@ -1,5 +1,0 @@
-[Version]
-Signature="$Windows NT$"
-
-[Certsrv_Server]
-LoadDefaultTemplates=0

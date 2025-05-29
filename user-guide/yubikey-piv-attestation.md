@@ -19,7 +19,7 @@ It is possible to include the attestation certificates in the Certificate Signin
 For the attestation certificate chain to be properly built, you must create a `YKROOT` certificate store under the `LocalMachine` certificate store on the certification authority server.
 
 ```powershell
-cd Cert:\LocalMachine
+Set-Location -Path Cert:\LocalMachine
 New-Item -Name YKROOT
 New-Item -Name YKCA
 ```
@@ -43,6 +43,8 @@ Get-ChildItem -Path *.cer | ForEach-Object -Process { certutil -addstore YKCA $_
 ```
 
 ![YKCA Windows Certificate Store](resources/ykca-store.png)
+
+> Note that it is required to restart the certification authority service to reflect any changes that are made to the `YKROOT` and `YKCA` certificate stores.
 
 > Note that these might need to get updated during the lifetime of the certification authority, as the vendor might introduce devices signed with newer CA certificates.
 
@@ -110,7 +112,7 @@ TameMyCerts will transfer the following certificate extensions from the YubiKey 
 |`1.3.6.1.4.1.41482.3.10`|FIPS Certified YubiKey|
 |`1.3.6.1.4.1.41482.3.11`|CSPN Certified YubiKey|
 
-It was originally intended to provide an option to include the original attestation data in issued certificates, but as Yubikeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
+It was originally intended to provide an option to include the original attestation data in issued certificates, but as YubiKeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
 
 If you intend to add a proof of attestation into issued certificates, do this by adding an Issuance Policy to issued certificates.
 

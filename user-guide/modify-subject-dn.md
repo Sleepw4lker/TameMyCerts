@@ -61,9 +61,11 @@ The following modifiers are currently supported:
 |`ad`|Attributes of mapped Active Directory objects. For a list of supported Active Directory attributes, consult the [DirectoryServicesAttribute](#ds-attribute) section within the [Technical Reference](#tech-reference) chapter of this document.|
 |`sdn`|Fields from the Subject Distinguished Name of the certificate request.|
 |`san`|Fields from the Subject Alternative Name of the certificate request.|
-|`yk`|Fields from [Yubikey PIV Attestation](#yubikey-piv-attestation) of the certificate request.|
+|`yk`|Fields from [YubiKey PIV Attestation](#yubikey-piv-attestation) of the certificate request.|
 
 > Note that if you plan to insert attributes from mapped Active Directory objects, you need to configure [DirectoryServicesMapping](#ds-mapping).
+
+> Note that if you plan to inser attributes from a YubiKey, you need to configure [YubiKey PIV attestation](#yubikey-piv-attestation).
 
 ### Remarks
 

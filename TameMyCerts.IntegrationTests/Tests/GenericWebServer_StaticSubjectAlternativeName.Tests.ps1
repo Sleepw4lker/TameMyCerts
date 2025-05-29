@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "GenericWebServer_StaticSubjectAlternativeName"
 }
@@ -9,7 +9,7 @@ Describe 'GenericWebServer_StaticSubjectAlternativeName.Tests' {
 
     It 'Given a request doesnt contain it, a SAN is supplemented' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -20,7 +20,7 @@ Describe 'GenericWebServer_StaticSubjectAlternativeName.Tests' {
 
     It 'Given a request does contain it, no SAN is supplemented' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -RFC822Name "support@adcslabor.de"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal" -RFC822Name "support@adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED

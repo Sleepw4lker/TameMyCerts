@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "Computer_Online_process_forbidden"
 
@@ -24,7 +24,7 @@ Describe 'Computer_Online_process_forbidden.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -KeyAlgorithm ECDSA_P256
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal" -KeyAlgorithm ECDSA_P256
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate -MachineContext
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -33,7 +33,7 @@ Describe 'Computer_Online_process_forbidden.Tests' {
 
     It 'Given a denied request is resubmitted by an admin, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -KeyAlgorithm ECDSA_P256
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal" -KeyAlgorithm ECDSA_P256
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate -MachineContext
 
         (& certutil -config $ConfigString -resubmit $Result1.RequestId)

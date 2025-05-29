@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "GenericWebServer_SubjectFromRequest"
 }
@@ -9,17 +9,17 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
 
     It 'Given a request is compliant, a certificate is issued (commonName only)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
+        $Result.Certificate.Subject | Should -Be "CN=www.intra.tmctests.internal"
     }
 
     It 'Given a request is not compliant, no certificate is issued (no commonName)' {
 
-        $Csr = New-CertificateRequest -Dns "www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Dns "www.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -28,7 +28,7 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (countryName invalid)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local,C=UK"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal,C=UK"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -46,7 +46,7 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (commonName forbidden)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=wwpornw.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=wwpornw.intra.tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -79,7 +79,7 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
 
     It 'Given a request is compliant, a certificate is issued and SAN is supplemented (fully qualified)' {
 
-        $Identity = "www.intra.tamemycerts-tests.local"
+        $Identity = "www.intra.tmctests.internal"
         $Csr = New-CertificateRequest -Subject "CN=$Identity"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
@@ -115,7 +115,7 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
     
     It 'Given a request is compliant, and contains multiple fileds of same type, a certificate is issued' {
 
-        $Identity1 = "www.intra.tamemycerts-tests.local"
+        $Identity1 = "www.intra.tmctests.internal"
         $Identity2 = "this-is-a-test"
         $Identity3 = "192.168.0.1"
         $Csr = New-CertificateRequest -Subject "CN=$Identity1,CN=$Identity2,CN=$Identity3"
@@ -131,17 +131,17 @@ Describe 'GenericWebServer_SubjectFromRequest.Tests' {
 
     It 'Given a request containing custom OID is compliant, a certificate is issued (commonName only)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local,OID.1.2.3.4=test"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal,OID.1.2.3.4=test"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
+        $Result.Certificate.Subject | Should -Be "CN=www.intra.tmctests.internal"
     }
 
     It 'Given a request containing custom OID is not compliant, no certificate is issued (no commonName)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local,OID.1.2.3.4=this-should-fail"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal,OID.1.2.3.4=this-should-fail"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED

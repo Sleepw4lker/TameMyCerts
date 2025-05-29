@@ -6,7 +6,7 @@ TamyMyCerts allows modifying the Subject Alternative Name (SAN) of a certificate
 
 ### Configuring
 
-You define a `OutboundSubjectAlternativeName` directive containing `OutboundSubjectRule` rules. The syntax and logic for the `SubjectRule` is the exact same as for [Modifying the Subject Distinguished Name of issued certificates](#modify-subject-dn).
+You define a `OutboundSubjectAlternativeName` directive containing `OutboundSubjectRule` rules.
 
 The `OutboundSubjectRule` directive can be configured as follows:
 
@@ -26,6 +26,20 @@ You may specify the following Subject Alternative Name types for the "Field" dir
 - `ipAddress`
 
 > The field names are processed _case-sensitive_.
+
+The `Value` may contain a static string, or can be combined with attributes of mapped Active Directory objects, or content from the certificate request.
+
+You configure variables with the following syntax: `{Modifier:PropertyNameGoesHere}`
+
+The following modifiers are currently supported:
+
+|Modifier|Description|
+|---|---|
+|`ad`|Attributes of mapped Active Directory objects. For a list of supported Active Directory attributes, consult the [DirectoryServicesAttribute](#ds-attribute) section within the [Technical Reference](#tech-reference) chapter of this document.|
+|`sdn`|Fields from the Subject Distinguished Name of the certificate request.|
+|`san`|Fields from the Subject Alternative Name of the certificate request.|
+
+> Note that if you plan to insert attributes from mapped Active Directory objects, you need to configure [DirectoryServicesMapping](#ds-mapping).
 
 ### Examples
 

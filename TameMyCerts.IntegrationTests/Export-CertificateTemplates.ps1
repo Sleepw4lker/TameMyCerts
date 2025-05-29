@@ -1,4 +1,4 @@
-﻿<#
+<#
     .SYNOPSIS
     Exports all certificate templates in an Active Directory Forest to LDIF files.
     Needs ldifde.exe, thus run it on a Domain Controller.

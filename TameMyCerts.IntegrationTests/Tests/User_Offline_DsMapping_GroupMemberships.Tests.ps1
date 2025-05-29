@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "User_Offline_DsMapping_GroupMemberships"
 }
@@ -9,7 +9,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
 
     It 'Given a user is direct member of any allowed group, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser1@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser1@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -18,7 +18,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
 
     It 'Given a user is indirect member of any allowed group, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser6@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser6@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -27,7 +27,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
 
     It 'Given a user is member of any forbidden group, no certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser2@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser2@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -36,7 +36,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
 
     It 'Given a user is not member of any allowed group, no certificate is issued' {
 
-        $Csr = New-CertificateRequest -Upn "TestUser5@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Upn "TestUser5@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED

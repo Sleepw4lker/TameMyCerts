@@ -57,11 +57,6 @@ internal class CertificateContentValidator
         CertificateRequestPolicy policy, CertificateDatabaseRow dbRow, ActiveDirectoryObject dsObject,
         CertificateAuthorityConfiguration caConfig, YubikeyObject yubikeyObject = null)
     {
-        if (yubikeyObject == null)
-        {
-            yubikeyObject = new YubikeyObject();
-        }
-
         if (result.DeniedForIssuance)
         {
             return result;
@@ -130,11 +125,9 @@ internal class CertificateContentValidator
                 var value = rule.Value;
 
                 value = ReplaceTokenValues(value, "ad",
-                    null != dsObject ? dsObject.Attributes.ToList() : new List<KeyValuePair<string, string>>());
+                    null != dsObject ? dsObject.Attributes.ToList() : []);
                 value = ReplaceTokenValues(value, "yk",
-                    null != yubikeyObject
-                        ? yubikeyObject.Attributes.ToList()
-                        : new List<KeyValuePair<string, string>>());
+                    null != yubikeyObject ? yubikeyObject.Attributes.ToList() : []);
                 value = ReplaceTokenValues(value, "sdn",
                     policy.ReadSubjectFromRequest
                         ? dbRow.InlineSubjectRelativeDistinguishedNames
@@ -175,7 +168,7 @@ internal class CertificateContentValidator
                 var value = rule.Value;
 
                 value = ReplaceTokenValues(value, "ad",
-                    null != dsObject ? dsObject.Attributes.ToList() : new List<KeyValuePair<string, string>>());
+                    null != dsObject ? dsObject.Attributes.ToList() : []);
                 value = ReplaceTokenValues(value, "sdn",
                     policy.ReadSubjectFromRequest
                         ? dbRow.InlineSubjectRelativeDistinguishedNames

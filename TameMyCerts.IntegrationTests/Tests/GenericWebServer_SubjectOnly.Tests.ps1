@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "GenericWebServer_SubjectOnly"
 }
@@ -17,7 +17,7 @@ Describe 'GenericWebServer_SubjectOnly.Tests' {
         $SigningCertificate = (Get-ChildItem -Path Cert:\CurrentUser\My | 
             Where-Object { $_.EnhancedKeyUsageList.ObjectId -Contains $Oid.XCN_OID_ENROLLMENT_AGENT }).Thumbprint
 
-        $Csr1 = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Csr1 = New-CertificateRequest -Subject "CN=www.intra.tmctests.internal"
         $Csr1 | Out-File -FilePath $RequestFileName1 -Force
 
         (& certreq -q -cert $SigningCertificate -policy $RequestFileName1 "$PSScriptRoot\$($CertificateTemplate).inf" $RequestFileName2)

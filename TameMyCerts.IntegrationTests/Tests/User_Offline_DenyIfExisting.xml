@@ -1,19 +1,18 @@
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <AllowedCryptoProviders>
-    <string>Microsoft Software Key Storage Provider</string>
-  </AllowedCryptoProviders>
-  <Subject>
+  <SubjectAlternativeName>
     <SubjectRule>
-      <Field>commonName</Field>
+      <Field>userPrincipalName</Field>
       <Mandatory>true</Mandatory>
-      <MaxOccurrences>3</MaxOccurrences>
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tmctests\.internal)$</Expression>
+          <Expression>^[a-zA-Z0-9]*(\@tmctests\.internal)$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
-  </Subject>
+  </SubjectAlternativeName>
+  <DirectoryServicesMapping>
+    <Action>Deny</Action>
+  </DirectoryServicesMapping>
 </CertificateRequestPolicy>

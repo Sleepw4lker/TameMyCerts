@@ -6,17 +6,17 @@
       <MaxLength>128</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[\-\.a-zA-Z0-9]*\@tamemycerts-tests\.local$</Expression>
+          <Expression>^[\-\.a-zA-Z0-9]*\@tmctests\.internal$</Expression>
         </Pattern>
       </Patterns>
     </SubjectRule>
   </SubjectAlternativeName>
   <DirectoryServicesMapping>
     <AllowedSecurityGroups>
-      <string>CN=An allowed Group,OU=TameMyCerts Groups,DC=tamemycerts-tests,DC=local</string>
+      <string>CN=An allowed Group,OU=TameMyCerts Groups,DC=tmctests,DC=internal</string>
     </AllowedSecurityGroups>
     <DisallowedSecurityGroups>
-      <string>CN=A forbidden Group,OU=TameMyCerts Groups,DC=tamemycerts-tests,DC=local</string>
+      <string>CN=A forbidden Group,OU=TameMyCerts Groups,DC=tmctests,DC=internal</string>
     </DisallowedSecurityGroups>
   </DirectoryServicesMapping>
 </CertificateRequestPolicy>

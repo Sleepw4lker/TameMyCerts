@@ -1,6 +1,6 @@
 BeforeAll {
 
-    . "C:\IntegrationTests\Tests\lib\Init.ps1"
+    . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
     $CertificateTemplate = "User_Offline_SubjectDN_Mandatory"
 }
@@ -9,7 +9,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
     It 'Given a Subject RDN from DS mapping is enabled and all mandatory attributes are populated, a certificate with desired content is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=TestUser1" -Upn "TestUser1@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=TestUser1" -Upn "TestUser1@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -19,7 +19,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
     It 'Given a Subject RDN from DS mapping is enabled and not all mandatory attributes are populated, no certificate is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=TestUser2" -Upn "TestUser2@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=TestUser2" -Upn "TestUser2@tmctests.internal"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -29,7 +29,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
     It 'Given a denied request due to missing mandatory attributes is resubmitted by an administrator, a certificate is issued and Subject DN is not modified' {
 
-        $Csr = New-CertificateRequest -Subject "CN=TestUser2" -Upn "TestUser2@tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=TestUser2" -Upn "TestUser2@tmctests.internal"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         (& certutil -config $ConfigString -resubmit $Result1.RequestId)
