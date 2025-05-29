@@ -33,10 +33,10 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     - name: Build Debug
-      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=release
+      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=release /restore /t:Rebuild
 
     - name: Build ETW Manifest
-      run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release
+      run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release /restore /t:Rebuild
 
     - name: Create ZIP file
       run: |
