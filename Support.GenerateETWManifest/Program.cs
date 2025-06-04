@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.Tracing;
+using System.Globalization;
 using TameMyCerts;
-using System.IO;
-using System;
 
 // Generate the manifest
 internal class Program
@@ -9,21 +8,31 @@ internal class Program
     private static void Main(string[] args)
     {
         string? outFilename = null;
-        for (int i = 0; i < args.Length; i++)
+        for (var i = 0; i < args.Length; i++)
         {
-            if (args[i] == "--outfile" && i + 1 < args.Length)
+            if (args[i] != "--outfile" || i + 1 >= args.Length)
             {
-                outFilename = args[i + 1]; break;
+                continue;
             }
+
+            outFilename = args[i + 1];
+            break;
         }
+
         // Validate the filename
         if (string.IsNullOrEmpty(outFilename))
         {
             throw new ArgumentException("Missing or invalid --outfile argument");
         }
 
+        // This ensures the generates manifest uses the default en-US culture when the build process runs on a non-US operating system
+        var cultureInfo = new CultureInfo("en-US");
+        Thread.CurrentThread.CurrentCulture = cultureInfo;
+        Thread.CurrentThread.CurrentUICulture = cultureInfo;
+
         // Generate the manifest
-        string? manifest = EventSource.GenerateManifest(typeof(ETWLogger), "TameMyCerts.Events.dll");
+        var manifest = EventSource.GenerateManifest(typeof(ETWLogger), "TameMyCerts.Events.dll");
+
         // Save the manifest to a file
         if (manifest is not null)
         {
