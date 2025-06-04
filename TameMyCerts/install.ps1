@@ -52,6 +52,7 @@ New-Variable -Option Constant -Name BaseDirectory -Value (Split-Path -Path $MyIn
 New-Variable -Option Constant -Name AppInstallDirectory -Value "$env:ProgramFiles\TameMyCerts"
 New-Variable -Option Constant -Name ENUM_ENTERPRISE_ROOTCA -Value 0
 New-Variable -Option Constant -Name ENUM_ENTERPRISE_SUBCA -Value 1
+New-Variable -Option Constant -Name DefaultPolicyModuleName -Value "CertificateAuthority_MicrosoftDefault.Policy"
 New-Variable -Option Constant -Name FileList -Value @(
     "CERTCLILIB.dll",
     "CERTPOLICYLIB.dll",
@@ -60,6 +61,8 @@ New-Variable -Option Constant -Name FileList -Value @(
     "TameMyCerts.comhost.dll",
     "TameMyCerts.deps.json",
     "TameMyCerts.dll",
+    "TameMyCerts.Events.dll",
+    "TameMyCerts.Events.man",
     "TameMyCerts.runtimeconfig.json",
     "runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll",
     "runtimes\win\lib\net8.0\System.Diagnostics.EventLog.Messages.dll",
@@ -98,10 +101,9 @@ $CaName = (Get-ItemProperty -Path $CaRegistryRoot -Name Active).Active
 $CaType = (Get-ItemProperty -Path "$CaRegistryRoot\$($CaName)" -Name CaType -ErrorAction Stop).CaType
 
 if (-not (($CaType -eq $ENUM_ENTERPRISE_ROOTCA) -or ($CaType -eq $ENUM_ENTERPRISE_SUBCA))) {
-    Write-Error -Message "The $PolicyModuleName policy module currently does not support standalone certification authorities." -ErrorAction Stop
+    Write-Error -Message "The $PolicyModuleName policy module does not support standalone certification authorities." -ErrorAction Stop
 }
 
-$DefaultPolicyModuleName = "CertificateAuthority_MicrosoftDefault.Policy"
 $RegistryHiveDefault = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$DefaultPolicyModuleName"
 $RegistryHiveCustom = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$($PolicyModuleName).Policy"
 
@@ -153,6 +155,60 @@ if (Test-Path -Path "$AppInstallDirectory\TameMyCerts.comhost.dll") {
         -WindowStyle Hidden
 }
 
+# Find a few older and unregister those.
+if ($null -ne (Get-WinEvent -ListProvider "TameMyCerts-TameMyCerts-Policy" -ErrorAction SilentlyContinue)) { 
+
+    Write-Verbose -Message "Removing the EventProvider TameMyCerts-TameMyCerts-Policy"
+
+    $tempfile = [System.IO.Path]::GetTempFileName()
+
+    $xmlcontent = @'
+<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
+<events xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<provider name="TameMyCerts-TameMyCerts-Policy" guid="{01e38251-e8f1-5aea-594c-12c672505ecf}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCertsTameMyCertsPolicy">
+</provider>
+</events>
+</instrumentation>
+</instrumentationManifest>
+'@
+    Set-Content -Path $tempfile -Value $xmlcontent
+
+    Start-Process `
+        -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
+        -ArgumentList "um", """$tempfile""" `
+        -Wait `
+        -WindowStyle Hidden
+
+    Remove-Item $tempfile
+}
+
+if ($null -ne (Get-WinEvent -ListProvider "TameMyCerts" -ErrorAction SilentlyContinue)) { 
+
+    Write-Verbose "Removing the EventProvider TameMyCerts"
+
+    $tempfile = [System.IO.Path]::GetTempFileName()
+    $xmlcontent = @'
+<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
+<events xmlns="http://schemas.microsoft.com/win/2004/08/events">
+<provider name="TameMyCerts" guid="{5ab879f8-8136-5440-4d8c-3d0ac8846520}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCerts">
+</provider>
+</events>
+</instrumentation>
+</instrumentationManifest>
+'@
+    Set-Content -Path $tempfile -Value $xmlcontent
+
+    Start-Process `
+        -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
+        -ArgumentList "um", """$tempfile""" `
+        -Wait `
+        -WindowStyle Hidden
+
+    Remove-Item $tempfile
+}
+
 Write-Verbose -Message "Deleting Application directory $AppInstallDirectory"
 Remove-Item -Path $AppInstallDirectory -Recurse -Force -ErrorAction SilentlyContinue
 
@@ -164,8 +220,9 @@ if ($Uninstall.IsPresent) {
 
     if (Get-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -ErrorAction SilentlyContinue) {
 
-        Write-Verbose "Deleting policy directory from registry"
-        Remove-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory
+        Write-Verbose "Deleting custom entries from Policy Module from registry"
+        Remove-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path $RegistryHiveCustom -Name TmcFlags -ErrorAction SilentlyContinue
 
         Write-Verbose "Copying back configuration to default path (may have changed in the meantime)."
         Copy-Registry -Source $RegistryHiveCustom -Destination $RegistryHiveDefault
@@ -183,60 +240,6 @@ if ($Uninstall.IsPresent) {
     if ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $true) {
         Write-Verbose -Message "Deleting Windows event source ""$PolicyModuleName"""
         [System.Diagnostics.EventLog]::DeleteEventSource($PolicyModuleName)
-    }
-
-    #Find a few older and unregister those.
-    if ($null -ne (Get-WinEvent -ListProvider "TameMyCerts-TameMyCerts-Policy" -ErrorAction SilentlyContinue)) { 
-
-        Write-Verbose -Message "Removing the EventProvider TameMyCerts-TameMyCerts-Policy"
-
-        $tempfile = [System.IO.Path]::GetTempFileName()
-
-        $xmlcontent = @'
-<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
-<instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
-<events xmlns="http://schemas.microsoft.com/win/2004/08/events">
-<provider name="TameMyCerts-TameMyCerts-Policy" guid="{01e38251-e8f1-5aea-594c-12c672505ecf}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCertsTameMyCertsPolicy">
-</provider>
-</events>
-</instrumentation>
-</instrumentationManifest>
-'@
-        Set-Content -Path $tempfile -Value $xmlcontent
-
-        Start-Process `
-            -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
-            -ArgumentList "um", """$tempfile""" `
-            -Wait `
-            -WindowStyle Hidden
-
-        Remove-Item $tempfile
-    }
-
-    if ($null -ne (Get-WinEvent -ListProvider "TameMyCerts" -ErrorAction SilentlyContinue)) { 
-
-        Write-Verbose "Removing the EventProvider TameMyCerts"
-
-        $tempfile = [System.IO.Path]::GetTempFileName()
-        $xmlcontent = @'
-<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
-<instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
-<events xmlns="http://schemas.microsoft.com/win/2004/08/events">
-<provider name="TameMyCerts" guid="{5ab879f8-8136-5440-4d8c-3d0ac8846520}" resourceFileName="TameMyCerts.Events.dll" messageFileName="TameMyCerts.Events.dll" symbol="TameMyCerts">
-</provider>
-</events>
-</instrumentation>
-</instrumentationManifest>
-'@
-        Set-Content -Path $tempfile -Value $xmlcontent
-
-        Start-Process `
-            -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
-            -ArgumentList "um", """$tempfile""" `
-            -Wait `
-            -WindowStyle Hidden
-
-        Remove-Item $tempfile
     }
 }
 
@@ -290,13 +293,13 @@ if (-not $Uninstall.IsPresent) {
     }
 
     # if ETW Logging manifest exist register that one.
-    if ((Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.dll") -and (Test-Path -Path "$BaseDirectory\$($PolicyModuleName).events.man")) {
+    if ((Test-Path -Path "$AppInstallDirectory\$($PolicyModuleName).Events.dll") -and (Test-Path -Path "$AppInstallDirectory\$($PolicyModuleName).Events.man")) {
 
-        Write-Verbose "Found the required files for ETW logging, registering with wevtutil"
+        Write-Verbose "Registering the EventProvider TameMyCerts-TameMyCerts-Policy"
 
         Start-Process `
             -FilePath "$($env:SystemRoot)\System32\wevtutil.exe" `
-            -ArgumentList "im", """$BaseDirectory\$($PolicyModuleName).events.man""","/resourceFilePath:""$BaseDirectory\$($PolicyModuleName).events.dll""", "/messageFilePath:""$BaseDirectory\$($PolicyModuleName).events.dll""" `
+            -ArgumentList "im", """$AppInstallDirectory\$($PolicyModuleName).events.man""","/resourceFilePath:""$AppInstallDirectory\$($PolicyModuleName).events.dll""", "/messageFilePath:""$AppInstallDirectory\$($PolicyModuleName).events.dll""" `
             -Wait `
             -WindowStyle Hidden
     }
