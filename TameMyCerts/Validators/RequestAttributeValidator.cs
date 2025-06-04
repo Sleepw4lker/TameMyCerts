@@ -14,6 +14,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 
@@ -39,12 +40,16 @@ internal class RequestAttributeValidator
 
         if (dbRow.RequestAttributes.ContainsKey("san"))
         {
-            result.AddWarning(LocalizedStrings.AttribVal_Insecure_Flags_detected);
+            var requestAttributes = string.Join("\n",
+                dbRow.RequestAttributes.Select(x => $"{x.Key}:{x.Value}").ToList());
+
+            result.AddWarning(string.Format(LocalizedStrings.AttribVal_Insecure_Flags_detected, requestAttributes, dbRow.RequesterName));
 
             if (caConfig.EditFlags.HasFlag(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2) &&
                 !caConfig.TmcFlags.HasFlag(TmcFlag.TMC_WARN_ONLY_ON_INSECURE_FLAGS))
             {
-                result.SetFailureStatus(WinError.NTE_FAIL, LocalizedStrings.AttribVal_Insecure_Flags);
+                result.SetFailureStatus(WinError.NTE_FAIL,
+                    string.Format(LocalizedStrings.AttribVal_Insecure_Flags_denied, requestAttributes, dbRow.RequesterName));
             }
         }
 
