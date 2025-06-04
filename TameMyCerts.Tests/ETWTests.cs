@@ -23,6 +23,7 @@ public class ETWTests
         var loggerType = typeof(ETWLogger);
 
         var methods = loggerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
         foreach (var method in methods)
         {
             _listener.ClearEvents();
