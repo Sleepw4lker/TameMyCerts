@@ -55,7 +55,7 @@ A policy module for AD CS has two main purposes:
 
 ![How a policy module is integrated into AD CS' functionality (&#169; Microsoft)](resources/certapi.png)
 
-Microsoft designed AD CS in a way so that custom policy modules could be developed by individual contributors to enhance the provided functionality. TameMyCerts is such a policy module, which allows to extend the functionality that is provided by AD CS. Unique about TameMyCerts is that it is made available to the public via a free license.
+Whilst AD CS already ships with a policy module, called the "Windows Default" policy module, Microsoft designed the product in a way so that custom policy modules could be developed by individual contributors to enhance the provided functionality. TameMyCerts is such a policy module, which allows to extend the functionality that is provided by AD CS. Unique about TameMyCerts is that it is made available to the public via a free license.
 
 ## Use Cases for the TameMyCerts policy module
 

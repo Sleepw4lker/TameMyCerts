@@ -135,11 +135,11 @@ Denying certificate requests for ECC keys with a YubiKey with firmware version p
 ```xml
 <YubiKeyPolicies>
   <YubiKeyPolicy>
-      <MaximumFirmwareVersion>5.6.9</MaximumFirmwareVersion>
-      <KeyAlgorithm>
-        <string>ECC</string>
-      </KeyAlgorithm>
-      <Action>Deny</Action>
+    <MaximumFirmwareVersion>5.6.9</MaximumFirmwareVersion>
+    <KeyAlgorithm>
+      <string>ECC</string>
+    </KeyAlgorithm>
+    <Action>Deny</Action>
   </YubiKeyPolicy>
 </YubiKeyPolicies>
 ```

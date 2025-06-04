@@ -14,15 +14,15 @@ Each of those can contain one or more uniform resource identifiers (URIs). TameM
 
 |Microsoft Token name |Description | Variable |
 |---|---|---|
-|ServerDNSName |The DNS name of the CA server |%1|
-|ServerShortName |The NetBIOS name of the CA server|%2|
-|CaName |The name of the CA |%3|
-|Cert_Suffix |The renewal extension of the CA|%4|
-|ConfigurationContainer |The location of the configuration container in Active Directory|%6|
-|CATruncatedName|The "sanitized" name of the CA, 32 characters with a hash on the end|%7|
-|CRLNameSuffix|The renewal extension for the CRL |%8 |
-|CDPObjectClass||%10|
-|CAObjectClass||%11|
+|`ServerDNSName`|The DNS name of the CA server |`%1`|
+|`ServerShortName`|The NetBIOS name of the CA server|`%2`|
+|`CaName`|The name of the CA |`%3`|
+|`Cert_Suffix`|The renewal extension of the CA|`%4`|
+|`ConfigurationContainer`|The location of the configuration container in Active Directory|`%6`|
+|`CATruncatedName`|The "sanitized" name of the CA, 32 characters with a hash on the end|`%7`|
+|`CRLNameSuffix`|The renewal extension for the CRL|`%8`|
+|`CDPObjectClass`||`%10`|
+|`CAObjectClass`||`%11`|
 
 > Online Certificate Status Protocol (OCSP) URIs should only be configured in combination with Authority Information Access (AIA) URIs as they get written into the same certificate extension.
 

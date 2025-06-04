@@ -18,11 +18,7 @@ net start certsvc
 
 Now you can specify both `StartDate` and `ExpirationDate` request attribute in IETF RFC 2616 (<https://datatracker.ietf.org/doc/html/rfc2616>) compliant form whilst submitting the certificate request.
 
-A syntax example for a compliant date form could be:
-
-```batch
-Tue, 1 Mar 2022 08:00:00 GMT
-```
+A syntax example for a compliant date form could be: `Tue, 1 Mar 2022 08:00:00 GMT`
 
 When an invalid date is being requested, the certificate request will get denied with [error code](#error-codes) `ERROR_INVALID_TIME`.
 
