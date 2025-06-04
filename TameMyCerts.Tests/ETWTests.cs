@@ -66,7 +66,27 @@ public class ETWTests
             _ = method.Invoke(ETWLogger.Log, parameterValues);
             // This checks that there is a event with the correct ID has been registered
             Assert.Equal(eventId, _listener.Events[0].EventId);
-            //output.WriteLine($"Found the {method.Name}");
+            //_output.WriteLine(_listener.Events[0].Message);
+        }
+    }
+
+    [Fact]
+    public void ValidateEventStrings()
+    {
+        var loggerType = typeof(ETWLogger);
+
+        var methods = loggerType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        foreach (var method in methods)
+        {
+
+            var localizedStringProperty = typeof(LocalizedStrings).GetProperty($"event_{method.Name}", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            
+            if (localizedStringProperty is null)
+            {
+                Assert.Fail($"No localized string found for method event_{method.Name}");
+            }
+
+          
         }
     }
 }

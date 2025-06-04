@@ -244,6 +244,7 @@ public sealed class ETWLogger : EventSource
 
     #region Certificate Content Validator events 4601-4799
 
+    /*
     [Event(4601, Level = EventLevel.Informational, Channel = EventChannel.Operational,
         Task = Tasks.CertificateContentValidator, Keywords = EventKeywords.None)]
     public void CCVal_4601_(string denyingPolicy, int requestId)
@@ -253,6 +254,7 @@ public sealed class ETWLogger : EventSource
             WriteEvent(4601, denyingPolicy, requestId);
         }
     }
+    */
 
     [Event(4651, Level = EventLevel.Verbose, Channel = EventChannel.Debug, Task = Tasks.CertificateContentValidator,
         Keywords = EventKeywords.None)]
