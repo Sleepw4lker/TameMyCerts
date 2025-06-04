@@ -142,7 +142,7 @@
 {2}</value>
   </data>
   <data name="Events_REQUEST_CONTAINS_WARNINGS" xml:space="preserve">
-    <value>The following warnings have been logged during the processing of request {0} for {1}:
+    <value>The following warning has been logged during the processing of request {0} for {1}:
 {2}</value>
   </data>
   <data name="Events_REQUEST_DENIED_AUDIT" xml:space="preserve">
@@ -213,11 +213,21 @@
   <data name="ReqVal_Crypto_Provider_Unknown" xml:space="preserve">
     <value>Unable to determine the cryptographic provider that was used to create the certificate request, but policy requires this information. Probably the certificate request does not contain such information.</value>
   </data>
-  <data name="AttribVal_Insecure_Flags" xml:space="preserve">
-    <value>The certificate request metadata contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.</value>
+  <data name="AttribVal_Insecure_Flags_denied" xml:space="preserve">
+    <value>The certificate request metadata contains the "san" request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.
+
+The request contains the following request attributes:
+
+{0}</value>
   </data>
   <data name="AttribVal_Insecure_Flags_detected" xml:space="preserve">
-    <value>The certificate request metadata contains the "san" request attribute. If the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag, this is a highly dangerous configuration.</value>
+    <value>The certificate request metadata contains the "san" request attribute. If the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag, this is a highly dangerous configuration.
+
+The request contains the following request attributes:
+
+{0}
+
+Requester name is {1}</value>
   </data>
   <data name="ReqVal_Err_NotAfter_Invalid" xml:space="preserve">
     <value>Unable to parse the configured expiration date specified in certificate request policy.</value>

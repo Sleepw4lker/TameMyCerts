@@ -216,10 +216,9 @@ public class Policy : ICertPolicy2
 
         #region Log warnings, if any
 
-        if (result.Warnings.Count > 0)
+        foreach (var warning in result.Warnings.Distinct().ToList())
         {
-            _logger.Log(Events.REQUEST_CONTAINS_WARNINGS, requestId, template.Name,
-                string.Join("\n", result.Warnings.Distinct().ToList()));
+            _logger.Log(Events.REQUEST_CONTAINS_WARNINGS, requestId, template.Name, warning);
         }
 
         #endregion

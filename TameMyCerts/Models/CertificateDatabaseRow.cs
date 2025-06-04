@@ -35,6 +35,7 @@ internal class CertificateDatabaseRow
         PublicKey = serverPolicy.GetBinaryCertificatePropertyOrDefault("RawPublicKey");
         RawRequest = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
         RequestID = serverPolicy.GetLongRequestPropertyOrDefault("RequestID");
+        RequesterName = serverPolicy.GetStringRequestPropertyOrDefault("RequesterName");
         RequestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
         Upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN") ?? string.Empty;
         DistinguishedName = serverPolicy.GetStringRequestPropertyOrDefault("Request.DistinguishedName") ??
@@ -135,6 +136,11 @@ internal class CertificateDatabaseRow
     ///     The internal RequestID.
     /// </summary>
     public int RequestID { get; }
+
+    /// <summary>
+    ///     The requester name.
+    /// </summary>
+    public string RequesterName { get; }
 
     /// <summary>
     ///     The request type as defined in certcli.h (PKCS#10, PKCS#7 or CMS).

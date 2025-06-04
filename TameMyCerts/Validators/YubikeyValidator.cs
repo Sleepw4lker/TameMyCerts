@@ -253,10 +253,10 @@ internal class YubikeyValidator
     /// <returns></returns>
     private static X509Certificate2Collection GetCertificatesFromMachineStore(string storeName)
     {
-        var rootCaStore = new X509Store(storeName, StoreLocation.LocalMachine);
-        rootCaStore.Open(OpenFlags.ReadOnly);
-        var certificates = rootCaStore.Certificates;
-        rootCaStore.Close();
+        var store = new X509Store(storeName, StoreLocation.LocalMachine);
+        store.Open(OpenFlags.ReadOnly);
+        var certificates = store.Certificates;
+        store.Close();
 
         return certificates;
     }

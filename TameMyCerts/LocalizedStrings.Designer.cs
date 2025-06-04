@@ -70,16 +70,26 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied..
+        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute, and the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag. This is a highly dangerous configuration. The request was therefore denied.
+        ///
+        ///The request contains the following request attributes:
+        ///
+        ///{0}.
         /// </summary>
-        internal static string AttribVal_Insecure_Flags {
+        internal static string AttribVal_Insecure_Flags_denied {
             get {
-                return ResourceManager.GetString("AttribVal_Insecure_Flags", resourceCulture);
+                return ResourceManager.GetString("AttribVal_Insecure_Flags_denied", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute. If the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag, this is a highly dangerous configuration..
+        ///   Looks up a localized string similar to The certificate request metadata contains the &quot;san&quot; request attribute. If the certification authority is configured with the EDITF_ATTRIBUTESUBJECTALTNAME2 flag, this is a highly dangerous configuration.
+        ///
+        ///The request contains the following request attributes:
+        ///
+        ///{0}
+        ///
+        ///Requester name is {1}.
         /// </summary>
         internal static string AttribVal_Insecure_Flags_detected {
             get {
@@ -561,7 +571,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The following warnings have been logged during the processing of request {0} for {1}:
+        ///   Looks up a localized string similar to The following warning has been logged during the processing of request {0} for {1}:
         ///{2}.
         /// </summary>
         internal static string Events_REQUEST_CONTAINS_WARNINGS {

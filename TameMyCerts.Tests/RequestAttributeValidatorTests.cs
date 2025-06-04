@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -187,12 +188,15 @@ public class RequestAttributeValidatorTests
     }
 
     [Fact]
-    public void Deny_invalid_flags()
+    public void Deny_SAN_request_attribute_when_insecure_flag_is_set()
     {
+        const string attrName = "saN"; // note that we also test case sensitivity
+        const string attrValue = "doesnt-matter";
+
         var caConfig = new CertificateAuthorityConfiguration(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2);
 
         var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10,
-            new Dictionary<string, string> { { "saN", "doesnt-matter" } });
+            new Dictionary<string, string> { { attrName, attrValue } });
 
         var result = new CertificateRequestValidationResult(dbRow);
 
@@ -202,15 +206,19 @@ public class RequestAttributeValidatorTests
 
         Assert.True(result.DeniedForIssuance);
         Assert.True(result.StatusCode == WinError.NTE_FAIL);
+        Assert.Contains($"{attrName}:{attrValue}", string.Join("\n", result.Warnings));
     }
 
     [Fact]
-    public void Allow_valid_flags()
+    public void Allow_SAN_request_attribute_when_insecure_flag_is_not_set()
     {
+        const string attrName = "saN"; // note that we also test case sensitivity
+        const string attrValue = "doesnt-matter";
+
         var caConfig = new CertificateAuthorityConfiguration(0);
 
         var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10,
-            new Dictionary<string, string> { { "saN", "doesnt-matter" } });
+            new Dictionary<string, string> { { attrName, attrValue } });
 
         var result = new CertificateRequestValidationResult(dbRow);
 
@@ -220,6 +228,7 @@ public class RequestAttributeValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.True(result.StatusCode == WinError.ERROR_SUCCESS);
+        Assert.Contains($"{attrName}:{attrValue}", string.Join("\n", result.Warnings));
     }
 
     [Fact]

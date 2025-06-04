@@ -59,9 +59,24 @@ If a certificate request contains an unsupported SAN type, the behavior is as fo
 
 When an error parsing the policy configuration file is thrown, remember that the actual line may be above or below the one noted in the log entry.
 
+### TameMyCerts does not recognize certificate templates
+
+TameMyCerts reads certificate template information from the local registry (`HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography\CertificateTemplateCache`). The information there is only replicated from Active Directory when the certificate AutoEnrollment Process is configured with the setting "Update Certificates that use certificates templates" is enabled.
+
+This is usually done via Group Policy, but can also be set via Registry with the below PowerShell command.
+
+```powershell
+New-Item -Path HKLM:\Software\Policies\Microsoft\Cryptography\AutoEnrollment
+Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Cryptography\AutoEnrollment -Name AEPolicy -Value 0x1 -Force
+```
+
+Afterwards, the Certificate Template Cache can be updates by running the following command:
+
+    certutil -pulse
+
 ### A recently created certificate template is not recognized by TameMyCerts and an Error with ID 10 is logged
 
-This is expected as there is a [chaching involved](#template-cache). The cache is read from the local certificate template cache of the CA server and updated every five minutes. Therefore, you can do one of the following to solve this:
+This is expected as there is a [caching involved](#template-cache). The cache is read from the local certificate template cache of the CA server and updated every five minutes. Therefore, you can do one of the following to solve this:
 
 1. Wait until the local certificate template gets updated automatically. This can take up to eight hours.
 
@@ -81,4 +96,4 @@ As TameMyCerts follows [the original Microsoft concept of certificate templates]
 
 ### No support for coexistence with other custom policy modules
 
-At the moment, TameMyCerts can not be combined with other policy modules except the Windows Default policy module that is shipped with Active Directory Certificate Services. A common example for an incompatible module would be the policy modules shipped with Microsoft Identity Manager Certificate Management (MIM CM).
+At the moment, TameMyCerts can not be combined with other policy modules except the Windows Default policy module that is shipped with Active Directory Certificate Services. A common example for an incompatible module would be the policy module shipped with Microsoft Identity Manager Certificate Management (MIM CM).

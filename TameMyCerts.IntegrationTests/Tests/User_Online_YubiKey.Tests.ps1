@@ -9,8 +9,6 @@ Describe 'User_Online_Yubikey.Tests' {
 
     It 'Given YubiKey Policy is enabled and a request contains a valid attestation, a certificate is issued' {
 
-        #$Csr = Get-Content -Path "User_Online_Yubikey.pem" -Raw
-
         $Csr =  "MIIIxDCCB6wCAQAwHDEaMBgGA1UEAwwRVGFtZU15Q2VydHNfNS43LjIwggEiMA0G" +
                 "CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8PsNNUt67rgq4+EGGnBU46XiiXv4g" +
                 "ADdAhOB8IQp1eZ+7Dq8JOQ9XDjjBObPj7TnEzxS+PSpXTmwV46FA4gykcVj+tRhT" +
