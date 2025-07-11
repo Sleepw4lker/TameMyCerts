@@ -26,6 +26,7 @@ internal class CertificateRequestPolicyCache
     private readonly DateTimeOffset _fileDoesNotExist = new(1601, 01, 01, 0, 0, 0, TimeSpan.Zero);
     private readonly object _lockObject = new();
     private readonly string _policyDirectory;
+    public bool PolicyDirectoryExists => Directory.Exists(_policyDirectory);
 
     public CertificateRequestPolicyCache(string policyDirectory)
     {

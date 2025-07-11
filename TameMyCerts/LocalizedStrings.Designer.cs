@@ -611,6 +611,16 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Request {0} will get denied. Unable to interpret policy for {1} because:
+        ///{2}.
+        /// </summary>
+        internal static string Events_REQUEST_DENIED_NO_POLICY_DIR {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_NO_POLICY_DIR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No certificate template information for request {0} could be retrieved from the local certificate template cache. The request will get denied..
         /// </summary>
         internal static string Events_REQUEST_DENIED_NO_TEMPLATE_INFO_LOCAL {
