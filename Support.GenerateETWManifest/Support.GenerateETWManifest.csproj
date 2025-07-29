@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TameMyCerts\TameMyCerts.csproj" />
+    <ProjectReference Include="..\TameMyCerts.AdcsModules.PolicyModule\TameMyCerts.AdcsModules.PolicyModule.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -23,30 +23,30 @@
   </PropertyGroup>
 
   <Target Name="GenerateManifest" AfterTargets="Build">
-    <Exec Command="$(TargetDir)\$(TargetName).exe  --outfile &quot;$(TargetDir)TameMyCerts.Events.man&quot;" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="$(TargetDir)\$(TargetName).exe  --outfile &quot;$(TargetDir)TameMyCerts.AdcsModules.PolicyModule.Events.man&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <!-- There must not be quotes around $(TargetDir), as it adds a tempfile after and it breaks horribly if it has quotes-->
   <Target Name="MessageCompiler" AfterTargets="Build" DependsOnTargets="GenerateManifest">
-    <Exec Command="&quot;$(buildtools)\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(buildtools)\mc.exe&quot; &quot;$(TargetDir)TameMyCerts.AdcsModules.PolicyModule.Events.man&quot; -r $(TargetDir)" WorkingDirectory="$(TargetDir)" />
   </Target>
   
   <Target Name="ResourceCompiler" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(buildtools)\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(buildtools)\rc.exe&quot; &quot;$(TargetDir)TameMyCerts.AdcsModules.PolicyModule.Events.rc&quot;" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="BuildDll" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.Events.res" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.AdcsModules.PolicyModule.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.AdcsModules.PolicyModule.Events.res" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="CopyOutputFiles" AfterTargets="Build">
     <ItemGroup>
       <!-- Include DLLs, XMLs, and JSON files from the output path -->
-      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.dll" />
-      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.Events.man" />
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.AdcsModules.PolicyModule.Events.dll" />
+      <FilesToCopy Include="$(OutputPath)**\TameMyCerts.AdcsModules.PolicyModule.Events.man" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="..\TameMyCerts\bin\$(Configuration)\$(TargetFramework)\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="..\TameMyCerts.AdcsModules.PolicyModule\bin\$(Configuration)\$(TargetFramework)\" SkipUnchangedFiles="true" />
     
   </Target>
 </Project>

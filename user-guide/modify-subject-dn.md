@@ -65,7 +65,7 @@ The following modifiers are currently supported:
 
 > Note that if you plan to insert attributes from mapped Active Directory objects, you need to configure [DirectoryServicesMapping](#ds-mapping).
 
-> Note that if you plan to inser attributes from a YubiKey, you need to configure [YubiKey PIV attestation](#yubikey-piv-attestation).
+> Note that if you plan to insert attributes from a YubiKey, you need to configure [YubiKey PIV attestation](#yubikey-piv-attestation).
 
 ### Remarks
 

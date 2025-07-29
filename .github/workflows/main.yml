@@ -29,7 +29,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     - name: Build Debug
-      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=debug /restore /t:Rebuild
+      run: msbuild TameMyCerts.AdcsModules.PolicyModule\TameMyCerts.csproj -property:Configuration=debug /restore /t:Rebuild
 
     - name: Build ETW Manifest
       run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=debug /restore /t:Rebuild
@@ -38,4 +38,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-TameMyCerts
-        path: TameMyCerts\bin\debug\net8.0-windows\
+        path: TameMyCerts.AdcsModules.PolicyModule\bin\debug\net8.0-windows\

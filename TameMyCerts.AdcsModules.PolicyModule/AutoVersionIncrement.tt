@@ -1,0 +1,35 @@
+﻿<#@ template language="C#" #>
+// This code was automatically generated. Do not make any manual changes to it.
+
+using System.Reflection;
+
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version
+//      Build Number
+//      Revision
+
+[assembly: AssemblyVersion("1.8.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
+[assembly: AssemblyFileVersion("1.8.<#= this.BuildNumber #>.<#= this.RevisionNumber #>")]
+<#+
+    // Days that have passed since Jan 1, 2021 00:00:00
+    int BuildNumber = (int)(DateTime.UtcNow - new DateTime(
+        2021,
+        1,
+        1,
+        0,
+        0,
+        0)
+        ).TotalDays;
+
+    // Minutes that have passed since today 00:00:00
+    int RevisionNumber = (int)(DateTime.UtcNow - new DateTime(
+        (DateTime.UtcNow.Year),
+        (DateTime.UtcNow.Month),
+        (DateTime.UtcNow.Day),
+        0,
+        0,
+        0)
+        ).TotalMinutes;
+#>

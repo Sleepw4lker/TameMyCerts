@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyTitle>TameMyCerts.AdcsModules.ExitModule</AssemblyTitle>
+    <Description>An exit module that exports metadata of issued certificates to XML.</Description>
+    <Product>TameMyCerts.AdcsModules.ExitModule</Product>
+    <Copyright>Copyright © 2021 Uwe Gradenegger</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <EnableComHosting>true</EnableComHosting>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+    <ItemGroup>
+    <Reference Include="CERTCLILib">
+      <HintPath>CERTCLILIB.dll</HintPath>
+    </Reference>
+    <Reference Include="CERTEXITLib">
+      <HintPath>CERTEXITLIB.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+    <ItemGroup>
+      <Folder Include="ClassExtensions\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="AutoVersionIncrement.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>AutoVersionIncrement.tt</DependentUpon>
+      </None>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\TameMyCerts.AdcsModules.Shared\TameMyCerts.AdcsModules.Shared.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="AutoVersionIncrement.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>AutoVersionIncrement.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+</Project>

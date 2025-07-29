@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TameMyCerts", "TameMyCerts\TameMyCerts.csproj", "{BB35A67E-8E22-48C3-B3F8-E852161ACB59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TameMyCerts.AdcsModules.PolicyModule", "TameMyCerts.AdcsModules.PolicyModule\TameMyCerts.AdcsModules.PolicyModule.csproj", "{BB35A67E-8E22-48C3-B3F8-E852161ACB59}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TameMyCerts.Tests", "TameMyCerts.Tests\TameMyCerts.Tests.csproj", "{98F86AA9-4B95-4300-9A23-512C620D075C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Support.GenerateETWManifest", "Support.GenerateETWManifest\Support.GenerateETWManifest.csproj", "{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TameMyCerts.AdcsModules.ExitModule", "TameMyCerts.AdcsModules.ExitModule\TameMyCerts.AdcsModules.ExitModule.csproj", "{8D955C90-6D24-502E-E2AF-E5B927904F13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TameMyCerts.AdcsModules.Shared", "TameMyCerts.AdcsModules.Shared\TameMyCerts.AdcsModules.Shared.csproj", "{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +44,22 @@ Global
 		{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}.Release|x64.ActiveCfg = Release|Any CPU
 		{6ED9736E-8C10-44A3-B80E-5FE83F2FE632}.Release|x64.Build.0 = Release|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Debug|x64.Build.0 = Debug|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Release|x64.ActiveCfg = Release|Any CPU
+		{8D955C90-6D24-502E-E2AF-E5B927904F13}.Release|x64.Build.0 = Release|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EFE8B00-107D-48E5-B880-BBA08B5AE8D8}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

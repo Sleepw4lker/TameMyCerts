@@ -22,7 +22,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Install dependencies TameMyCerts
-      run: dotnet restore TameMyCerts\TameMyCerts.csproj
+      run: dotnet restore TameMyCerts.AdcsModules.PolicyModule\TameMyCerts.csproj
 
     - name: Install dependencies Support.GenerateETWManifest
       run: dotnet restore Support.GenerateETWManifest\Support.GenerateETWManifest.csproj
@@ -33,7 +33,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     - name: Build Debug
-      run: msbuild TameMyCerts\TameMyCerts.csproj -property:Configuration=release /restore /t:Rebuild
+      run: msbuild TameMyCerts.AdcsModules.PolicyModule\TameMyCerts.csproj -property:Configuration=release /restore /t:Rebuild
 
     - name: Build ETW Manifest
       run: msbuild Support.GenerateETWManifest\Support.GenerateETWManifest.csproj -property:Configuration=release /restore /t:Rebuild
@@ -41,7 +41,7 @@ jobs:
     - name: Create ZIP file
       run: |
         Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
-        [System.IO.Compression.ZipFile]::CreateFromDirectory("TameMyCerts\bin\release\net8.0-windows", "release.zip", [System.IO.Compression.CompressionLevel]::SmallestSize, $false)
+        [System.IO.Compression.ZipFile]::CreateFromDirectory("TameMyCerts.AdcsModules.PolicyModule\bin\release\net8.0-windows", "release.zip", [System.IO.Compression.CompressionLevel]::SmallestSize, $false)
         Write-Host "ZIP file created successfully at $zipFilePath"
       shell: pwsh
 

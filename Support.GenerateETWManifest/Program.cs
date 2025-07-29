@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.Tracing;
 using System.Globalization;
-using TameMyCerts;
+using TameMyCerts.AdcsModules.PolicyModule;
 
 // Generate the manifest
+namespace Support.GenerateETWManifest;
+
 internal class Program
 {
     private static void Main(string[] args)
@@ -31,7 +33,7 @@ internal class Program
         Thread.CurrentThread.CurrentUICulture = cultureInfo;
 
         // Generate the manifest
-        var manifest = EventSource.GenerateManifest(typeof(ETWLogger), "TameMyCerts.Events.dll");
+        var manifest = EventSource.GenerateManifest(typeof(ETWLogger), "TameMyCerts.AdcsModules.PolicyModule.Events.dll");
 
         // Save the manifest to a file
         if (manifest is not null)

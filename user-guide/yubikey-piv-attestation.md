@@ -61,7 +61,7 @@ You define a `YubiKeyPolicies` directive containing one or more `YubiKeyPolicy` 
 |`MaximumFirmwareVersion`|no|Specifies the maximum Firmware version the YubiKey must have for the rule to match.|
 |`MinimumFirmwareVersion`|no|Specifies the minimum Firmware version the YubiKey must have for the rule to match.|
 |`Edition`|no|Specifies of which edition the YubiKey must be for the rule to match. Can be one or more of the following: `FIPS`, `Normal`, `CSPN`.|
-|`Slot`|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`.|
+|`Slot`|no|Specifies the Slot under which the certificate request must be stored under for the rule to match. Can be one or more of the following: `9a`, `9c`, `9d`, `9e`. Refer to the vendor's documentation (<https://developers.yubico.com/PIV/Introduction/Certificate_slots.html>) for more information on the Slots available on a YubiKey.|
 |`KeyAlgorithm`|no|Specifies the Key Algorithm of which the certificate request must be for the rule to match. Can be one or more of the following: `RSA`, `ECC`.|
 
 The YubiKeyPolicies are read one by one.
@@ -112,9 +112,11 @@ TameMyCerts will transfer the following certificate extensions from the YubiKey 
 |`1.3.6.1.4.1.41482.3.10`|FIPS Certified YubiKey|
 |`1.3.6.1.4.1.41482.3.11`|CSPN Certified YubiKey|
 
+![TameMyCerts transfers attestation information into the issued certificate](resources/yubikey-attested-certificate.png)
+
 It was originally intended to provide an option to include the original attestation data in issued certificates, but as YubiKeys have a size limit of 3052 bytes for issued certificates (see <https://docs.yubico.com/yesdk/users-manual/application-piv/attestation.html> for more details), this is not feasible.
 
-If you intend to add a proof of attestation into issued certificates, do this by adding an Issuance Policy to issued certificates.
+If you intend to add a proof of the attestation by the CA itself into issued certificates, do this by adding an Issuance Policy to issued certificates.
 
 ### Adding additional content to issued certificates
 

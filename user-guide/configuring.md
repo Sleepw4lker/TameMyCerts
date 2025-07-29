@@ -10,17 +10,17 @@ Create a policy configuration file in XML format for each certificate template y
 
 > Please ensure the file is encoded as UTF-8 if you plan to support special characters like german "Umlauts".
 
-Name the file exactly as the certificate template ("cn" LDAP attribute) that shall get examined.
+Name the file exactly as the certificate template (`cn` LDAP attribute of the certificate template) that shall get examined.
 
-For example, if your certificate template is named _"TameMyCertsWebServer"_, you create a policy configuration file named _"TameMyCertsWebServer.xml"_. You can get the object name of the certificate template from the certificate template management console or via Windows PowerShell.
+For example, if your certificate template is named `TameMyCertsWebServer`, you create a policy configuration file named `TameMyCertsWebServer.xml`. You can get the object name of the certificate template from the certificate template management console or via Windows PowerShell.
 
-> Note that certificate template names allow several characters that are not valid for file names (e.g. "<>|*?\\/). If you have such a template, simply omit these characters when naming the file.
+> Note that certificate template names allow several characters that are not valid for file names (e.g. `<`,`>`,`|`,`*`,`?`,`\`, or `/`). If you have such a template, simply omit these characters when naming the file.
 
 ![Getting the certificate template name from the certificate template management console (in the "Change Names" option of the certificate template)](resources/template-name.png)
 
 ![Getting the certificate template name from the certification authority PowerShell](resources/template-name-ps.png)
 
-Each policy configuration file starts with a basic definition of a _CertificateRequestPolicy_ as shown below:
+Each policy configuration file starts with a basic definition of a `CertificateRequestPolicy` as shown below:
 
 ```xml
 <CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
