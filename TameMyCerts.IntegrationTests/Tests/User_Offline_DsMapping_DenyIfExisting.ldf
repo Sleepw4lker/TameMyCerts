@@ -1,13 +1,13 @@
-dn: CN=User_Offline_DenyIfExisting,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
+dn: CN=User_Offline_DsMapping_DenyIfExisting,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 changetype: add
 objectClass: top
 objectClass: pKICertificateTemplate
-cn: User_Offline_DenyIfExisting
-distinguishedName: CN=User_Offline_DenyIfExisting,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
+cn: User_Offline_DsMapping_DenyIfExisting
+distinguishedName: CN=User_Offline_DsMapping_DenyIfExisting,CN=Certificate Templates,CN=Public Key Services,CN=Services,{ConfigNC}
 instanceType: 4
-displayName: User_Offline_DenyIfExisting
+displayName: User_Offline_DsMapping_DenyIfExisting
 showInAdvancedViewOnly: TRUE
-name: User_Offline_DenyIfExisting
+name: User_Offline_DsMapping_DenyIfExisting
 flags: 131642
 revision: 100
 objectCategory: CN=PKI-Certificate-Template,CN=Schema,{ConfigNC}
