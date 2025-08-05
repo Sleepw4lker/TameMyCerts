@@ -2,6 +2,12 @@
 
 > TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
+### Verison 1.8.xx
+
+_This version was not yet released._
+
+- Add new `Continue` action for Directory Services mapping that will cause the certificate request not getting denied when no object could be found.
+
 ### Version 1.7.1609.1089
 
 _This version was released on May 29, 2025._

@@ -23,7 +23,7 @@ namespace TameMyCerts.Models;
 public class DirectoryServicesMapping
 {
     [XmlElement(ElementName = "Action")]
-    public PolicyAction Action { get; set; } = PolicyAction.ALLOW;
+    public DsMappingPolicyAction Action { get; set; } = DsMappingPolicyAction.ALLOW;
 
     [XmlElement(ElementName = "SearchRoot")]
     public string SearchRoot { get; set; }
