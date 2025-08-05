@@ -2,10 +2,10 @@ BeforeAll {
 
     . "C:\INSTALL\TameMyCerts\Tests\lib\Init.ps1"
 
-    $CertificateTemplate = "User_Offline_DenyIfExisting"
+    $CertificateTemplate = "User_Offline_DsMapping_DenyIfExisting"
 }
 
-Describe 'User_Offline_DenyIfExisting.Tests' {
+Describe 'User_Offline_DsMapping_DenyIfExisting.Tests' {
 
     It 'Given a user is not found, a certificate is issued' {
 

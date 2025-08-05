@@ -90,8 +90,8 @@ internal class DirectoryServiceValidator
         }
         catch (ActiveDirectoryObjectNotFoundException ex)
         {
-            // Deny if no object was found but policy shall **allow** if existing
-            if (dsMapping.Action == PolicyAction.ALLOW)
+            // Deny if **no** object was found and policy shall **allow** in the case one exists
+            if (dsMapping.Action == DsMappingPolicyAction.ALLOW)
             {
                 result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);
             }
@@ -101,9 +101,9 @@ internal class DirectoryServiceValidator
             result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED, ex.Message);
         }
 
-        if (dsObject != null && dsMapping.Action == PolicyAction.DENY)
+        if (dsObject != null && dsMapping.Action == DsMappingPolicyAction.DENY)
         {
-            // Deny if an object was found but policy shall **deny** if existing
+            // Deny if an object **was** found and policy shall **deny** in the case one exists
             result.SetFailureStatus(WinError.CERTSRV_E_TEMPLATE_DENIED,
                 string.Format(LocalizedStrings.DirVal_Account_Exists, objectCategory, dsAttribute, identity));
         }
