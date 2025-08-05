@@ -21,7 +21,6 @@ using TameMyCerts.AdcsModules.PolicyModule.Models;
 using TameMyCerts.AdcsModules.Shared.X509;
 using TameMyCerts.AdcsModules.Shared.Enums;
 using TameMyCerts.AdcsModules.Shared.Models;
-using TameMyCerts.AdcsModules.Shared.X509;
 
 namespace TameMyCerts.AdcsModules.PolicyModule.Validators;
 

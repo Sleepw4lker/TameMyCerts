@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace TameMyCerts.Enums;
+namespace TameMyCerts.AdcsModules.PolicyModule.Enums;
 
 public enum DsMappingPolicyAction
 {
