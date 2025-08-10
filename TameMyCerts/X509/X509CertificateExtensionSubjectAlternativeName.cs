@@ -325,7 +325,16 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
 
     public bool ContainsAlternativeName(string type, string value)
     {
-        return AlternativeNames.Contains(new KeyValuePair<string, string>(type, value));
+        return AlternativeNames.Exists(kvp =>
+            kvp.Key.Equals(type, StringComparison.OrdinalIgnoreCase) &&
+            kvp.Value.Equals(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public void RemoveAllAlternativeNames(string type)
+    {
+        AlternativeNames.RemoveAll(kvp =>
+            kvp.Key.Equals(type, StringComparison.OrdinalIgnoreCase));
+        _modified = true;
     }
 
     public void RemoveAlternativeName(string type, string value)
@@ -335,7 +344,9 @@ public class X509CertificateExtensionSubjectAlternativeName : X509CertificateExt
             return;
         }
 
-        AlternativeNames.Remove(new KeyValuePair<string, string>(type, value));
+        AlternativeNames.RemoveAll(kvp =>
+            kvp.Key.Equals(type, StringComparison.OrdinalIgnoreCase) &&
+            kvp.Value.Equals(value, StringComparison.OrdinalIgnoreCase));
         _modified = true;
     }
 }

@@ -7,6 +7,7 @@
 _This version was not yet released._
 
 - Add new `Continue` action for Directory Services mapping that will cause the certificate request not getting denied when no object could be found.
+- Subject Alternative Names can be removed via an empty `Value` in a `OutboundSubjectRule` the same way as it was already possible for the Subject Distinguished Name.
 
 ### Version 1.7.1609.1089
 

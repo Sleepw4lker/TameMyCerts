@@ -68,3 +68,16 @@ The `commonName` from the Subject DN is transferred to the Subject Alternative N
   </OutboundSubjectRule>
 </OutboundSubjectAlternativeName>
 ```
+
+All Subject Alternative Names of the `dNSName` type will be removed from the issueed certificate, if present in the certificate request.
+
+```xml
+<OutboundSubjectAlternativeName>
+  <OutboundSubjectRule>
+    <Field>dNSName</Field>
+    <Value></Value>
+    <Mandatory>true</Mandatory>
+    <Force>true</Force>
+  </OutboundSubjectRule>
+</OutboundSubjectAlternativeName>
+```
