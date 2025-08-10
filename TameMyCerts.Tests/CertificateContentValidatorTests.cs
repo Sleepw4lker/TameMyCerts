@@ -407,7 +407,7 @@ public class CertificateContentValidatorTests
     }
 
     [Fact]
-    public void Does_transfer_RDN_to_RDN_and_clears_original_RDN()
+    public void Does_transfer_RDN_to_RDN_and_removes_original_RDN()
     {
         var policy = new CertificateRequestPolicy
         {
@@ -1317,7 +1317,7 @@ public class CertificateContentValidatorTests
     }
 
     [Fact]
-    public void Does_clear_existing_RDN()
+    public void Does_remove_existing_RDN()
     {
         var policy = new CertificateRequestPolicy
         {
@@ -1347,7 +1347,62 @@ public class CertificateContentValidatorTests
     }
 
     [Fact]
-    public void Does_clear_nonexisting_RDN()
+    public void Does_remove_existing_SAN()
+    {
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de
+        // dnsName=intranet.adcslabor.de
+        const string request =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIDkjCCAnoCAQAwIDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMIIB\n" +
+            "IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3GmfcSDSunQ6+vmz9mTHcEKg\n" +
+            "DMzDSXj0lQ7Erazl9CJ4WzROZaa1BUITfRlVXreku6ljYsO3jyTDBRBtCUXNwFk+\n" +
+            "MTmzTqXx82MRpK2ATDp2jEPfP7l7K30DwDyiapkpaAvZlxIVWtIDoGxAG+yRFjAF\n" +
+            "Qh4HDvSaBoaNvwdjZsUcdgOuJQbIwBhto/RB+4L23oT7+8e2GyRMm/bQK2gDvCbV\n" +
+            "9SwTwm9gXljth0wuZ8RRkC7MMVIiPaxUH575SUKE7YvHeZ4Hq20Q2XYBSigqNXBM\n" +
+            "VCUVCfsBGA18/MR/ZMFSSCIt2KLjkpp5q9gOCibw0oPrGTqUoLtCkLREbMrHbQID\n" +
+            "AQABoIIBKzAcBgorBgEEAYI3DQIDMQ4WDDEwLjAuMTkwNDQuMjA+BgkrBgEEAYI3\n" +
+            "FRQxMTAvAgEFDApvdHRpLW90dGVsDA5PVFRJLU9UVEVMXHV3ZQwOcG93ZXJzaGVs\n" +
+            "bC5leGUwYwYJKoZIhvcNAQkOMVYwVDAOBgNVHQ8BAf8EBAMCB4AwIwYDVR0RAQH/\n" +
+            "BBkwF4IVaW50cmFuZXQuYWRjc2xhYm9yLmRlMB0GA1UdDgQWBBRmh46ij+b3RODb\n" +
+            "JXIj5NFC58DFZzBmBgorBgEEAYI3DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8A\n" +
+            "ZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAA\n" +
+            "UAByAG8AdgBpAGQAZQByAwEAMA0GCSqGSIb3DQEBCwUAA4IBAQAmQ8B9fZ+ewB3+\n" +
+            "kDFsJcqeMJ+nbFBcHJKmKfhn9564tiBZayK8kpkTvS1Cjb5C79Yimimw2AqGqdFK\n" +
+            "W3+wWPCkFN996GoXFOU+lg3I5Byz3Eq4Vyv/H7RCufC68ezVG5v4EaqE4TsYcfoE\n" +
+            "zH8HJu0jKKf+QKj9LpXI+HYLwvQ0Fyz4lr839NMidsPF4AWMpEXs/2OSTjg5qDVj\n" +
+            "LKMPzd0wrOea0XWx2fEeibdW+KFi1656J+OIGuYP/q0SaPqYgFey+kOS2KLz+9/r\n" +
+            "CA+TvKzFxxgRPAfA0TO7GAuwspV2wLOfXVOxIpG5GkmpxeK0nZvyw9HvxWWNlkgw\n" +
+            "kbUQqV43\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var policy = new CertificateRequestPolicy
+        {
+            OutboundSubjectAlternativeName = new List<OutboundSubjectRule>
+            {
+                new()
+                {
+                    Field = SanTypes.DnsName,
+                    Value = string.Empty,
+                    Force = true
+                }
+            }
+        };
+
+        var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+        result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+        PrintResult(result);
+
+        Assert.False(result.DeniedForIssuance);
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
+        Assert.False(result.SubjectAlternativeNameExtension.AlternativeNames.Exists(x => x.Key.Equals(SanTypes.DnsName)));
+    }
+
+    [Fact]
+    public void Does_remove_nonexisting_RDN()
     {
         var policy = new CertificateRequestPolicy
         {
@@ -1373,6 +1428,34 @@ public class CertificateContentValidatorTests
         Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
         Assert.True(result.CertificateProperties.ContainsKey(RdnTypes.NameProperty[RdnTypes.State]) &&
                     result.CertificateProperties[RdnTypes.NameProperty[RdnTypes.State]].Equals(string.Empty));
+    }
+
+    [Fact]
+    public void Does_remove_nonexisting_SAN()
+    {
+        var policy = new CertificateRequestPolicy
+        {
+            OutboundSubjectAlternativeName = new List<OutboundSubjectRule>
+            {
+                new()
+                {
+                    Field = SanTypes.DnsName,
+                    Value = string.Empty,
+                    Force = true
+                }
+            }
+        };
+
+        var dbRow = new CertificateDatabaseRow(_defaultCsr, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+        result = _validator.VerifyRequest(result, policy, dbRow, null, _caConfig);
+
+        PrintResult(result);
+
+        Assert.False(result.DeniedForIssuance);
+        Assert.Equal(WinError.ERROR_SUCCESS, result.StatusCode);
+        Assert.False(result.SubjectAlternativeNameExtension.AlternativeNames.Exists(x => x.Key.Equals(SanTypes.DnsName)));
     }
 
     [Fact]

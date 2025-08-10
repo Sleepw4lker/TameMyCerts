@@ -156,7 +156,6 @@ Transfering the **first** `dNSName` of the Subject Alternative Name into the `co
 The content of the `stateOrProvinceName` field will be removed from the issueed certificate, if present in the certificate request.
 
 ```xml
-<DirectoryServicesMapping />
 <OutboundSubject>
   <OutboundSubjectRule>
     <Field>stateOrProvinceName</Field>
@@ -170,7 +169,6 @@ The content of the `stateOrProvinceName` field will be removed from the issueed 
 The content of the `stateOrProvinceName` field will be transferred from the certificate request into the `serialNumber` field of the issued certificate, and the `stateOrProvinceName` field will be removed from the issued certificate.
 
 ```xml
-<DirectoryServicesMapping />
 <OutboundSubject>
   <OutboundSubjectRule>
     <Field>stateOrProvinceName</Field>
