@@ -50,4 +50,18 @@ public class X509CertificateExtensionCrlDistributionPointTests(ITestOutputHelper
 
         Assert.Equal(expectedResult, Convert.ToBase64String(cdpExt.RawData));
     }
+
+    [Fact]
+    public void AddUniformResourceIdentifier_String_ThrowsOnNull()
+    {
+        var cdpExt = new X509CertificateExtensionCrlDistributionPoint();
+        Assert.Throws<ArgumentNullException>(() => cdpExt.AddUniformResourceIdentifier((string)null!));
+    }
+
+    [Fact]
+    public void AddUniformResourceIdentifier_Uri_ThrowsOnNull()
+    {
+        var cdpExt = new X509CertificateExtensionCrlDistributionPoint();
+        Assert.Throws<ArgumentNullException>(() => cdpExt.AddUniformResourceIdentifier((Uri)null!));
+    }
 }

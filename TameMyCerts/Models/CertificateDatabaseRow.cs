@@ -57,35 +57,35 @@ internal class CertificateDatabaseRow
         NotBefore = DateTimeOffset.Now;
         NotAfter = DateTimeOffset.Now.AddYears(1);
 
-        var certificateRequestPkcs10 = new CX509CertificateRequestPkcs10();
+        IX509CertificateRequestPkcs10 certificateRequestPkcs10 = new CX509CertificateRequestPkcs10();
 
-        if (certificateRequestPkcs10.TryInitializeFromInnerRequest(request, requestType))
+        try
         {
-            CertificateExtensions = certificateRequestPkcs10.GetRequestExtensions();
-            KeyAlgorithm = certificateRequestPkcs10.GetKeyAlgorithm();
-            KeyLength = certificateRequestPkcs10.PublicKey.Length;
-            DistinguishedName = certificateRequestPkcs10.GetSubjectDistinguishedName();
-            SubjectRelativeDistinguishedNames =
-                DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
-            SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
-            PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
-            RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
-            RequestType = CertCli.CR_IN_PKCS10;
-        }
-
-        Marshal.ReleaseComObject(certificateRequestPkcs10);
-
-        // This is to ensure string comparison against request attributes will be processed case-insensitive
-        RequestAttributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-
-        if (requestAttributes != null)
-        {
-            foreach (var keyValuePair in requestAttributes.Where(keyValuePair =>
-                         !RequestAttributes.ContainsKey(keyValuePair.Key)))
+            if (certificateRequestPkcs10.TryInitializeFromInnerRequest(request, requestType))
             {
-                RequestAttributes.Add(keyValuePair.Key, keyValuePair.Value);
+                CertificateExtensions = certificateRequestPkcs10.GetRequestExtensions();
+                KeyAlgorithm = certificateRequestPkcs10.GetKeyAlgorithm();
+                KeyLength = certificateRequestPkcs10.PublicKey.Length;
+                DistinguishedName = certificateRequestPkcs10.GetSubjectDistinguishedName();
+                SubjectRelativeDistinguishedNames =
+                    DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
+                SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
+                PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
+                RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
+                RequestType = CertCli.CR_IN_PKCS10;
             }
         }
+        finally
+        {
+            ReleaseComObject(ref certificateRequestPkcs10);
+        }
+
+        // We must ensure string comparison against request attributes will be processed case-insensitive
+        RequestAttributes = requestAttributes != null
+            ? new Dictionary<string, string>(
+                requestAttributes.Where(kvp => !string.IsNullOrEmpty(kvp.Key)),
+                StringComparer.InvariantCultureIgnoreCase)
+            : new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         RequestID = requestId;
     }
@@ -179,20 +179,22 @@ internal class CertificateDatabaseRow
     {
         get
         {
-            // Early binding would raise an E_NOINTERFACE exception on Windows 2012 R2 and earlier
-            var certificateRequestPkcs10 =
-                (IX509CertificateRequestPkcs10)Activator.CreateInstance(
-                    Type.GetTypeFromProgID("X509Enrollment.CX509CertificateRequestPkcs10"));
+            IX509CertificateRequestPkcs10 certificateRequestPkcs10 = new CX509CertificateRequestPkcs10();
 
             var attributeList = new Dictionary<string, string>();
 
-            if (certificateRequestPkcs10.TryInitializeFromInnerRequest(
-                    Convert.ToBase64String(RawRequest), RequestType))
+            try
             {
-                attributeList = certificateRequestPkcs10.GetInlineRequestAttributeList();
+                if (certificateRequestPkcs10.TryInitializeFromInnerRequest(
+                        Convert.ToBase64String(RawRequest), RequestType))
+                {
+                    attributeList = certificateRequestPkcs10.GetInlineRequestAttributeList();
+                }
             }
-
-            Marshal.ReleaseComObject(certificateRequestPkcs10);
+            finally
+            {
+                ReleaseComObject(ref certificateRequestPkcs10);
+            }
 
             return attributeList;
         }
@@ -202,9 +204,7 @@ internal class CertificateDatabaseRow
     ///     The Subject RDNs taken from the inline certificate request, which may become useful when requesting custom RDNs.
     /// </summary>
     public List<KeyValuePair<string, string>> InlineSubjectRelativeDistinguishedNames =>
-        DistinguishedName.Equals(string.Empty)
-            ? new List<KeyValuePair<string, string>>()
-            : GetDnComponents(DistinguishedName);
+        DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
 
     /// <summary>
     ///     A list of all identities contained in the certificate request (containing Subject and SAN). In case of an online
@@ -264,7 +264,7 @@ internal class CertificateDatabaseRow
         }
         catch
         {
-            throw new Exception(LocalizedStrings.ReqVal_Err_Parse_San);
+            throw new Exception("Unable to parse the Subject Alternative Name certificate request extension.");
         }
     }
 
@@ -281,9 +281,7 @@ internal class CertificateDatabaseRow
 
         var key = rdnType.ToUpperInvariant();
 
-        return RdnTypes.ShortToLongName.TryGetValue(key, out var value)
-            ? value
-            : rdnType;
+        return RdnTypes.ShortToLongName.GetValueOrDefault(key, rdnType);
     }
 
     // If the Subject RDN contains quotes or special characters, the IX509CertificateRequest interface escapes these with quotes
@@ -296,7 +294,7 @@ internal class CertificateDatabaseRow
         }
 
         // Not in quotes, nothing to do
-        if (rdn[0] != '"' && rdn[rdn.Length - 1] != '"')
+        if (rdn[0] != '"' && rdn[^1] != '"')
         {
             return rdn;
         }
@@ -436,5 +434,16 @@ internal class CertificateDatabaseRow
         }
 
         return resultList.ToArray();
+    }
+
+    private static void ReleaseComObject<T>(ref T comObj)
+    {
+        if (comObj is null)
+        {
+            return;
+        }
+
+        Marshal.ReleaseComObject(comObj);
+        comObj = default;
     }
 }
