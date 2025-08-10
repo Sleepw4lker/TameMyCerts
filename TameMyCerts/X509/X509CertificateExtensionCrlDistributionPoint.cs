@@ -24,6 +24,8 @@ public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExten
 
     public void AddUniformResourceIdentifier(string uri)
     {
+        ArgumentNullException.ThrowIfNull(uri);
+
         if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
         {
             AddUniformResourceIdentifier(uriObject);
@@ -32,7 +34,12 @@ public class X509CertificateExtensionCrlDistributionPoint : X509CertificateExten
 
     public void AddUniformResourceIdentifier(Uri uri)
     {
-        _uris.Add(uri);
+        ArgumentNullException.ThrowIfNull(uri);
+
+        if (!_uris.Contains(uri))
+        {
+            _uris.Add(uri);
+        }
     }
 
     public void InitializeEncode(bool encodeUris = false)

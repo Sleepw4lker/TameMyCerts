@@ -25,6 +25,8 @@ public class X509CertificateExtensionAuthorityInformationAccess : X509Certificat
 
     public void AddUniformResourceIdentifier(string uri, bool isOcsp = false)
     {
+        ArgumentNullException.ThrowIfNull(uri);
+
         if (Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
         {
             AddUniformResourceIdentifier(uriObject, isOcsp);
@@ -33,7 +35,12 @@ public class X509CertificateExtensionAuthorityInformationAccess : X509Certificat
 
     public void AddUniformResourceIdentifier(Uri uri, bool isOcsp = false)
     {
-        _uris.Add(new KeyValuePair<Uri, bool>(uri, isOcsp));
+        ArgumentNullException.ThrowIfNull(uri);
+
+        if (!_uris.Exists(kvp => kvp.Key == uri && kvp.Value == isOcsp))
+        {
+            _uris.Add(new KeyValuePair<Uri, bool>(uri, isOcsp));
+        }
     }
 
     public void InitializeEncode(bool encodeUris = false)

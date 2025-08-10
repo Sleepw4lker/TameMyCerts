@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
 namespace TameMyCerts.X509;
 
 public abstract class X509CertificateExtension
@@ -20,6 +22,8 @@ public abstract class X509CertificateExtension
 
     internal static string EncodeUri(string input)
     {
+        ArgumentNullException.ThrowIfNull(input);
+
         return input.StartsWith("http://") || input.StartsWith("https://") || input.StartsWith("ldap://")
             ? input.Replace(" ", "%20")
             : input;
