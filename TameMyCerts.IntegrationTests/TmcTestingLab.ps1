@@ -65,9 +65,9 @@ $PSDefaultParameterValues = @{
 
 # region Software dependencies
 
-$DotNet8Desktop = (Get-ChildItem -Path "$labSources\SoftwarePackages" -Filter "windowsdesktop-runtime-8.*-win-x64.exe" | Sort-Object -Property Name -Descending | Select-Object -First 1).FullName
+$DotNetRuntime = (Get-ChildItem -Path "$labSources\SoftwarePackages" -Filter "windowsdesktop-runtime-10.*-win-x64.exe" | Sort-Object -Property Name -Descending | Select-Object -First 1).FullName
 
-if ($null -eq $DotNet8Desktop) {
+if ($null -eq $DotNetRuntime) {
 
     Write-Error -Message "Required Software Packages not found. Aborting!" -ErrorAction Stop
 }
@@ -104,7 +104,7 @@ Invoke-LabCommand -ActivityName 'Configuring networking' -ComputerName $DomainCo
 
 #region Set up Lab Environment
 
-Install-LabSoftwarePackage -ComputerName $DomainController -Path $DotNet8Desktop -CommandLine "/install /passive /norestart"
+Install-LabSoftwarePackage -ComputerName $DomainController -Path $DotNetRuntime -CommandLine "/install /passive /norestart"
 
 Copy-LabFileItem -Path "$labsources\SoftwarePackages\TameMyCerts" -ComputerName $(Get-LabVM -All) -DestinationFolderPath "C:\INSTALL"
 
