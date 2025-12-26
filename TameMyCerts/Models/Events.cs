@@ -68,7 +68,7 @@ internal static class Events
     public static readonly Event REQUEST_DENIED_POLICY_NOT_FOUND = new()
     {
         Id = 8,
-        LogLevel = CertSrv.CERTLOG_VERBOSE,
+        LogLevel = CertSrv.CERTLOG_WARNING,
         Type = EventLogEntryType.Warning,
         MessageText = LocalizedStrings.Events_REQUEST_DENIED_POLICY_NOT_FOUND
     };
