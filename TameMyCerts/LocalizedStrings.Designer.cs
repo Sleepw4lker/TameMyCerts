@@ -430,7 +430,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} was rejected as the Yubikey Attestation failed for the embedded attestation..
+        ///   Looks up a localized string similar to The request {0} was rejected as the YubiKey Attestation failed for the embedded attestation..
         /// </summary>
         internal static string event_YKVal_4202_Denied_by_Policy {
             get {
@@ -439,7 +439,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator..
+        ///   Looks up a localized string similar to The request {0} was denied due to not meeting any Grant policy in the YubiKey Validator..
         /// </summary>
         internal static string event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny {
             get {
@@ -460,7 +460,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} contained an embedded Yubikey Attestation, but it failed to be extracted..
+        ///   Looks up a localized string similar to The request {0} contained an embedded YubiKey Attestation, but it failed to be extracted..
         /// </summary>
         internal static string event_YKVal_4205_Failed_to_extract_Yubikey_Attestation {
             get {
@@ -469,7 +469,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0} failed to match the Yubikey Policy: 
+        ///   Looks up a localized string similar to The request {0} failed to match the YubiKey Policy: 
         ///{1}.
         /// </summary>
         internal static string event_YKVal_4206_Debug_failed_to_match_policy {
@@ -488,7 +488,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The request {0}, Yubikey attestation failed to build trust chain to Yubikey CA..
+        ///   Looks up a localized string similar to The request {0}, YubiKey attestation failed to build trust chain to YubiKey CA..
         /// </summary>
         internal static string event_YKVal_4208_Yubikey_Attestation_Failed_to_build {
             get {
@@ -710,6 +710,24 @@ namespace TameMyCerts {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The {0} field has been defined more than once in the policy..
+        /// </summary>
+        internal static string ReqVal_Duplicate_Field_specified {
+            get {
+                return ResourceManager.GetString("ReqVal_Duplicate_Field_specified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} Field with value {1} appears more than once in the request..
+        /// </summary>
+        internal static string ReqVal_Duplicate_RDN {
+            get {
+                return ResourceManager.GetString("ReqVal_Duplicate_RDN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to parse the configured expiration date specified in certificate request policy..
         /// </summary>
         internal static string ReqVal_Err_NotAfter_Invalid {
@@ -908,7 +926,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the &quot;YKROOT&quot; and &quot;YKCA&quot; certificate stores are properly populated..
+        ///   Looks up a localized string similar to Failed to build the YubiKey attestation certificate chain up to a trusted YubiKey PIV attestation Root certificate authority. Ensure that the &quot;YKROOT&quot; and &quot;YKCA&quot; certificate stores are properly populated..
         /// </summary>
         internal static string YKObject_Failed_to_build {
             get {
@@ -917,7 +935,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request does not contain any valid Yubikey PIV attestation data..
+        ///   Looks up a localized string similar to The certificate request does not contain any valid YubiKey PIV attestation data..
         /// </summary>
         internal static string YKVal_No_Attestation_Found {
             get {
@@ -926,7 +944,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to find a matching Yubikey policy. The certificate request will get denied for Yubikey with Serial Number {0}..
+        ///   Looks up a localized string similar to Failed to find a matching YubiKey policy. The certificate request will get denied for YubiKey with Serial Number {0}..
         /// </summary>
         internal static string YKVal_No_Matching_Policy_Found {
             get {
@@ -935,7 +953,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The certificate request for Yubikey with Serial Number {0} matched a deny Yubikey policy:
+        ///   Looks up a localized string similar to The certificate request for YubiKey with Serial Number {0} matched a deny YubiKey policy:
         ///{1}.
         /// </summary>
         internal static string YKVal_Policy_Matches_with_Reject {
@@ -945,7 +963,7 @@ namespace TameMyCerts {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to read the embedded Yubikey PIV attestation certificates: {0}.
+        ///   Looks up a localized string similar to Unable to read the embedded YubiKey PIV attestation certificates: {0}.
         /// </summary>
         internal static string YKVal_Unable_to_read_embedded_certificates {
             get {
