@@ -29,10 +29,6 @@
   <DirectoryServicesMapping>
     <!-- Search a specific Domain or Domain part. If omitted, the Global Catalog is used. -->
     <SearchRoot>OU=ADCS Labor Users,DC=intra,DC=adcslabor,DC=de</SearchRoot>
-    <!--
-      Note that filtering on the primary group (should be "Domain Users" in most cases) is not possible.
-      Also note that only explicit group memberships are supported. 
-    -->
     <AllowedSecurityGroups>
       <string>CN=Regular User Accounts,OU=ADCS Labor Groups,DC=intra,DC=adcslabor,DC=de</string>
     </AllowedSecurityGroups>

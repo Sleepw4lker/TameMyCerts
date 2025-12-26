@@ -38,7 +38,7 @@ A `SubjectRule` can/must contain the following nodes:
 
 To define a policy for one or more subject Relative Distinguished Name (RDN) types, adjust the "field" to one of the following (as defined in ITU-T X.520 (<https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520>) and IETF RFC 4519 (<https://datatracker.ietf.org/doc/html/rfc4519#section-2>)).
 
-> Each RDN type can only be defined once in a policy definition file! Though you may specify that a certificate request contains more than one RDN of the same type, you would have to specify the criteria for all of them in the same rule. It is advised to allow each RDN type only once in a certificate request.
+> Each RDN type can only be defined once in a policy definition file! Though you may specify that a certificate request contains more than one RDN of the same type, you would have to specify the criteria for all of them in the same rule.
 
 The following RDN types are enabled/allowed by default on AD CS and are therefore useable with TameMyCerts:
 
@@ -64,7 +64,7 @@ The following RDNs can additionally be defined in a policy configuration but mus
 
 > Please be aware that the _SubjectTemplate_ registry value of the CA uses a different syntax for field type names than AD CS does.
 
-> Under certain circumstances, it is also possible to [modify the Subject Distinguished Name (DN)](#modify-subject-dn) using values from a [mapped Active Directory object](#ds-mapping) or from [static values](#modify-subject-dn-static).
+> It is also possible to [modify the Subject Distinguished Name (DN)](#modify-subject-dn) using [static values](#modify-subject-dn-static), values from a [mapped Active Directory object](#ds-mapping), and from [YubiKey PIV attestation](#yubikey-piv-attestation).
 
 ### Examples
 

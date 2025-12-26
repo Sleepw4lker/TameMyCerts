@@ -4,6 +4,12 @@
 
 If you signed up for a maintenance contract, you get a ZIP file containing the module binary as well as an installer script and some example configuration files to get you started.
 
+You will probably have to unblock the files before you can call the installer script. This can be achieved with the following command, executed on the path where the files have been unzipped.
+
+```powershell
+Get-ChildItem -Path * -Recurse | Unblock-File
+```
+
 To install the module, first create a directory on the certification authority where you intend to store the [policy configuration](#configuring) files.
 
 ![Policy directory for TameMyCerts](resources/policydirectory.png)
