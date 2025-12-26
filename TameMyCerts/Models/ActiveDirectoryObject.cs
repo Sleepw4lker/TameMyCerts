@@ -30,7 +30,8 @@ internal class ActiveDirectoryObject
     private static readonly TimeSpan LdapClientTimeout = new(0, 0, 15);
 
     public ActiveDirectoryObject(string forestRootDomain, string dsAttribute, string identity,
-        string objectCategory, string searchRoot, bool resolveNestedGroupMemberships = false)
+        string objectCategory, string searchRoot, List<string> customAttributes,
+        bool resolveNestedGroupMemberships = false)
     {
         if (!DsMappingAttributes.Any(s => s.Equals(dsAttribute, Comparison)))
         {
@@ -58,6 +59,7 @@ internal class ActiveDirectoryObject
         };
 
         attributesToRetrieve.AddRange(DsRetrievalAttributes);
+        attributesToRetrieve.AddRange(customAttributes);
 
         var dsObject = GetDirectoryEntry($"LDAP://{searchRoot}", dsAttribute, identity, objectCategory,
             attributesToRetrieve);
@@ -104,16 +106,32 @@ internal class ActiveDirectoryObject
             ServicePrincipalNames.Add(dsObject.Properties["servicePrincipalName"][index].ToString());
         }
 
-        foreach (var s in DsRetrievalAttributes.Where(s => dsObject.Properties[s].Count > 0))
+        foreach (var s in DsRetrievalAttributes.Concat(customAttributes))
         {
-            if (dsObject.Properties[s][0] is long)
+            if (!dsObject.Properties.Contains(s))
             {
-                Attributes.Add(s, dsObject.Properties[s][0].ToString());
+                continue;
             }
-            else
+
+            var values = dsObject.Properties[s];
+
+            // Filter out empty and multivalued attributes
+            if (values.Count != 1)
             {
-                Attributes.Add(s, (string)dsObject.Properties[s][0]);
+                continue;
             }
+
+            var value = values[0];
+
+            if (value is byte[] ||
+                value is Array ||
+                value is DBNull ||
+                value.GetType().FullName == "System.__ComObject")
+            {
+                continue;
+            }
+
+            Attributes.Add(s, value?.ToString());
         }
     }
 
@@ -158,8 +176,7 @@ internal class ActiveDirectoryObject
         "homePostalAddress", "info", "initials", "l", "location", "mail", "mailNickname", "middleName", "mobile",
         "name", "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalPager",
         "personalTitle", "postalAddress", "postalCode", "postOfficeBox", "pwdLastSet", "sAMAccountName", "sn", "st",
-        "street",
-        "streetAddress", "telephoneNumber", "title", "userPrincipalName"
+        "street", "streetAddress", "telephoneNumber", "title", "userPrincipalName"
     };
 
     private static SearchResult GetDirectoryEntry(string searchRoot, string dsAttribute, string identity,
@@ -193,20 +210,22 @@ internal class ActiveDirectoryObject
         }
 
         // Calling Dispose is required to prevent SearchResultCollection leaking memory
-        switch (searchResults.Count)
+        using (searchResults)
         {
-            case < 1:
-                searchResults.Dispose();
-                throw new ActiveDirectoryObjectNotFoundException(string.Format(LocalizedStrings.DirVal_Nothing_Found,
-                    objectCategory, dsAttribute, identity, searchRoot));
-            case > 1:
-                searchResults.Dispose();
-                throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count, objectCategory,
-                    dsAttribute, identity));
-            default:
-                var result = searchResults[0];
-                searchResults.Dispose();
-                return result;
+            switch (searchResults.Count)
+            {
+                case < 1:
+                    throw new ActiveDirectoryObjectNotFoundException(string.Format(
+                        LocalizedStrings.DirVal_Nothing_Found,
+                        objectCategory, dsAttribute, identity, searchRoot));
+                case > 1:
+                    throw new ArgumentException(string.Format(LocalizedStrings.DirVal_Invalid_Result_Count,
+                        objectCategory,
+                        dsAttribute, identity));
+                default:
+                    var result = searchResults[0];
+                    return result;
+            }
         }
     }
 

@@ -198,7 +198,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     }
     
     Set-ADUser -Identity TestUser1 -Add @{c = "DE"}
-    
+    Set-ADUser -Identity TestUser1 -Add @{ ipPhone = "Lab Test Value" }
+
     #endregion
 
     #region configure CA
@@ -223,8 +224,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     New-Item -Name YKROOT
     New-Item -Name YKCA
 
-    Get-ChildItem -Path C:\INSTALL\YKROOT\*.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
-    Get-ChildItem -Path C:\INSTALL\YKCA\*.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
+    Get-ChildItem -Path C:\INSTALL\TameMyCerts\YKROOT\*.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
+    Get-ChildItem -Path C:\INSTALL\TameMyCerts\YKCA\*.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
 
     #endregion
     
