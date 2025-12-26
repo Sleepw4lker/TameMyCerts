@@ -6,6 +6,7 @@
 
 _This version was not yet released._
 
+- The code base has been upgraded from .NET 8.0 to .NET 10.0. 
 - Add new `Continue` action for Directory Services mapping that will cause the certificate request not getting denied when no object could be found.
 - Add the possibility to specify custom Active Directory attributes inside `DirectoryServicesMapping` with the new `CustomAttributes` directive. The attributes can then be used for Subject and Subject Alternative Name modifications.
 - Subject Alternative Names can be removed via an empty `Value` in a `OutboundSubjectRule` the same way as it was already possible for the Subject Distinguished Name.

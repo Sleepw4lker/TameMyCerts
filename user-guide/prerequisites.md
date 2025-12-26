@@ -26,4 +26,4 @@ Other Microsoft Windows Server operating systems may work but are not supported.
 
 ## Software prerequisites
 
-TameMyCerts requires the .NET Desktop Runtime 8.0 (<https://dotnet.microsoft.com/en-us/download/dotnet/8.0>).
+TameMyCerts requires the .NET Desktop Runtime 10.0 (<https://dotnet.microsoft.com/en-us/download/dotnet/10.0>).

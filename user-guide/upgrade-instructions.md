@@ -1,8 +1,12 @@
 ## Upgrade instructions
 
+### Upgrading TameMyCerts to version 1.8
+
+Beginning with Version 1.8, TameMyCerts uses .NET 10.0 instead of the previously used .NET 8.0. Therefore, you must [install](#prerequisites) the .NET 10.0 Desktop runtime prior to installing the module.
+
 ### Upgrading TameMyCerts to version 1.7
 
-Beginning with Version 1.7, TameMyCerts uses .NET 8.0 instead of the previously used .NET Framewotk 4.7.2. Therefore, you must [install](#prerequisites) the .NET 8.0 Desktop runtime prior to installing the module.
+Beginning with Version 1.7, TameMyCerts uses .NET 8.0 instead of the previously used .NET Framework 4.7.2. Therefore, you must [install](#prerequisites) the .NET 8.0 Desktop runtime prior to installing the module.
 
 Policy configuration files are now strictly processed, means that there will be errors raised when they contain invalid nodes. This may especially affect the following:
 
