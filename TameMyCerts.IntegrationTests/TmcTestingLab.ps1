@@ -223,10 +223,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     New-Item -Name YKROOT
     New-Item -Name YKCA
 
-    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Root_1.cer"
-    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Root_CA_Serial_263751.cer"
-    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Attestation_B_1.cer"
-    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Intermediate_B_1.cer"
+    Get-ChildItem -Path C:\INSTALL\YKROOT\*.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
+    Get-ChildItem -Path C:\INSTALL\YKCA\*.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
 
     #endregion
     
