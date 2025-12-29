@@ -14,6 +14,8 @@ To install the module, first create a directory on the certification authority w
 
 ![Policy directory for TameMyCerts](resources/policydirectory.png)
 
+If you have a previous version of TameMyCerts installed, uninstall it first **with the installer that came with the old version**. Refer to [Uninstalling TameMyCerts](#uninstalling) for more detailed instructions.
+
 Then run `install.ps1` as local Administrator. The script will register the module, create the required registry values and configure the policy module as the active one for the certification authority.
 
 > The installation script restarts the certification authority service during installation and uninstallation.
