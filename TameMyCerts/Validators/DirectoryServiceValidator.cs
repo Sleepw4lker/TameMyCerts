@@ -82,7 +82,7 @@ internal class DirectoryServiceValidator
         try
         {
             dsObject = new ActiveDirectoryObject(_forestRootDomain, dsAttribute, identity,
-                objectCategory, dsMapping.SearchRoot,
+                objectCategory, dsMapping.SearchRoot, dsMapping.CustomAttributes,
                 !caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DONT_RESOLVE_NESTED_GROUP_MEMBERSHIPS));
         }
         catch (ActiveDirectoryObjectNotFoundException ex)

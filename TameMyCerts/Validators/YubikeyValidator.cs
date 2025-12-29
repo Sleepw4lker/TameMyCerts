@@ -163,9 +163,11 @@ internal class YubikeyValidator
 
                 try
                 {
+
+
                     yubikey = new YubikeyObject(_rootCaCertificates, _intermediateCaCertificates,
-                        new X509Certificate2(attestationCertBytes),
-                        new X509Certificate2(intermediateCertBytes),
+                        X509CertificateLoader.LoadCertificate(attestationCertBytes),
+                        X509CertificateLoader.LoadCertificate(intermediateCertBytes),
                         dbRow.KeyAlgorithm, dbRow.PublicKey, dbRow.KeyLength, dbRow.RequestID);
                 }
                 catch (Exception ex)

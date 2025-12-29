@@ -36,6 +36,25 @@ internal class CertificateRequestValidator
             return result;
         }
 
+        #region Process sanity checks for configuration
+
+        policy.Subject.GroupBy(x => x.Field).Where(y => y.Count() > 1).ToList().ForEach(x =>
+            result.SetFailureStatus(WinError.NTE_FAIL,
+                string.Format(LocalizedStrings.ReqVal_Duplicate_Field_specified, x.Key))
+        );
+
+        policy.SubjectAlternativeName.GroupBy(x => x.Field).Where(y => y.Count() > 1).ToList().ForEach(x =>
+            result.SetFailureStatus(WinError.NTE_FAIL,
+                string.Format(LocalizedStrings.ReqVal_Duplicate_Field_specified, x.Key))
+        );
+
+        if (result.DeniedForIssuance)
+        {
+            return result;
+        }
+
+        #endregion
+
         #region Process rules for cryptographic providers
 
         if (policy.AllowedCryptoProviders.Count > 0 ||
@@ -152,6 +171,20 @@ internal class CertificateRequestValidator
             {
                 result.SetFailureStatus(WinError.CERT_E_INVALID_NAME, subjectVerificationDescription);
             }
+
+            rdnList
+                .GroupBy(kv => kv.Key)
+                .SelectMany(g => g
+                    .GroupBy(kv => kv.Value)
+                    .Where(vg => vg.Count() > 1)
+                    .Select(vg => new
+                    {
+                        g.Key,
+                        Value = vg.Key
+                    })
+                )
+                .ToList().ForEach(x => result.SetFailureStatus(WinError.CERT_E_INVALID_NAME,
+                    string.Format(LocalizedStrings.ReqVal_Duplicate_RDN, x.Key, x.Value)));
 
             #endregion
 

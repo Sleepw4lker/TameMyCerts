@@ -222,27 +222,4 @@
         </Pattern>
       </Patterns>
     </SubjectRule>
-    <SubjectRule>
-      <Field>userPrincipalName</Field>
-      <Mandatory>false</Mandatory>
-      <MaxOccurrences>1</MaxOccurrences>
-      <MaxLength>64</MaxLength>
-      <Patterns>
-        <Pattern>
-          <Expression>^[\-_a-zA-Z0-9\.]*\@intra\.tamemycerts\.com$</Expression>
-        </Pattern>
-      </Patterns>
-    </SubjectRule>
-    <SubjectRule>
-      <Field>rfc822Name</Field>
-      <Mandatory>false</Mandatory>
-      <MaxOccurrences>1</MaxOccurrences>
-      <MaxLength>128</MaxLength>
-      <Patterns>
-        <Pattern>
-          <Expression>^[\-_a-zA-Z0-9\.]*\@tamemycerts\.com$</Expression>
-        </Pattern>
-      </Patterns>
-    </SubjectRule>
-  </SubjectAlternativeName>
 </CertificateRequestPolicy>

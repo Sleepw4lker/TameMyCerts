@@ -18,7 +18,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.x'
 
     - name: Install dependencies
       run: dotnet restore
@@ -38,4 +38,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-TameMyCerts
-        path: TameMyCerts\bin\debug\net8.0-windows\
+        path: TameMyCerts\bin\debug\net10.0-windows\

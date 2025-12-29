@@ -40,6 +40,10 @@ public class DirectoryServicesMapping
     [XmlArray(ElementName = "DirectoryObjectRules")]
     public List<DirectoryObjectRule> DirectoryObjectRules { get; set; } = new();
 
+    [XmlArray(ElementName = "CustomAttributes")]
+    [XmlArrayItem(ElementName = "string")]
+    public List<string> CustomAttributes { get; set; } = new();
+
     [XmlArray(ElementName = "AllowedSecurityGroups")]
     [XmlArrayItem(ElementName = "string")]
     public List<string> AllowedSecurityGroups { get; set; } = new();

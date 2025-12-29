@@ -4,9 +4,17 @@
 
 If you signed up for a maintenance contract, you get a ZIP file containing the module binary as well as an installer script and some example configuration files to get you started.
 
+You will probably have to unblock the files before you can call the installer script. This can be achieved with the following command, executed on the path where the files have been unzipped.
+
+```powershell
+Get-ChildItem -Path * -Recurse | Unblock-File
+```
+
 To install the module, first create a directory on the certification authority where you intend to store the [policy configuration](#configuring) files.
 
 ![Policy directory for TameMyCerts](resources/policydirectory.png)
+
+If you have a previous version of TameMyCerts installed, uninstall it first **with the installer that came with the old version**. Refer to [Uninstalling TameMyCerts](#uninstalling) for more detailed instructions.
 
 Then run `install.ps1` as local Administrator. The script will register the module, create the required registry values and configure the policy module as the active one for the certification authority.
 

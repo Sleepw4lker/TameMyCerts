@@ -64,9 +64,9 @@ New-Variable -Option Constant -Name FileList -Value @(
     "TameMyCerts.Events.dll",
     "TameMyCerts.Events.man",
     "TameMyCerts.runtimeconfig.json",
-    "runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll",
-    "runtimes\win\lib\net8.0\System.Diagnostics.EventLog.Messages.dll",
-    "runtimes\win\lib\net8.0\System.DirectoryServices.dll"
+    "runtimes\win\lib\net10.0\System.Diagnostics.EventLog.dll",
+    "runtimes\win\lib\net10.0\System.Diagnostics.EventLog.Messages.dll",
+    "runtimes\win\lib\net10.0\System.DirectoryServices.dll"
 )
 
 # Ensuring the Script will be run with Elevation
@@ -93,8 +93,8 @@ $FileList | ForEach-Object -Process {
 }
 
 # Ensuring that software prerequisites are met
-if ((Get-Command -Name dotnet -ErrorAction SilentlyContinue).Version.Major -ne 8) {
-    Write-Error -Message ".NET 8 Runtime is not installed! Aborting." -ErrorAction Stop
+if ((Get-Command -Name dotnet -ErrorAction SilentlyContinue).Version.Major -ne 10) {
+    Write-Error -Message ".NET 10 Runtime is not installed! Aborting." -ErrorAction Stop
 }
 
 $CaName = (Get-ItemProperty -Path $CaRegistryRoot -Name Active).Active
@@ -251,7 +251,7 @@ if (-not $Uninstall.IsPresent) {
 
     Write-Verbose -Message "Creating Application directory $AppInstallDirectory"
     New-Item -Path $AppInstallDirectory -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
-    New-Item -Path "$AppInstallDirectory\\runtimes\win\lib\net8.0" -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
+    New-Item -Path "$AppInstallDirectory\\runtimes\win\lib\net10.0" -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
     
     # Only copy the files if .\install.ps1 is run from another folder than the AppInstallDirectory
     if ($BaseDirectory -ne $AppInstallDirectory)
