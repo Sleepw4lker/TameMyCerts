@@ -36,7 +36,7 @@
   </Target>
 
   <Target Name="BuildDll" AfterTargets="Build" DependsOnTargets="MessageCompiler">
-    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.Events.res" WorkingDirectory="$(TargetDir)" />
+    <Exec Command="&quot;$(MSBuildSDKsPath)\..\Current\Bin\Roslyn\csc.exe&quot; /out:$(TargetDir)TameMyCerts.Events.dll /target:library /win32res:$(TargetDir)TameMyCerts.Events.res /nowarn:2008" WorkingDirectory="$(TargetDir)" />
   </Target>
 
   <Target Name="CopyOutputFiles" AfterTargets="Build">
