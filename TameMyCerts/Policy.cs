@@ -147,6 +147,13 @@ public class Policy : ICertPolicy2
                 return WinError.NTE_FAIL;
             }
 
+            // If Policy Directory does not exist and Flag TMC_DENY_IF_NO_POLICY_DIR is true, then raise error
+            if (!_policyCache.PolicyDirectoryExists && _caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY_DIR))
+            {
+                _logger.Log(Events.REQUEST_DENIED_NO_POLICY_DIR, template.Name, requestId);
+                return WinError.NTE_FAIL;
+            }
+
             _logger.Log(Events.POLICY_NOT_FOUND, template.Name, requestId);
         }
         else
