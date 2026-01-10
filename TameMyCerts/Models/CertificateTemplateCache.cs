@@ -14,83 +14,124 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Win32;
 using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
 
-internal class CertificateTemplateCache
+internal sealed class CertificateTemplateCache
 {
-    private static readonly Regex IsLegacyTemplate = new(@"^[a-zA-z]*$");
-    private readonly object _lockObject = new();
+    private readonly Lock _lock = new();
     private readonly int _refreshInterval;
 
-    // TODO: Can't this be a dictionary?
-    private List<CertificateTemplate> _certificateTemplateList;
-    private DateTime _lastRefreshTime = new(1970, 1, 1);
+    private volatile IReadOnlyDictionary<string, CertificateTemplate> _cache =
+        new Dictionary<string, CertificateTemplate>();
+
+    private long _nextRefreshTicks = long.MinValue;
 
     public CertificateTemplateCache(int refreshInterval = 5)
     {
         _refreshInterval = refreshInterval;
     }
 
-    private void UpdateCache()
+    private void RefreshCache()
     {
-        var machineBaseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-        var templateBaseKey =
-            machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
-
-        if (templateBaseKey == null)
+        lock (_lock)
         {
-            return;
+            if (IsCacheStillValid())
+            {
+                return;
+            }
+
+            using var machineBaseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            using var templateBaseKey =
+                machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
+
+            if (templateBaseKey == null || templateBaseKey.SubKeyCount == 0)
+            {
+                // There might be rare cases where the key is deleted and rebuilt by the AutoEnrollment process at the 
+                // very time we try to refresh the cache. In this case, we skip one interval and retry next time.
+                SetNextRefreshTime();
+                return;
+            }
+
+            var newCache = new Dictionary<string, CertificateTemplate>(StringComparer.Ordinal);
+
+            foreach (var templateName in templateBaseKey.GetSubKeyNames())
+            {
+                using var templateSubKey = templateBaseKey.OpenSubKey(templateName);
+
+                if (templateSubKey == null)
+                {
+                    continue;
+                }
+
+                var flags = (GeneralFlag)Convert.ToInt32(templateSubKey.GetValue("Flags"));
+
+                var certificateNameFlags =
+                    (SubjectNameFlag)Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"));
+
+                var raApplicationPolicies =
+                    templateSubKey.GetValue("msPKI-RA-Application-Policies") as string[] ?? [];
+
+                var templateOid =
+                    (templateSubKey.GetValue("msPKI-Cert-Template-OID") as string[] ?? [])[0];
+
+                var schemaVersion = (int)templateSubKey.GetValue("msPKI-Template-Schema-Version", 1);
+
+                var identifier = schemaVersion > 1 ? templateOid : templateName;
+
+                var certificateTemplate = new CertificateTemplate(
+                    templateName,
+                    certificateNameFlags.HasFlag(SubjectNameFlag.CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT),
+                    raApplicationPolicies.Length > 0 ? GetKeyAlgorithm(raApplicationPolicies[0]) : KeyAlgorithmType.RSA,
+                    !flags.HasFlag(GeneralFlag.CT_FLAG_MACHINE_TYPE),
+                    templateOid);
+
+                newCache[identifier] = certificateTemplate;
+            }
+
+            _cache = newCache;
+
+            SetNextRefreshTime();
         }
-
-        var templateNames = templateBaseKey.GetSubKeyNames();
-
-        var newObjects = (from templateName in templateNames
-            let templateSubKey = templateBaseKey.OpenSubKey(templateName)
-            where templateSubKey != null
-            let flags = Convert.ToInt32(templateSubKey.GetValue("Flags"))
-            let certificateNameFlags = Convert.ToInt32(templateSubKey.GetValue("msPKI-Certificate-Name-Flag"))
-            let raApplicationPolicies = (string[])templateSubKey.GetValue("msPKI-RA-Application-Policies")
-            select new CertificateTemplate
-            (
-                templateName, ((SubjectNameFlag)certificateNameFlags).HasFlag(SubjectNameFlag
-                    .CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT), raApplicationPolicies.Length > 0
-                    ? GetKeyAlgorithm(raApplicationPolicies[0])
-                    : KeyAlgorithmType.RSA, !((GeneralFlag)flags).HasFlag(GeneralFlag.CT_FLAG_MACHINE_TYPE),
-                ((string[])templateSubKey.GetValue("msPKI-Cert-Template-OID"))[0])).ToList();
-
-        _lastRefreshTime = DateTime.Now;
-        _certificateTemplateList = newObjects;
     }
 
     public CertificateTemplate GetCertificateTemplate(string identifier)
     {
-        lock (_lockObject)
+        if (!IsCacheStillValid())
         {
-            if (_lastRefreshTime.AddMinutes(_refreshInterval) < DateTime.Now)
-            {
-                UpdateCache();
-            }
+            RefreshCache();
         }
 
-        // V1 templates are identified by their object name (containing only letters)
-        // V2 and newer templates are identified by an OID (numbers separated by dots)
-        return IsLegacyTemplate.IsMatch(identifier)
-            ? _certificateTemplateList.FirstOrDefault(template => template.Name == identifier)
-            : _certificateTemplateList.FirstOrDefault(template => template.Oid == identifier);
+        var snapshot = _cache;
+
+        return snapshot.GetValueOrDefault(identifier);
+    }
+
+    private void SetNextRefreshTime()
+    {
+        var next = DateTimeOffset.UtcNow.AddMinutes(_refreshInterval).AddSeconds(Random.Shared.Next(0, 60)).UtcTicks;
+
+        Volatile.Write(ref _nextRefreshTicks, next);
+    }
+
+    private bool IsCacheStillValid()
+    {
+        var now = DateTimeOffset.UtcNow.UtcTicks;
+
+        // Volatile read is intentional: lock-free fast path for cache validity
+        return Volatile.Read(ref _nextRefreshTicks) >= now;
     }
 
     private static KeyAlgorithmType GetKeyAlgorithm(string keyAlgorithmString)
     {
-        foreach (var algorithmName in Enum.GetNames(typeof(KeyAlgorithmType)))
+        foreach (var algorithmName in Enum.GetNames<KeyAlgorithmType>())
         {
             if (keyAlgorithmString.Contains($"msPKI-Asymmetric-Algorithm`PZPWSTR`{algorithmName}`"))
             {
-                return (KeyAlgorithmType)Enum.Parse(typeof(KeyAlgorithmType), algorithmName);
+                return Enum.Parse<KeyAlgorithmType>(algorithmName);
             }
         }
 
