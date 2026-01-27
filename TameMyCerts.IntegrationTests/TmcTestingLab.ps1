@@ -65,9 +65,9 @@ $PSDefaultParameterValues = @{
 
 # region Software dependencies
 
-$DotNet8Desktop = (Get-ChildItem -Path "$labSources\SoftwarePackages" -Filter "windowsdesktop-runtime-8.*-win-x64.exe" | Sort-Object -Property Name -Descending | Select-Object -First 1).FullName
+$DotNetRuntime = (Get-ChildItem -Path "$labSources\SoftwarePackages" -Filter "windowsdesktop-runtime-10.*-win-x64.exe" | Sort-Object -Property Name -Descending | Select-Object -First 1).FullName
 
-if ($null -eq $DotNet8Desktop) {
+if ($null -eq $DotNetRuntime) {
 
     Write-Error -Message "Required Software Packages not found. Aborting!" -ErrorAction Stop
 }
@@ -104,7 +104,7 @@ Invoke-LabCommand -ActivityName 'Configuring networking' -ComputerName $DomainCo
 
 #region Set up Lab Environment
 
-Install-LabSoftwarePackage -ComputerName $DomainController -Path $DotNet8Desktop -CommandLine "/install /passive /norestart"
+Install-LabSoftwarePackage -ComputerName $DomainController -Path $DotNetRuntime -CommandLine "/install /passive /norestart"
 
 Copy-LabFileItem -Path "$labsources\SoftwarePackages\TameMyCerts" -ComputerName $(Get-LabVM -All) -DestinationFolderPath "C:\INSTALL"
 
@@ -198,7 +198,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     }
     
     Set-ADUser -Identity TestUser1 -Add @{c = "DE"}
-    
+    Set-ADUser -Identity TestUser1 -Add @{ ipPhone = "Lab Test Value" }
+
     #endregion
 
     #region configure CA
@@ -223,10 +224,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
     New-Item -Name YKROOT
     New-Item -Name YKCA
 
-    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Root_1.cer"
-    certutil -addstore YKROOT "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Root_CA_Serial_263751.cer"
-    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_PIV_Attestation_B_1.cer"
-    certutil -addstore YKCA "C:\INSTALL\TameMyCerts\Resources\Yubico_Attestation_Intermediate_B_1.cer"
+    Get-ChildItem -Path C:\INSTALL\TameMyCerts\YKROOT\*.cer | ForEach-Object -Process { certutil -addstore YKROOT $_.FullName }
+    Get-ChildItem -Path C:\INSTALL\TameMyCerts\YKCA\*.cer | ForEach-Object -Process { certutil -addstore YKCA $_.FullName }
 
     #endregion
     

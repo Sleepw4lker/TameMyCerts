@@ -30,14 +30,16 @@ internal class YubikeyValidator
     private const string RootCaStoreName = "YKROOT";
     private const string IntermediateCaStoreName = "YKCA";
 
-    private readonly List<string> _attestationInformationOids =
+    private static readonly List<string> AttestationInformationOids =
     [
         YubikeyX509Extension.FIRMWARE, YubikeyX509Extension.SERIALNUMBER, YubikeyX509Extension.PIN_TOUCH_POLICY,
         YubikeyX509Extension.FORMFACTOR, YubikeyX509Extension.FIPS_CERTIFIED, YubikeyX509Extension.CPSN_CERTIFIED
     ];
 
-    private readonly List<string> _attestationLocationOids =
-        [YubikeyX509Extension.ATTESTATION_DEVICE, YubikeyX509Extension.ATTESTATION_DEVICE_PIVTOOL];
+    private static readonly List<string> AttestationLocationOids =
+    [
+        YubikeyX509Extension.ATTESTATION_DEVICE, YubikeyX509Extension.ATTESTATION_DEVICE_PIVTOOL
+    ];
 
     private readonly X509Certificate2Collection _intermediateCaCertificates;
     private readonly X509Certificate2Collection _rootCaCertificates;
@@ -79,7 +81,7 @@ internal class YubikeyValidator
         }
 
         foreach (var extension in yubikey.AttestationCertificate.Extensions.Where(extension =>
-                     _attestationInformationOids.Contains(extension.Oid.Value)))
+                     AttestationInformationOids.Contains(extension.Oid.Value)))
         {
             result.CertificateExtensions.Add(extension.Oid.Value, extension.RawData);
         }
@@ -151,24 +153,29 @@ internal class YubikeyValidator
         }
 
         // Yubikey Attestation is stored in these two extensions in the CSR.
-        foreach (var attestationLocationOid in _attestationLocationOids.Where(oid =>
-                     dbRow.CertificateExtensions.ContainsKey(oid) &&
-                     dbRow.CertificateExtensions.ContainsKey(YubikeyX509Extension.ATTESTATION_INTERMEDIATE)))
+        foreach (var attestationLocationOid in AttestationLocationOids)
         {
-            ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, attestationLocationOid);
+            if (dbRow.CertificateExtensions.TryGetValue(attestationLocationOid, out var attestationCertBytes) &&
+                dbRow.CertificateExtensions.TryGetValue(YubikeyX509Extension.ATTESTATION_INTERMEDIATE,
+                    out var intermediateCertBytes))
+            {
+                ETWLogger.Log.YKVal_4209_Found_Attestation_Location(dbRow.RequestID, attestationLocationOid);
 
-            try
-            {
-                yubikey = new YubikeyObject(_rootCaCertificates, _intermediateCaCertificates,
-                    new X509Certificate2(dbRow.CertificateExtensions[attestationLocationOid]),
-                    new X509Certificate2(dbRow.CertificateExtensions[YubikeyX509Extension.ATTESTATION_INTERMEDIATE]),
-                    dbRow.KeyAlgorithm, dbRow.PublicKey, dbRow.KeyLength, dbRow.RequestID);
-            }
-            catch (Exception ex)
-            {
-                ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
-                result.SetFailureStatus(WinError.NTE_FAIL,
-                    string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
+                try
+                {
+
+
+                    yubikey = new YubikeyObject(_rootCaCertificates, _intermediateCaCertificates,
+                        X509CertificateLoader.LoadCertificate(attestationCertBytes),
+                        X509CertificateLoader.LoadCertificate(intermediateCertBytes),
+                        dbRow.KeyAlgorithm, dbRow.PublicKey, dbRow.KeyLength, dbRow.RequestID);
+                }
+                catch (Exception ex)
+                {
+                    ETWLogger.Log.YKVal_4205_Failed_to_extract_Yubikey_Attestation(dbRow.RequestID);
+                    result.SetFailureStatus(WinError.NTE_FAIL,
+                        string.Format(LocalizedStrings.YKVal_Unable_to_read_embedded_certificates, ex.Message));
+                }
             }
         }
 
@@ -253,11 +260,10 @@ internal class YubikeyValidator
     /// <returns></returns>
     private static X509Certificate2Collection GetCertificatesFromMachineStore(string storeName)
     {
-        var store = new X509Store(storeName, StoreLocation.LocalMachine);
+        using var store = new X509Store(storeName, StoreLocation.LocalMachine);
         store.Open(OpenFlags.ReadOnly);
-        var certificates = store.Certificates;
-        store.Close();
-
+        var certificates = new X509Certificate2Collection();
+        certificates.AddRange(store.Certificates);
         return certificates;
     }
 }

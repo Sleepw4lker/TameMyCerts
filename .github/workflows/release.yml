@@ -19,7 +19,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.x'
 
     - name: Install dependencies TameMyCerts
       run: dotnet restore TameMyCerts\TameMyCerts.csproj
@@ -41,7 +41,7 @@ jobs:
     - name: Create ZIP file
       run: |
         Add-Type -AssemblyName 'System.IO.Compression.FileSystem'
-        [System.IO.Compression.ZipFile]::CreateFromDirectory("TameMyCerts\bin\release\net8.0-windows", "release.zip", [System.IO.Compression.CompressionLevel]::SmallestSize, $false)
+        [System.IO.Compression.ZipFile]::CreateFromDirectory("TameMyCerts\bin\release\net10.0-windows", "release.zip", [System.IO.Compression.CompressionLevel]::SmallestSize, $false)
         Write-Host "ZIP file created successfully at $zipFilePath"
       shell: pwsh
 

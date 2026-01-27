@@ -51,4 +51,18 @@ public class X509CertificateExtensionAuthorityInformationAccessTests(ITestOutput
 
         Assert.Equal(expectedResult, Convert.ToBase64String(aiaExt.RawData));
     }
+
+    [Fact]
+    public void AddUniformResourceIdentifier_String_Null_ThrowsArgumentNullException()
+    {
+        var aiaExt = new X509CertificateExtensionAuthorityInformationAccess();
+        Assert.Throws<ArgumentNullException>(() => aiaExt.AddUniformResourceIdentifier((string)null));
+    }
+
+    [Fact]
+    public void AddUniformResourceIdentifier_Uri_Null_ThrowsArgumentNullException()
+    {
+        var aiaExt = new X509CertificateExtensionAuthorityInformationAccess();
+        Assert.Throws<ArgumentNullException>(() => aiaExt.AddUniformResourceIdentifier((Uri)null));
+    }
 }

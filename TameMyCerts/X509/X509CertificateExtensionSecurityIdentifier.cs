@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Formats.Asn1;
 using System.Security.Principal;
 using System.Text;
@@ -21,8 +22,15 @@ namespace TameMyCerts.X509;
 
 public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtension
 {
+    /// <summary>
+    ///     Creates a new X509 extension containing the SID as a string.
+    /// </summary>
+    /// <param name="sid">The security identifier to encode.</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
     {
+        ArgumentNullException.ThrowIfNull(sid);
+
         var asnWriter = new AsnWriter(AsnEncodingRules.DER);
 
         using (asnWriter.PushSequence())

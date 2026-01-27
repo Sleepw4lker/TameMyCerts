@@ -2,6 +2,17 @@
 
 > TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
+### Version 1.8.xx
+
+_This version was not yet released._
+
+- The code base has been upgraded from .NET 8.0 to .NET 10.0. 
+- Add new `Continue` action for Directory Services mapping that will cause the certificate request not getting denied when no object could be found.
+- Add the possibility to specify custom Active Directory attributes inside `DirectoryServicesMapping` with the new `CustomAttributes` directive. The attributes can then be used for Subject and Subject Alternative Name modifications.
+- Subject Alternative Names can be removed via an empty `Value` in a `OutboundSubjectRule` the same way as it was already possible for the Subject Distinguished Name.
+- Implement check for duplicate occurrences of same field and value for the Subject Distibguished Name. This allows for proper control for cases where a Relative Distinguished Name shall appear more than once.
+- Change the Log Level for Event Id 8 from CERTLOG_VERBOSE (`4`) to CERTLOG_WARNING (`3`), so that these logs appear with CA default settings.
+
 ### Version 1.7.1609.1089
 
 _This version was released on May 29, 2025._

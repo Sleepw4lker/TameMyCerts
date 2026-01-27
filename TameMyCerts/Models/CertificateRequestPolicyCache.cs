@@ -16,15 +16,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace TameMyCerts.Models;
 
 internal class CertificateRequestPolicyCache
 {
     private readonly Dictionary<string, CertificateRequestPolicyCacheEntry> _cache = new();
-
-    private readonly DateTimeOffset _fileDoesNotExist = new(1601, 01, 01, 0, 0, 0, TimeSpan.Zero);
-    private readonly object _lockObject = new();
+    private readonly Lock _lockObject = new();
     private readonly string _policyDirectory;
     public bool PolicyDirectoryExists => Directory.Exists(_policyDirectory);
 
@@ -36,17 +35,17 @@ internal class CertificateRequestPolicyCache
     public CertificateRequestPolicyCacheEntry GetCertificateRequestPolicy(string certificateTemplate)
     {
         var policyFileName = Path.Combine(_policyDirectory, RemoveInvalidFileNameChars($"{certificateTemplate}.xml"));
-        var policyFileLastChange = File.GetLastWriteTime(policyFileName);
-
-        if (policyFileLastChange == _fileDoesNotExist)
-        {
-            return null;
-        }
 
         lock (_lockObject)
         {
+            if (!File.Exists(policyFileName))
+            {
+                _cache.Remove(certificateTemplate);
+                return null;
+            }
+
             if (_cache.TryGetValue(certificateTemplate, out var cacheEntry) &&
-                cacheEntry.LastUpdate > policyFileLastChange)
+                cacheEntry.LastUpdateUtc.UtcDateTime >= File.GetLastWriteTimeUtc(policyFileName))
             {
                 return cacheEntry;
             }

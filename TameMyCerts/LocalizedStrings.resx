@@ -327,23 +327,23 @@ Requester name is {1}</value>
     <value>Request {0} for {1} will be put into pending state.</value>
   </data>
   <data name="YKVal_Unable_to_read_embedded_certificates" xml:space="preserve">
-    <value>Unable to read the embedded Yubikey PIV attestation certificates: {0}</value>
+    <value>Unable to read the embedded YubiKey PIV attestation certificates: {0}</value>
   </data>
   <data name="YKVal_No_Matching_Policy_Found" xml:space="preserve">
-    <value>Failed to find a matching Yubikey policy. The certificate request will get denied for Yubikey with Serial Number {0}.</value>
+    <value>Failed to find a matching YubiKey policy. The certificate request will get denied for YubiKey with Serial Number {0}.</value>
   </data>
   <data name="YKVal_Policy_Matches_with_Reject" xml:space="preserve">
-    <value>The certificate request for Yubikey with Serial Number {0} matched a deny Yubikey policy:
+    <value>The certificate request for YubiKey with Serial Number {0} matched a deny YubiKey policy:
 {1}</value>
   </data>
   <data name="event_YKVal_4201_Denied_by_Policy" xml:space="preserve">
     <value>The request {0}  was rejected due to policy: \r\n{1}</value>
   </data>
   <data name="event_YKVal_4202_Denied_by_Policy" xml:space="preserve">
-    <value>The request {0} was rejected as the Yubikey Attestation failed for the embedded attestation.</value>
+    <value>The request {0} was rejected as the YubiKey Attestation failed for the embedded attestation.</value>
   </data>
   <data name="event_YKVal_4203_Denied_due_to_no_matching_policy_default_deny" xml:space="preserve">
-    <value>The request {0} was denied due to not meeting any Grant policy in the Yubikey Validator.</value>
+    <value>The request {0} was denied due to not meeting any Grant policy in the YubiKey Validator.</value>
   </data>
   <data name="event_YKVal_4204_Matching_policy" xml:space="preserve">
     <value>The request {0} is matching policy: 
@@ -352,17 +352,17 @@ YubiKey attestation data:
 {2}</value>
   </data>
   <data name="event_YKVal_4205_Failed_to_extract_Yubikey_Attestation" xml:space="preserve">
-    <value>The request {0} contained an embedded Yubikey Attestation, but it failed to be extracted.</value>
+    <value>The request {0} contained an embedded YubiKey Attestation, but it failed to be extracted.</value>
   </data>
   <data name="event_YKVal_4206_Debug_failed_to_match_policy" xml:space="preserve">
-    <value>The request {0} failed to match the Yubikey Policy: 
+    <value>The request {0} failed to match the YubiKey Policy: 
 {1}</value>
   </data>
   <data name="event_YKVal_4207_Yubikey_Attestation_Mismatch_with_CSR" xml:space="preserve">
     <value>The request {0}, attestation certificates public key mismatch with the certificate request.</value>
   </data>
   <data name="event_YKVal_4208_Yubikey_Attestation_Failed_to_build" xml:space="preserve">
-    <value>The request {0}, Yubikey attestation failed to build trust chain to Yubikey CA.</value>
+    <value>The request {0}, YubiKey attestation failed to build trust chain to YubiKey CA.</value>
   </data>
   <data name="event_TMC_1_PolicyModule_Success_Initiated" xml:space="preserve">
     <value>{0} policy module version {1} is ready to process incoming certificate requests.</value>
@@ -427,15 +427,21 @@ with the content:
     <value>Unable to add custom certificate extension. Oid: {0}, Value: {1}.</value>
   </data>
   <data name="YKObject_Failed_to_build" xml:space="preserve">
-    <value>Failed to build the Yubikey attestation certificate chain up to a trusted Yubikey PIV attestation Root certificate authority. Ensure that the "YKROOT" and "YKCA" certificate stores are properly populated.</value>
+    <value>Failed to build the YubiKey attestation certificate chain up to a trusted YubiKey PIV attestation Root certificate authority. Ensure that the "YKROOT" and "YKCA" certificate stores are properly populated.</value>
   </data>
   <data name="YKObject_Attestation_Cert_Mismatch" xml:space="preserve">
     <value>The Certificate Signing Request for does not match its attestation certificate.</value>
   </data>
   <data name="YKVal_No_Attestation_Found" xml:space="preserve">
-    <value>The certificate request does not contain any valid Yubikey PIV attestation data.</value>
+    <value>The certificate request does not contain any valid YubiKey PIV attestation data.</value>
   </data>
   <data name="DirVal_Account_Exists" xml:space="preserve">
     <value>A {0} account with {1} of {2} was found in the directory, but policy is configured to deny certificate requests in this case.</value>
+  </data>
+  <data name="ReqVal_Duplicate_RDN" xml:space="preserve">
+    <value>The {0} Field with value {1} appears more than once in the request.</value>
+  </data>
+  <data name="ReqVal_Duplicate_Field_specified" xml:space="preserve">
+    <value>The {0} field has been defined more than once in the policy.</value>
   </data>
 </root>

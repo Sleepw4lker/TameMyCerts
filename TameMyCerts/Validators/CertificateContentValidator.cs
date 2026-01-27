@@ -151,6 +151,11 @@ internal class CertificateContentValidator
 
         foreach (var rule in policy.OutboundSubjectAlternativeName)
         {
+            if (rule.Value.Equals(string.Empty))
+            {
+                result.SubjectAlternativeNameExtension.RemoveAllAlternativeNames(rule.Field);
+            }
+
             // Check if the SAN is already present unless it is forced
             if (!rule.Force && SanTypes.ToList().Contains(rule.Field) &&
                 result.SubjectAlternativeNameExtension.AlternativeNames.Any(x =>
@@ -174,7 +179,6 @@ internal class CertificateContentValidator
                         ? dbRow.InlineSubjectRelativeDistinguishedNames
                         : dbRow.SubjectRelativeDistinguishedNames);
                 value = ReplaceTokenValues(value, "san", dbRow.SubjectAlternativeNames);
-
 
                 result.SubjectAlternativeNameExtension.AddAlternativeName(rule.Field, value, true);
 

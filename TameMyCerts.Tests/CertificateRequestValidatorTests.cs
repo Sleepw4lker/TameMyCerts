@@ -209,6 +209,50 @@ public class CertificateRequestValidatorTests
     }
 
     [Fact]
+    public void Deny_Subject_present_but_no_rule_defined()
+    {
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de,C=DE
+        const string request =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIDejCCAmICAQAwLTELMAkGA1UEBhMCREUxHjAcBgNVBAMTFWludHJhbmV0LmFk\n" +
+            "Y3NsYWJvci5kZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANYahn0j\n" +
+            "JPGIDShHX+SzFMI9XnAN9iky4siQQV7TcpkJ78+S+ZJ+5o8io6AwTXiZt60ox9Yj\n" +
+            "wp29PawCCVKeDKuY8sjoiOPqo3pUg0WeXCrD3zKKimb0TF4RSwCg+Ymf19MdeywF\n" +
+            "jO+7oWzDheQV+UuIm+cT4ipqgIfkML6iphyy1SWxXl1jYCl5yrnSrG/9iz2eZdpl\n" +
+            "WtDQX6FVaixWbJhdy9Wtk/b0mj5I27yapwjiG+cvVuaQ9S2iVR4N0rqVirNPLQgf\n" +
+            "+V7UJbUIQCmklqU3oeAWXY7k9ryW8FTeQPEAZD9611C7A0EANm2EUVP+iJ08iUIy\n" +
+            "S1AUSVLqopBjEf0CAwEAAaCCAQYwHAYKKwYBBAGCNw0CAzEOFgwxMC4wLjE5MDQ0\n" +
+            "LjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFCyR\n" +
+            "TDtg3TJPfsJBNynovfc2dt+8MD4GCSsGAQQBgjcVFDExMC8CAQUMCm90dGktb3R0\n" +
+            "ZWwMDk9UVEktT1RURUxcdXdlDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3DQIC\n" +
+            "MVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAA\n" +
+            "SwBlAHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMA0GCSqG\n" +
+            "SIb3DQEBCwUAA4IBAQCekmxgcJmTixtnAnWpj4ClO9WS5zJQIBmW9lC9E4zDHY7t\n" +
+            "ZEaBkmdbf3lPmeMt9+/t46G97qt+zGpodJIXCquTPnAzVRNzJsTLC9G7pK557Jd0\n" +
+            "55wOmhQ7nAhaR8wGHAhowSkiJDwthEEP4JUVhPmmG8fxBam4+NveaLVtmmM2HK/M\n" +
+            "D6F1YJ0Jateh0gU/DSnD95xrXngfTzrKBhtD7VQrBXsbfpeysjjFfwqWNPR9cBNV\n" +
+            "U1QKopiXRbWStlv0KFAJ7gHVNEkmAA00mbaEufmHbAOr2z/8RcrTRgK6Q14Ib/YP\n" +
+            "P7MNEhROVnD5RdVp793twbYgnyLW4+UIbaKYX+t5\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = _policy;
+
+        _policy.Subject.Clear();
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+    }
+
+    [Fact]
     public void Deny_commonName_blacklisted()
     {
         // 2048 Bit RSA Key
@@ -643,6 +687,52 @@ public class CertificateRequestValidatorTests
 
         Assert.False(result.DeniedForIssuance);
         Assert.True(result.StatusCode.Equals(WinError.ERROR_SUCCESS));
+    }
+
+    [Fact]
+    public void Deny_SAN_present_but_no_rule_defined()
+    {
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de
+        // dnsName=intranet.adcslabor.de
+        const string request =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIDkjCCAnoCAQAwIDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMIIB\n" +
+            "IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3GmfcSDSunQ6+vmz9mTHcEKg\n" +
+            "DMzDSXj0lQ7Erazl9CJ4WzROZaa1BUITfRlVXreku6ljYsO3jyTDBRBtCUXNwFk+\n" +
+            "MTmzTqXx82MRpK2ATDp2jEPfP7l7K30DwDyiapkpaAvZlxIVWtIDoGxAG+yRFjAF\n" +
+            "Qh4HDvSaBoaNvwdjZsUcdgOuJQbIwBhto/RB+4L23oT7+8e2GyRMm/bQK2gDvCbV\n" +
+            "9SwTwm9gXljth0wuZ8RRkC7MMVIiPaxUH575SUKE7YvHeZ4Hq20Q2XYBSigqNXBM\n" +
+            "VCUVCfsBGA18/MR/ZMFSSCIt2KLjkpp5q9gOCibw0oPrGTqUoLtCkLREbMrHbQID\n" +
+            "AQABoIIBKzAcBgorBgEEAYI3DQIDMQ4WDDEwLjAuMTkwNDQuMjA+BgkrBgEEAYI3\n" +
+            "FRQxMTAvAgEFDApvdHRpLW90dGVsDA5PVFRJLU9UVEVMXHV3ZQwOcG93ZXJzaGVs\n" +
+            "bC5leGUwYwYJKoZIhvcNAQkOMVYwVDAOBgNVHQ8BAf8EBAMCB4AwIwYDVR0RAQH/\n" +
+            "BBkwF4IVaW50cmFuZXQuYWRjc2xhYm9yLmRlMB0GA1UdDgQWBBRmh46ij+b3RODb\n" +
+            "JXIj5NFC58DFZzBmBgorBgEEAYI3DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8A\n" +
+            "ZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAA\n" +
+            "UAByAG8AdgBpAGQAZQByAwEAMA0GCSqGSIb3DQEBCwUAA4IBAQAmQ8B9fZ+ewB3+\n" +
+            "kDFsJcqeMJ+nbFBcHJKmKfhn9564tiBZayK8kpkTvS1Cjb5C79Yimimw2AqGqdFK\n" +
+            "W3+wWPCkFN996GoXFOU+lg3I5Byz3Eq4Vyv/H7RCufC68ezVG5v4EaqE4TsYcfoE\n" +
+            "zH8HJu0jKKf+QKj9LpXI+HYLwvQ0Fyz4lr839NMidsPF4AWMpEXs/2OSTjg5qDVj\n" +
+            "LKMPzd0wrOea0XWx2fEeibdW+KFi1656J+OIGuYP/q0SaPqYgFey+kOS2KLz+9/r\n" +
+            "CA+TvKzFxxgRPAfA0TO7GAuwspV2wLOfXVOxIpG5GkmpxeK0nZvyw9HvxWWNlkgw\n" +
+            "kbUQqV43\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        var policy = _policy;
+
+        policy.SubjectAlternativeName.Clear();
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
     }
 
     [Fact]
@@ -2395,5 +2485,158 @@ public class CertificateRequestValidatorTests
 
         Assert.True(result.DeniedForIssuance);
         Assert.Equal(WinError.ERROR_INVALID_TIME, result.StatusCode);
+    }
+
+    [Fact]
+    public void Deny_duplicate_SubjectRule_of_same_type_in_Subject()
+    {
+        var policy = _policy;
+
+        policy.Subject.Clear();
+
+        policy.Subject.Add(
+            new SubjectRule
+            {
+                Field = RdnTypes.CommonName,
+                Mandatory = true,
+                MaxOccurrences = 1,
+                Patterns = new List<Pattern>
+                {
+                    new() { Expression = @"^intranet\.adcslabor\.de$" }
+                }
+            }
+        );
+
+        policy.Subject.Add(
+            new SubjectRule
+            {
+                Field = RdnTypes.CommonName,
+                Mandatory = true,
+                MaxOccurrences = 1,
+                Patterns = new List<Pattern>
+                {
+                    new() { Expression = @"^intranet\.adcslabor\.de$" }
+                }
+            }
+        );
+
+        var dbRow = new CertificateDatabaseRow(_request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
+    }
+
+    [Fact]
+    public void Deny_duplicate_SubjectRule_of_same_type_in_SubjectAlternativeName()
+    {
+        var policy = _policy;
+
+        policy.Subject.Clear();
+
+        policy.SubjectAlternativeName.Add(
+            new SubjectRule
+            {
+                Field = SanTypes.DnsName,
+                Mandatory = true,
+                MaxOccurrences = 1,
+                Patterns = new List<Pattern>
+                {
+                    new() { Expression = @"^intranet\.adcslabor\.de$" }
+                }
+            }
+        );
+
+        policy.SubjectAlternativeName.Add(
+            new SubjectRule
+            {
+                Field = SanTypes.DnsName,
+                Mandatory = true,
+                MaxOccurrences = 1,
+                Patterns = new List<Pattern>
+                {
+                    new() { Expression = @"^intranet\.adcslabor\.de$" }
+                }
+            }
+        );
+
+        var dbRow = new CertificateDatabaseRow(_request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.NTE_FAIL));
+    }
+
+    [Fact]
+    public void Deny_duplicate_RDN_with_same_value()
+    {
+        var policy = _policy;
+
+        policy.Subject.Clear();
+
+        policy.Subject.Add(
+            new SubjectRule
+            {
+                Field = RdnTypes.CommonName,
+                Mandatory = true,
+                MaxOccurrences = 2,
+                Patterns = new List<Pattern>
+                {
+                    new() { Expression = @"^(intranet|extranet)\.adcslabor\.de$" }
+                }
+            }
+        );
+
+        // 2048 Bit RSA Key
+        // CN=intranet.adcslabor.de,CN=intranet.adcslabor.de
+        const string request =
+            "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+            "MIIEkTCCAvkCAQAwQDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMR4w\n" +
+            "HAYDVQQDExVpbnRyYW5ldC5hZGNzbGFib3IuZGUwggGiMA0GCSqGSIb3DQEBAQUA\n" +
+            "A4IBjwAwggGKAoIBgQDDPNibfYz+vlr4aLtpKPHncxDI6AnxMJF8ExEQldS/1e+R\n" +
+            "L7GVQYLnGNWHeqjjT0LtQAQjEqt/yMkUWpRPodQgyRRQcplKih9CexyLfbf2Gn6D\n" +
+            "Q0js7Am1iuFN/ApiWFvcm7M7bFiaSIr/m2UG9fLQMB3lK+ZmOISBOdsxO5CC4YHM\n" +
+            "ot3JvbWl0kfdAEFAPma+kcL32+Gz4HP6SSh4IqQnRu3YkMLq4gNN0zzF76wdMj8/\n" +
+            "mL8MGUe2Zl478jqAP3xhQKCoqgG1tFcF0gpDr7gjjeIKT535qXOG0hX4UIV53cak\n" +
+            "SKEitxbXPHvxl7hWXUvI1vk0uRRM06FLI5xfzGoCMrjyKLEPJxfE7oRzeS1YZoKl\n" +
+            "PVflNOvoO8I9qr2n/kK+K8Qg9ntUt1lH0CMiLVhYKVuv4O9dRS73miNJV20aHmDn\n" +
+            "XYqfcLkqUi9AfNm5gUDe+FVke6Pb+NiB09dVGZxm0g1WvWO2nKSd0Ps4MawParlQ\n" +
+            "a8we23T/ZFdo5UVJw5ECAwEAAaCCAQowHAYKKwYBBAGCNw0CAzEOFgwxMC4wLjI2\n" +
+            "MTAwLjIwPgYJKoZIhvcNAQkOMTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYE\n" +
+            "FFRbOjCUNSRJLgKaDT9h7SviNI7SMEIGCSsGAQQBgjcVFDE1MDMCAQUMBkRFVi1Q\n" +
+            "QwwWQXp1cmVBRFxVd2VHcmFkZW5lZ2dlcgwOcG93ZXJzaGVsbC5leGUwZgYKKwYB\n" +
+            "BAGCNw0CAjFYMFYCAQAeTgBNAGkAYwByAG8AcwBvAGYAdAAgAFMAbwBmAHQAdwBh\n" +
+            "AHIAZQAgAEsAZQB5ACAAUwB0AG8AcgBhAGcAZQAgAFAAcgBvAHYAaQBkAGUAcgMB\n" +
+            "ADANBgkqhkiG9w0BAQsFAAOCAYEANrCTZD67D47YfHeeLkZxjRr374aBMXhunFEB\n" +
+            "iSMurfSRyCrZdLPGJDb+YuzT7mWnOlYUUggJz3WeTdS6Meq22wPNti/9ELGh0Cm5\n" +
+            "v7I8INtC2KXa/i0LsBlP41XFOGX1D77zh6ZOKa1S4nJmchQgeot+xrrsqaXQ74st\n" +
+            "Tt5oDSwB9c5aq67QiCS7cgu/9vFbyicGdjw1MvxL9HFBBxjOmF+GMhJy4eqqq/nH\n" +
+            "GI/a9O1lKO4TS4tmJFB1wvUMBHc2lRrZv+99EjQVkyqg1W7T1cFVNhnEJgc38x5I\n" +
+            "wUHVr95LwWgYzkVzPtxDE+cmFkayxcdx6BHR/7c/MawXtBlpC9FVdDwlwJISOtu3\n" +
+            "ZfnqyyyUSAT7L2IatXiE5Q0gVJDvSzYLjKq76HwthSIXrQaTniVtHNPoYsTqZevX\n" +
+            "FtW5/p8p33xmZ7PJUkIG2ddEdO3kjz1h2DGtPxy2cdnzWjgYke1dDyuxxi5hX6Fq\n" +
+            "z9En0ZWry8gm+WaW24sNRxTR3Pkt\n" +
+            "-----END NEW CERTIFICATE REQUEST-----";
+
+        var dbRow = new CertificateDatabaseRow(request, CertCli.CR_IN_PKCS10);
+
+        var result = new CertificateRequestValidationResult(dbRow);
+
+        result = _validator.VerifyRequest(result, policy, dbRow, _template);
+
+        PrintResult(result);
+
+        Assert.True(result.DeniedForIssuance);
+        Assert.True(result.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
     }
 }

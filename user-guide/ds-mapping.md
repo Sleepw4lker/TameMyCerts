@@ -34,11 +34,12 @@ When using an **offline** certificate template, the certificate attribute that w
 
 |Parameter|Mandatory|Description|
 |---|---|---|
-|`Action`|no|Specifies what should happen with the certificate request in case a matching object was found in the directory. Can be `Allow` or `Deny`. Defaults to `Allow`.|
+|`Action`|no|Specifies what should happen with the certificate request in case a matching object was found in the directory. Can be `Allow`, `Deny`, or `Continue`. `Allow` will cause the request getting denied when no object could be found. `Deny` will cause the request getting denied when an object was found. `Continue` will cause the request not getting denied in both cases. Defaults to `Allow`.|
 |`CertificateAttribute`|no|The field which is taken from the certificate request as the identity to map to a corresponding Active Directory object. May contain any identity that is listed above for either the Subject Distinguished Name, or for the Subject Alternative Name. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
 |`DirectoryServicesAttribute`|no|The attribute of the Active Directory object that must match the certificate attribute. May be `cn`, `name`, `sAMAccountName`, `userPrincipalName` or `dNSHostName`. Defaults to `userPrincipalName`. Automatically determined for **online** certificate templates.|
 |`ObjectCategory`|no|The category of the Active Directory object to be searched for. May be `computer` or `user`. Defaults to `user` for _offline_ certificate templates. Automatically determined for _online_ certificate templates.|
 |`SearchRoot`|no|The distinguished name of the LDAP path the search for the Active Directory object shall start from. Defaults to using the global catalog for the entire forest.|
+|`CustomAttributes`|no|Specifies a list of custom Active Directory object attributes to load for the mapped object. Mind that the properties must be single-value and of a type that can be converted into a string.|
 |`AllowedSecurityGroups`|no|A list of distinguished names of security groups the account must be member of (request gets denied if it **is not** member of at least one of them).|
 |`DisallowedSecurityGroups`|no|A list of distinguished names of security groups the account must **not** be member of (request gets denied if it **is** member of at least one of them).|
 |`AllowedOrganizationalUnits`|no|A list of distinguished names of organizational units the account must be member of (request gets denied if it **is not** member of at least one of them).|
@@ -116,6 +117,31 @@ Specifying an LDAP path as search root with escaping of LDAP-reserved characters
 <DirectoryServicesMapping>
   <!-- other directives have been left out for simplicity -->
   <SearchRoot>OU=Users\,Computers\,and others,DC=tamemycerts,DC=local</SearchRoot>
+</DirectoryServicesMapping>
+```
+
+Specifying additional custom Attributes to load for the mapped object, and write them into the issued certificate:
+
+```xml
+<DirectoryServicesMapping>
+  <CustomAttributes>
+    <string>myCustomAttribute1</string>
+    <string>myCustomAttribute2</string>
+  </CustomAttributes>
+  <OutboundSubject>
+    <OutboundSubjectRule>
+      <Field>stateOrProvinceName</Field>
+      <Value>{ad:myCustomAttribute1}</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+    <OutboundSubjectRule>
+      <Field>organizationalUnitName</Field>
+      <Value>{ad:myCustomAttribute2}</Value>
+      <Mandatory>true</Mandatory>
+      <Force>true</Force>
+    </OutboundSubjectRule>
+  </OutboundSubject>
 </DirectoryServicesMapping>
 ```
 

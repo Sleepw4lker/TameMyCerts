@@ -16,7 +16,7 @@ using System;
 
 namespace TameMyCerts.Models;
 
-internal class CertificateRequestPolicyCacheEntry
+internal sealed class CertificateRequestPolicyCacheEntry
 {
     public CertificateRequestPolicyCacheEntry(string fileName)
     {
@@ -33,10 +33,10 @@ internal class CertificateRequestPolicyCacheEntry
             ETWLogger.Log.TMC_94_XML_Parsing_error(fileName, ErrorMessage);
         }
 
-        LastUpdate = DateTimeOffset.Now;
+        LastUpdateUtc = DateTimeOffset.UtcNow;
     }
 
     public CertificateRequestPolicy CertificateRequestPolicy { get; }
-    public DateTimeOffset LastUpdate { get; }
+    public DateTimeOffset LastUpdateUtc { get; }
     public string ErrorMessage { get; } = string.Empty;
 }

@@ -97,3 +97,37 @@ As TameMyCerts follows [the original Microsoft concept of certificate templates]
 ### No support for coexistence with other custom policy modules
 
 At the moment, TameMyCerts can not be combined with other policy modules except the Windows Default policy module that is shipped with Active Directory Certificate Services. A common example for an incompatible module would be the policy module shipped with Microsoft Identity Manager Certificate Management (MIM CM).
+
+### Certification Authority Service does not start on boot
+
+You might experience that the Certification Authority Service does not start on boot.
+
+It will log Event ID 44 (<https://www.gradenegger.eu/en/details-of-the-event-with-id-44-of-the-source-microsoft-windows-certificationauthority/>) from Source `CertificationAuthority` with the following message:
+
+```
+The "" Policy Module "" method returned an error. No such interface supported The returned status code is 0x80004002 (-2147467262).  
+```
+
+Afterwards, it will log Event 9 <https://www.gradenegger.eu/en/details-of-the-event-with-id-9-of-the-source-microsoft-windows-certificationauthority/>) from Source `CertificationAuthority` with the following message:
+
+```
+The Active Directory Certificate Services did not start: Unable to load an external policy module.
+```
+
+The underlying issue is that the .NET Runtime is not yet available for use during this stage of system startup. This issue seems to be related to a setting that it part of Microsoft Security Baselines (<https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines>).
+
+The issue can be circumvented by setting the startup type of the certification authority service to "Automatic (Delayed Start).
+
+```batch
+sc.exe config certsvc start=delayed-auto
+```
+
+### Certification Authority Service logs an error on system restart
+
+You might experience that the Certification Authority Service will log Event ID 44 (<https://www.gradenegger.eu/en/details-of-the-event-with-id-44-of-the-source-microsoft-windows-certificationauthority/>) from Source `CertificationAuthority` with the following message on system restart:
+
+```
+The "" Policy Module "ShutDown" method returned an error. Unspecified error The returned status code is 0x80004005 (-2147467259).  
+```
+
+This is a known issue due to the fact of TameMyCerts using a modern .NET runtime. No solution is known at the moment, but the error is uncritical.
