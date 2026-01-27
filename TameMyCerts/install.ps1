@@ -105,7 +105,7 @@ if (-not (($CaType -eq $ENUM_ENTERPRISE_ROOTCA) -or ($CaType -eq $ENUM_ENTERPRIS
 }
 
 $RegistryHiveDefault = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$DefaultPolicyModuleName"
-$RegistryHiveCustom = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$($PolicyModuleName).Policy"
+$RegistryHiveCustom = "$($CaRegistryRoot)\$($CaName)\PolicyModules\CertificateAuthority_Default.Policy"
 
 #region This part is called both on (re)installation and uninstallation
 
@@ -275,7 +275,7 @@ if (-not $Uninstall.IsPresent) {
     if (-not (Test-Path -Path $RegistryHiveCustom)) {
 
         Write-Verbose -Message "Creating registry path"
-        [void](New-Item -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name "$($PolicyModuleName).Policy" -Force)
+        [void](New-Item -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name "CertificateAuthority_Default.Policy" -Force)
 
         Write-Verbose -Message "Copying registry Keys from Microsoft Default policy module to $RegistryHiveCustom"
         Copy-Registry -Source $RegistryHiveDefault -Destination $RegistryHiveCustom
@@ -285,7 +285,7 @@ if (-not $Uninstall.IsPresent) {
     [void](Set-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -Value $PolicyDirectory -Force)
 
     Write-Verbose -Message "Setting the currently active policy Module to $PolicyModuleName"
-    Set-ItemProperty -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "$($PolicyModuleName).Policy" -Force
+    Set-ItemProperty -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "CertificateAuthority_Default.Policy" -Force
 
     if ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $false) {
         Write-Verbose -Message "Registering Windows event source ""$PolicyModuleName"""

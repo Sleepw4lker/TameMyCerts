@@ -27,7 +27,7 @@ namespace TameMyCerts;
 
 [ComVisible(true)]
 [ClassInterface(ClassInterfaceType.None)]
-[ProgId("TameMyCerts.Policy")]
+[ProgId("CertificateAuthority_Default.Policy")]
 [Guid("432413c6-2e86-4667-9697-c1e038877ef9")] // must be distinct from PolicyManage Class
 public class Policy : ICertPolicy2
 {
