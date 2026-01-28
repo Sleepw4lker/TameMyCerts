@@ -157,6 +157,10 @@
     <value>Request {0} will get denied. Unable to interpret policy for {1} because:
 {2}</value>
   </data>
+  <data name="Events_REQUEST_DENIED_INVALID_OID" xml:space="preserve">
+    <value>Request {0} will get denied. Unable to interpret policy for {1} because:
+{2}</value>
+  </data>
   <data name="ReqVal_Err_Parse_Request" xml:space="preserve">
     <value>Unable to parse the given certificate request. Request type was {0}.</value>
   </data>

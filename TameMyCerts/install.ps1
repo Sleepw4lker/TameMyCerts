@@ -47,6 +47,7 @@ function Copy-Registry {
 
 New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2016 -Value 14393
 New-Variable -Option Constant -Name PolicyModuleName -Value "TameMyCerts"
+New-Variable -Option Constant -Name PolicyModuleAlias -Value "CertificateAuthority_Default"
 New-Variable -Option Constant -Name CaRegistryRoot -Value "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration"
 New-Variable -Option Constant -Name BaseDirectory -Value (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
 New-Variable -Option Constant -Name AppInstallDirectory -Value "$env:ProgramFiles\TameMyCerts"
@@ -105,7 +106,7 @@ if (-not (($CaType -eq $ENUM_ENTERPRISE_ROOTCA) -or ($CaType -eq $ENUM_ENTERPRIS
 }
 
 $RegistryHiveDefault = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$DefaultPolicyModuleName"
-$RegistryHiveCustom = "$($CaRegistryRoot)\$($CaName)\PolicyModules\CertificateAuthority_Default.Policy"
+$RegistryHiveCustom = "$($CaRegistryRoot)\$($CaName)\PolicyModules\$($PolicyModuleAlias).Policy"
 
 #region This part is called both on (re)installation and uninstallation
 
@@ -275,7 +276,7 @@ if (-not $Uninstall.IsPresent) {
     if (-not (Test-Path -Path $RegistryHiveCustom)) {
 
         Write-Verbose -Message "Creating registry path"
-        [void](New-Item -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name "CertificateAuthority_Default.Policy" -Force)
+        [void](New-Item -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name "$($PolicyModuleAlias).Policy" -Force)
 
         Write-Verbose -Message "Copying registry Keys from Microsoft Default policy module to $RegistryHiveCustom"
         Copy-Registry -Source $RegistryHiveDefault -Destination $RegistryHiveCustom
@@ -285,7 +286,7 @@ if (-not $Uninstall.IsPresent) {
     [void](Set-ItemProperty -Path $RegistryHiveCustom -Name PolicyDirectory -Value $PolicyDirectory -Force)
 
     Write-Verbose -Message "Setting the currently active policy Module to $PolicyModuleName"
-    Set-ItemProperty -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "CertificateAuthority_Default.Policy" -Force
+    Set-ItemProperty -Path "$($CaRegistryRoot)\$($CaName)\PolicyModules" -Name Active -Value "$($PolicyModuleAlias).Policy" -Force
 
     if ([System.Diagnostics.EventLog]::SourceExists($PolicyModuleName) -eq $false) {
         Write-Verbose -Message "Registering Windows event source ""$PolicyModuleName"""

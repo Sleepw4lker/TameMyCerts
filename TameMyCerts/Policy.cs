@@ -135,6 +135,14 @@ public class Policy : ICertPolicy2
 
         result = _raValidator.VerifyRequest(result, dbRow, _caConfig);
 
+        var blockedOIDs = _caConfig.ReadBlockedOids();
+        if (blockedOIDs.Contains(template.Oid))
+        {
+            _logger.Log(Events.REQUEST_DENIED_INVALID_OID, requestId, template.Name);
+            return WinError.CERTSRV_E_TEMPLATE_DENIED;
+        }
+
+
         #endregion
 
         var cacheEntry = _policyCache.GetCertificateRequestPolicy(template.Name);
