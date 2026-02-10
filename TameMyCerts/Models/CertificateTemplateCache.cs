@@ -48,10 +48,16 @@ internal sealed class CertificateTemplateCache
             using var templateBaseKey =
                 machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
 
-            if (templateBaseKey == null || templateBaseKey.SubKeyCount == 0)
+            byte[] timestamp = (byte[])(templateBaseKey?.GetValue("TimeStamp"));
+            byte[] timestampAfter = (byte[])(templateBaseKey?.GetValue("TimeStampAfter"));
+
+            if (templateBaseKey == null || !timestamp.SequenceEqual(timestampAfter) || timestampAfter == null)
             {
                 // There might be rare cases where the key is deleted and rebuilt by the AutoEnrollment process at the 
                 // very time we try to refresh the cache. In this case, we skip one interval and retry next time.
+
+                // Added additional checks to determine if cache update is occuring using the TimeStamp and TimeStampAfter registry values
+
                 SetNextRefreshTime();
                 return;
             }
