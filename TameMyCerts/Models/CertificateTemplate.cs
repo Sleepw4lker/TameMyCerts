@@ -16,7 +16,7 @@ using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
 
-internal class CertificateTemplate
+internal record CertificateTemplate
 {
     public CertificateTemplate(string name, bool enrolleeSuppliesSubject, KeyAlgorithmType keyAlgorithm,
         bool userScope = false, string oid = null)
@@ -26,6 +26,19 @@ internal class CertificateTemplate
         EnrolleeSuppliesSubject = enrolleeSuppliesSubject;
         UserScope = userScope;
         KeyAlgorithm = keyAlgorithm;
+
+        KeyAlgorithmFamily = KeyAlgorithm switch
+        {
+            KeyAlgorithmType.DSA => KeyAlgorithmFamily.DSA,
+            KeyAlgorithmType.ECDH_P256 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ECDH_P384 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ECDH_P521 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ECDSA_P256 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ECDSA_P384 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ECDSA_P521 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.RSA => KeyAlgorithmFamily.RSA,
+            _ => KeyAlgorithmFamily.UNKNOWN
+        };
     }
 
     public string Name { get; }
@@ -33,23 +46,5 @@ internal class CertificateTemplate
     public bool EnrolleeSuppliesSubject { get; }
     public bool UserScope { get; }
     public KeyAlgorithmType KeyAlgorithm { get; }
-
-    public KeyAlgorithmFamily KeyAlgorithmFamily
-    {
-        get
-        {
-            switch (KeyAlgorithm)
-            {
-                case KeyAlgorithmType.DSA: return KeyAlgorithmFamily.DSA;
-                case KeyAlgorithmType.ECDH_P256: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.ECDH_P384: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.ECDH_P521: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.ECDSA_P256: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.ECDSA_P384: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.ECDSA_P521: return KeyAlgorithmFamily.ECC;
-                case KeyAlgorithmType.RSA: return KeyAlgorithmFamily.RSA;
-                default: return KeyAlgorithmFamily.UNKNOWN;
-            }
-        }
-    }
+    public KeyAlgorithmFamily KeyAlgorithmFamily { get; }
 }
