@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using CERTCLILib;
 using CERTENROLLLib;
 using TameMyCerts.ClassExtensions;
@@ -34,14 +33,12 @@ internal class CertificateDatabaseRow
         KeyLength = serverPolicy.GetLongCertificatePropertyOrDefault("PublicKeyLength");
         PublicKey = serverPolicy.GetBinaryCertificatePropertyOrDefault("RawPublicKey");
         RawRequest = serverPolicy.GetBinaryRequestPropertyOrDefault("RawRequest");
+        RawName = serverPolicy.GetBinaryRequestPropertyOrDefault("Request.RawName");
         RequestID = serverPolicy.GetLongRequestPropertyOrDefault("RequestID");
         RequesterName = serverPolicy.GetStringRequestPropertyOrDefault("RequesterName");
         RequestType = serverPolicy.GetLongRequestPropertyOrDefault("RequestType") ^ CertCli.CR_IN_FULLRESPONSE;
         Upn = serverPolicy.GetStringCertificatePropertyOrDefault("UPN") ?? string.Empty;
-        DistinguishedName = serverPolicy.GetStringRequestPropertyOrDefault("Request.DistinguishedName") ??
-                            string.Empty;
         CertificateTemplate = serverPolicy.GetStringCertificatePropertyOrDefault("CertificateTemplate");
-
         RequestAttributes = serverPolicy.GetRequestAttributes();
         CertificateExtensions = serverPolicy.GetCertificateExtensions();
         KeyAlgorithm =
@@ -66,9 +63,8 @@ internal class CertificateDatabaseRow
                 CertificateExtensions = certificateRequestPkcs10.GetRequestExtensions();
                 KeyAlgorithm = certificateRequestPkcs10.GetKeyAlgorithm();
                 KeyLength = certificateRequestPkcs10.PublicKey.Length;
-                DistinguishedName = certificateRequestPkcs10.GetSubjectDistinguishedName();
-                SubjectRelativeDistinguishedNames =
-                    DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
+                RawName = Convert.FromBase64String(certificateRequestPkcs10.Subject.EncodedName);
+                SubjectRelativeDistinguishedNames = InlineSubjectRelativeDistinguishedNames;
                 SubjectAlternativeNameExtension = GetSubjectAlternativeNameExtension();
                 PublicKey = Convert.FromBase64String(certificateRequestPkcs10.PublicKey.EncodedKey);
                 RawRequest = Convert.FromBase64String(certificateRequestPkcs10.get_RawData());
@@ -90,6 +86,9 @@ internal class CertificateDatabaseRow
         RequestID = requestId;
     }
 
+    /// <summary>
+    ///     The NotBefore Date as read from the CA database record.
+    /// </summary>
     public DateTimeOffset NotBefore { get; }
 
     /// <summary>
@@ -153,22 +152,20 @@ internal class CertificateDatabaseRow
     public string Upn { get; } = string.Empty;
 
     /// <summary>
-    ///     The Subject Distinguished name as comma-separated string.
-    /// </summary>
-    public string DistinguishedName { get; }
-
-    /// <summary>
     ///     The identifier for the certificate template used. V1 templates are identified by their name, V2 and higher
     ///     templates are identified by their OID.
     /// </summary>
     public string CertificateTemplate { get; }
 
     /// <summary>
-    ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There
-    ///     are rare cases in which it is not possible to parse the inline request. The property returns an empty collection in
-    ///     this case.
+    ///     Raw binary public key as read from the certificate request.
     /// </summary>
     public byte[] PublicKey { get; }
+
+    /// <summary>
+    ///     Raw binary Subject Distinguished Name as read from the certificate request.
+    /// </summary>
+    public byte[] RawName { get; }
 
     /// <summary>
     ///     Inline request attributes (like process name). These are read on-demand from the inline certificate request. There
@@ -204,7 +201,7 @@ internal class CertificateDatabaseRow
     ///     The Subject RDNs taken from the inline certificate request, which may become useful when requesting custom RDNs.
     /// </summary>
     public List<KeyValuePair<string, string>> InlineSubjectRelativeDistinguishedNames =>
-        DistinguishedName.Equals(string.Empty) ? [] : GetDnComponents(DistinguishedName);
+        X509DistinguishedNameParser.Parse(RawName);
 
     /// <summary>
     ///     A list of all identities contained in the certificate request (containing Subject and SAN). In case of an online
@@ -234,20 +231,13 @@ internal class CertificateDatabaseRow
 
     private static KeyAlgorithmFamily GetKeyAlgorithmFamily(string oid)
     {
-        switch (oid)
+        return oid switch
         {
-            case WinCrypt.szOID_RSA_RSA:
-                return KeyAlgorithmFamily.RSA;
-
-            case WinCrypt.szOID_X957_DSA:
-                return KeyAlgorithmFamily.DSA;
-
-            case WinCrypt.szOID_ECC_PUBLIC_KEY:
-                return KeyAlgorithmFamily.ECC;
-
-            default:
-                return KeyAlgorithmFamily.UNKNOWN;
-        }
+            WinCrypt.szOID_RSA_RSA => KeyAlgorithmFamily.RSA,
+            WinCrypt.szOID_X957_DSA => KeyAlgorithmFamily.DSA,
+            WinCrypt.szOID_ECC_PUBLIC_KEY => KeyAlgorithmFamily.ECC,
+            _ => KeyAlgorithmFamily.UNKNOWN
+        };
     }
 
     private X509CertificateExtensionSubjectAlternativeName GetSubjectAlternativeNameExtension()
@@ -266,174 +256,6 @@ internal class CertificateDatabaseRow
         {
             throw new Exception("Unable to parse the Subject Alternative Name certificate request extension.");
         }
-    }
-
-    private static string SubstituteRdnTypeAliases(string rdnType)
-    {
-        // Convert all known aliases used by the Microsoft API to the "official" name as specified in ITU-T X.520 and/or RFC 4519
-        // https://www.itu.int/itu-t/recommendations/rec.aspx?rec=X.520
-        // https://datatracker.ietf.org/doc/html/rfc4519#section-2
-
-        // Here are some sources the used list is based on
-        // https://www.gradenegger.eu/?p=2717
-        // https://docs.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-certstrtonamea
-        // https://docs.microsoft.com/en-us/openspecs/sharepoint_protocols/ms-osco/dbdc3411-ed0a-4713-a01b-1ae0da5e75d4
-
-        var key = rdnType.ToUpperInvariant();
-
-        return RdnTypes.ShortToLongName.GetValueOrDefault(key, rdnType);
-    }
-
-    // If the Subject RDN contains quotes or special characters, the IX509CertificateRequest interface escapes these with quotes
-    // As this messes up our comparison logic, we must remove the additional quotes
-    private static string RemoveQuotesFromSubjectRdn(string rdn)
-    {
-        if (rdn.Length == 0)
-        {
-            return rdn;
-        }
-
-        // Not in quotes, nothing to do
-        if (rdn[0] != '"' && rdn[^1] != '"')
-        {
-            return rdn;
-        }
-
-        // Skip first and last char, then remove every 2nd quote
-
-        const char quoteChar = '\"';
-        var inQuotedString = false;
-        var stringBuilder = new StringBuilder();
-
-        for (var i = 1; i < rdn.Length - 1; i++)
-        {
-            var currentChar = rdn[i];
-
-            if (currentChar == quoteChar)
-            {
-                if (!inQuotedString)
-                {
-                    stringBuilder.Append(currentChar);
-                }
-
-                inQuotedString = !inQuotedString;
-            }
-            else
-            {
-                stringBuilder.Append(currentChar);
-            }
-        }
-
-        return stringBuilder.ToString();
-    }
-
-    private static List<KeyValuePair<string, string>> GetDnComponents(string distinguishedName)
-    {
-        // Licensed to the .NET Foundation under one or more agreements.
-        // The .NET Foundation licenses this file to you under the MIT license.
-
-        // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
-
-        var components = SplitSubjectDn(distinguishedName, ',');
-        var dnComponents = new List<KeyValuePair<string, string>>();
-
-        if (components.Length == 0)
-        {
-            return dnComponents;
-        }
-
-        for (var i = 0; i < components.GetLength(0); i++)
-        {
-            var subComponents = SplitSubjectDn(components[i], '=');
-
-            if (subComponents.GetLength(0) != 2)
-            {
-                throw new ArgumentException();
-            }
-
-            var key = SubstituteRdnTypeAliases(subComponents[0].Trim());
-            var value = RemoveQuotesFromSubjectRdn(subComponents[1].Trim());
-
-            if (key.Length > 0)
-            {
-                dnComponents.Add(new KeyValuePair<string, string>(key, value));
-            }
-            else
-            {
-                throw new ArgumentException();
-            }
-        }
-
-        return dnComponents;
-    }
-
-    private static string[] SplitSubjectDn(string distinguishedName, char delimiter)
-    {
-        // Licensed to the .NET Foundation under one or more agreements.
-        // The .NET Foundation licenses this file to you under the MIT license.
-
-        // https://github.com/dotnet/corefx/blob/c539d6c627b169d45f0b4cf1826b560cd0862abe/src/System.DirectoryServices/src/System/DirectoryServices/ActiveDirectory/Utils.cs#L440-L449
-
-        var resultList = new List<string>();
-
-        if (string.IsNullOrEmpty(distinguishedName))
-        {
-            return resultList.ToArray();
-        }
-
-        var inQuotedString = false;
-        const char quoteChar = '\"';
-        const char escapeChar = '\\';
-        var nextTokenStart = 0;
-
-        for (var i = 0; i < distinguishedName.Length; i++)
-        {
-            var currentChar = distinguishedName[i];
-
-            switch (currentChar)
-            {
-                case quoteChar:
-
-                    inQuotedString = !inQuotedString;
-
-                    break;
-
-                case escapeChar:
-
-                    if (i < distinguishedName.Length - 1)
-                    {
-                        i++;
-                    }
-
-                    break;
-            }
-
-            if (!inQuotedString && currentChar == delimiter)
-            {
-                // we found an unquoted character that matches the delimiter
-                // split it at the delimiter (add the token that ends at this delimiter)
-                resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart));
-                nextTokenStart = i + 1;
-            }
-
-            if (i != distinguishedName.Length - 1)
-            {
-                continue;
-            }
-
-            // we've reached the end 
-
-            // if we are still in quoted string, the format is invalid
-            if (inQuotedString)
-            {
-                throw new ArgumentException();
-            }
-
-            // we need to end the last token
-            resultList.Add(distinguishedName.Substring(nextTokenStart, i - nextTokenStart + 1));
-        }
-
-        return resultList.ToArray();
     }
 
     private static void ReleaseComObject<T>(ref T comObj)
