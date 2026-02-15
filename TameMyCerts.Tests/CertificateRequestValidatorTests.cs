@@ -1212,7 +1212,7 @@ public class CertificateRequestValidatorTests
             result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
             Convert.ToBase64String(
                     result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
-                .Equals("MCiCGXF1YWxpZmllZC50YW1lbXljZXJ0cy5jb22CC3VucXVhbGlmaWVk"));
+                .Equals("MCiCC3VucXVhbGlmaWVkghlxdWFsaWZpZWQudGFtZW15Y2VydHMuY29t"));
     }
 
     [Fact]
@@ -1423,7 +1423,7 @@ public class CertificateRequestValidatorTests
             result.CertificateExtensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
             Convert.ToBase64String(
                     result.CertificateExtensions[WinCrypt.szOID_SUBJECT_ALT_NAME2])
-                .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE="));
+                .Equals("MCqHEAAAAAAAAAAAAAAAAAAAAAGHBMCoAAGCEHd3dy5hZGNzbGFib3IuZGU="));
     }
 
     [Fact]

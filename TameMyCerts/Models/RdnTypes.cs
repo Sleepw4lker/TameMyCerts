@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 
 namespace TameMyCerts.Models;
@@ -35,69 +36,78 @@ internal static class RdnTypes
     public const string DeviceSerialNumber = "serialNumber";
     public const string DomainComponent = "domainComponent";
 
-    public static readonly Dictionary<string, string> NameProperty = new()
-    {
-        { Email, "Subject.Email" },
-        { CommonName, "Subject.CommonName" },
-        { Organization, "Subject.Organization" },
-        { OrgUnit, "Subject.OrgUnit" },
-        { Locality, "Subject.Locality" },
-        { State, "Subject.State" },
-        { Country, "Subject.Country" },
-        { Title, "Subject.Title" },
-        { GivenName, "Subject.GivenName" },
-        { Initials, "Subject.Initials" },
-        { SurName, "Subject.SurName" },
-        { StreetAddress, "Subject.StreetAddress" },
-        { UnstructuredName, "Subject.UnstructuredName" },
-        { UnstructuredAddress, "Subject.UnstructuredAddress" },
-        { DeviceSerialNumber, "Subject.DeviceSerialNumber" },
-        { DomainComponent, "Subject.DomainComponent" }
-    };
+    public static readonly IReadOnlyDictionary<string, string> NameProperty =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            { Email, "Subject.Email" },
+            { CommonName, "Subject.CommonName" },
+            { Organization, "Subject.Organization" },
+            { OrgUnit, "Subject.OrgUnit" },
+            { Locality, "Subject.Locality" },
+            { State, "Subject.State" },
+            { Country, "Subject.Country" },
+            { Title, "Subject.Title" },
+            { GivenName, "Subject.GivenName" },
+            { Initials, "Subject.Initials" },
+            { SurName, "Subject.SurName" },
+            { StreetAddress, "Subject.StreetAddress" },
+            { UnstructuredName, "Subject.UnstructuredName" },
+            { UnstructuredAddress, "Subject.UnstructuredAddress" },
+            { DeviceSerialNumber, "Subject.DeviceSerialNumber" },
+            { DomainComponent, "Subject.DomainComponent" }
+        };
 
-    public static readonly Dictionary<string, int> LengthConstraint = new()
-    {
-        { Email, 128 },
-        { CommonName, 64 },
-        { Organization, 64 },
-        { OrgUnit, 64 },
-        { Locality, 128 },
-        { State, 128 },
-        { Country, 2 },
-        { Title, 64 },
-        { GivenName, 16 },
-        { Initials, 5 },
-        { SurName, 40 },
-        { StreetAddress, 30 },
-        { UnstructuredName, 1024 },
-        { UnstructuredAddress, 1024 },
-        { DeviceSerialNumber, 1024 },
-        { DomainComponent, 128 }
-    };
+    public static readonly IReadOnlyDictionary<string, int> LengthConstraint =
+        new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            { Email, 128 },
+            { CommonName, 64 },
+            { Organization, 64 },
+            { OrgUnit, 64 },
+            { Locality, 128 },
+            { State, 128 },
+            { Country, 2 },
+            { Title, 64 },
+            { GivenName, 16 },
+            { Initials, 5 },
+            { SurName, 40 },
+            { StreetAddress, 30 },
+            { UnstructuredName, 1024 },
+            { UnstructuredAddress, 1024 },
+            { DeviceSerialNumber, 1024 },
+            { DomainComponent, 128 }
+        };
 
-    public static readonly Dictionary<string, string> ShortToLongName = new()
-    {
-        { "C", Country },
-        { "CN", CommonName },
-        { "DC", DomainComponent },
-        { "E", Email },
-        { "L", Locality },
-        { "O", Organization },
-        { "OU", OrgUnit },
-        { "S", State },
-        { "G", GivenName },
-        { "I", Initials },
-        { "SN", SurName },
-        { "STREET", StreetAddress },
-        { "T", Title },
-        { "OID.1.2.840.113549.1.9.2", UnstructuredName },
-        { "OID.1.2.840.113549.1.9.8", UnstructuredAddress },
-        { "SERIALNUMBER", DeviceSerialNumber },
-        { "POSTALCODE", "postalCode" },
-        { "DESCRIPTION", "description" },
-        { "POBOX", "postOfficeBox" },
-        { "PHONE", "telephoneNumber" }
-    };
+    public static readonly IReadOnlyDictionary<string, string> OidToLongName =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            // X.520 core
+            ["2.5.4.6"] = Country,
+            ["2.5.4.3"] = CommonName,
+            ["2.5.4.7"] = Locality,
+            ["2.5.4.10"] = Organization,
+            ["2.5.4.11"] = OrgUnit,
+            ["2.5.4.8"] = State,
+            ["2.5.4.42"] = GivenName,
+            ["2.5.4.43"] = Initials,
+            ["2.5.4.4"] = SurName,
+            ["2.5.4.9"] = StreetAddress,
+            ["2.5.4.12"] = Title,
+            ["2.5.4.5"] = DeviceSerialNumber,
+
+            ["2.5.4.13"] = "description",
+            ["2.5.4.20"] = "telephoneNumber",
+            ["2.5.4.18"] = "postOfficeBox",
+            ["2.5.4.17"] = "postalCode",
+
+            // PKCS #9
+            ["1.2.840.113549.1.9.1"] = Email,
+            ["1.2.840.113549.1.9.2"] = UnstructuredName,
+            ["1.2.840.113549.1.9.8"] = UnstructuredAddress,
+
+            // Domain Component (RFC 4519)
+            ["0.9.2342.19200300.100.1.25"] = DomainComponent
+        };
 
     public static List<string> ToList()
     {
