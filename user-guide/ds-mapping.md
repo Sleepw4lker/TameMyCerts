@@ -63,9 +63,11 @@ Please be aware of the following limitations:
 
 By default, TameMyCerts resolves nested Group Memberships for mapped objects.
 
-This allows  to use the **primary group** of a mapped Active Directory object (e.g. `Domain Users`, `Domain Guests`) for use with the `AllowedSecurityGroups` and `DisallowedSecurityGroups` directives, and group memberships from any domain can be resolved.
+This allows to use the **primary group** of a mapped Active Directory object (e.g. `Domain Users`, `Domain Guests`) for use with the `AllowedSecurityGroups` and `DisallowedSecurityGroups` directives, and group memberships from any domain can be resolved.
 
 However, as TameMyCerts will use the `msds-TokenGroupNames` (<https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1d810083-9741-4b0a-999b-30d9f2bc1f95>) Active Directory Attribute, which is only available on Windows Server 2016 and newer Domain Controllers, if TameMyCerts cannot retrieve the `msds-TokenGroupNames` attribute for a mapped object, certificate requests will get denied due to security reasons.
+
+Also, bear in mind that due to the limitation of the `msds-TokenGroupNames` attribute, the list of group memberships will only contain groups of the **same Domain** the user is inside. Therefore, it is recommended to prefer a whitelisting approach to not miss out on any important group memberships that might not get resolved due to these limitations.
 
 ### Disabling resolving of nested Group Memberships
 

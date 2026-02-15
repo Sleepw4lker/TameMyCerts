@@ -48,8 +48,8 @@ internal sealed class CertificateTemplateCache
             using var templateBaseKey =
                 machineBaseKey.OpenSubKey("SOFTWARE\\Microsoft\\Cryptography\\CertificateTemplateCache");
 
-            byte[] timestamp = (byte[])(templateBaseKey?.GetValue("TimeStamp"));
-            byte[] timestampAfter = (byte[])(templateBaseKey?.GetValue("TimeStampAfter"));
+            var timestamp = (byte[])templateBaseKey?.GetValue("TimeStamp");
+            var timestampAfter = (byte[])templateBaseKey?.GetValue("TimeStampAfter");
 
             if (templateBaseKey == null || !timestamp.SequenceEqual(timestampAfter) || timestampAfter == null)
             {
