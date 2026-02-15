@@ -4,6 +4,8 @@
 
 Beginning with Version 1.8, TameMyCerts uses .NET 10.0 instead of the previously used .NET 8.0. Therefore, you must [install](#prerequisites) the .NET 10.0 Desktop runtime prior to installing the module.
 
+Uninstall the previous version first **with the installer that came with the old version**. Refer to [Uninstalling TameMyCerts](#uninstalling) for more detailed instructions. Afterwards, you can uninstall the old .NET runtime as well.
+
 ### Upgrading TameMyCerts to version 1.7
 
 Beginning with Version 1.7, TameMyCerts uses .NET 8.0 instead of the previously used .NET Framework 4.7.2. Therefore, you must [install](#prerequisites) the .NET 8.0 Desktop runtime prior to installing the module.
