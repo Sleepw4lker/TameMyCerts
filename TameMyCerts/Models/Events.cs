@@ -132,6 +132,23 @@ internal static class Events
         MessageText = LocalizedStrings.Events_REQUEST_CONTAINS_WARNINGS
     };
 
+
+    public static readonly Event REQUEST_DENIED_NO_POLICY_DIR = new()
+    {
+        Id = 15,
+        LogLevel = CertSrv.CERTLOG_ERROR,
+        Type = EventLogEntryType.Error,
+        MessageText = LocalizedStrings.Events_REQUEST_DENIED_NO_POLICY_DIR
+    };
+
+    public static readonly Event REQUEST_DENIED_INVALID_OID = new()
+    {
+        Id = 16,
+        LogLevel = CertSrv.CERTLOG_ERROR,
+        Type = EventLogEntryType.Error,
+        MessageText = LocalizedStrings.Events_REQUEST_DENIED_INVALID_OID
+    };
+
     public static readonly Event DEBUG = new()
     {
         Id = 99,

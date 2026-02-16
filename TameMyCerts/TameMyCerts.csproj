@@ -9,8 +9,13 @@
     <Description>A policy module that allows applying advanced rules to certificate requests.</Description>
     <Product>TameMyCerts</Product>
     <Copyright>Copyright © Uwe Gradenegger</Copyright>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <NoWarn>1701;1702;CA1416</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>true</Optimize>
     <NoWarn>1701;1702;CA1416</NoWarn>
   </PropertyGroup>
@@ -20,6 +25,9 @@
 		<RepositoryUrl>https://github.com/Sleepw4lker/TameMyCerts.git</RepositoryUrl>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <NoWarn>1701;1702;CA1416</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 	  <NoWarn>1701;1702;CA1416</NoWarn>
 	</PropertyGroup>
   <ItemGroup>
