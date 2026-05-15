@@ -36,6 +36,9 @@ internal record CertificateTemplate
             KeyAlgorithmType.ECDSA_P256 => KeyAlgorithmFamily.ECC,
             KeyAlgorithmType.ECDSA_P384 => KeyAlgorithmFamily.ECC,
             KeyAlgorithmType.ECDSA_P521 => KeyAlgorithmFamily.ECC,
+            KeyAlgorithmType.ML_DSA_44 => KeyAlgorithmFamily.MLDSA,
+            KeyAlgorithmType.ML_DSA_65 => KeyAlgorithmFamily.MLDSA,
+            KeyAlgorithmType.ML_DSA_87 => KeyAlgorithmFamily.MLDSA,
             KeyAlgorithmType.RSA => KeyAlgorithmFamily.RSA,
             _ => KeyAlgorithmFamily.UNKNOWN
         };

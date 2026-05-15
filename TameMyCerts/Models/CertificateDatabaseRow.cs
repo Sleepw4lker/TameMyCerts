@@ -236,6 +236,9 @@ internal class CertificateDatabaseRow
             WinCrypt.szOID_RSA_RSA => KeyAlgorithmFamily.RSA,
             WinCrypt.szOID_X957_DSA => KeyAlgorithmFamily.DSA,
             WinCrypt.szOID_ECC_PUBLIC_KEY => KeyAlgorithmFamily.ECC,
+            WinCrypt.szOID_NIST_ml_dsa_44 => KeyAlgorithmFamily.MLDSA,
+            WinCrypt.szOID_NIST_ml_dsa_65 => KeyAlgorithmFamily.MLDSA,
+            WinCrypt.szOID_NIST_ml_dsa_87 => KeyAlgorithmFamily.MLDSA,
             _ => KeyAlgorithmFamily.UNKNOWN
         };
     }

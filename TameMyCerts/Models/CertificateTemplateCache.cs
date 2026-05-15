@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Win32;
+using TameMyCerts.ClassExtensions;
 using TameMyCerts.Enums;
 
 namespace TameMyCerts.Models;
@@ -82,7 +83,7 @@ internal sealed class CertificateTemplateCache
                     templateSubKey.GetValue("msPKI-RA-Application-Policies") as string[] ?? [];
 
                 var templateOid =
-                    (templateSubKey.GetValue("msPKI-Cert-Template-OID") as string[] ?? [])[0];
+                    (templateSubKey.GetValue("msPKI-Cert-Template-OID") as string[] ?? [string.Empty])[0];
 
                 var schemaVersion = (int)templateSubKey.GetValue("msPKI-Template-Schema-Version", 1);
 
@@ -133,11 +134,11 @@ internal sealed class CertificateTemplateCache
 
     private static KeyAlgorithmType GetKeyAlgorithm(string keyAlgorithmString)
     {
-        foreach (var algorithmName in Enum.GetNames<KeyAlgorithmType>())
+        foreach (var (enumValue, algorithmName) in KeyAlgorithmTypeExtensions.GetAllAlgorithmsWithNames())
         {
             if (keyAlgorithmString.Contains($"msPKI-Asymmetric-Algorithm`PZPWSTR`{algorithmName}`"))
             {
-                return Enum.Parse<KeyAlgorithmType>(algorithmName);
+                return enumValue;
             }
         }
 

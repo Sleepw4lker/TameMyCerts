@@ -16,4 +16,7 @@ internal static class WinCrypt
     public const string szOID_AUTHORITY_INFO_ACCESS = "1.3.6.1.5.5.7.1.1";
     public const string szOID_PKIX_OCSP = "1.3.6.1.5.5.7.48.1";
     public const string szOID_PKIX_CA_ISSUERS = "1.3.6.1.5.5.7.48.2";
+    public const string szOID_NIST_ml_dsa_44 = "2.16.840.1.101.3.4.3.17";
+    public const string szOID_NIST_ml_dsa_65 = "2.16.840.1.101.3.4.3.18";
+    public const string szOID_NIST_ml_dsa_87 = "2.16.840.1.101.3.4.3.19";
 }
