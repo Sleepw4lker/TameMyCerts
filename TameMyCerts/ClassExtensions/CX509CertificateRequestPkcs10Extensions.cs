@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using CERTENROLLLib;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using CERTENROLLLib;
+using System.Security.Cryptography;
 using TameMyCerts.Enums;
 
 namespace TameMyCerts.ClassExtensions;
@@ -108,13 +109,16 @@ internal static class CX509CertificateRequestPkcs10Extensions
     public static KeyAlgorithmFamily GetKeyAlgorithm(
         this IX509CertificateRequestPkcs10 certificateRequestPkcs10)
     {
-        switch (certificateRequestPkcs10.PublicKey.Algorithm.Value)
+        return certificateRequestPkcs10.PublicKey.Algorithm.Value switch
         {
-            case WinCrypt.szOID_ECC_PUBLIC_KEY: return KeyAlgorithmFamily.ECC;
-            case WinCrypt.szOID_RSA_RSA: return KeyAlgorithmFamily.RSA;
-            case WinCrypt.szOID_X957_DSA: return KeyAlgorithmFamily.DSA;
-            default: return KeyAlgorithmFamily.UNKNOWN;
-        }
+            WinCrypt.szOID_RSA_RSA => KeyAlgorithmFamily.RSA,
+            WinCrypt.szOID_X957_DSA => KeyAlgorithmFamily.DSA,
+            WinCrypt.szOID_ECC_PUBLIC_KEY => KeyAlgorithmFamily.ECC,
+            WinCrypt.szOID_NIST_ml_dsa_44 => KeyAlgorithmFamily.MLDSA,
+            WinCrypt.szOID_NIST_ml_dsa_65 => KeyAlgorithmFamily.MLDSA,
+            WinCrypt.szOID_NIST_ml_dsa_87 => KeyAlgorithmFamily.MLDSA,
+            _ => KeyAlgorithmFamily.UNKNOWN
+        };
     }
 
     public static Dictionary<string, string> GetInlineRequestAttributeList(
