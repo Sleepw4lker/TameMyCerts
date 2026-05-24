@@ -25,6 +25,7 @@ internal class CertificateRequestPolicyCache
     private readonly Dictionary<string, CertificateRequestPolicyCacheEntry> _cache = new();
     private readonly Lock _lockObject = new();
     private readonly string _policyDirectory;
+    public bool PolicyDirectoryExists => Directory.Exists(_policyDirectory);
 
     public CertificateRequestPolicyCache(string policyDirectory)
     {

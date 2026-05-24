@@ -27,7 +27,7 @@ namespace TameMyCerts;
 
 [ComVisible(true)]
 [ClassInterface(ClassInterfaceType.None)]
-[ProgId("TameMyCerts.Policy")]
+[ProgId("CertificateAuthority_Default.Policy")]
 [Guid("432413c6-2e86-4667-9697-c1e038877ef9")] // must be distinct from PolicyManage Class
 public class Policy : ICertPolicy2
 {
@@ -135,6 +135,14 @@ public class Policy : ICertPolicy2
 
         result = _raValidator.VerifyRequest(result, dbRow, _caConfig);
 
+        var blockedOIDs = _caConfig.ReadBlockedOids();
+        if (blockedOIDs.Contains(template.Oid))
+        {
+            _logger.Log(Events.REQUEST_DENIED_INVALID_OID, requestId, template.Name);
+            return WinError.CERTSRV_E_TEMPLATE_DENIED;
+        }
+
+
         #endregion
 
         var cacheEntry = _policyCache.GetCertificateRequestPolicy(template.Name);
@@ -144,6 +152,13 @@ public class Policy : ICertPolicy2
             if (_caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY))
             {
                 _logger.Log(Events.REQUEST_DENIED_POLICY_NOT_FOUND, template.Name, requestId);
+                return WinError.NTE_FAIL;
+            }
+
+            // If Policy Directory does not exist and Flag TMC_DENY_IF_NO_POLICY_DIR is true, then raise error
+            if (!_policyCache.PolicyDirectoryExists && _caConfig.TmcFlags.HasFlag(TmcFlag.TMC_DENY_IF_NO_POLICY_DIR))
+            {
+                _logger.Log(Events.REQUEST_DENIED_NO_POLICY_DIR, template.Name, requestId);
                 return WinError.NTE_FAIL;
             }
 

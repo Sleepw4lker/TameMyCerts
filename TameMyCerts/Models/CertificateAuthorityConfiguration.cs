@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
 using CERTCLILib;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using TameMyCerts.ClassExtensions;
 using TameMyCerts.Enums;
 
@@ -51,6 +53,9 @@ internal class CertificateAuthorityConfiguration
         PolicyDirectory = (string)Registry.GetValue(activePolicyModuleRoot, "PolicyDirectory", Path.GetTempPath());
         EditFlags = (EditFlag)(int)Registry.GetValue(activePolicyModuleRoot, "EditFlags", 0);
         TmcFlags = (TmcFlag)(int)Registry.GetValue(activePolicyModuleRoot, "TmcFlags", 0);
+
+        _strConfig  = strConfig;
+        _appName    = appName;
     }
 
     // TODO: Merge the two testing constructors, move default values to Unit test project
@@ -96,6 +101,10 @@ internal class CertificateAuthorityConfiguration
     private int CaCertIndex { get; }
     private int CrlIndex { get; }
 
+    private readonly string _strConfig;
+
+    private readonly string _appName;
+
     public string ReplaceTokenValues(string input)
     {
         return input
@@ -110,4 +119,28 @@ internal class CertificateAuthorityConfiguration
             .Replace("%2", ServerShortName)
             .Replace("%1", ServerDnsName);
     }
+
+    // Read blacklist of OID
+    internal HashSet<string> ReadBlockedOids()
+    {
+        var policyModulesRoot = $"{CONFIG_ROOT}\\{_strConfig}\\PolicyModules";
+        var activePolicyModuleName = (string)Registry.GetValue(policyModulesRoot, "Active", _appName);
+        var activePolicyModuleRoot = $"{policyModulesRoot}\\{activePolicyModuleName}";
+
+        var raw = Registry.GetValue(activePolicyModuleRoot, "BlockedOIDs", null);
+        if (raw == null) return new HashSet<string>();
+
+        IEnumerable<string> items = raw switch
+        {
+            string s => s.Split(new[] { ',', ';', '\r', '\n', '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries),
+            string[] a => a,
+            _ => Array.Empty<string>()
+        };
+
+        return items
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .ToHashSet();
+    }
+    
 }

@@ -604,9 +604,29 @@ namespace TameMyCerts {
         ///   Looks up a localized string similar to Request {0} will get denied. Unable to interpret policy for {1} because:
         ///{2}.
         /// </summary>
+        internal static string Events_REQUEST_DENIED_INVALID_OID {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_INVALID_OID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} will get denied. Unable to interpret policy for {1} because:
+        ///{2}.
+        /// </summary>
         internal static string Events_REQUEST_DENIED_NO_POLICY {
             get {
                 return ResourceManager.GetString("Events_REQUEST_DENIED_NO_POLICY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Request {0} will get denied. Unable to interpret policy for {1} because:
+        ///{2}.
+        /// </summary>
+        internal static string Events_REQUEST_DENIED_NO_POLICY_DIR {
+            get {
+                return ResourceManager.GetString("Events_REQUEST_DENIED_NO_POLICY_DIR", resourceCulture);
             }
         }
         
