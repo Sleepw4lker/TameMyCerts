@@ -102,6 +102,10 @@ public class CertificateRequestPolicy
     [XmlArrayItem(ElementName = "CustomCertificateExtension")]
     public List<CustomCertificateExtension> CustomCertificateExtensions { get; set; } = new();
 
+    [XmlArray(ElementName = "TimeWindows")]
+    [XmlArrayItem(ElementName = "TimeWindow")]
+    public List<TimeWindow> TimeWindows { get; set; } = new();
+
     private static string ConvertToHumanReadableXml(string inputString)
     {
         var xmlWriterSettings = new XmlWriterSettings

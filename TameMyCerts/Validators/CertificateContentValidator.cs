@@ -221,6 +221,15 @@ internal class CertificateContentValidator
 
         #endregion
 
+        #region Process custom time windows
+
+        if (policy.TimeWindows.Any(x => x != null))
+        {
+            result.NotAfter = ScheduleSelector.GetPreviousRandomOccurrence(policy.TimeWindows, dbRow.NotAfter);
+        }
+
+        #endregion
+
         return result;
     }
 }

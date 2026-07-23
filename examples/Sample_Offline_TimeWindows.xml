@@ -1,0 +1,40 @@
+<!--
+  This is an example for an offline certificate template.
+  We ensure that it will expire during business hours.
+-->
+<CertificateRequestPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <--
+  We allow every CN for the sake of demonstrating the TimeWindows feature below
+  -->
+  <Subject>
+    <SubjectRule>
+      <Field>commonName</Field>
+      <Mandatory>true</Mandatory>
+      <MaxOccurrences>1</MaxOccurrences>
+      <MaxLength>64</MaxLength>
+      <Patterns>
+        <Pattern>
+          <Expression>^.*$</Expression>
+        </Pattern>
+      </Patterns>
+    </SubjectRule>
+  </Subject>
+  <!--
+  The NotAfter (expiration) date of the issued certificate will be placed in the time window defined below 
+  that is closest to the expiration date calculated by the CA server process
+  This way, we can ensure that certificates expire within business/support hours, and react in case of a forgotten renewal
+  -->
+  <TimeWindows>
+    <TimeWindow>
+      <Day>Monday</Day>
+      <Start>09:00:00</Start>
+      <End>17:00:00</End>
+    </TimeWindow>
+    <TimeWindow>
+      <Day>Wednesday</Day>
+      <Start>09:00:00</Start>
+      <End>17:00:00</End>
+    </TimeWindow>
+  </TimeWindows>
+</CertificateRequestPolicy>
