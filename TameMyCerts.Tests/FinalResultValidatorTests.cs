@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 
 public class FinalResultValidatorTests
 {
+    private readonly ITestOutputHelper _output;
     private readonly CertificateRequestPolicy _policy;
     private readonly string _request;
     private readonly FinalResultValidator _validator = new();
-    private readonly ITestOutputHelper _output;
 
     public FinalResultValidatorTests(ITestOutputHelper output)
     {
-        this._output = output;
+        _output = output;
         // 2048 Bit RSA Key
         // CN=,C=DE
         _request =

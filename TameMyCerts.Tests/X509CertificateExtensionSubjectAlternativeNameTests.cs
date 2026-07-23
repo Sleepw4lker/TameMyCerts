@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using TameMyCerts.Models;
 using TameMyCerts.X509;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using TameMyCerts.X509;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace TameMyCerts.Tests;
 

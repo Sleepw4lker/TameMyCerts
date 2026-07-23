@@ -8,7 +8,6 @@ using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 using Xunit;
-using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
@@ -243,18 +242,18 @@ public class YubikeyValidatorTests
         _listener = new ETWLoggerListener();
 
         _ykValidator = new YubikeyValidator([
-                new X509Certificate2(Convert.FromBase64String(GetStringFromResource(
+                X509CertificateLoader.LoadCertificate(Convert.FromBase64String(GetStringFromResource(
                     "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_PIV_Root_CA_Serial_263751.cer"))),
-                new X509Certificate2(Convert.FromBase64String(
+                X509CertificateLoader.LoadCertificate(Convert.FromBase64String(
                     GetStringFromResource(
                         "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_Attestation_Root_1.cer")))
             ],
             new X509Certificate2Collection(
                 new X509Certificate2[2]
                 {
-                    new(Convert.FromBase64String(GetStringFromResource(
+                    X509CertificateLoader.LoadCertificate(Convert.FromBase64String(GetStringFromResource(
                         "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_Attestation_Intermediate_B_1.cer"))),
-                    new(Convert.FromBase64String(
+                    X509CertificateLoader.LoadCertificate(Convert.FromBase64String(
                         GetStringFromResource(
                             "TameMyCerts.Tests.Resources.YubiKeyValidator.Yubico_PIV_Attestation_B_1.cer")))
                 }
@@ -986,7 +985,7 @@ public class YubikeyValidatorTests
             "Lll4MgW1VoV1rvRDpfoX5Jykn5Ao3l6Mer5cuJq7Yk2DTkYS15w87jAnB3zBih+i" +
             "/aY3jWWr21/DWk19wAU3RxwGXJ9WIQErkeX/iOzH2nxIc/odCw==";
 
-        var validator = new YubikeyValidator([new X509Certificate2(Convert.FromBase64String(testCa))]);
+        var validator = new YubikeyValidator([X509CertificateLoader.LoadCertificate(Convert.FromBase64String(testCa))]);
 
         _listener.ClearEvents();
 
