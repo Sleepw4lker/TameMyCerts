@@ -175,8 +175,12 @@ Filtering on Organizational Unit placement of a mapped object:
 ```xml
 <DirectoryServicesMapping>
   <!-- other directives have been removed for this example -->
-  <AllowedOrganizationalUnits>OU=some-allowed-OU,DC=tamemycerts,DC=local</AllowedOrganizationalUnits>
-  <DisallowedOrganizationalUnits>OU=some-disallowed-OU,DC=tamemycerts,DC=local</DisallowedOrganizationalUnits>
+  <AllowedOrganizationalUnits>
+    <string>OU=some-allowed-OU,DC=tamemycerts,DC=local</string>
+  </AllowedOrganizationalUnits>
+  <DisallowedOrganizationalUnits>
+    <string>OU=some-disallowed-OU,DC=tamemycerts,DC=local</string>
+  </DisallowedOrganizationalUnits>
 </DirectoryServicesMapping>
 ```
 
