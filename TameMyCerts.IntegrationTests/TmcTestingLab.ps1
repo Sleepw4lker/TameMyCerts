@@ -249,6 +249,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
         Import-CertificateTemplate -File $FilePath -TemplateName $TemplateName
         Grant-CertificateTemplatePermission -Name $TemplateName
     }
+
+    Grant-CertificateTemplatePermission -Name "WebServer"
     
     Write-Verbose -Message "Updating caches"
     
@@ -280,6 +282,8 @@ Invoke-LabCommand -ActivityName 'Setting up Lab Environment' -ComputerName $Doma
         Write-Verbose -Message "Binding $TemplateName to CA"
         Add-CATemplate -Name $TemplateName -Force
     }
+
+    Add-CATemplate -Name "WebServer" -Force
     
     # endregion
     
