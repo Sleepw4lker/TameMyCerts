@@ -2,6 +2,14 @@
 
 > TameMyCerts has evolved into a reliable, secure and stable enterprise product. Many organizations around the world are relying on it to improve their security and their PKI workflows. Professional development, testing and documentation consumes a considerable amount of time and resources. Whilst still being fully committed on keeping source code available for the community, _digitally signed binaries_, a _print-optimized documentation_ and _priority support_ are benefits **only available for customers with an active maintenance contract**.
 
+### Version 1.9.x
+
+_This version was not yet released._
+
+- Implement support for ML-DSA key algorithm.
+- Implement `TMC_HIDE_POLICY_MODULE_NAME` global flag. When enabled, the "GetDescription" method will return the name of the Windows default policy module, to decept that a custom policy module is in use on the CA.
+- Implement support to configure moving certificate expiration date in specified `TimeWindows` (#102).
+
 ### Version 1.8.1871.683
 
 _This version was released on Feb 15, 2026._
