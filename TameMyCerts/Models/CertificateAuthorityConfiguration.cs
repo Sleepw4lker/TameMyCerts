@@ -26,7 +26,7 @@ internal class CertificateAuthorityConfiguration
     private const string CONFIG_ROOT =
         "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration";
 
-    public CertificateAuthorityConfiguration(string strConfig, string appName)
+    public CertificateAuthorityConfiguration(string appName)
     {
         var serverPolicy = new CCertServerPolicy();
         serverPolicy.SetContext(0);
@@ -37,20 +37,23 @@ internal class CertificateAuthorityConfiguration
 
         // TODO: Use registry only for the properties that cannot ready directly from CCertServerPolicy
 
+        var strConfig = (string)Registry.GetValue(CONFIG_ROOT, "Active", string.Empty);
         var serverRoot = $"{CONFIG_ROOT}\\{strConfig}";
         var policyModulesRoot = $"{serverRoot}\\PolicyModules";
 
         var activePolicyModuleName = (string)Registry.GetValue(policyModulesRoot, "Active", appName);
         var activePolicyModuleRoot = $"{policyModulesRoot}\\{activePolicyModuleName}";
 
-        LogLevel = (int)Registry.GetValue($"{serverRoot}", "LogLevel", CertSrv.CERTLOG_WARNING);
-        Type = (CaType)(int)Registry.GetValue($"{serverRoot}", "CAType", (int)CaType.ENUM_STANDALONE_ROOTCA);
+        LogLevel = (int)(Registry.GetValue($"{serverRoot}", "LogLevel", CertSrv.CERTLOG_WARNING) ??
+                         CertSrv.CERTLOG_WARNING);
+        Type = (CaType)(int)(Registry.GetValue($"{serverRoot}", "CAType", (int)CaType.ENUM_STANDALONE_ROOTCA) ??
+                             (int)CaType.ENUM_STANDALONE_ROOTCA);
         ServerDnsName = (string)Registry.GetValue(serverRoot, "CAServerName", string.Empty);
         CaName = (string)Registry.GetValue(serverRoot, "CommonName", string.Empty);
         ConfigurationContainer = (string)Registry.GetValue(serverRoot, "DSConfigDN", string.Empty);
         PolicyDirectory = (string)Registry.GetValue(activePolicyModuleRoot, "PolicyDirectory", Path.GetTempPath());
-        EditFlags = (EditFlag)(int)Registry.GetValue(activePolicyModuleRoot, "EditFlags", 0);
-        TmcFlags = (TmcFlag)(int)Registry.GetValue(activePolicyModuleRoot, "TmcFlags", 0);
+        EditFlags = (EditFlag)(int)(Registry.GetValue(activePolicyModuleRoot, "EditFlags", 0) ?? 0);
+        TmcFlags = (TmcFlag)(int)(Registry.GetValue(activePolicyModuleRoot, "TmcFlags", 0) ?? 0);
     }
 
     // TODO: Merge the two testing constructors, move default values to Unit test project

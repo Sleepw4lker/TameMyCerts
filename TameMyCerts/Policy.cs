@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using CERTCLILib;
+using CERTPOLICYLib;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using CERTCLILib;
-using CERTPOLICYLib;
 using TameMyCerts.ClassExtensions;
 using TameMyCerts.Enums;
 using TameMyCerts.Models;
@@ -32,6 +34,7 @@ namespace TameMyCerts;
 public class Policy : ICertPolicy2
 {
     private readonly string _appName;
+    private readonly string _appDisplayName;
     private readonly string _appVersion;
     private readonly CertificateContentValidator _ccValidator = new();
     private readonly CertificateRequestValidator _crValidator = new();
@@ -56,6 +59,20 @@ public class Policy : ICertPolicy2
 
         _appVersion = ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(
             typeof(AssemblyFileVersionAttribute))).Version;
+
+        _caConfig = new CertificateAuthorityConfiguration(_appName);
+
+        if (_caConfig.TmcFlags.HasFlag(TmcFlag.TMC_HIDE_POLICY_MODULE_NAME))
+        {
+            // Retrieves the localized variant of "Windows default"
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "certpdef.dll");
+            var versionInfo = FileVersionInfo.GetVersionInfo(path);
+            _appDisplayName = versionInfo.FileDescription;
+        }
+        else
+        {
+            _appDisplayName = _appName;
+        }
     }
 
     #endregion
@@ -73,12 +90,11 @@ public class Policy : ICertPolicy2
 
     public string GetDescription()
     {
-        return _appName;
+        return _appDisplayName;
     }
 
     public void Initialize(string strConfig)
     {
-        _caConfig = new CertificateAuthorityConfiguration(strConfig, _appName);
         _logger = new Logger(_appName, _caConfig.LogLevel);
         _policyCache = new CertificateRequestPolicyCache(_caConfig.PolicyDirectory);
 

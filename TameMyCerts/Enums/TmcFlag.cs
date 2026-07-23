@@ -22,5 +22,10 @@ public enum TmcFlag : uint
     ///     Causes Directory Service Validator to not perform nested group searching, which may come at the cost of additional load
     ///     on Domain Controllers. Also, all Domain Controllers must be Windows Server 2016 or newer for revolving of nested group memberships to work.
     /// </summary>
-    TMC_DONT_RESOLVE_NESTED_GROUP_MEMBERSHIPS = 0x4
+    TMC_DONT_RESOLVE_NESTED_GROUP_MEMBERSHIPS = 0x4,
+
+    /// <summary>
+    ///     When this flag is set, the Policy Module won't return its own name but the localized name of the Windows default policy module.
+    /// </summary>
+    TMC_HIDE_POLICY_MODULE_NAME = 0x8
 }
