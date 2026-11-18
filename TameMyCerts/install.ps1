@@ -11,7 +11,7 @@
     .PARAMETER Uninstall
     Call this if you want to uninstall the module.
 #>
-[cmdletbinding()]
+[cmdletbinding(DefaultParameterSetName='Install')]
 param(
     [ValidateScript({Test-Path -Path $_})]
     [Parameter(ParameterSetName="Install", Mandatory=$True)]
